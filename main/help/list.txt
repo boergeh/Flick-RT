@@ -1,0 +1,12 @@
+
+Examples:
+
+flick list --precision function.txt 4 4
+
+      List tabulated x and y values in function.txt with 4 significant figures in
+      both x and y.
+
+
+flick list --xy function.txt
+
+      List tabulated x and y vales in function.txt without header text.

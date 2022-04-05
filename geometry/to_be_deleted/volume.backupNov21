@@ -1,0 +1,299 @@
+#ifndef optics_library_volume
+#define optics_library_volume
+
+#include <stdexcept>
+#include "boundary.hpp"
+
+namespace optics_library {
+namespace geometry {
+
+  class volume
+  // A volume is confind by its boundary, and can have several other
+  // volumes inside, which again can have volumes inside, forming a
+  // tree structure
+  {
+    std::string name_;
+    boundary boundary_;
+    volume* outer_volume_; 
+    std::vector<std::shared_ptr<volume>> inner_volumes_;
+  private:
+    void write(std::ostream& os=std::cout, size_t tree_depth=0) const {
+      os << name_ << ", " << inner_volumes_.size() << ", "<< boundary_;
+      os << '\n';
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	for (size_t j=0; j<=tree_depth; ++j)
+	  os << "  ";
+	os << "("<< tree_depth+1 <<","<< i << ") ";
+	inner_volumes_[i]->write(os,tree_depth+1);
+      }
+    }
+  protected:
+    volume(const boundary& b, const std::string& name) : 
+      boundary_{b}, name_{name}, outer_volume_{NULL} {
+    }
+  public:
+    volume& insert(const volume& v) {
+      auto vp = std::shared_ptr<volume>(new volume(v));
+      for (size_t i=0; i < vp->inner_volumes_.size(); ++i) {
+	vp->inner_volumes_[i]->outer_volume_ = vp.get();
+      }
+      inner_volumes_.emplace_back(vp);
+      //inner_volumes_.emplace_back(std::shared_ptr<volume>(new volume(v)));
+      //for (size_t i=0; i<inner_volumes_.back()->inner_volumes_.size(); ++i) {
+      //inner_volumes_.back()->inner_volumes_[i]->outer_volume_=inner_volumes_.back().get();
+      //}
+      inner_volumes_.back()->outer_volume_ = this;
+      return *this;
+    }
+    volume& move_by(const vector& v) {
+      boundary_.move_by(v);
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	inner_volumes_[i]->move_by(v);
+      }
+      return *this;
+    }
+    volume& rotate_by(const quaternion& rotation) {
+      boundary_.rotate_by(rotation);
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	inner_volumes_[i]->rotate_by(rotation);
+      }
+      return *this;
+    }
+    friend std::ostream& operator<<(std::ostream &os, const volume& v) {
+      os << "(0,0) ";
+      v.write(os);
+      return os;
+    }
+    std::string name() const {
+      return name_;
+    }
+    size_t inner_volumes() const {
+      return inner_volumes_.size();
+    }
+    const volume& inner_volume(size_t n) const {
+      if (n >= inner_volumes_.size())
+	throw std::runtime_error("No volume inside this volume");
+      return *inner_volumes_[n];
+    }
+    const volume& outer_volume() const {
+      if (outer_volume_ == NULL)
+      	throw std::runtime_error("No volume outside this volume");
+      return *outer_volume_;
+    }
+    std::optional<size_t> closest_inner_volume(const pose& observer) const
+    // Closest inner volume number (if any) intersecting observer's
+    // z-axis.
+    {
+      std::optional<size_t> n{};
+      double d_min = std::numeric_limits<double>::max();
+      for (size_t i=0; i < inner_volumes_.size(); ++i) {
+	std::optional<pose> p = inner_volumes_[i]->boundary_.intersection(observer);
+	if (p.has_value()) {
+	  double d = norm((*p).position()-observer.position()); 
+	  if (d < d_min) {
+	    d_min = d;
+	    n = i;
+	  }
+	}
+      }
+      std::optional<pose> p = boundary_.intersection(observer);
+      if (p.has_value()) {
+	double d = norm((*p).position()-observer.position()); 
+	if (d < d_min) {
+	  throw std::runtime_error("Observer outside this volume");
+	}
+      }
+      return n;
+    }
+    pose intersection(const pose& observer) const
+    // Intersection between observer's z-axis and volume
+    // boundary. Returned pose includes needed rotation from global
+    // z-axis direction to surface normal at intersection point.
+    {
+      std::optional<size_t> n = closest_inner_volume(observer);
+      if (n.has_value())
+	return *inner_volumes_[*n]->boundary_.intersection(observer);
+      return *boundary_.intersection(observer);      
+    }
+    uniform_intersections get_uniform_intersections(size_t n_reflections) const {
+      double cs = boundary_.characteristic_size();
+      return uniform_intersections(boundary_, n_reflections, limits{cs*0.1,cs*100});
+    }
+  };
+  /*  
+  class volume
+  // A volume is confind by its boundary, and can have several other
+  // volumes inside, which again can have volumes inside, forming a
+  // tree structure
+  {
+    std::string name_;
+    boundary boundary_;
+    volume* outer_volume_; 
+    //std::vector<volume> inner_volumes_;
+  private:
+    void write(std::ostream& os=std::cout, size_t tree_depth=0) const {
+      os << name_ << ", " << inner_volumes_.size() << ", "<< boundary_;
+      os << '\n';
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	for (size_t j=0; j<=tree_depth; ++j)
+	  os << "  ";
+	os << "("<< tree_depth+1 <<","<< i << ") ";
+	inner_volumes_[i].write(os,tree_depth+1);
+      }
+    }
+    void reasign_outer_volume_pointer() {
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	inner_volumes_[i].outer_volume_ = this;
+	inner_volumes_[i].reasign_outer_volume_pointer();
+      }
+    }
+  protected:
+    volume(const boundary& b, const std::string& name) : 
+      boundary_{b}, name_{name}, outer_volume_{NULL} {
+    }
+  public:
+    volume(const volume& v)
+    // Copy constructor defined because outer volume pointer
+    // must be reset when volume objects are copied to new memory
+    // addresses.
+    {
+      name_ = v.name_;
+      boundary_ = v.boundary_;
+      inner_volumes_ = v.inner_volumes_;
+      reasign_outer_volume_pointer();
+    }
+    volume& insert(const volume& v) {
+      inner_volumes_.emplace_back(v);
+      inner_volumes_.back().outer_volume_ = this;
+      return *this;
+    }
+    volume& move_by(const vector& v) {
+      boundary_.move_by(v);
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	inner_volumes_[i].move_by(v);
+      }
+      return *this;
+    }
+    volume& rotate_by(const quaternion& rotation) {
+      boundary_.rotate_by(rotation);
+      for (size_t i=0; i<inner_volumes_.size(); ++i) {
+	inner_volumes_[i].rotate_by(rotation);
+      }
+      return *this;
+    }
+    friend std::ostream& operator<<(std::ostream &os, const volume& v) {
+      os << "(0,0) ";
+      v.write(os);
+      return os;
+    }
+    std::string name() const {
+      return name_;
+    }
+    size_t inner_volumes() const {
+      return inner_volumes_.size();
+    }
+    const volume& inner_volume(size_t n) const {
+      if (n >= inner_volumes_.size())
+	throw std::runtime_error("No volume inside this volume");
+      return inner_volumes_.at(n);
+    }
+    const volume& outer_volume() const {
+      if (outer_volume_ == NULL)
+      	throw std::runtime_error("No volume outside this volume");
+      return *outer_volume_;
+    }
+    std::optional<size_t> closest_inner_volume(const pose& observer) const
+    // Closest inner volume number (if any) intersecting observer's
+    // z-axis.
+    {
+      std::optional<size_t> n{};
+      double d_min = std::numeric_limits<double>::max();
+      for (size_t i=0; i < inner_volumes_.size(); ++i) {
+	std::optional<pose> p = inner_volumes_[i].boundary_.intersection(observer);
+	if (p.has_value()) {
+	  double d = norm((*p).position()-observer.position()); 
+	  if (d < d_min) {
+	    d_min = d;
+	    n = i;
+	  }
+	}
+      }
+      std::optional<pose> p = boundary_.intersection(observer);
+      if (p.has_value()) {
+	double d = norm((*p).position()-observer.position()); 
+	if (d < d_min) {
+	  throw std::runtime_error("Observer outside this volume");
+	}
+      }
+      return n;
+    }
+    pose intersection(const pose& observer) const
+    // Intersection between observer's z-axis and volume
+    // boundary. Returned pose includes needed rotation from global
+    // z-axis direction to surface normal at intersection point.
+    {
+      std::optional<size_t> n = closest_inner_volume(observer);
+      if (n.has_value())
+	return *inner_volumes_[*n].boundary_.intersection(observer);
+      return *boundary_.intersection(observer);      
+    }
+    uniform_intersections get_uniform_intersections(size_t n_reflections) const {
+      double cs = boundary_.characteristic_size();
+      return uniform_intersections(boundary_, n_reflections, limits{cs*0.1,cs*100});
+    }
+  };
+  */
+  class cube : public volume {
+  public:
+    cube(double side):
+      volume(cubical_boundary(side),"cube") {
+    }
+  };
+  class sphere : public volume {
+  public:
+    sphere(double radius):
+      volume(spherical_boundary(radius),"sphere") {
+    }
+  };
+
+  
+  class navigator {
+    const volume* v_;
+  public:
+    navigator(const volume& v) : v_{&v}{}
+    const volume& go_inward(size_t n=0) {
+      v_ = &v_->inner_volume(n);
+      return *v_;
+    }
+    const volume& go_outward() {
+      v_ = &v_->outer_volume();
+      return *v_;
+    }
+    const volume& go_to(const std::string& name) {
+      // should be tested better?
+      if (v_->name()==name)
+	return *v_;
+      for (size_t i=0; i<v_->inner_volumes(); ++i) {
+	go_inward(i);
+	go_to(name);
+      }
+      return *v_;
+    }
+    const volume& current_volume() {
+      return *v_;
+    }
+    const volume& next_volume(const pose& observer) const {
+      std::optional<size_t> n = v_->closest_inner_volume(observer);
+      if (n.has_value())
+	return v_->inner_volume(*n);
+      return v_->outer_volume();
+    }
+    pose next_intersection(const pose& observer) {
+      return v_->intersection(observer);
+    }
+    
+  };
+  
+}
+}
+#endif
