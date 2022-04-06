@@ -10,7 +10,7 @@ t:
 	cd geometry; make t
 	cd material; make t
 	cd transporter; make t
-	cd main; make t
+#	cd main; make t
 c:	
 	cd numeric; make c
 	cd geometry; make c

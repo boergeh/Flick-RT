@@ -1,7 +1,21 @@
 #include "material.hpp"
 namespace flick {
   begin_test_case(material_test) {
-    water w(pl_function{35});
+    water w;
+    w.wavelength(500e-9);
+    check_close(w.abs_coef(),0.02,5);
+    w.salinity(pl_function{35});
+    w.temperature({273});
+    check_close(w.abs_coef(),0.021,2);
+    w.wavelength(835e-9);
+    check_close(w.abs_coef(),2.99,1);
+    w.salinity(pl_function{0});
+    check_close(w.abs_coef(),3.02,1);
+    w.temperature({273+30});
+    check_close(w.abs_coef(),3.47,1);
+    
+    //w.temperature({273});
+    //check_close(w.abs_coef(),0.02,1);
     /*
     pp_function fm = read<pp_function>("/material/water/temperature_correction.txt");
     fm.scale_x(1e-9);

@@ -10,6 +10,7 @@
 
 namespace flick {
   class material {
+  protected:
     pe_function temperature_{constants::T_stp};
   public:
     void temperature(const pe_function& t) {
@@ -34,8 +35,11 @@ namespace flick {
     pl_function salinity_correction_;
     const double pope_fry_temperature_{295};
     const std::string path_{"/material/water_input"};
+    double z_{0};
+    double wl_{500e-9};
+    pl_function salinity_psu_{0};
   public:
-    water(const pl_function& salinity_psu=pl_function{0}) {
+    water() {
      absorption_coefficient_ = read<pp_function>
        (path_+"/absorption_coefficient.txt"); 
      refractive_index_ = read<pp_function>
@@ -49,20 +53,20 @@ namespace flick {
      temperature_correction_.add_extrapolation_points(0);
      salinity_correction_.add_extrapolation_points(0);
     }
-    double absorption_coefficient() {
-      /*
-      double T = temperature_.value(height);
-      double S = salinity_.value(height);
+    void z_position(double z) {z_ = z;}
+    void wavelength(double wl) {wl_ = wl;}
+    void salinity(const pl_function& s) {salinity_psu_ = s;}
+    double abs_coef() {
+      double T = temperature_.value(z_);
+      double S = salinity_psu_.value(z_);
       double delta_T = T - pope_fry_temperature_;
       double delta_S = S;
-      double da_dT = temperature_correction_.value(wl);
-      double da_dS = salinity_correction_.value(wl);
-      double a0 = absorption_coefficient_.value(wavelength_);
+      double da_dT = temperature_correction_.value(wl_);
+      double da_dS = salinity_correction_.value(wl_);
+      double a0 = absorption_coefficient_.value(wl_);
       return a0 + da_dT * delta_T + da_dS * delta_S;
-      */
-      return 0;
     }
-    double scattering_coefficient() {
+    double scat_coef() {
       return 0;
     }
   };
