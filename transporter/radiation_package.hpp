@@ -86,7 +86,7 @@ namespace flick {
       pose_.rotate_to(direction);
       return *this;
     }
-    pose pose(){
+    pose get_pose(){
       return pose_;
     }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
