@@ -9,7 +9,6 @@ int main() {
   t.include<emitter_test>("emitter_test");
   t.include<receiver_test>("receiver_test");
   t.include<content_test>("content_test");
-
   t.run_test_cases();
   return 0;
 }

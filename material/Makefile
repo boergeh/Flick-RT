@@ -1,11 +1,11 @@
-all:	b t
+all:	build test
 
-b:	
-	cd gas; make b
-	clang++ -std=c++20 -o test_all test_all.cpp
-t:
-	cd gas; make t
-	./test_all
-c:
-	cd gas; make c
+build:	
+	cd gas; make build
+	$(FLICK_COMPILER) -o test_all test_all.cpp
+test:
+	@cd gas; make test
+	@./test_all
+clean:
+	cd gas; make clean
 	rm -f ./test_all *~ ./water_input/*~

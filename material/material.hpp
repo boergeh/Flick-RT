@@ -6,7 +6,6 @@
 #include "../numeric/function.hpp"
 #include "../numeric/pose.hpp"
 #include "../environment/input_output.hpp"
-//#include <limits>
 
 namespace flick {
   class material {
@@ -53,9 +52,16 @@ namespace flick {
      temperature_correction_.add_extrapolation_points(0);
      salinity_correction_.add_extrapolation_points(0);
     }
-    void z_position(double z) {z_ = z;}
-    void wavelength(double wl) {wl_ = wl;}
-    void salinity(const pl_function& s) {salinity_psu_ = s;}
+    void z_orientation() {}
+    void z_position(double z) {
+      z_ = z;
+    }
+    void wavelength(double wl) {
+      wl_ = wl;
+    }
+    void salinity(const pl_function& s) {
+      salinity_psu_ = s;
+    }
     double abs_coef() {
       double T = temperature_.value(z_);
       double S = salinity_psu_.value(z_);
@@ -66,7 +72,9 @@ namespace flick {
       double a0 = absorption_coefficient_.value(wl_);
       return a0 + da_dT * delta_T + da_dS * delta_S;
     }
-    double scat_coef() {
+    double scat_coef()
+    {
+      // more to come
       return 0;
     }
   };

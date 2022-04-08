@@ -1,20 +1,20 @@
-all:	b t
-b:	
-	cd numeric; make b
-	cd geometry; make b
-	cd material; make b
-	cd transporter; make b
-	cd main; make b
-t:	
-	cd numeric; make t
-	cd geometry; make t
-	cd material; make t
-	cd transporter; make t
-#	cd main; make t
-c:	
-	cd numeric; make c
-	cd geometry; make c
-	cd material; make c
-	cd transporter; make c
-	cd main; make c
+all:	build test
+
+build:	
+	cd numeric; make build
+	cd geometry; make build
+	cd material; make build
+	cd transporter; make build
+	cd main; make build
+test:	
+	@cd numeric; make test
+	@cd geometry; make test
+	@cd material; make test
+	@cd transporter; make test
+clean:	
+	cd numeric; make clean
+	cd geometry; make clean
+	cd material; make clean
+	cd transporter; make clean
+	cd main; make clean
 	rm -f *~

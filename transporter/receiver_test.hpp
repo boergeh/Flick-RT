@@ -8,7 +8,7 @@ namespace flick {
       rp.rotate_to(dg.isotropic());
       re.receive(rp);
     }
-    std::cout << re;
+    //std::cout << re;
 				    
   } end_test_case()
 }

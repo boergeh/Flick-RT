@@ -43,8 +43,9 @@ namespace flick {
       throw std::invalid_argument(file+" could not be opened");
     ofs << std::setprecision(precision) << t;
     ofs.close();
-  }  
+  }
 }
+
 
 #endif
   

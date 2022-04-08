@@ -10,7 +10,6 @@
 int main() {
   using namespace flick;
   unit_test t("numeric");
-  auto start = std::chrono::steady_clock::now();
   t.include<sorted_vector_test>("sorted_vector_test");
   t.include<function_test>("function_test");
   t.include<direction_generator_test>("direction_generator_test");
@@ -19,8 +18,5 @@ int main() {
   t.include<pose_test>("pose_test");
   t.include<range_test>("range_test");
   t.run_test_cases();
-  auto end = std::chrono::steady_clock::now();
-  std::chrono::duration<double> duration = end-start;
-  std::cout << std::setprecision(2) << duration.count() << "s\n";
   return 0;
 }

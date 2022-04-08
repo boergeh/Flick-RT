@@ -1,6 +1,6 @@
-all:	b
+all:	build
 
-b:	
-	clang++ -std=c++20 -o flick flick.cpp
-c:
-	rm -f ./flick *~ ./help/*~
+build:
+	$(FLICK_COMPILER) -o flick flick.cpp
+clean:
+	@rm -f ./flick *~ ./help/*~

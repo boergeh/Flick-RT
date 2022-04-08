@@ -1,8 +1,8 @@
-all:	b t
+all:	build test
 
-b:	
-	clang++ -std=c++20 -o test_all test_all.cpp
-t:
-	./test_all
-c:
+build:
+	$(FLICK_COMPILER) -o test_all test_all.cpp
+test:
+	@./test_all
+clean:
 	rm -f ./test_all *~

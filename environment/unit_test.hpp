@@ -6,8 +6,20 @@
 #include <cmath>
 #include <memory>
 #include <vector>
+#include <chrono>
+#include <iomanip>
 
 namespace flick {
+  std::chrono::time_point<std::chrono::system_clock> time_1, time_2;
+  void start_time() {
+     time_1 = std::chrono::system_clock::now();
+  }
+  void show_time() {
+    time_2 = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = time_2 - time_1;
+    std::cout <<" - "<< std::setprecision(2) << duration.count() << " s\n";
+  }
+  
   class test_case {
     void write_begin() {
       std::cout << std::endl << " " << name_ << ": ";
@@ -81,11 +93,12 @@ namespace flick {
       test_cases_.push_back(std::make_shared<T>(name));
     }
     void run_test_cases() {
+      start_time();
       std::string s;
       if (test_cases_.size() > 1)
 	s = "s";
       std::cout << "Running " << test_cases_.size() << " test case"
-		<< s << " in " << name_ << " unit test" << std::endl;
+		<< s << " in " << name_ << " unit test:";
       int errors = 0;
       for (auto& current_case: test_cases_) {
 	current_case->print_progress();
@@ -101,7 +114,7 @@ namespace flick {
       else
 	ss << "no";
       ss << " error" << s << " in "
-	 << name_ << " unit test" << std::endl;
+	 << name_ << " unit test";
 
       std::string color_end = "\033[0m";
       std::string red_start = "\033[1;31m";
@@ -110,6 +123,7 @@ namespace flick {
 	std::cout << red_start << ss.str() << color_end;
       else
 	std::cout << green_start << ss.str() << color_end;
+      show_time();
     }
   };
 }
