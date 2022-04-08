@@ -35,7 +35,7 @@ namespace flick {
     //  return *this;
     // }
     
-    emitter& emitter(){return emitters_.at(0);}
+    emitter& get_emitter(){return emitters_.at(0);}
     
     
     friend std::ostream& operator<<(std::ostream &os, const content& c) {

@@ -33,7 +33,7 @@ namespace flick {
   
   class piecewise_linear : public basic_interpolation {
   public:
-    static step_type step_type() {
+    static step_type get_step_type() {
       return step_type::linear;
     }
     piecewise_linear(const point& low, const point& high)
@@ -69,7 +69,7 @@ namespace flick {
 
   class piecewise_exponential : public basic_interpolation {
   public:
-    static step_type step_type() {
+    static step_type get_step_type() {
       return step_type::linear;
     }
     piecewise_exponential(const point& low, const point& high)
@@ -108,7 +108,7 @@ namespace flick {
 
   class piecewise_power : public basic_interpolation {
   public:
-    static step_type step_type() {
+    static step_type get_step_type() {
       return step_type::exponential;
     }
     piecewise_power(const point& low, const point& high)
@@ -162,16 +162,16 @@ namespace flick {
     function(const std::vector<double>& xv, const std::vector<double>& yv)
       : xv_{xv}, yv_{yv} {
       ensure(xv.size()==yv.size() && xv.size() > 1);
-      xv_.set_step_type(Interpolation::step_type());
+      xv_.set_step_type(Interpolation::get_step_type());
     }
     void add_extrapolation_points(double weight=1) {
       ensure(xv_.size() > 1);
-      if (Interpolation::step_type()!=step_type::linear)
+      if (Interpolation::get_step_type()!=step_type::linear)
 	ensure(weight > 0);
       std::vector<double> xv = xv_.all_values();
       double dx_front = xv[1]-xv[0];
       double dx_back = xv[xv.size()-1]-xv[xv.size()-2];
-      if (Interpolation::step_type()!=step_type::linear) {
+      if (Interpolation::get_step_type()!=step_type::linear) {
 	dx_front = xv[0]*dx_front/xv[1];
 	dx_back = xv.back()*dx_back/xv.back();
       }

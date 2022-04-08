@@ -1,6 +1,8 @@
 namespace flick {
   namespace constants
   {
+    inline constexpr double pi = std::acos(-1);
+    
     // Boltzman constant (exact)
     inline constexpr double k_B = 1.380649e-23; // [J/K]
 

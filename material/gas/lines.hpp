@@ -2,7 +2,7 @@
 #define flick_lines
 
 #include <fstream>
-#include <numbers>
+//#include <numbers>
 #include "../../environment/input_output.hpp"
 #include "../../numeric/constants.hpp"
 #include "../../numeric/range.hpp"
@@ -107,9 +107,9 @@ namespace flick {
       double delta_air = lines_.at(line_number).line_shift;
       double gam = pow(T_ref/T,n_air)*(gam_air*(p-p_self)+gam_self*p_self);
       double nu_star = nu0+delta_air*p;
-      double f_L = gam/std::numbers::pi/(pow(gam,2)+pow(nu-nu_star,2));
+      double f_L = gam/constants::pi/(pow(gam,2)+pow(nu-nu_star,2));
       if (nu < 200) { // Van Vleck-Weisskopf lineshape
-	f_L = gam/std::numbers::pi*nu/nu0*
+	f_L = gam/constants::pi*nu/nu0*
 	  (1/(pow(gam,2)+pow(nu-nu_star,2))+1/(pow(gam,2)+pow(nu+nu_star,2)));
       }
       double cm2_to_m2 = 1e-4;
