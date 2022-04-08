@@ -171,8 +171,6 @@ namespace flick {
       std::vector<double> xv = xv_.all_values();
       double dx_front = xv[1]-xv[0];
       double dx_back = xv[xv.size()-1]-xv[xv.size()-2];
-      //double x_front = xv[0]-dx_front;
-      //double x_back = xv.back()+dx_back;
       if (Interpolation::step_type()!=step_type::linear) {
 	dx_front = xv[0]*dx_front/xv[1];
 	dx_back = xv.back()*dx_back/xv.back();

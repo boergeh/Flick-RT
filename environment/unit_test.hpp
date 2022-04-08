@@ -56,7 +56,7 @@ namespace flick {
     }
     void check_close(double value1, double value2, double percent, const std::string& s="") {
       double diff = fabs(value1/value2-1)*100;
-      if (!isfinite(diff) | (diff > percent)) {
+      if (!std::isfinite(diff) | (diff > percent)) {
 	write_begin();
 	std::cout <<  "\""<< s << "\" " << " the difference between "
 		  << value1 << " and " << value2 << " is " << diff
@@ -67,7 +67,7 @@ namespace flick {
       }
     }
     void check_small(double value, double accepted_distance, const std::string& s="") {
-      if (!isfinite(value) | (fabs(value) > accepted_distance)) {
+      if (!std::isfinite(value) | (fabs(value) > accepted_distance)) {
 	write_begin();
 	std::cout << "\""<< s << "\" " << value
 		  << " is further from zero than the accepted distance "
@@ -143,4 +143,4 @@ namespace flick {
     void test() {					\
       
 #define end_test_case()				\
-  }};						\
+  }};						

@@ -2,7 +2,7 @@
 #define flick_sorted_vector
 
 namespace flick {
-  enum class step_type{linear,exponential};
+  enum class step_type{linear, exponential};
   class sorted_vector
   {
     mutable size_t current_lookup_{0};
