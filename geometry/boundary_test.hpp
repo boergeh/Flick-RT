@@ -92,7 +92,7 @@ namespace flick {
     check_close(ui6.boundary_area(),4*pi*(1+pow(0.5,2)),9,"w");
     check_close(ui6.enclosed_volume(),4./3*pi*(1-pow(0.5,3)),9,"x");
 
-    write<uniform_intersections>(ui6,"boundary_view.txt");
+    //write<uniform_intersections>(ui6,"boundary_view.txt");
 
     cubical_boundary cb{1};
     cb.move_by({1,0,0});
