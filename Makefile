@@ -23,7 +23,15 @@ clean:
 	rm -f *~
 
 check-env:
-ifndef FLICK_PATH
+ifndef FLICK_PATHH
+	@echo
+	@echo "Cannot find flick environmental variables."
 	@cat Prerequisites
+	@echo "Try again running make after updating your shell script."
+	@echo
 	@exit 1
 endif
+
+AA=$(shell echo $0)
+t:
+	echo $(AA)

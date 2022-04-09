@@ -1,12 +1,4 @@
 
-flick - Simulator of light transport in random media. The name is
-      inspired by flickering of a candle and the flick unit sometimes
-      used for spectral radiance, where one flick equals one watt per
-      steradian per square centimeter of surface per micrometer of
-      span in wavelength.
-
-Usage:
-
 flick help - Show this help text
 
 For more usage information write help followed by any of the following
