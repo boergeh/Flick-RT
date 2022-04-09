@@ -1,17 +1,17 @@
-Get Flick:
+
+Flick is a general model for light transport in random media
+
+Clone from GitLab with:
 git clone https://git.app.uib.no/Borge.Hamre/flick.git
 
+ 1. follow instructions in the Prerequisites file
 
-Set the following environmental variables in your shell script,
-e.g. .zshrc or .bashrc, replacing "your_path" with the path to where
-you have stored your copy of Flick.
+ 2. make          to compile and test
 
-export FLICK_PATH=$HOME/your_path/flick
-export PATH=$ACCURT_PATH/main:$RT_PATH/main:$PATH
-export FLICK_COMPILER="clang++ -std=c++20"
+ 3. flick help	  for further documentation and usage examples
 
 
-Write make to build and test Flick
-
-Write flick help for further information and usage examples
-
+The name Flick is inspired by flickering of a candle and the flick
+unit occasionally used for spectral radiance, where one flick equals one
+watt per steradian per square centimeter of surface per micrometer of
+span in wavelength.

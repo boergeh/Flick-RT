@@ -1,0 +1,18 @@
+
+Add the following three lines to your shell configuration script,
+e.g., .zshrc, .zprofile or .bashrc.
+
+ export FLICK_PATH=$HOME/your_path/flick
+ export FLICK_COMPILER="clang++ -std=c++20"
+ export PATH=$FLICK_PATH/main:$PATH
+
+Replace your_path with the path to where you have stored your copy of
+Flick. Change clang++ -std=c++20 if you want to use another compiler
+or add other compiler options, for example, "g++ -O2 -std=c++20".
+
+Then activate the changes by
+
+ source ~/.zshrc
+
+or source ~/.zprofile or source ~/.bashrc, depending on your choice of shell.
+

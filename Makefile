@@ -1,4 +1,7 @@
-all:	build test
+
+# Read README.md for information on compilation and running
+
+all:	check-env build test
 
 build:	
 	cd numeric; make build
@@ -18,3 +21,9 @@ clean:
 	cd transporter; make clean
 	cd main; make clean
 	rm -f *~
+
+check-env:
+ifndef FLICK_PATH
+	@cat Prerequisites
+	@exit 1
+endif
