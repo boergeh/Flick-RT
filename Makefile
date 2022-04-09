@@ -23,7 +23,7 @@ clean:
 	rm -f *~
 
 check-env:
-ifndef FLICK_PATHH
+ifndef FLICK_PATH
 	@echo
 	@echo "Cannot find flick environmental variables."
 	@cat Prerequisites
@@ -31,7 +31,3 @@ ifndef FLICK_PATHH
 	@echo
 	@exit 1
 endif
-
-AA=$(shell echo $0)
-t:
-	echo $(AA)
