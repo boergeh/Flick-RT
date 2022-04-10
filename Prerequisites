@@ -1,26 +1,25 @@
 
 Flick needs environmental variables to be set in your shell
-configuration script, e.g., .zprofile if you use zsh or
-.profile if you use bash. You can check what shell your are
+configuration script, e.g., .zprofile if you are using zsh or
+.profile if you are using bash. You can check what shell your are
 using with
 
  echo "$SHELL"
 
-For example, if use zsh, you can append the needed lines in .zprofile
-by running the following three commands
+For example, if you are using zsh, you can append the needed lines in
+.zprofile by running the following three commands
 
- echo "export FLICK_PATH=$HOME/flick" >> ~/.zprofile
- echo "export FLICK_COMPILER=\"clang++ -std=c++20\"" >> ~/.zprofile
- echo "export PATH=$FLICK_PATH/main:$PATH" >> ~/.zprofile
+ echo 'export FLICK_PATH=$HOME/flick' >> ~/.zprofile
+ echo 'export FLICK_COMPILER="clang++ -std=c++20"' >> ~/.zprofile
+ echo 'export PATH=$FLICK_PATH/main:$PATH' >> ~/.zprofile
 
-and activate the expanded script by
+and activate the .zprofile script by
 
  source ~/.zprofile
 
-In the commands above, change $HOME/flick to include the path to where
-you have stored your copy of Flick if it is not in your home
+In the export commands above, change $HOME/flick to include the path
+to where you have stored your copy of Flick if it is not in your home
 directory. If you want to change compiler or compiler options, replace
 "clang++ -std=c++20" with for example "g++ -O2 -std=c++20". You may of
-course also open and edit .zprofile with a text editor. For other
-shells, such as bash, or other desired shell scripts, replace .zprofile
-with e.g., ~/.profile.
+course also open and edit .zprofile with a text editor. If you are
+using bash, replace ~/.zprofile with ~/.profile. 
