@@ -10,10 +10,22 @@
 namespace flick {
   class material {
   protected:
-    pe_function temperature_{constants::T_stp};
+    pe_function temperature_{constants::T_ntp};
+    double wavelength_{500e-9};
+    double height_{0};
+    unit_vector direction_{0,0,1};
   public:
     void temperature(const pe_function& t) {
       temperature_ = t;
+    };
+    void wavelength(double wl) {
+      wavelength_ = wl;
+    };
+    void height(double h) {
+      height_ = h;
+    };
+    void direction(const unit_vector& d) {
+      direction_ = d;
     };
   };
   /*

@@ -6,7 +6,7 @@ namespace flick {
     std::string path;
     char *p = getenv("FLICK_PATH");
     if (p==NULL)
-      throw std::invalid_argument("FLICK_PATH not found. Set in e.g. .bashrc or .zshrc");
+      throw std::invalid_argument("FLICK_PATH not found. See Prerequisites");
     return std::string(p);
   }
 

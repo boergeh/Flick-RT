@@ -127,6 +127,7 @@ namespace flick {
 
   class unit_vector : public vector {
   public:
+    unit_vector() : vector{0,0,1} {}
     unit_vector(double theta, double phi)
       : vector{vector::from_spherical(1,theta,phi)} {}
     unit_vector(double x, double y, double z)

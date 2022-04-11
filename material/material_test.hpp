@@ -1,6 +1,16 @@
-#include "material.hpp"
+#include "water/pure_water.hpp"
 namespace flick {
   begin_test_case(material_test) {
+    rayleigh_mueller_matrix rmm_a{0,1};
+    check_close(rmm_a.element(0,0),1/(4*pi),1e-12);
+    rayleigh_mueller_matrix rmm_b{pi/2,1};
+    check_close(rmm_a.element(0,0),rmm_b.element(0,0),1e-12);
+    
+    
+    pure_water pw;
+    auto m = pw.mueller_matrix();
+    //std::cout << m.element(0,0);
+    /*
     water w;
     w.wavelength(500e-9);
     check_close(w.abs_coef(),0.02,5);
@@ -13,7 +23,7 @@ namespace flick {
     check_close(w.abs_coef(),3.02,1);
     w.temperature({273+30});
     check_close(w.abs_coef(),3.47,1);
-    
+    */
     //w.temperature({273});
     //check_close(w.abs_coef(),0.02,1);
     /*

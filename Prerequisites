@@ -4,7 +4,7 @@ configuration script, e.g., .zprofile if you are using zsh or
 .profile if you are using bash. You can check what shell your are
 using with
 
- echo "$SHELL"
+ echo $SHELL
 
 For example, if you are using zsh, you can append the needed lines in
 .zprofile by running the following three commands
