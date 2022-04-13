@@ -266,6 +266,19 @@ namespace flick {
 	it->move_to_next_bin();
       }      
     }
+    std::vector<double> accumulation() {
+      ensure(xv_.size()>1);
+      std::vector<double> a(xv_.size());
+      a[0] = 0;
+      double area = 0;
+      for (size_t i=0; i < xv_.size()-1; ++i) {
+	point p1 = {xv_[i], yv_[i]};
+	point p2 = {xv_[i+1], yv_[i+1]};
+	area += Interpolation{p1,p2}.integral(p1.x(), p2.x());
+	a[i+1] = area;
+      }
+      return a;
+    }
     friend std::ostream& operator<<(std::ostream &os,
 				    const function<Interpolation>& f) {
       os << f.header();
@@ -316,22 +329,10 @@ namespace flick {
 	throw std::invalid_argument("function");
     }
   };
-  /*
   template<class Interpolation>
-  function<Interpolation> add_extrapolation_points(function<Interpolation>& f,
-						   double dx_factor=0.05) {
-    std::vector<double> x = f.x();
-    std::vector<double> y = f.y();
-    function<Interpolation> g;
-    g.header(f.header());
-    g.append({x.at(0)*(1-dx_factor),y.at(0)});
-    for (size_t i = 0; i < x.size(); ++i) {
-      g.append({x[i],y[i]});
-    }
-    g.append({x.back()*(1+dx_factor),y.back()});
-    return g;
+  function<Interpolation> inverted_accumulation(function<Interpolation>& f) {
+    return function<Interpolation>{f.accumulation(),f.x()};
   }
-  */
   double significant_digits(double x, size_t n) {
     std::stringstream ss;
     ss << std::setprecision(n) << x;

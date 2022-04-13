@@ -121,6 +121,11 @@ namespace flick {
     check_small(fo.derivative(0),1e-12,"fob");
     check_small(fo.integral(-4,6),1e-12,"foc");
     check(fo.integral_limit_b(-4,10).has_value()==false,"fod");
-    
+
+    function<piecewise_linear> fp{{-1,0,1},{0,1,2}};
+    auto acc = fp.accumulation();
+    check_close(acc.back(),2,1e-12,"fpa");
+    auto ia = inverted_accumulation(fp);
+    check_close(ia.value(2),1,1e-12,"fpb");
   } end_test_case()
 }
