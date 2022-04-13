@@ -1,8 +1,20 @@
 
-flick help - Show this help text
+Get elaborated help by writing 'flick help' followed by any of the
+following commands:
 
-For more usage information write help followed by any of the following
-key words:
+  radiator	Radiation source spectra		
+  iop		Inherent optical properties of materials
 
-    list	Write file contents to screen
+Example:
+
+ flick help radiator
     
+
+Note:
+
+Unless other units are explicitly stated, Flick is always
+using SI units for input and output of physical values,
+https://en.wikipedia.org/wiki/International_System_of_Units.
+
+Flick screen output can be directed to a file with the '>' shell
+command, e.g.: flick radiator planck 10 > planck_spectrum.txt

@@ -1,0 +1,18 @@
+flick iop <parameters>
+
+parameters:
+
+  pure_water {type} <from wavelength> <to wavelength>
+  <number of wavelengths> [tempeature] [salinity in psu]
+
+    where {type} = absorption_length, scattering_length, or
+    refractive_index.
+
+Example:
+
+ flick iop pure_water absorption_length 400e-9 700e-9 10 273 35
+
+Remember: unless other units are explicitly stated, Flick is always
+using SI units for input and output of physical values,
+https://en.wikipedia.org/wiki/International_System_of_Units.
+

@@ -10,23 +10,23 @@
 namespace flick {
   class material {
   protected:
-    pe_function temperature_{constants::T_ntp};
+    pl_function temperature_{constants::T_ntp};
     double wavelength_{500e-9};
     double height_{0};
     unit_vector direction_{0,0,1};
   public:
-    void temperature(const pe_function& t) {
+    void temperature(const pl_function& t) {
       temperature_ = t;
-    };
+    }
     void wavelength(double wl) {
       wavelength_ = wl;
-    };
+    }
     void height(double h) {
       height_ = h;
-    };
+    }
     void direction(const unit_vector& d) {
       direction_ = d;
-    };
+    }
   };
   /*
   class gas : public material {
@@ -38,58 +38,6 @@ namespace flick {
     //}
   };
     */  
-
-  class water : public material {
-    pp_function absorption_coefficient_;
-    pp_function refractive_index_;
-    pl_function temperature_correction_;
-    pl_function salinity_correction_;
-    const double pope_fry_temperature_{295};
-    const std::string path_{"/material/water_input"};
-    double z_{0};
-    double wl_{500e-9};
-    pl_function salinity_psu_{0};
-  public:
-    water() {
-     absorption_coefficient_ = read<pp_function>
-       (path_+"/absorption_coefficient.txt"); 
-     refractive_index_ = read<pp_function>
-       (path_+"/refractive_index.txt"); 
-     temperature_correction_ = read<pl_function>
-       (path_+"/temperature_correction.txt"); 
-     salinity_correction_ = read<pl_function>
-       (path_+"/salinity_correction.txt");
-     absorption_coefficient_.add_extrapolation_points(1);
-     refractive_index_.add_extrapolation_points(1);
-     temperature_correction_.add_extrapolation_points(0);
-     salinity_correction_.add_extrapolation_points(0);
-    }
-    void z_orientation() {}
-    void z_position(double z) {
-      z_ = z;
-    }
-    void wavelength(double wl) {
-      wl_ = wl;
-    }
-    void salinity(const pl_function& s) {
-      salinity_psu_ = s;
-    }
-    double abs_coef() {
-      double T = temperature_.value(z_);
-      double S = salinity_psu_.value(z_);
-      double delta_T = T - pope_fry_temperature_;
-      double delta_S = S;
-      double da_dT = temperature_correction_.value(wl_);
-      double da_dS = salinity_correction_.value(wl_);
-      double a0 = absorption_coefficient_.value(wl_);
-      return a0 + da_dT * delta_T + da_dS * delta_S;
-    }
-    double scat_coef()
-    {
-      // more to come
-      return 0;
-    }
-  };
 
   
   /*  

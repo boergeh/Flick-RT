@@ -1,0 +1,18 @@
+flick radiator <parameters>
+
+parameters:
+
+  planck <temperature> <number of wavelengths>
+
+    Black-body irradiance spectrum versus wavelength radiated from a
+    surface with a given temperature and an emissivity of one. The
+    unit is W m^-3, following the SI-unit convection. 1 W m^-3
+    corresponds to 1e9 W m^-2 nm^-1.
+
+Example:
+
+  flick planck 6000 20
+
+Remember: unless other units are explicitly stated, Flick is always
+using SI units for input and output of physical values,
+https://en.wikipedia.org/wiki/International_System_of_Units.

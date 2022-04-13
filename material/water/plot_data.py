@@ -36,4 +36,4 @@ ax[0,1].set_xticks([1e-8, 1e-6, 1e-4, 1e-2, 1e0, 1e2])
 
 os.system('rm -f ./xy_tmp.txt')
 plt.show()
-fig.savefig("plot_data.pdf", bbox_inches='tight')
+#fig.savefig("plot_data.pdf", bbox_inches='tight')
