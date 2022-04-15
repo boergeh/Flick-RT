@@ -3,7 +3,7 @@ flick radiator <parameters>
 
 parameters:
 
-  planck <temperature> <number of wavelengths>
+  radiator planck <temperature> <number of wavelengths>
 
     Black-body irradiance spectrum versus wavelength radiated from a
     surface with a given temperature and an emissivity of one. The
@@ -12,7 +12,7 @@ parameters:
 
 Example:
 
-  flick planck 6000 20
+  flick radiator planck 6000 20
 
 Remember: unless other units are explicitly stated, Flick is always
 using SI units for input and output of physical values,

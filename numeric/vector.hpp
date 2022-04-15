@@ -5,9 +5,9 @@
 #include <valarray>
 #include <limits>
 #include <fstream>
+#include "constants.hpp"
 
 namespace flick {
-  const double pi = acos(-1);
   template<class T>
   void write(const T& obj, const std::string& fname, size_t precision=4) {
     std::ofstream os(fname);
@@ -59,7 +59,7 @@ namespace flick {
       	return 0;
       if (y_ > 0)
     	return acos(x_/hyp);
-      return 2*pi-acos(x_/hyp);
+      return 2*constants::pi-acos(x_/hyp);
     }
     vector& operator+=(const vector& v) {
       x_ += v.x();

@@ -6,6 +6,7 @@
 #include "../environment/input_output.hpp"
 #include "../material/water/pure_water.hpp"
 #include "../numeric/range.hpp"
+#include "../radiator/planck.hpp"
 
 using namespace flick;
 
@@ -22,14 +23,7 @@ void list_xy(std::string fname)
   for (size_t i=0; i < x.size(); ++i)
     std::cout << x[i] << " " << y[i] << '\n';
 }
-/*
-void help(const std::string& a) {
-  if (a=="help")
-    show("help.txt");
-  else if (a=="list")
-    show("list.txt");
-}
-*/
+
 void list(const std::vector<std::string>& a) {
   if (a.at(0)=="--precision")
     set_precision(a.at(1),std::stoi(a.at(2)),std::stoi(a.at(3)));
@@ -64,6 +58,36 @@ public:
 
 };
 
+struct help : public basic_run {
+  help():basic_run("help"){};
+  void run() {
+    if (a(1).empty())
+      show("help.txt");
+    else if (!a(1).empty()) {
+      try {
+	show(a(1)+".txt");
+      } catch (const std::exception& e) {
+	std::cout << "Cannot recognize '" + a(1) << "'." << std::endl;
+      }
+    } else {
+      error();
+    }
+  }
+};
+
+struct radiator : public basic_run {
+  radiator():basic_run("radiator"){};
+  void run() {
+    if (a(1)=="planck") {
+      double T = std::stod(a(2));
+      size_t n_points = std::stoi(a(3));
+      std::cout << planck(T).irradiance_spectrum(n_points);
+    } else {
+      error();
+    }
+  }
+};
+
 struct iop : public basic_run {
   iop():basic_run("iop"){};
   void run() {
@@ -83,29 +107,19 @@ struct iop : public basic_run {
   }
 };
 
-struct help : public basic_run {
-  help():basic_run("help"){};
-  void run() {
-    if (a(1).empty())
-      show("help.txt");
-    else if (!a(1).empty()) {
-      try {
-	show(a(1)+".txt");
-      } catch (const std::exception& e) {
-	std::cout << "Cannot recognize '" + a(1) << "'." << std::endl;
-      }
-    } else {
-      error();
-    }
-  }
-};
 
 template<typename Command>
 bool run(const std::vector<std::string>& args) {
   Command c;
   c.set_arguments(args);
   if (c.has_name(args.at(0))) {
-    c.run();
+    try {
+      c.run();
+    } catch (const flick::exception& e) {
+      std::cout << "\n Flick exception in " << e.what() << "\n\n";
+    } catch (const std::exception& e) {
+      std::cout << "\nc++ standard exception in " << e.what() << "\n\n";
+    }
     return true;
   }
   return false;
@@ -115,8 +129,9 @@ int main(int argc, char* argv[]) {
   const std::vector<std::string> a(argv + 1, argv + argc);
   if (a.empty()) {run<help>({"help"}); return 0;}
   if (run<help>(a)) return 0;
+  if (run<radiator>(a)) return 0;
   if (run<iop>(a)) return 0;
-  std::cout << "\nCannot recognize command. Try 'flick help'.\n" << std::endl;
+  std::cout << "\n Cannot recognize command. Try 'flick help'.\n" << std::endl;
   /*
   if (a.size()==0 || (a.size()==1 && a.at(0)=="help"))
     show("help.txt");

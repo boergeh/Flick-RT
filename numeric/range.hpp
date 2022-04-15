@@ -56,5 +56,18 @@ namespace flick {
       os << v[i] << " ";
     return os;
   }
+
+  /*
+  template<class Distribution>
+  std::vector<double> area_equal_x(size_t n_points) {
+    Distribution d;
+    std::vector<double> x(n_points);
+    std::vector<double> area_fraction = range(0,1,n_points+2).linear();
+    for (size_t i=0; i < n_points; ++i) {
+      x[i] = d.wavelength(area_fraction[i+1]);
+    }
+    return x;
+  }
+  */
 }
 #endif

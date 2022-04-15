@@ -1,3 +1,6 @@
+#ifndef flick_constants
+#define flick_constants
+
 namespace flick {
   namespace constants
   {
@@ -23,5 +26,10 @@ namespace flick {
 
     // Natural atmospheric temperature
     inline constexpr double T_ntp = 293.15; // [K]
+
+    // Stefan-Boltzmann constant
+    inline constexpr double sigma = 5.670374419184429453970996731889e-8; // [W/m^2/K^4]
   }
 }
+
+#endif

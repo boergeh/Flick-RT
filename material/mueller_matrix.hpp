@@ -26,7 +26,7 @@ namespace flick {
       double c = cos(angle);
       double s = sin(angle);
       double f = (1-depolarization)/(1+depolarization);
-      double k = 3/(3+f)*4./3*3/(16*pi);
+      double k = 3/(3+f)*4./3*3/(16*constants::pi);
       mm_[0][0] = k*(1+f*c*c);
       mm_[0][1] = -k*f*c*c;
       mm_[1][0] = -k*f*s*s;

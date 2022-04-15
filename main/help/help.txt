@@ -17,4 +17,4 @@ using SI units for input and output of physical values,
 https://en.wikipedia.org/wiki/International_System_of_Units.
 
 Flick screen output can be directed to a file with the '>' shell
-command, e.g.: flick radiator planck 10 > planck_spectrum.txt
+command, e.g.: flick radiator planck 5800 50 > planck_spectrum.txt

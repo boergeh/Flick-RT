@@ -266,6 +266,9 @@ namespace flick {
 	it->move_to_next_bin();
       }      
     }
+    double integral() {
+      return integral(xv_[0],xv_[xv_.size()-1]);
+    }
     std::vector<double> accumulation() {
       ensure(xv_.size()>1);
       std::vector<double> a(xv_.size());
