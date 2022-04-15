@@ -1,5 +1,6 @@
 #include "vector.hpp"
 namespace flick {
+  using namespace constants;
   begin_test_case(vector_test) {
     vector v = {1,0,0};
     vector v2 = v*4 + vector{-1,0,0}*4;

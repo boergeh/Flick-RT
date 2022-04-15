@@ -1,5 +1,6 @@
 #include "pose.hpp"
 namespace flick {
+  using namespace constants;
   begin_test_case(pose_test) {
     pose p;
     p.rotate_about({1,0,0},pi);

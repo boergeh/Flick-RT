@@ -1,6 +1,7 @@
 #include "direction_generator.hpp"
 
 namespace flick {
+  using namespace constants;
   begin_test_case(direction_generator_test) {
     direction_generator dg;
 
@@ -14,7 +15,7 @@ namespace flick {
     phi = dg.conic(2*pi,cone_direction).phi(); 
     check(theta >= 0 && theta <= pi);
     check(phi >= 0 && theta <= pi);
-        
+    
     unit_vector surface_normal = {pi,pi/3};
     theta = dg.lambertian(surface_normal).theta(); 
     phi = dg.lambertian(surface_normal).phi(); 

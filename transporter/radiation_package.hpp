@@ -4,6 +4,7 @@
 #include "../numeric/direction_generator.hpp"
 
 namespace flick {
+  using namespace constants;
   class stokes
   // see Wikipedia Stokes parameters
   {

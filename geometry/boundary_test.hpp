@@ -1,5 +1,6 @@
 #include "boundary.hpp"
 namespace flick {
+  using namespace constants;
   begin_test_case(boundary_test) {  
     using namespace geometry; 
     using namespace geometry::surface;

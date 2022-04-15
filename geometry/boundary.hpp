@@ -6,6 +6,7 @@
 
 namespace flick {
 namespace geometry {
+  using namespace constants;
   const bool inside_out{true};  
   class boundary
   // A boundary is built from one or more surfaces. The boundary has

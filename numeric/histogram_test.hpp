@@ -1,5 +1,6 @@
 #include "histogram.hpp"
 namespace flick {
+  using namespace constants;
   begin_test_case(histogram_test) {  
     equal_bins x_bins{-1, 1, 2};
     equal_bins y_bins{-1, 1, 3};
