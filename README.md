@@ -1,15 +1,20 @@
 
-Flick-RT is a general model for light transport in random media
+Flick RT (Flick for short) is a general code for radiative transfer in
+random media
 
 Clone from GitHub with:
-git clone https://github.com/boergeh/Flick-RT.git
+ git clone https://github.com/boergeh/Flick-RT.git
 
- 1. make          to compile and test
+ cd Flick-RT	to enter the Flick-RT directory
 
- 2. flick help	  for further documentation and usage examples
+ make		to compile and test
 
+ flick help	for further documentation and usage examples
 
-The name Flick-RT is inspired by flickering of a candle and the flick
+The first time Flick is compiled, you will be asked to set necessary
+environmental variables.
+
+The name 'Flick' is inspired by flickering of a candle and the flick
 unit occasionally used for spectral radiance, where one flick equals one
 watt per steradian per square centimeter of surface per micrometer of
 span in wavelength.
