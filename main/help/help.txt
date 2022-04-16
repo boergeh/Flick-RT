@@ -1,8 +1,7 @@
 
 Get elaborated help by writing 'flick help' followed by any of the
 following commands:
-
-  easter        Easter quiz for Linnea and Julian	  
+	  
   radiator	Radiation source spectra		
   iop		Inherent optical properties of materials
 

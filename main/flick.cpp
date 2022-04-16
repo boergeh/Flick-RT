@@ -92,18 +92,30 @@ struct iop : public basic_run {
   iop():basic_run("iop"){};
   void run() {
     if (a(1)=="pure_water") {
-      auto wls = range(std::stod(a(3)),std::stod(a(4)),std::stoi(a(5))).logspace();
+      double from_wl = std::stod(a(3));
+      double to_wl = std::stod(a(4));
+      double n_points = std::stod(a(5));	
+      double T = std::stod(a(6));	
+      double S = std::stod(a(7));	
+      auto wls = range(from_wl, to_wl, n_points).logspace();
       pure_water pw;
-      if (a(2)=="absorption_length") {
-	for (auto wl:wls) {
-	  pw.wavelength(wl);
-	  std::cout << std::setprecision(4) << wl << " "
-		    << 1/pw.absorption_coefficient() << '\n';
-	}
+      pw.temperature(T);
+      pw.salinity(S);
+      double value = 0;
+      for (auto wl:wls) {
+	pw.wavelength(wl);
+	if (a(2)=="absorption_length")
+	  value = 1/pw.absorption_coefficient();
+	else if (a(2)=="scattering_length")
+	  value = 1/pw.scattering_coefficient();
+	else if (a(2)=="refractive_index")
+	  value = pw.refractive_index();
+	else
+	  error();
+	std::cout << std::setprecision(4) << wl << " " << value << '\n';
       }
-    } else {
+    } else
       error();
-    }
   }
 };
 
