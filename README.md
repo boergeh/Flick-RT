@@ -1,5 +1,5 @@
 
-Flick RT (Flick for short) is a general code for radiative calculations.
+Flick RT (Flick for short) is a general code for radiative transfer calculations.
 
 Clone from GitHub with:  
  git clone https://github.com/boergeh/Flick-RT.git  
