@@ -4,20 +4,10 @@
 #include "../numeric/constants.hpp"
 #include "../numeric/function.hpp"
 #include "../numeric/range.hpp"
+#include "../environment/exception.hpp"
 
 namespace flick {
-  class exception : public std::exception
-  {
-    std::string message_;
-  public:
-    exception(const std::string& m) : message_{m}{};
-    const char* what() const throw ()
-    {
-      return message_.c_str();
-    }
-  };
-
-  // make radiator base class
+  // should make radiator base class
   
   class planck
   // Black-body irradiance spectrum

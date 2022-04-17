@@ -1,157 +1,41 @@
-#include <iostream>
-#include <fstream>
 #include <string>
-#include "../numeric/function.hpp"
-#include "../environment/input_output.hpp"
-#include "../environment/input_output.hpp"
-#include "../material/water/pure_water.hpp"
-#include "../numeric/range.hpp"
-#include "../radiator/planck.hpp"
+#include <vector>
 
-using namespace flick;
+#include "commands/help.hpp"
+#include "commands/radiator.hpp"
+#include "commands/iop.hpp"
+#include "commands/text.hpp"
 
-void set_precision(const std::string& fname, size_t nx, size_t ny)
-{
-  auto f = read<pp_function>(fname);
-  std::cout << significant_digits(f,nx,ny);
-}
-void list_xy(std::string fname)
-{
-  auto f = read<pl_function>("./"+fname);
-  auto x = f.x();
-  auto y = f.y();
-  for (size_t i=0; i < x.size(); ++i)
-    std::cout << x[i] << " " << y[i] << '\n';
-}
-
-void list(const std::vector<std::string>& a) {
-  if (a.at(0)=="--precision")
-    set_precision(a.at(1),std::stoi(a.at(2)),std::stoi(a.at(3)));
-  else if (a.at(0)=="--xy")
-    list_xy(a.at(1));
-}
-
-class basic_run {
-  std::vector<std::string> arguments_;
-  std::string name_;
-public:
-  basic_run(std::string name) : name_{name}{}
-  std::string a(size_t n) {
-    if (n >= arguments_.size())
-      return "";
-    return arguments_.at(n);
-  }
-  void set_arguments(const std::vector<std::string>& args) {
-    arguments_ = args;
-  }
-  bool has_name(const std::string& name) {
-    return (name_ == name);
-  }
-  void error() {
-    std::cout << "\nCannot recognize "+name_+
-    " arguments. Try 'flick help "+name_+"'.\n" << std::endl;  
-  }
-  void show(const std::string& fname) {
-    auto t = read<text>("main/help/"+fname);
-    std::cout << t << std::endl;  
-  }
-
-};
-
-struct help : public basic_run {
-  help():basic_run("help"){};
-  void run() {
-    if (a(1).empty())
-      show("help.txt");
-    else if (!a(1).empty()) {
+namespace flick {
+  template<typename Command>
+  bool run(const std::vector<std::string>& args) {
+    Command c;
+    c.set_arguments(args);
+    if (!args.empty() && c.has_name(args.at(0))) {
       try {
-	show(a(1)+".txt");
+	c.run();
+      } catch (const flick::exception& e) {
+	std::cout << "\n Flick exception in " << e.what() << "\n\n";
       } catch (const std::exception& e) {
-	std::cout << "Cannot recognize '" + a(1) << "'." << std::endl;
+	std::cout << "\n c++ standard exception: " << e.what() << "\n\n";
+      } catch (...) {
+	std::cout << "\n Unknown exception" << "\n\n";
       }
-    } else {
-      error();
+      return true;
     }
+    return false;
   }
-};
-
-struct radiator : public basic_run {
-  radiator():basic_run("radiator"){};
-  void run() {
-    if (a(1)=="planck") {
-      double T = std::stod(a(2));
-      size_t n_points = std::stoi(a(3));
-      std::cout << planck(T).irradiance_spectrum(n_points);
-    } else {
-      error();
-    }
-  }
-};
-
-struct iop : public basic_run {
-  iop():basic_run("iop"){};
-  void run() {
-    if (a(1)=="pure_water") {
-      double from_wl = std::stod(a(3));
-      double to_wl = std::stod(a(4));
-      double n_points = std::stod(a(5));	
-      double T = std::stod(a(6));	
-      double S = std::stod(a(7));	
-      auto wls = range(from_wl, to_wl, n_points).logspace();
-      pure_water pw;
-      pw.temperature(T);
-      pw.salinity(S);
-      double value = 0;
-      for (auto wl:wls) {
-	pw.wavelength(wl);
-	if (a(2)=="absorption_length")
-	  value = 1/pw.absorption_coefficient();
-	else if (a(2)=="scattering_length")
-	  value = 1/pw.scattering_coefficient();
-	else if (a(2)=="refractive_index")
-	  value = pw.refractive_index();
-	else
-	  error();
-	std::cout << std::setprecision(4) << wl << " " << value << '\n';
-      }
-    } else
-      error();
-  }
-};
-
-template<typename Command>
-bool run(const std::vector<std::string>& args) {
-  Command c;
-  c.set_arguments(args);
-  if (c.has_name(args.at(0))) {
-    try {
-      c.run();
-    } catch (const flick::exception& e) {
-      std::cout << "\n Flick exception in " << e.what() << "\n\n";
-    } catch (const std::exception& e) {
-      std::cout << "\nc++ standard exception in " << e.what() << "\n\n";
-    }
-    return true;
-  }
-  return false;
 }
 
 int main(int argc, char* argv[]) {
+  using namespace flick;
   const std::vector<std::string> a(argv + 1, argv + argc);
-  if (a.empty()) {run<help>({"help"}); return 0;}
-  if (run<help>(a)) return 0;
-  if (run<radiator>(a)) return 0;
-  if (run<iop>(a)) return 0;
-  std::cout << "\n Cannot recognize command. Try 'flick help'.\n" << std::endl;
-  /*
-  if (a.size()==0 || (a.size()==1 && a.at(0)=="help"))
-    show("help.txt");
-  else if (a.at(0)=="help" && a.size()==2)
-    help(a.at(1));
-  else if (a.at(0)=="list")
-    list({a.begin()+1, a.end()});
-  else (a.at(0)=="list-xy")
-    list_xy(a.at(1));
-  */
+  if (a.empty()) {run<command::help>({"help"}); return 0;}
+  if (run<command::help>(a)) return 0;
+  if (run<command::radiator>(a)) return 0;
+  if (run<command::iop>(a)) return 0;
+  if (run<command::text>(a)) return 0;
+  std::cout << "\n Cannot recognize command. Try flick help.\n" << std::endl;
   return 0;
 }
+

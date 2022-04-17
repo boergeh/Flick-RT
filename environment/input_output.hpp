@@ -1,6 +1,10 @@
 #ifndef flick_input_output
 #define flick_input_output
 
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+
 namespace flick {
   std::string path() {
     std::string path;

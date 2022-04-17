@@ -1,0 +1,20 @@
+
+ flick text <parameters>
+
+parameters:
+
+  xy <file_with_tabulated_xy_data.txt>
+
+    List xy-values in a text file with two columns with xy-data. Any
+    header text will be omitted.
+
+
+  xy-precision <nx> <ny> <file_with_tabulated_xy_data.txt>
+
+    List xy-values with a given precision, where 'nx' and 'ny' are the
+    number of significant figures in x and y columns,
+    respectively. Header text will be included.
+
+Example:
+
+ flick text xy-precision 4 4 file_with_tabulated_xy_data.txt
