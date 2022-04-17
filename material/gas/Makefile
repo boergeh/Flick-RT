@@ -1,8 +1,22 @@
-all:	build test
+SRC      = $(wildcard *.cpp)
+OBJ      = $(SRC:.cpp=.o)
+DEP      = $(patsubst %.cpp,%.d,$(SRC))
+NAME     = $(SRC:.cpp=)
 
-build:
-	$(FLICK_COMPILER) -o test_all test_all.cpp
-test:
-	@./test_all
+all:	obj link test
+
 clean:
-	rm -f ./test_all *~
+	@rm -f $(OBJ) $(DEP) ./$(NAME) ./*~ ./obj
+link:
+	$(FLICK_COMPILER) -o $(NAME) $(OBJ)
+
+obj:	$(OBJ)
+
+test:
+	@./$(NAME)
+
+-include $(DEP) 
+
+%.o: %.cpp Makefile
+	$(FLICK_COMPILER) -MMD -MP -c $< -o $@
+

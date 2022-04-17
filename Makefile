@@ -4,12 +4,13 @@
 all:	check-env build test
 
 build:	
-	cd numeric; make build
-	cd geometry; make build
-	cd material; make build
-	cd transporter; make build
-	cd radiator; make build
-	cd main; make build
+	cd numeric; make obj link
+	cd geometry; make obj link
+	cd material; make obj link
+	cd material/gas; make obj link
+	cd transporter; make obj link
+	cd radiator; make obj link
+	cd main; make obj link
 test:	
 	@cd numeric; make test
 	@cd geometry; make test
@@ -28,9 +29,9 @@ clean:
 check-env:
 ifndef FLICK_PATH
 	@echo
-	@echo "Cannot find flick environmental variables."
+	@echo "Cannot find Flick RT environmental variables."
 	@cat Prerequisites
-	@echo "Try again running make after updating your shell script."
+	@echo "Try to run make again after updating your shell script."
 	@echo
 	@exit 1
 endif

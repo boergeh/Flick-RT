@@ -1,20 +1,20 @@
 
-Flick RT (Flick for short) is a general code for radiative transfer in
-random media
+Flick RT (Flick for short) is a general Monte Carlo code for radiative
+transfer in random media.  
 
-Clone from GitHub with:
- git clone https://github.com/boergeh/Flick-RT.git
+Clone from GitHub with:  
+ git clone https://github.com/boergeh/Flick-RT.git  
 
- cd Flick-RT	to enter the Flick-RT directory
+ cd Flick-RT	to enter the Flick-RT directory  
 
- make		to compile and test
+ make		to compile and test  
 
- flick help	for further documentation and usage examples
+ flick help	for further documentation and usage examples  
 
 The first time Flick is compiled, you will be asked to set necessary
-environmental variables.
+environmental variables.  
 
-The name 'Flick' is inspired by flickering of a candle and the flick
+The name Flick is inspired by flickering of a candle and the flick
 unit occasionally used for spectral radiance, where one flick equals one
 watt per steradian per square centimeter of surface per micrometer of
-span in wavelength.
+span in wavelength.  

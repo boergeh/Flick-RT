@@ -1,6 +1,6 @@
 #ifndef flick_function
 #define flick_function
-
+ 
 #include <optional>
 #include <sstream>
 #include <iomanip>
