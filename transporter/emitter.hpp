@@ -5,7 +5,6 @@
 #include <initializer_list>
 
 namespace flick {
-  
   class wavelength_distribution {
   protected:
     uniform_random ur_;
@@ -63,45 +62,35 @@ namespace flick {
   class emitter
   // Point radiometric device
   {
-    pose placement_;
+    vector position_;
     size_t total_packages_;
     size_t packages_left_;
     stokes initial_stokes_;
     std::shared_ptr<wavelength_distribution> wld_;
     std::shared_ptr<direction_distribution> dd_;
   public:
-    emitter(size_t packages, const stokes& initial_stokes)
-      : total_packages_{packages}, packages_left_{packages},
+    emitter(vector position, const stokes& initial_stokes, size_t packages)
+      : position_{position}, total_packages_{packages}, packages_left_{packages},
 	initial_stokes_{initial_stokes},
 	wld_{std::make_shared<monocromatic>(500e-9)},
 	dd_{std::make_shared<isotropic>()}
     {}
-    emitter& move_by(const vector& v) {
-      placement_.move_by(v);
-      return *this;
-    }   
-    emitter& rotate_by(const quaternion& rotation) {
-      placement_.rotate_by(rotation);
-      return *this;
-    }   
     template <class Wd, class... Args>
-    emitter& wavelength(Args... a) {
+    void set_wavelength(Args... a) {
       wld_ = std::make_shared<Wd>(a...);
-      return *this;
     }
     template <class Dd, class... Args>
-    emitter& direction(Args... a) {
+    void set_direction(Args... a) {
       dd_ = std::make_shared<Dd>(a...);
-      return *this;
     }   
-    emitter& refill() {
-      packages_left_ = total_packages_;
-      return *this;
+    void add_packages(size_t n) {
+      total_packages_ += n;
+      packages_left_ += n;
     }    
     radiation_package emit()
     {
       radiation_package rp(wld_->draw(), initial_stokes_);      
-      rp.move_to(placement_.position());
+      rp.move_to(position_);
       rp.rotate_to(dd_->draw());
       --packages_left_;
       return rp;
@@ -110,7 +99,7 @@ namespace flick {
       return packages_left_;
     }
     friend std::ostream& operator<<(std::ostream &os, const emitter& em) {
-      os << em.placement_ << " " << em.packages_left_ << " " << em.initial_stokes_;
+      os << em.position_ << " " << em.initial_stokes_  << " " << em.packages_left_;
       return os;
     }
   };

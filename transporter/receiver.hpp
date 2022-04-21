@@ -6,23 +6,12 @@
 
 namespace flick {
   class receiver
-  // Point device
   {
-    pose placement_;
     std::vector<radiation_package> rps_;
     //std::vector<histogram> stokes(4);
     //histogram traveling_length_;
     //histogram scattering_events_;
   public:
-    // receiver() : {}
-    receiver& move_by(const vector& v) {
-      placement_.move_by(v);
-      return *this;
-    }   
-    receiver& rotate_by(const quaternion& rotation) {
-      placement_.rotate_by(rotation);
-      return *this;
-    }   
     void receive(const radiation_package& rp) {
       rps_.emplace_back(rp);
     }
@@ -44,9 +33,8 @@ namespace flick {
 	os << rp << '\n';
       }
       return os;
-    }
-    
+    }    
   };
-
 }
+
 #endif

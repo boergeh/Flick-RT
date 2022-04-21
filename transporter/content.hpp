@@ -7,26 +7,23 @@
 #include "receiver.hpp"
 
 namespace flick {
-  
   class content
   {
     //coating* boundary_coating_;
     //material* filling_material_;
-    std::vector<emitter> emitters_;
+    std::vector<emitter> emitters_; // should not be vector
     std::vector<receiver> receivers_;
     // material_profile mf_;
   public:
     //content& insert(const emitter& em, const vector& relative_position) {
-    content& insert(const emitter& em) {
+    void insert(const emitter& em) {
       //em.move_to(relative_position);
       emitters_.emplace_back(em);
-      return *this;
     }
     //content& insert(const receiver& re, const vector& relative_position) {
-    content& insert(const receiver& re) {
+    void insert(const receiver& re) {
       //re.move_to(relative_position);
       receivers_.emplace_back(re);
-      return *this;
     }
     //    content& fill(const material& m, const profile& profile) {
     //   return *this;
