@@ -60,7 +60,7 @@ namespace flick {
     }
   };
 
-  struct radiation_package
+  class radiation_package
   // First stokes parameter is intensity weight. All radiation
   // variables may change during transport. All stokes
   // parameters have units of 'per solid angle'.
@@ -70,24 +70,25 @@ namespace flick {
     stokes stokes_;
     double traveling_length_{0};
     size_t scattering_events_{0};
+    //bool do_not_scatter_?
   public:
     radiation_package() = default;
     radiation_package(double wavelength, const stokes& s)
       : wavelength_{wavelength}, stokes_{s} {}
-    radiation_package& scale_intensity(double factor) {
+    void scale_intensity(double factor) {
       stokes_.I(stokes_.I()*factor);
-      return *this;
     }
-    radiation_package& move_to(const vector& position) {
+    void move_to(const vector& position) {
       pose_.move_to(position);
-      return *this;
     }
-    radiation_package& rotate_to(const unit_vector& direction) {//?? need more directional information
+    void rotate_to(const unit_vector& direction) {//?? need more directional information
       pose_.rotate_to(direction);
-      return *this;
     }
-    pose get_pose(){
+    auto pose(){
       return pose_;
+    }
+    auto wavelength() {
+      return wavelength_;
     }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
       os << rp.pose_ << " " << rp.wavelength_ << " " << rp.stokes_ << " "
