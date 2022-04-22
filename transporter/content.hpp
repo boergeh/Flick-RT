@@ -6,8 +6,7 @@
 #include "emitter.hpp"
 #include "receiver.hpp"
 
-namespace flick {
-  
+namespace flick {  
   class content
   {
     //coating* boundary_coating_;

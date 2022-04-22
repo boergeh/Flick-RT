@@ -4,13 +4,12 @@
 #include "../numeric/direction_generator.hpp"
 
 namespace flick {
-  using namespace constants;
   class stokes
   // see Wikipedia Stokes parameters
   {
     double I_{1}; 
     double psi_{0};
-    double xsi_{pi/2};
+    double xsi_{constants::pi/2};
     double p_{0};
   public:
     stokes() = default;
@@ -64,7 +63,7 @@ namespace flick {
   struct radiation_package
   // First stokes parameter is intensity weight. All radiation
   // variables may change during transport. All stokes
-  // parameters have units of per solid angle.
+  // parameters have units of 'per solid angle'.
   {
     pose pose_;
     double wavelength_{500e-9};

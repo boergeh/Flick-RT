@@ -5,7 +5,7 @@ namespace flick {
     //em.placement({{1,1,1},{0,0}});
     em.wavelength<monocromatic>(500e-9);
     em.direction<unidirectional>(unit_vector{0,0});
-    em.direction<conic>(pi/2, unit_vector{0,0,-1});
+    em.direction<conic>(constants::pi/2, unit_vector{0,0,-1});
     check(em.emit().get_pose().direction().z() <= 0);    
     //std::cout<< em;
   } end_test_case()
