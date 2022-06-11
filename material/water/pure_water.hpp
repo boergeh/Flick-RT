@@ -5,7 +5,7 @@
 #include "../mueller_matrix.hpp"
 namespace flick {
   class pure_water : public material {
-  protected:
+    //protected:
     pp_function absorption_coefficient_;
     pp_function refractive_index_;
     pl_function temperature_correction_;
