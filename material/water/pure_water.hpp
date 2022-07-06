@@ -5,7 +5,6 @@
 #include "../mueller_matrix.hpp"
 namespace flick {
   class pure_water : public material {
-    //protected:
     pp_function absorption_coefficient_;
     pp_function refractive_index_;
     pl_function temperature_correction_;
@@ -42,7 +41,7 @@ namespace flick {
       return a0 + da_dT * delta_T + da_dS * delta_S;
     }
     double scattering_coefficient()
-    // Morel... should be updated with temp. corr. See Pure water
+    // Consider update with temp. corr according to: Pure water
     // spectral absorption, scattering, and real part of refractive
     // index model. Algorithm Technical Basis Document
     {
@@ -56,7 +55,7 @@ namespace flick {
       return rayleigh_mueller_matrix{direction_.theta(),0.039};
     }
     double refractive_index()
-    // Should also be updated to include temp. and sal. corr.
+    // Consider update to include temp. and sal. corr.
     {
       return refractive_index_.value(wavelength_);
     }
