@@ -2,11 +2,6 @@
 namespace flick {
   using namespace constants;
   begin_test_case(material_test) {
-    rayleigh_mueller_matrix rmm_a{0,1};
-    check_close(rmm_a.element(0,0),1/(4*pi),1e-12);
-    rayleigh_mueller_matrix rmm_b{pi/2,1};
-    check_close(rmm_a.element(0,0),rmm_b.element(0,0),1e-12);
-    
     
     pure_water pw;
     auto m = pw.mueller_matrix();

@@ -6,6 +6,7 @@ all:	check-env build test
 build:	
 	cd numeric; make obj link
 	cd geometry; make obj link
+	cd polarization; make obj link
 	cd material; make obj link
 	cd material/gas; make obj link
 	cd transporter; make obj link
@@ -14,12 +15,14 @@ build:
 test:	
 	@cd numeric; make test
 	@cd geometry; make test
+	@cd polarization; make test
 	@cd material; make test
 	@cd transporter; make test
 	@cd radiator; make test
 clean:	
 	cd numeric; make clean
 	cd geometry; make clean
+	cd polarization; make clean
 	cd material; make clean
 	cd transporter; make clean
 	cd radiator; make clean

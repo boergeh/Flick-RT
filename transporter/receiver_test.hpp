@@ -4,8 +4,8 @@ namespace flick {
     receiver re;
     direction_generator dg;
     while (re.received_packages() < 5) {
-      radiation_package rp(600e-9,stokes{1,0,0,0});
-      rp.rotate_to(dg.isotropic());
+      radiation_package rp({{0,0,0},{0,0}},stokes{1,0,0,0});
+      rp.traveling_direction(dg.isotropic());
       re.receive(rp);
     }
     //std::cout << re;

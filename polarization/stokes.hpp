@@ -38,6 +38,10 @@ namespace flick {
       psi_ += delta_psi;
       return *this;
     }
+    stokes& scale(double factor) {
+      I_ *= factor;
+      return *this;
+    }
     double rotation_angle() const {return psi_;}
     double eccentricity_angle() const {return xsi_;}
     double degree_of_polarization() const {return p_;}

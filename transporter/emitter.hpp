@@ -89,9 +89,9 @@ namespace flick {
     }    
     radiation_package emit()
     {
-      radiation_package rp(wld_->draw(), initial_stokes_);      
-      rp.move_to(position_);
-      rp.rotate_to(dd_->draw());
+      pose p{position_, dd_->draw()};
+      radiation_package rp(p, initial_stokes_);
+      rp.wavelength(wld_->draw());
       --packages_left_;
       return rp;
     }    

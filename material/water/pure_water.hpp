@@ -2,7 +2,8 @@
 #define flick_material_pure_water
 
 #include "../material.hpp"
-#include "../mueller_matrix.hpp"
+#include "../../polarization/rayleigh_mueller.hpp"
+
 namespace flick {
   class pure_water : public material {
     pp_function absorption_coefficient_;
@@ -52,7 +53,7 @@ namespace flick {
     // values of the light scattering depolarization and anisotropy of
     // water,” J. Chem. Phys. 65, 593–595 (1976).
     {
-      return rayleigh_mueller_matrix{direction_.theta(),0.039};
+      return rayleigh_mueller{direction_.theta(), 0.039};
     }
     double refractive_index()
     // Consider update to include temp. and sal. corr.
@@ -61,4 +62,5 @@ namespace flick {
     }
   };
 }
+
 #endif
