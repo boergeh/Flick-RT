@@ -18,7 +18,7 @@ namespace flick {
     complex cos_theta_t_{1,0};
   public:
     fresnel(const complex& relative_refractive_index, double incidence_angle)
-      : m_{relative_refractive_index} {}
+      : m_{relative_refractive_index}
     {
       cos_theta_i_ = cos(incidence_angle);
       double sin_theta_i = sqrt(1-pow(cos_theta_i_,2));
@@ -111,6 +111,7 @@ namespace flick {
   }
   void fresnel_curves(std::complex<double> relative_refractive_index,
 		      size_t n_angles, std::ostream& ostr) {
+     using namespace constants;
     std::vector<double> theta = linspace(0,pi/2,n_angles);
     ostr << "# column 1: incidence angle in degrees" << std::endl
 	 << "# column 2: s-component reflection amplitude coefficient (r_s)" << std::endl

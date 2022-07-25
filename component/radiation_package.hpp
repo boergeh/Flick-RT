@@ -3,6 +3,7 @@
 
 #include "../numeric/direction_generator.hpp"
 #include "../polarization/stokes.hpp"
+#include "../polarization/mueller.hpp"
 
 namespace flick {
   class radiation_package
@@ -14,7 +15,7 @@ namespace flick {
     double wavelength_{500e-9};
     stokes stokes_{1,0,0,0};
     double weighted_traveling_length_{0};
-    size_t weighted_scattering_events_{0};
+    //size_t weighted_scattering_events_{0};
     //bool do_not_scatter_?
   public:
     radiation_package() = default;
@@ -27,16 +28,33 @@ namespace flick {
       pose_.move_by(pose_.z_direction()*distance);
       weighted_traveling_length_ += stokes_.I()*distance;
     }
-    void traveling_direction(const unit_vector& direction) {
-      pose_.rotate_to(direction);
-      weighted_scattering_events_ += stokes_.I(); 
-    }
     void wavelength(double wl) {
       wavelength_ = wl;
     }
-    void rotate_polarization_plane(double angle) {
-      pose_.rotate_about_local_z(angle);
+    void traveling_direction(const unit_vector& direction) {
+      pose_.rotate_to(direction);
+    }    
+    void change_polarization(const mueller& m,
+			     double interaction_plane_angle)
+    // Make x-axis parallel with interaction plane and apply mueller
+    // matrix
+    {
+      pose_.rotate_about_local_z(interaction_plane_angle);
+      stokes_.rotate(-interaction_plane_angle);
+      stokes_ = m * stokes_;
     }
+    void rotate_about_local_x(double angle) {
+      pose_.rotate_about_local_x(angle);
+    }
+    /*
+    void rotate_about_local_y(double angle) {
+      pose_.rotate_about_local_y(angle);
+    }
+    void rotate_about_local_z(double angle) {
+      pose_.rotate_about_local_z(angle);
+      //stokes_.rotate(-angle);
+    }
+    */
     auto pose(){
       return pose_;
     }
