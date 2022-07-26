@@ -4,6 +4,7 @@
 #include "../numeric/direction_generator.hpp"
 #include "../polarization/stokes.hpp"
 #include "../polarization/mueller.hpp"
+#include "../polarization/algorithm.hpp"
 
 namespace flick {
   class radiation_package
@@ -63,8 +64,8 @@ namespace flick {
     }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
       os << rp.pose_ << " " << rp.wavelength_ << " " << rp.stokes_ << " "
-	 << rp.weighted_traveling_length_ << " "
-	 << rp.weighted_scattering_events_;
+	 << rp.weighted_traveling_length_ << " ";
+	//<< rp.weighted_scattering_events_;
       return os;
     }
   };

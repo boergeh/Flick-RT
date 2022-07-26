@@ -185,6 +185,7 @@ namespace flick {
       yv_.emplace_back(yv_.back()*weight);
       yv_.emplace_back(yv_.back()*weight);
     }
+    size_t size() {return yv_.size();}
     void header(const std::string& h) {
       header_ = h;
     }
