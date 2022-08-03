@@ -1,7 +1,8 @@
 #include "boundary.hpp"
+
 namespace flick {
-  using namespace constants;
-  begin_test_case(boundary_test) {  
+  begin_test_case(boundary_test) {
+    using namespace constants;
     using namespace geometry; 
     using namespace geometry::surface;
     pose observer({0,0,3},rotation_about_x(pi));

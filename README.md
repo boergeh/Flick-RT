@@ -1,5 +1,5 @@
 
-Flick RT (Flick for short) is a general code for radiative transfer calculations.
+Flick-RT is a general radiative transport code  
 
 Clone from GitHub with:  
  git clone https://github.com/boergeh/Flick-RT.git  
@@ -12,9 +12,7 @@ For macOS and Linux:
 
  flick help -- for further documentation and usage examples  
 
-You will need to have a c++ compiler (e.g. clang++ or g++) already
-install, and the first time Flick is compiled, you will be instructed
-how to set necessary environmental variables.  
+You will need to have a c++ compiler (e.g. clang++ or g++) already install, and you will be instructed on how to set necessary environmental variables during the first compilation.  
 
 Flick is distributed under the MIT license.  
 https://docs.openmc.org/en/stable/license.html

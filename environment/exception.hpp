@@ -1,7 +1,6 @@
 #ifndef flick_exception
 #define flick_exception
 
-
 namespace flick {
   class exception : public std::exception {
     std::string message_;
@@ -13,7 +12,6 @@ namespace flick {
     }
   };
 }
-
 
 #endif
   

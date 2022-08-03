@@ -56,7 +56,7 @@ namespace flick {
       //stokes_.rotate(-angle);
     }
     */
-    auto pose(){
+    auto pose() const {
       return pose_;
     }
     auto wavelength() {

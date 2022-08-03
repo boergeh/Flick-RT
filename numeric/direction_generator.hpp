@@ -25,7 +25,7 @@ namespace flick {
       p.rotate_about_local_y(theta);
       return p.z_direction();
     }
-    unit_vector lambertian(const unit_vector& surface_normal) {
+    unit_vector lambertian(const unit_vector& surface_normal) const {
       using namespace constants;
       double phi = rnd(0,2*pi);
       double theta = asin(sqrt(rnd(0,1)));

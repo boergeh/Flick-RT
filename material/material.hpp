@@ -1,11 +1,11 @@
 #ifndef flick_material
 #define flick_material
 
-//#include "fabric.hpp"
+#include "../environment/input_output.hpp"
 #include "../numeric/constants.hpp"
 #include "../numeric/function.hpp"
+#include "../numeric/physics_function.hpp"
 #include "../numeric/pose.hpp"
-#include "../environment/input_output.hpp"
 
 namespace flick {
   class material {
@@ -14,6 +14,7 @@ namespace flick {
     double wavelength_{500e-9};
     double height_{0};
     unit_vector direction_{0,0,1};
+    //double proposed_asymmetry_factor_{0};
   public:
     void temperature(const pl_function& t) {
       temperature_ = t;
@@ -27,6 +28,25 @@ namespace flick {
     void direction(const unit_vector& d) {
       direction_ = d;
     }
+    /*
+    unit_vector proposed_scattering_direction(double random_polar,
+					      double random_azimuth) {
+      double g = proposed_asymmetry_factor_;
+      double polar_angle = henyey_greenstein{g}.inverted_accumulated_angle(random_polar);
+      double azimuth_angle = random_azimuth*2*constants::pi;
+      return {polar_angle, azimuth_angle};
+    }
+    */
+    /*
+    double proposed_polar_angle(double random) {
+      double g = proposed_asymmetry_factor_;
+      return henyey_greenstein{g}.inverted_accumulated_angle(random);
+    }
+    double proposed_azimuth_angle(double random) {
+      double isotropic = random * 2 * constants::pi;
+      return isotropic;
+    }
+    */
   };
   /*
   class gas : public material {

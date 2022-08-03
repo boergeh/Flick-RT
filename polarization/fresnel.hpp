@@ -17,6 +17,7 @@ namespace flick {
     double cos_theta_i_{1};
     complex cos_theta_t_{1,0};
   public:
+    fresnel()=default;
     fresnel(const complex& relative_refractive_index, double incidence_angle)
       : m_{relative_refractive_index}
     {

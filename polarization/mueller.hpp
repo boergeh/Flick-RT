@@ -23,7 +23,21 @@ namespace flick {
       return elements_.at(n);
     }
   };
-  
+
+  /*
+  mueller operator*(const mueller& m, double factor) {
+    mueller m2;
+    size_t n = 0;
+    for (size_t i = 0; i < 4; ++i) {
+      for (size_t j = 0; j < 4; ++j) {
+	if (n < m.size() && m(n).row == i && m(n).col == j) {
+	  m2.add(i,j, m(n).value*factor);
+	}
+      }
+    }
+    return m2;
+  }
+  */
   std::ostream& operator<<(std::ostream &os, const mueller& m) {
     size_t n = 0;
     os << '\n';

@@ -112,26 +112,6 @@ namespace flick {
   }
   pose global_observer() {return pose();}
   const pose default_pose = pose{};
-
-  /*
-  class local_point {
-    vector point_;
-    pose p1_;
-  public:
-    local_point(const vector& v)
-      : point_{v} {}
-    local_point& in(const pose& p1) {
-      p1_ = p1; 
-      return *this;
-    }
-    vector as_observed_by(const pose& p2) {
-      const pose& p = p1_.as_observed_by(p2);
-      return p.position() +
-    	p.x_direction()*point_.x() +
-	p.y_direction()*point_.y() +
-     	p.z_direction()*point_.z();        
-    } 
-  };
-  */
 }
+
 #endif
