@@ -56,6 +56,12 @@ namespace flick {
       //stokes_.rotate(-angle);
     }
     */
+    bool is_empty() const {
+      double epsilon = 1e-9;
+      if (stokes_.I() < 1e-9)
+	return true;
+      return false;
+    }
     auto pose() const {
       return pose_;
     }

@@ -3,27 +3,25 @@
 
 //#include "../material/material.hpp" // base class
 //#include "../coating/coating.hpp" // base class
-#include "emitter.hpp"
+//#include "emitter.hpp"
 #include "receiver.hpp"
 
 namespace flick {
   class content
   {
-    //coating* boundary_coating_;
-    //material* filling_material_;
-    std::vector<emitter> emitters_; // should not be vector
-    std::vector<receiver> receivers_;
-    // material_profile mf_;
+    //coating::base* boundary_coating_;
+    //material::base* filling_material_;
+    receiver receiver_;
+    bool has_active_receiver_{false};
   public:
     //content& insert(const emitter& em, const vector& relative_position) {
-    void insert(const emitter& em) {
+    //void insert(const emitter& em) {
       //em.move_to(relative_position);
-      emitters_.emplace_back(em);
-    }
+    //  emitters_.emplace_back(em);
+    //}
     //content& insert(const receiver& re, const vector& relative_position) {
-    void insert(const receiver& re) {
-      //re.move_to(relative_position);
-      receivers_.emplace_back(re);
+    void activate_receiver() {
+      has_active_receiver_ = true; 
     }
     //    content& fill(const material& m, const profile& profile) {
     //   return *this;
@@ -32,11 +30,11 @@ namespace flick {
     //  return *this;
     // }
     
-    emitter& get_emitter(){return emitters_.at(0);}
+    //emitter& get_emitter(){return emitters_.at(0);}
     
     
     friend std::ostream& operator<<(std::ostream &os, const content& c) {
-      os << c.emitters_.size() << " " << c.receivers_.size();
+      os << c.has_active_receiver_;
       return os;
     }
   };

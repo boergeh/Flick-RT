@@ -98,10 +98,16 @@ namespace flick {
     size_t packages_left() const {
       return packages_left_;
     }
+    bool is_empty() {
+      if (packages_left_ > 0)
+	return false;
+      return true;
+    }
     friend std::ostream& operator<<(std::ostream &os, const emitter& em) {
       os << em.position_ << " " << em.initial_stokes_  << " " << em.packages_left_;
       return os;
     }
   };
 }
+
 #endif

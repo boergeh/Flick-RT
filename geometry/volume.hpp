@@ -13,7 +13,6 @@ namespace geometry {
   // tree structure
   {
     std::string name_;
-    //std::shared_ptr<T> content_;
     T content_;
     boundary boundary_;
     volume<T>* outer_volume_; 
@@ -33,8 +32,13 @@ namespace geometry {
 	throw std::runtime_error("No volume inside this volume");
       return inner_volumes_[n];
     }
-    volume& outer_volume() const {
+    bool has_outer_volume() const {
       if (outer_volume_ == NULL)
+	return false;
+      return true;
+    }
+    volume& outer_volume() const {
+      if (!has_outer_volume())
       	throw std::runtime_error("No volume outside this volume");
       return *outer_volume_;
     }
@@ -75,7 +79,8 @@ namespace geometry {
     }
     uniform_intersections get_uniform_intersections(size_t n_reflections) const {
       double cs = boundary_.characteristic_size();
-      return uniform_intersections(boundary_, n_reflections, limits{cs*0.1,cs*100});
+      return uniform_intersections(boundary_, n_reflections,
+				   limits{cs*0.1,cs*100});
     }
     volume& name(const std::string name) {
       name_ = name;
@@ -85,19 +90,10 @@ namespace geometry {
     {
       inner_volumes_.emplace_back(v);
       return *this;
-    }
-    /*
-    volume& fill(T& content) 
-    {
-      content_ = &content;
-      return *this;
-    }
-    */
-    
+    }    
     T& content() {
       return content_;
-    } 
-    
+    }   
     T& operator()() {
       return content_;
     } 
@@ -150,15 +146,22 @@ namespace geometry {
   template<class T>
   class cube : public volume<T> {
   public:
-    cube(double side):
+    cube(double side) :
       volume<T>(cubical_boundary(side),"cube") {
     }
   };
   template<class T>
   class sphere : public volume<T> {
   public:
-    sphere(double r):
+    sphere(double r) :
       volume<T>(spherical_boundary(r),"sphere") {
+    }
+  };
+  template<class T>
+  class half_infinite_box : public volume<T> {
+  public:
+    half_infinite_box() :
+      volume<T>(boundary{make_surface<surface::plane>()},"half_infinite_box") {
     }
   };
  
