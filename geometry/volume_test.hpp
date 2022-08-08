@@ -18,10 +18,8 @@ namespace geometry {
 
     cube<content> c2{1};
     check_small(c2().mass-9,1e-9);
-    //content cont;
-    //c2.fill(cont);
+  
     sphere<content> small_sphere{2};
-    //small_sphere.fill(cont);
     small_sphere.insert(c2);
      
     sphere<content> large_sphere{3};
@@ -37,12 +35,12 @@ namespace geometry {
     pose observer{{0,0,-10},{0,0}};
     check_throw(nav.next_intersection(observer));
     observer.move_to({0,0,-2.99});
-    vector pos = nav.next_intersection(observer).position();
+    vector pos = (*nav.next_intersection(observer)).position();
     check_small(rms(pos,{0,0,-2}),1e-9);
     check(nav.next_volume(observer).name()=="sphere");
     nav.go_inward();
     observer.move_to({0,0,-1.99});
-    pos = nav.next_intersection(observer).position();
+    pos = (*nav.next_intersection(observer)).position();
     check_small(rms(pos,{0,0,-0.5}),1e-9);
     check(nav.next_volume(observer).name()=="cube");
     nav.go_inward();
@@ -62,7 +60,7 @@ namespace geometry {
 
     cube<content> c3{0.1};
     c3.move_by({1,0,0});
-    c3.rotate_by(rotation_about_z(pi/2),{-1,0,0});
+    c3.rotate_by(rotation_about_z(constants::pi/2),{-1,0,0});
     check_small(rms(c3.placement().position(),{-1,2,0}),1e-9);
     
   } end_test_case()

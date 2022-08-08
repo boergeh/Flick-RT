@@ -11,12 +11,20 @@ namespace flick {
     //std::vector<histogram> stokes(4);
     //histogram traveling_length_;
     //histogram scattering_events_;
+    bool is_active_{false};
   public:
     void receive(const radiation_package& rp) {
-      rps_.emplace_back(rp);
+      if (is_active_)
+	rps_.emplace_back(rp);
     }
     size_t received_packages() {
       return rps_.size();
+    }
+    void activate() {
+      is_active_ = true;
+    }
+    bool is_active() {
+      return is_active_;
     }
     // if size larger than so and so fill histogram empty rps.
     /*

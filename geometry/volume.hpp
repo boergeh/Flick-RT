@@ -21,6 +21,9 @@ namespace geometry {
     std::string name() const {
       return name_;
     }
+    double small_step() {
+      return boundary_.small_step();
+    }
     pose placement() const { 
       return boundary_.placement();
     }
@@ -29,7 +32,7 @@ namespace geometry {
     }
     volume& inner_volume(size_t n) {
       if (n >= inner_volumes_.size())
-	throw std::runtime_error("No volume inside this volume");
+	throw std::runtime_error("No inner volumes");
       return inner_volumes_[n];
     }
     bool has_outer_volume() const {
@@ -39,7 +42,7 @@ namespace geometry {
     }
     volume& outer_volume() const {
       if (!has_outer_volume())
-      	throw std::runtime_error("No volume outside this volume");
+      	throw std::runtime_error("No outer volume");
       return *outer_volume_;
     }
     std::optional<size_t> closest_inner_volume(const pose& observer) const
@@ -49,7 +52,8 @@ namespace geometry {
       std::optional<size_t> n{};
       double d_min = std::numeric_limits<double>::max();
       for (size_t i=0; i < inner_volumes_.size(); ++i) {
-	std::optional<pose> p = inner_volumes_[i].boundary_.intersection(observer);
+	std::optional<pose> p = inner_volumes_[i].boundary_.
+	  intersection(observer);
 	if (p.has_value()) {
 	  double d = norm((*p).position()-observer.position()); 
 	  if (d < d_min) {
@@ -62,22 +66,23 @@ namespace geometry {
       if (p.has_value()) {
 	double d = norm((*p).position()-observer.position()); 
 	if (d < d_min) {
-	  throw std::runtime_error("Observer outside this volume");
+	  throw std::runtime_error("Observer outside volume");
 	}
       }
       return n;
     }
-    pose intersection(const pose& observer) const
+    std::optional<pose> intersection(const pose& observer) const
     // Intersection between observer's z-axis and volume
     // boundary. Returned pose includes needed rotation from global
     // z-axis direction to surface normal at intersection point.
     {
       std::optional<size_t> n = closest_inner_volume(observer);
-      if (n.has_value())
-	return *inner_volumes_[*n].boundary_.intersection(observer);
-      return *boundary_.intersection(observer);      
+      if (n.has_value()) {
+	return inner_volumes_[*n].boundary_.intersection(observer);
+      }
+      return boundary_.intersection(observer);      
     }
-    uniform_intersections get_uniform_intersections(size_t n_reflections) const {
+    uniform_intersections get_uniform_intersections(size_t n_reflections) const{
       double cs = boundary_.characteristic_size();
       return uniform_intersections(boundary_, n_reflections,
 				   limits{cs*0.1,cs*100});
@@ -179,6 +184,10 @@ namespace geometry {
     volume<T>& go_outward() {
       v_ = &v_->outer_volume();
       return *v_;
+    }    
+    volume<T>& go_to(volume<T>& v) {
+      v_ = &v;
+      return *v_;
     }
     volume<T>& go_to(const std::string& name) {
       if (v_->name()==name)
@@ -192,15 +201,22 @@ namespace geometry {
     volume<T>& current_volume() const {
       return *v_;
     }
-    volume<T>& next_volume(const pose& observer) const {
+    volume<T>& next_volume(pose observer) const {
+      observer.move_by(observer.z_direction()*v_->small_step());
       std::optional<size_t> n = v_->closest_inner_volume(observer);
       if (n.has_value())
 	return v_->inner_volume(*n);
       return v_->outer_volume();
     }
-    pose next_intersection(const pose& observer) {
+    std::optional<pose> next_intersection(const pose& observer) const {
       return v_->intersection(observer);
-    }    
+    }
+    bool is_entering(const pose& intersection, const pose& observer) const {
+      unit_vector surface_normal = intersection.z_direction();
+      if (dot(surface_normal,observer.z_direction()) < 0)
+	return true;
+      return false;
+    }
   };
   
 }

@@ -22,6 +22,17 @@ namespace flick {
     const element& operator()(size_t n) const {
       return elements_.at(n);
     }
+    double value(size_t row, size_t col) const {
+      size_t n = 0;
+      auto& e = elements_;
+      for (size_t i = 0; i < 4; ++i) {
+	for (size_t j = 0; j < 4; ++j) {
+	  if (n < e.size() && e[n].row == i && e[n].col == j)
+	    return e[n].value;
+	}
+      }
+      throw std::runtime_error("mueller element not found");
+    }
   };
 
   /*

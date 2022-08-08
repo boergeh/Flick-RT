@@ -18,7 +18,7 @@ namespace flick {
       rp_=rp;
     }
   };
-
+  /*
   class surface_interactor : public basic_interactor {
   protected:
     unit_vector normal_{0,0,1};
@@ -86,6 +86,7 @@ namespace flick {
       return rp;
     }
   };
+  */
 }
 
 #endif

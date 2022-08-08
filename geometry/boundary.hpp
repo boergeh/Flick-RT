@@ -6,7 +6,6 @@
 
 namespace flick {
 namespace geometry {
-  using namespace constants;
   const bool inside_out{true};  
   class boundary
   // A boundary is built from one or more surfaces. The boundary has
@@ -44,7 +43,7 @@ namespace geometry {
       return *this;
     }
     double small_step() const {
-      return characteristic_size()*1e-9;
+      return characteristic_size()*1e3*std::numeric_limits<double>::epsilon();
     }       
     pose placement() const
     // Get position and orientation of local boundary coordinate
@@ -68,7 +67,7 @@ namespace geometry {
 	surface_as_observed_by(*surface_n, observer);
 	pose global_observer = get_globally_observed_intersection(*surface_n);
 	if (elements_.at(*surface_n).inside_out)
-	  global_observer.rotate_about_local_x(pi);
+	  global_observer.rotate_about_local_x(constants::pi);
 	return std::optional<pose>{global_observer};
       }
       return std::optional<pose>{};
@@ -199,7 +198,7 @@ namespace geometry {
 	r *= 2;
 	intersections_ = find_intersections(r);
       }
-      outer_sphere_area_ = 4*pi*pow(r,2);
+      outer_sphere_area_ = 4*constants::pi*pow(r,2);
     }
     std::vector<pose> get() const {
       return intersections_;

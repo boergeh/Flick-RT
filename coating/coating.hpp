@@ -31,10 +31,10 @@ namespace coating {
  
   class base {
   public:
-    virtual mueller reflection_mueller_matrix()=0;
-    virtual mueller transmission_mueller_matrix()=0;
-    virtual double reflectivity()=0; 
-    virtual double transmissivity()=0;
+    virtual mueller reflection_mueller_matrix() const = 0;
+    virtual mueller transmission_mueller_matrix() const = 0;
+    virtual double reflectivity() const = 0; 
+    virtual double transmissivity() const = 0;
   };
 
   /*
@@ -58,18 +58,18 @@ namespace coating {
     grey_lambert(double reflectivity, double transmissivity)
       : reflectivity_{reflectivity}, transmissivity_{transmissivity}
     {}
-    mueller reflection_mueller_matrix() {
+    mueller reflection_mueller_matrix() const {
       mueller m;
       m.add(0,0, 1/(2*constants::pi));
       return m;
     }
-    mueller transmission_mueller_matrix() {
+    mueller transmission_mueller_matrix() const {
       return reflection_mueller_matrix();
     }
-    double reflectivity() {
+    double reflectivity() const {
       return reflectivity_;
     }
-    double transmissivity() {
+    double transmissivity() const {
       return transmissivity_;
     }
   };
@@ -85,11 +85,11 @@ namespace coating {
     void wavelength(double wl) {
       wavelength_ = wl;
     }
-    double reflectivity() {
+    double reflectivity() const {
       // wavelength dependent tbi
       return 0;
     }
-    double transmissivity() {
+    double transmissivity() const {
       // wavelength dependent tbi
       return 0;
     }

@@ -29,33 +29,43 @@ namespace flick {
       pose_.move_by(pose_.z_direction()*distance);
       weighted_traveling_length_ += stokes_.I()*distance;
     }
+    void move_to(const vector& position) {
+      pose_.move_to(position);
+    }
     void wavelength(double wl) {
       wavelength_ = wl;
     }
     void traveling_direction(const unit_vector& direction) {
       pose_.rotate_to(direction);
-    }    
-    void change_polarization(const mueller& m,
-			     double interaction_plane_angle)
-    // Make x-axis parallel with interaction plane and apply mueller
-    // matrix
+    }
+    void x_direction_parallel_with_plane_of_incidence(const unit_vector&
+						  surface_normal) {
+      double ang = acos(dot(surface_normal, pose_.y_direction()));
+      pose_.rotate_about_local_z(ang);
+      stokes_.rotate(-ang);
+    }
+    void x_direction_parallel_with_scattering_plane(const unit_vector&
+						  scattering_direction) {
+      vector n = cross(pose_.z_direction(),scattering_direction);
+      double ang = acos(dot(n, pose_.x_direction()));
+      pose_.rotate_about_local_z(ang);
+      stokes_.rotate(-ang);
+    }
+    void change_polarization(const mueller& m)
     {
-      pose_.rotate_about_local_z(interaction_plane_angle);
-      stokes_.rotate(-interaction_plane_angle);
       stokes_ = m * stokes_;
     }
     void rotate_about_local_x(double angle) {
       pose_.rotate_about_local_x(angle);
     }
-    /*
+   
     void rotate_about_local_y(double angle) {
       pose_.rotate_about_local_y(angle);
     }
     void rotate_about_local_z(double angle) {
       pose_.rotate_about_local_z(angle);
-      //stokes_.rotate(-angle);
     }
-    */
+ 
     bool is_empty() const {
       double epsilon = 1e-9;
       if (stokes_.I() < 1e-9)

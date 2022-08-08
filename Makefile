@@ -9,6 +9,7 @@ build:
 	cd polarization; make obj link
 	cd component; make obj link
 	cd material; make obj link
+	cd coating; make obj link
 	cd material/gas; make obj link
 	cd transporter; make obj link
 	cd radiator; make obj link
@@ -19,6 +20,7 @@ test:
 	@cd polarization; make test
 	@cd component; make test
 	@cd material; make test
+	@cd coating; make test
 	@cd transporter; make test
 	@cd radiator; make test
 clean:	
@@ -27,6 +29,7 @@ clean:
 	cd polarization; make clean
 	cd component; make clean	
 	cd material; make clean
+	cd coating; make clean
 	cd transporter; make clean
 	cd radiator; make clean
 	cd main; make clean

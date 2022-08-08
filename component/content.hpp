@@ -2,39 +2,37 @@
 #define flick_content
 
 //#include "../material/material.hpp" // base class
-//#include "../coating/coating.hpp" // base class
-//#include "emitter.hpp"
+#include "../coating/coating.hpp" // base class
 #include "receiver.hpp"
 
 namespace flick {
   class content
   {
-    //coating::base* boundary_coating_;
-    //material::base* filling_material_;
+    std::shared_ptr<coating::base> coating_;
+    //std::shared_ptr<material::base> material_;
+    bool has_coating_{false};
+
     receiver receiver_;
-    bool has_active_receiver_{false};
   public:
-    //content& insert(const emitter& em, const vector& relative_position) {
-    //void insert(const emitter& em) {
-      //em.move_to(relative_position);
-    //  emitters_.emplace_back(em);
-    //}
-    //content& insert(const receiver& re, const vector& relative_position) {
-    void activate_receiver() {
-      has_active_receiver_ = true; 
+    template <class Coating, class... Args>
+    void set_coating(Args... a) {
+      coating_ = std::make_shared<Coating>(a...);
+      has_coating_ = true;
     }
-    //    content& fill(const material& m, const profile& profile) {
-    //   return *this;
-    // }
-    //content& coat(const coating& c) {
-    //  return *this;
-    // }
-    
-    //emitter& get_emitter(){return emitters_.at(0);}
-    
+    const coating::base& coating() const {
+      if (!coating_)
+	throw std::runtime_error("content::coating");
+      return *coating_;
+    }
+    bool has_coating() const {
+      return has_coating_;
+    }
+    receiver& receiver() {
+      return receiver_;
+    }
     
     friend std::ostream& operator<<(std::ostream &os, const content& c) {
-      os << c.has_active_receiver_;
+      //os << c.has_active_receiver_;
       return os;
     }
   };
