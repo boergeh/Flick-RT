@@ -65,8 +65,8 @@ namespace geometry {
       std::optional<pose> p = boundary_.intersection(observer);
       if (p.has_value()) {
 	double d = norm((*p).position()-observer.position()); 
-	if (d < d_min) {
-	  throw std::runtime_error("Observer outside volume");
+	if (d < d_min && d_min < std::numeric_limits<double>::max()) {
+	  throw std::runtime_error("Observer outside current volume");
 	}
       }
       return n;
@@ -174,6 +174,7 @@ namespace geometry {
   class navigator {
     volume<T>* v_;
   public:
+    navigator()=default;
     navigator(volume<T> &v) : v_{&v} {
       v_->set_outer_volume_pointers();
     }        
@@ -198,6 +199,12 @@ namespace geometry {
       }
       return *v_;
     }
+    volume<T>& find(const std::string& name) {
+      volume<T>* v0 = v_;
+      volume<T>& v_found = go_to(name);
+      v_ = v0;
+      return v_found;
+    }
     volume<T>& current_volume() const {
       return *v_;
     }
@@ -211,7 +218,7 @@ namespace geometry {
     std::optional<pose> next_intersection(const pose& observer) const {
       return v_->intersection(observer);
     }
-    bool is_entering(const pose& intersection, const pose& observer) const {
+    bool is_moving_inward(const pose& intersection, const pose& observer) const {
       unit_vector surface_normal = intersection.z_direction();
       if (dot(surface_normal,observer.z_direction()) < 0)
 	return true;

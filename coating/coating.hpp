@@ -14,10 +14,15 @@ namespace coating {
   protected:
     double ui_polar_{0};
     double ui_azimuth_{0};
+  public:
+    angle_generator(double unit_interval_polar,
+		    double unit_interval_azimuth)
+      : ui_polar_{unit_interval_polar}, ui_azimuth_{unit_interval_azimuth} {}
   };
 
   class lambert_angle_generator : public angle_generator {
   public:
+    using angle_generator::angle_generator;
     double polar_angle() {
       return asin(sqrt(ui_polar_));
     }

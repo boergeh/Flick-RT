@@ -69,6 +69,7 @@ namespace flick {
     std::shared_ptr<wavelength_distribution> wld_;
     std::shared_ptr<direction_distribution> dd_;
   public:
+    emitter() = default;
     emitter(vector position, const stokes& initial_stokes, size_t packages)
       : position_{position}, total_packages_{packages}, packages_left_{packages},
 	initial_stokes_{initial_stokes},
