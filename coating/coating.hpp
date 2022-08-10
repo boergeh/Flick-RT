@@ -15,6 +15,7 @@ namespace coating {
     double ui_polar_{0};
     double ui_azimuth_{0};
   public:
+    angle_generator()=default;
     angle_generator(double unit_interval_polar,
 		    double unit_interval_azimuth)
       : ui_polar_{unit_interval_polar}, ui_azimuth_{unit_interval_azimuth} {}

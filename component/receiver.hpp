@@ -12,9 +12,10 @@ namespace flick {
     //histogram traveling_length_;
     //histogram scattering_events_;
     bool is_active_{false};
+    bool is_inward_accepting_{true};
   public:
-    void receive(const radiation_package& rp) {
-      if (is_active_)
+    void receive(const radiation_package& rp, bool is_inward) {
+      if (is_active_ && is_inward==is_inward_accepting_)
 	rps_.emplace_back(rp);
     }
     size_t received_packages() {
@@ -25,6 +26,9 @@ namespace flick {
     }
     bool is_active() {
       return is_active_;
+    }
+    void outward_accepting() {
+      is_inward_accepting_ = false;
     }
     // if size larger than so and so fill histogram empty rps.
     /*
