@@ -14,7 +14,7 @@ namespace flick {
     bool is_active_{false};
     bool is_inward_accepting_{true};
   public:
-    void receive(const radiation_package& rp, bool is_inward) {
+    void receive(const radiation_package& rp, bool is_inward=true) {
       if (is_active_ && is_inward==is_inward_accepting_)
 	rps_.emplace_back(rp);
     }
