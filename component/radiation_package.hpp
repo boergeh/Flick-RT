@@ -30,7 +30,8 @@ namespace flick {
       weighted_traveling_length_ += stokes_.I()*distance;
     }
     void move_to(const vector& position) {
-      pose_.move_to(position);
+      double distance = norm(position-pose_.position());
+      move(distance);
     }
     void wavelength(double wl) {
       wavelength_ = wl;
@@ -72,6 +73,9 @@ namespace flick {
 	return true;
       return false;
     }
+    auto weighted_traveling_length() const {
+      return weighted_traveling_length_;
+    }
     auto pose() const {
       return pose_;
     }
@@ -79,7 +83,9 @@ namespace flick {
       return wavelength_;
     }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
-      os << rp.pose_ << " " << rp.wavelength_ << " " << rp.stokes_ << " "
+      os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
+	 << ", wl: " << rp.wavelength_
+	 << ", " << rp.stokes_ << ", length: "
 	 << rp.weighted_traveling_length_ << " ";
 	//<< rp.weighted_scattering_events_;
       return os;

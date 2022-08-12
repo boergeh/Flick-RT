@@ -62,13 +62,17 @@ namespace geometry {
 	  }
 	}
       }
+      /*
       std::optional<pose> p = boundary_.intersection(observer);
       if (p.has_value()) {
-	double d = norm((*p).position()-observer.position()); 
+	double d = norm((*p).position()-observer.position());
+	std::cout << "d " << d << std::endl;
+	std::cout << "dmin " << d_min << std::endl;
 	if (d < d_min && d_min < std::numeric_limits<double>::max()) {
 	  throw std::runtime_error("Observer outside current volume");
 	}
       }
+      */
       return n;
     }
     std::optional<pose> intersection(const pose& observer) const
@@ -178,6 +182,11 @@ namespace geometry {
     navigator(volume<T> &v) : v_{&v} {
       v_->set_outer_volume_pointers();
     }        
+    volume<T>& go_to_outermost_volume() {
+      while(v_->has_outer_volume())
+	go_outward();
+      return *v_;
+    }
     volume<T>& go_inward(size_t n=0) {
       v_ = &v_->inner_volume(n);
       return *v_;
@@ -209,8 +218,9 @@ namespace geometry {
       return *v_;
     }
     volume<T>& next_volume(pose observer) const {
-      observer.move_by(observer.z_direction()*v_->small_step());
+      //observer.move_by(observer.z_direction()*v_->small_step());
       std::optional<size_t> n = v_->closest_inner_volume(observer);
+      //std::cout << "inner vol: " << n.has_value()<<std::endl;
       if (n.has_value())
 	return v_->inner_volume(*n);
       return v_->outer_volume();
@@ -228,4 +238,5 @@ namespace geometry {
   
 }
 }
+
 #endif

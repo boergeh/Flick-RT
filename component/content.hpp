@@ -11,8 +11,8 @@ namespace flick {
     std::shared_ptr<coating::base> coating_;
     //std::shared_ptr<material::base> material_;
     bool has_coating_{false};
-
-    receiver receiver_;
+    receiver inward_receiver_;
+    receiver outward_receiver_;
   public:
     template <class Coating, class... Args>
     void set_coating(Args... a) {
@@ -27,8 +27,11 @@ namespace flick {
     bool has_coating() const {
       return has_coating_;
     }
-    receiver& receiver() {
-      return receiver_;
+    receiver& inward_receiver() {
+      return inward_receiver_;
+    }
+    receiver& outward_receiver() {
+      return outward_receiver_;
     }
     
     friend std::ostream& operator<<(std::ostream &os, const content& c) {

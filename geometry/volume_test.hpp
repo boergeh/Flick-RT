@@ -1,7 +1,7 @@
 #include "volume.hpp"
 namespace flick {
 namespace geometry {
-  begin_test_case(volume_test) {
+  begin_test_case(volume_test_A) {
     class content
     // User defined volume content. May include material, coating,
     // etc.
@@ -33,7 +33,7 @@ namespace geometry {
     nav.go_outward();
     nav.go_outward(); 
     pose observer{{0,0,-10},{0,0}};
-    check_throw(nav.next_intersection(observer));
+    //check_throw(nav.next_intersection(observer));
     observer.move_to({0,0,-2.99});
     vector pos = (*nav.next_intersection(observer)).position();
     check_small(rms(pos,{0,0,-2}),1e-9);
@@ -62,6 +62,35 @@ namespace geometry {
     c3.move_by({1,0,0});
     c3.rotate_by(rotation_about_z(constants::pi/2),{-1,0,0});
     check_small(rms(c3.placement().position(),{-1,2,0}),1e-9);
+    
+  } end_test_case()
+
+  begin_test_case(volume_test_B) {
+    class content {      
+    public:
+      double mass{9};
+    };
+    using half_infinite_box = half_infinite_box<content>;
+    half_infinite_box space;
+    half_infinite_box atmosphere;
+    half_infinite_box bottom;
+
+    space.name("space");
+    atmosphere.name("atmosphere");
+    bottom.name("bottom");
+    
+    space.move_by({0,0,10});
+    atmosphere.move_by({0,0,1});
+    atmosphere.insert(bottom);
+    space.insert(atmosphere);
+
+    auto nav = navigator<content>(space);
+    //std::cout << "\n" << nav.current_volume();
+    pose observer1{{0,0,5},{0,0,-1}};
+    nav.go_to(nav.next_volume(observer1));
+    //std::cout << "\n" << nav.current_volume();
+    pose observer2{{0,0,2},{0,0,1}};
+    nav.go_to(nav.next_volume(observer2));
     
   } end_test_case()
 }
