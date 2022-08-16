@@ -4,39 +4,14 @@
 #include "../geometry/volume.hpp"
 #include "../component/content.hpp"
 #include "../component/emitter.hpp"
-//#include "../coating/coating.hpp"
 
 namespace flick {
-  using half_infinite_box = geometry::half_infinite_box<content>;
+  using volume = geometry::volume<content>;
 
-  geometry::volume<content> world() {
-    half_infinite_box space;
-    half_infinite_box atmosphere;
-    half_infinite_box bottom;
-
-    space.name("space");
-    atmosphere.name("atmosphere");
-    bottom.name("bottom");
-
-    space.content().inward_receiver().activate();
-    space.content().outward_receiver().activate();
-    atmosphere.content().inward_receiver().activate();
-    atmosphere.content().outward_receiver().activate();
-    bottom.content().inward_receiver().activate();
-    bottom.content().outward_receiver().activate();
-    //bottom.content().set_coating<coating::grey_lambert>(1,0);
-    
-    space.move_by({0,0,10});
-    atmosphere.move_by({0,0,1});
-    atmosphere.insert(bottom);
-    space.insert(atmosphere);
-    
-    return space;
-  }
-  class wall_interactor {
+   class wall_interactor {
     geometry::navigator<content>& nav_;
     std::optional<pose> next_wall_intersection_;
-    geometry::volume<content>* next_volume_;
+    volume* next_volume_;
     const coating::base* coating_;
     radiation_package& rp_;
     uniform_random rnd_;
@@ -48,7 +23,7 @@ namespace flick {
 		    radiation_package& rp) : nav_{nav}, rp_{rp} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
       next_volume_ = &nav_.next_volume(rp_.pose());
-      geometry::volume<content>* v = next_volume_;
+      volume* v = next_volume_;
       if (is_moving_outward())
       	v = &nav_.current_volume();
       if (v->content().has_coating()) {
@@ -75,7 +50,8 @@ namespace flick {
 	change_orientation(n);
 	change_radiation();
       } else if (is_transmitted_) {
-	if (nav_.current_volume().content().has_coating()) {
+	if (nav_.current_volume().content().has_coating() &&
+	    next_wall_intersection_.has_value()) {
 	  change_orientation(-n);
 	  change_radiation();
 	}
@@ -138,10 +114,8 @@ namespace flick {
   };
   
   class mc_basic {
-    geometry::volume<content>* outer_volume_;
-    geometry::volume<content>* emitter_volume_;
+    volume* outer_volume_;
     geometry::navigator<content> nav_;
-    //emitter emitter_;
     radiation_package rp_;   
     uniform_random rnd_;
     
@@ -155,15 +129,11 @@ namespace flick {
     mc_basic(geometry::volume<content>& v) {
       outer_volume_ = &v;
       nav_ =  geometry::navigator<content>(*outer_volume_);
-      emitter_volume_ = &nav_.find("space");
     }
-    void run() {
-      emitter emitter{{0,0,5},stokes{1,0,0,0},9};
-      emitter.set_wavelength<monocromatic>(500e-9);
-      emitter.set_direction<unidirectional>(unit_vector{0,0,-1});
-      while (!emitter.is_empty()) {
-	nav_.go_to(*emitter_volume_);
-	rp_ = emitter.emit();
+    void run(emitter& em, geometry::volume<content>& emitter_volume) {
+      while (!em.is_empty()) {
+	nav_.go_to(emitter_volume);
+	rp_ = em.emit();
 	while (!rp_.is_empty() && !lost_in_space()) {
 	  wall_interactor wi(nav_,rp_);
 	  //particle_interactor pi(nav_,rp_);
@@ -177,13 +147,115 @@ namespace flick {
 	  // }
 	}
       }
-      /*
-      auto& v = nav_.find("atmosphere");
-      std::cout <<'\n'<< v.content().inward_receiver(); 
-      std::cout <<'\n'<< v.content().outward_receiver();
-      */    
     }
   };
+
+  namespace geometry {
+    namespace plane_parallel {
+      class basic_slab {
+	size_t n_packages_{0};
+	double optical_depth_{0};
+	double single_scattering_albedo_{0};
+	double bottom_albedo_{0};
+	double source_zenith_angle_{0};
+	semi_infinite_box<content> geometry_;
+      public:
+	basic_slab()=default;
+
+	void n_radiation_packages(size_t n) {
+	  n_packages_ = n;
+	}
+	void single_scattering_albedo(double ssa) {
+	  single_scattering_albedo_ = ssa;
+	}
+	void bottom_albedo(double ba) {
+	  bottom_albedo_ = ba;
+	}
+	void source_zenith_angle(double sza) {
+	  source_zenith_angle_ = sza;
+	}
+	double hemispherical_reflectance()
+	// See Wikipedia reflectance for definition
+	{
+	  run(n_packages_);
+	  auto nav_ =  geometry::navigator<content>(geometry_);
+	  auto& v = nav_.find("layer");
+	  auto& inward = v.content().inward_receiver();
+	  auto& outward = v.content().outward_receiver();
+	  return outward.radiant_flux()/inward.radiant_flux();
+	}
+	double directional_reflectance(double polar_angle,
+				       double azimuth_angle)
+	// See Wikipedia reflectance for definition
+	{
+	  //tbi
+	  // should search for optimal angle. Gaussian aceptance?
+	  // should gess direction directly towards detector
+	  return 0;
+	}
+	double hemispherical_transmittance()
+	// See Wikipedia transmittance for definition
+	{
+	  run(n_packages_);
+	  auto nav_ =  geometry::navigator<content>(geometry_);
+	  auto& vl = nav_.find("layer");
+	  auto& incident = vl.content().inward_receiver();
+	  auto& vb = nav_.find("bottom");
+	  auto& transmitted = vb.content().inward_receiver();
+	  return transmitted.radiant_flux()/incident.radiant_flux();
+	}
+	double directional_transmittance(double polar_angle,
+					 double azimuth_angle)
+	// See Wikipedia transmittance for definition
+	{
+	  //tbi
+	  return 0;
+	}
+      private:
+	void build_geometry() {
+	  semi_infinite_box<content> layer;
+	  semi_infinite_box<content> bottom;
+	  geometry_.name("geometry");
+	  layer.name("layer");
+	  bottom.name("bottom");
+	  layer.content().inward_receiver().activate();
+	  layer.content().outward_receiver().activate();
+	  bottom.content().inward_receiver().activate();
+	  bottom.content().set_coating<coating::grey_lambert>(bottom_albedo_,1-bottom_albedo_);
+	  geometry_.move_by({0,0,2});
+	  layer.move_by({0,0,1});
+	  layer.insert(bottom);
+	  geometry_.clear();
+	  geometry_.insert(layer);
+	}
+	void run(size_t n_packages) {
+	  emitter emitter{{0,0,1.5},stokes{1,0,0,0},n_packages};
+	  emitter.set_wavelength<monocromatic>(500e-9);
+	  auto direction = unit_vector{constants::pi-source_zenith_angle_,0}; 
+	  emitter.set_direction<unidirectional>(direction);
+	  build_geometry();
+	  mc_basic(geometry_).run(emitter, geometry_);
+	}
+
+      };
+
+      double remote_sensing_reflectance(const basic_slab& bs) {
+	//tbi
+	return 0;
+      }
+      class henyey_greenstein_slab : public basic_slab {
+	double asymmetr_factor_{0};
+      public:	
+      };
+      class user_defined_slab : public basic_slab {
+	
+      public:
+	void tabulated_phase_function(const std::string& filename) {
+	}
+      };
+      
+    }
+  }
 }
 
 #endif

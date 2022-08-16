@@ -70,10 +70,10 @@ namespace geometry {
     public:
       double mass{9};
     };
-    using half_infinite_box = half_infinite_box<content>;
-    half_infinite_box space;
-    half_infinite_box atmosphere;
-    half_infinite_box bottom;
+    using semi_infinite_box = semi_infinite_box<content>;
+    semi_infinite_box space;
+    semi_infinite_box atmosphere;
+    semi_infinite_box bottom;
 
     space.name("space");
     atmosphere.name("atmosphere");

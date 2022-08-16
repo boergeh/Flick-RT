@@ -24,6 +24,13 @@ namespace flick {
     void activate() {
       is_active_ = true;
     }
+
+    double radiant_flux() {
+      double rf = 0;
+      for(size_t i=0; i<rps_.size(); ++i)
+	rf += rps_[i].stokes().I();
+      return rf;
+    }
     //bool is_active() {
     //  return is_active_;
     //}

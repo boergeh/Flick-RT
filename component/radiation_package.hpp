@@ -82,6 +82,7 @@ namespace flick {
     auto wavelength() {
       return wavelength_;
     }
+    const stokes& stokes() {return stokes_;}
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
       os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
 	 << ", wl: " << rp.wavelength_

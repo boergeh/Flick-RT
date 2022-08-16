@@ -99,7 +99,7 @@ namespace flick {
     size_t packages_left() const {
       return packages_left_;
     }
-    bool is_empty() {
+    bool is_empty() const {
       if (packages_left_ > 0)
 	return false;
       return true;

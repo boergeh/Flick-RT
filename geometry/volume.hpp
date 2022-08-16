@@ -18,6 +18,10 @@ namespace geometry {
     volume<T>* outer_volume_; 
     std::vector<volume<T>> inner_volumes_;
   public:
+    void clear() {
+      inner_volumes_.clear();
+      inner_volumes_.shrink_to_fit();
+    }
     std::string name() const {
       return name_;
     }
@@ -167,10 +171,10 @@ namespace geometry {
     }
   };
   template<class T>
-  class half_infinite_box : public volume<T> {
+  class semi_infinite_box : public volume<T> {
   public:
-    half_infinite_box() :
-      volume<T>(boundary{make_surface<surface::plane>()},"half_infinite_box") {
+    semi_infinite_box() :
+      volume<T>(boundary{make_surface<surface::plane>()},"semi_infinite_box") {
     }
   };
  
@@ -218,9 +222,7 @@ namespace geometry {
       return *v_;
     }
     volume<T>& next_volume(pose observer) const {
-      //observer.move_by(observer.z_direction()*v_->small_step());
       std::optional<size_t> n = v_->closest_inner_volume(observer);
-      //std::cout << "inner vol: " << n.has_value()<<std::endl;
       if (n.has_value())
 	return v_->inner_volume(*n);
       return v_->outer_volume();
