@@ -13,6 +13,7 @@ build:
 	cd material/gas; make obj link
 	cd transporter; make obj link
 	cd radiator; make obj link
+	cd model; make obj link
 	cd main; make obj link
 test:	
 	@cd numeric; make test
@@ -22,6 +23,7 @@ test:
 	@cd material; make test
 	@cd coating; make test
 	@cd transporter; make test
+	@cd model; make test
 	@cd radiator; make test
 clean:	
 	cd numeric; make clean
@@ -32,6 +34,7 @@ clean:
 	cd coating; make clean
 	cd transporter; make clean
 	cd radiator; make clean
+	cd model; make clean
 	cd main; make clean
 	rm -f *~
 

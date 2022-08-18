@@ -8,13 +8,13 @@
 #include "../numeric/pose.hpp"
 
 namespace flick {
-  class material {
+namespace material {
+  class basic_material {
   protected:
     pl_function temperature_{constants::T_ntp};
     double wavelength_{500e-9};
     double height_{0};
     unit_vector direction_{0,0,1};
-    //double proposed_asymmetry_factor_{0};
   public:
     void temperature(const pl_function& t) {
       temperature_ = t;
@@ -28,6 +28,8 @@ namespace flick {
     void direction(const unit_vector& d) {
       direction_ = d;
     }
+    virtual double absorption_coefficient() = 0;
+    virtual double scattering_coefficient() = 0;
     /*
     unit_vector proposed_scattering_direction(double random_polar,
 					      double random_azimuth) {
@@ -48,6 +50,12 @@ namespace flick {
     }
     */
   };
+  void stream_basic_material(std::ostream &os, basic_material& bm) {
+    os << "absorption coefficient " << bm.absorption_coefficient()
+       << ", scattering coefficient " << bm.scattering_coefficient();
+    //return os;
+  }
+
   /*
   class gas : public material {
     std::vector<double> wavelengths_{500e-9};
@@ -300,4 +308,6 @@ namespace flick {
   };
   */
 }
+}
+
 #endif

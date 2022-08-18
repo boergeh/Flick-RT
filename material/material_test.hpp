@@ -1,9 +1,9 @@
 #include "water/pure_water.hpp"
 namespace flick {
-  using namespace constants;
   begin_test_case(material_test) {
-    
-    pure_water pw;
+    using namespace constants;
+    using namespace flick;
+    material::pure_water pw;
     auto m = pw.mueller_matrix();
     //std::cout << m.element(0,0);
     /*

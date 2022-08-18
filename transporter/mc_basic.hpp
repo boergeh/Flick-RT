@@ -29,10 +29,11 @@ namespace flick {
       if (v->content().has_coating()) {
 	coating_ = &v->content().coating();
 	lag_ = coating::lambert_angle_generator{rnd_(0,1),rnd_(0,1)};
-	is_reflected_=
-	  (coating_!=nullptr && rnd_(0,1) < coating_->reflectivity());
-	is_transmitted_=
-	  (coating_==nullptr || rnd_(0,1) < coating_->transmissivity());
+	double r = rnd_(0,1);
+	if (coating_!=nullptr && r < coating_->reflectivity())
+	  is_reflected_ = true;
+	if (coating_!=nullptr && r > coating_->transmissivity())
+	  is_transmitted_ = false;
       }
     }  
     bool will_intersect() const {
@@ -46,10 +47,12 @@ namespace flick {
     void interact() {
       unit_vector n = facing_surface_normal();
       if (is_reflected_) {
+	std::cout << "reflected, ";
 	rp_.move(-nav_.current_volume().small_step());
 	change_orientation(n);
 	change_radiation();
       } else if (is_transmitted_) {
+	std::cout << "transmitted, ";
 	if (nav_.current_volume().content().has_coating() &&
 	    next_wall_intersection_.has_value()) {
 	  change_orientation(-n);
@@ -134,6 +137,7 @@ namespace flick {
       while (!em.is_empty()) {
 	nav_.go_to(emitter_volume);
 	rp_ = em.emit();
+	std::cout << "endl" << std::endl;
 	while (!rp_.is_empty() && !lost_in_space()) {
 	  wall_interactor wi(nav_,rp_);
 	  //particle_interactor pi(nav_,rp_);
@@ -149,7 +153,7 @@ namespace flick {
       }
     }
   };
-
+  /*
   namespace geometry {
     namespace plane_parallel {
       class basic_slab {
@@ -255,7 +259,9 @@ namespace flick {
       };
       
     }
+  
   }
+  */
 }
 
 #endif

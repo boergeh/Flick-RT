@@ -5,7 +5,8 @@
 #include "../../polarization/rayleigh_mueller.hpp"
 
 namespace flick {
-  class pure_water : public material {
+namespace material {
+  class pure_water : public basic_material {
     pp_function absorption_coefficient_;
     pp_function refractive_index_;
     pl_function temperature_correction_;
@@ -61,6 +62,7 @@ namespace flick {
       return refractive_index_.value(wavelength_);
     }
   };
+}
 }
 
 #endif

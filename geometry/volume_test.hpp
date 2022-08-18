@@ -85,10 +85,8 @@ namespace geometry {
     space.insert(atmosphere);
 
     auto nav = navigator<content>(space);
-    //std::cout << "\n" << nav.current_volume();
     pose observer1{{0,0,5},{0,0,-1}};
     nav.go_to(nav.next_volume(observer1));
-    //std::cout << "\n" << nav.current_volume();
     pose observer2{{0,0,2},{0,0,1}};
     nav.go_to(nav.next_volume(observer2));
     
