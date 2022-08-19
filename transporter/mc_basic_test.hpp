@@ -34,7 +34,7 @@ namespace flick {
     //geometry::volume<content> w = world();
     //mc_basic mcb{w};
     //mcb.run();
-
+    /*
     geometry::plane_parallel::henyey_greenstein_slab hgs;
     hgs.n_radiation_packages(5);   
     check_small(hgs.hemispherical_reflectance(),1e-12);
@@ -43,5 +43,6 @@ namespace flick {
     hgs.bottom_albedo(1);
     check_close(hgs.hemispherical_reflectance(),1,1e-12);
     check_small(hgs.hemispherical_transmittance(),1e-12);
-  } end_test_case()
+    */
+    } end_test_case()
 }

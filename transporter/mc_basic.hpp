@@ -14,26 +14,27 @@ namespace flick {
     volume* next_volume_;
     const coating::base* coating_;
     radiation_package& rp_;
-    uniform_random rnd_;
-    coating::lambert_angle_generator lag_;
+    uniform_random& rnd_;
+    coating::lambert_angle_generator& lag_;
     bool is_reflected_{false};
     bool is_transmitted_{true};
   public:
     wall_interactor(geometry::navigator<content>& nav,
-		    radiation_package& rp) : nav_{nav}, rp_{rp} {   
+		    radiation_package& rp,
+		    uniform_random& ur,
+		    coating::lambert_angle_generator& lag)
+      : nav_{nav}, rp_{rp}, rnd_{ur}, lag_{lag} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
       next_volume_ = &nav_.next_volume(rp_.pose());
       volume* v = next_volume_;
       if (is_moving_outward())
       	v = &nav_.current_volume();
-      if (v->content().has_coating()) {
+      if (v->content().has_coating() && next_wall_intersection_.has_value()) {
 	coating_ = &v->content().coating();
 	lag_ = coating::lambert_angle_generator{rnd_(0,1),rnd_(0,1)};
 	double r = rnd_(0,1);
-	if (coating_!=nullptr && r < coating_->reflectivity())
-	  is_reflected_ = true;
-	if (coating_!=nullptr && r > coating_->transmissivity())
-	  is_transmitted_ = false;
+	is_reflected_ = (r < coating_->reflectivity());
+	is_transmitted_ = (1-r < coating_->transmissivity());
       }
     }  
     bool will_intersect() const {
@@ -47,12 +48,10 @@ namespace flick {
     void interact() {
       unit_vector n = facing_surface_normal();
       if (is_reflected_) {
-	std::cout << "reflected, ";
 	rp_.move(-nav_.current_volume().small_step());
 	change_orientation(n);
 	change_radiation();
       } else if (is_transmitted_) {
-	std::cout << "transmitted, ";
 	if (nav_.current_volume().content().has_coating() &&
 	    next_wall_intersection_.has_value()) {
 	  change_orientation(-n);
@@ -104,10 +103,10 @@ namespace flick {
       double f = 1;
       if (is_reflected_) {
 	double brdf = coating_->reflection_mueller_matrix().value(0,0);
-	f = coating_->reflectivity()*brdf/lag_.brdf();
+	f = brdf/lag_.brdf();
       } else if (is_transmitted_) {
 	double brdf = coating_->transmission_mueller_matrix().value(0,0);
-	f = coating_->transmissivity()*brdf/lag_.brdf();
+	f = brdf/lag_.brdf();
       }
       rp_.scale_intensity(f);
     }
@@ -134,12 +133,13 @@ namespace flick {
       nav_ =  geometry::navigator<content>(*outer_volume_);
     }
     void run(emitter& em, geometry::volume<content>& emitter_volume) {
+      uniform_random ur;
+      coating::lambert_angle_generator lag;
       while (!em.is_empty()) {
 	nav_.go_to(emitter_volume);
 	rp_ = em.emit();
-	std::cout << "endl" << std::endl;
 	while (!rp_.is_empty() && !lost_in_space()) {
-	  wall_interactor wi(nav_,rp_);
+	  wall_interactor wi(nav_,rp_,ur,lag);
 	  //particle_interactor pi(nav_,rp_);
 	  //if (wi.will_intersect()) {
 	    wi.move_to_intersection();	   	  
