@@ -10,7 +10,7 @@ namespace flick {
   using albedo = bounded_type<double, zero, one>;
   using zenith_angle = bounded_type<double, zero, pi_half>;
   using thickness = bounded_type<double, zero, std::exa>;
-  using number_of_packages = bounded_type<long int, zero, std::exa>;
+  using number_of_packages = bounded_type<size_t, zero, std::exa>;
   using bottom_albedo = albedo;
   using incidence_angle = zenith_angle;
   /*

@@ -18,6 +18,7 @@ namespace flick {
     double weighted_traveling_length_{0};
     //size_t weighted_scattering_events_{0};
     //bool do_not_scatter_?
+    double scattering_optical_depth_to_be_used_{0};
   public:
     radiation_package() = default;
     radiation_package(const pose& p, const stokes& s)
@@ -39,41 +40,27 @@ namespace flick {
     void traveling_direction(const unit_vector& direction) {
       pose_.rotate_to(direction);
     }
-    void x_direction_parallel_with_plane_of_incidence(const unit_vector&
-						  surface_normal) {
-      double ang = acos(dot(surface_normal, pose_.y_direction()));
-      pose_.rotate_about_local_z(ang);
-      stokes_.rotate(-ang);
-    }
-    void x_direction_parallel_with_scattering_plane(const unit_vector&
-						  scattering_direction) {
-      vector n = cross(pose_.z_direction(),scattering_direction);
-      double ang = acos(dot(n, pose_.x_direction()));
-      pose_.rotate_about_local_z(ang);
-      stokes_.rotate(-ang);
-    }
-    void change_polarization(const mueller& m)
+    void reshape_polarization(const mueller& m)
     {
       stokes_ = m * stokes_;
     }
     void rotate_about_local_x(double angle) {
       pose_.rotate_about_local_x(angle);
     }
-   
     void rotate_about_local_y(double angle) {
       pose_.rotate_about_local_y(angle);
     }
     void rotate_about_local_z(double angle) {
       pose_.rotate_about_local_z(angle);
+      stokes_.rotate(-angle);
     }
- 
     bool is_empty() const {
       double epsilon = 1e-9;
       if (stokes_.I() < 1e-9)
 	return true;
       return false;
     }
-    auto weighted_traveling_length() const {
+    double weighted_traveling_length() const {
       return weighted_traveling_length_;
     }
     auto pose() const {
@@ -82,7 +69,9 @@ namespace flick {
     auto wavelength() {
       return wavelength_;
     }
-    const stokes& stokes() {return stokes_;}
+    const stokes& stokes() {
+      return stokes_;
+    }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
       os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
 	 << ", wl: " << rp.wavelength_

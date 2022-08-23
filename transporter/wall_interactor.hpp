@@ -1,17 +1,15 @@
-#ifndef flick_mc_basic
-#define flick_mc_basic
+#ifndef flick_wall_interactor
+#define flick_wall_interactor
 
 #include "../geometry/volume.hpp"
 #include "../component/content.hpp"
 #include "../component/emitter.hpp"
 
 namespace flick {
-  using volume = geometry::volume<content>;
-
-   class wall_interactor {
+  class wall_interactor {
     geometry::navigator<content>& nav_;
     std::optional<pose> next_wall_intersection_;
-    volume* next_volume_;
+    geometry::volume<content>* next_volume_;
     const coating::base* coating_;
     radiation_package& rp_;
     uniform_random& rnd_;
@@ -26,7 +24,7 @@ namespace flick {
       : nav_{nav}, rp_{rp}, rnd_{ur}, lag_{lag} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
       next_volume_ = &nav_.next_volume(rp_.pose());
-      volume* v = next_volume_;
+      geometry::volume<content>* v = next_volume_;
       if (is_moving_outward())
       	v = &nav_.current_volume();
       if (v->content().has_coating() && next_wall_intersection_.has_value()) {
@@ -92,9 +90,15 @@ namespace flick {
     }    
     bool is_moving_outward() const {
       return !is_moving_inward();
-    }   
+    }
+    void x_direction_parallel_with_plane_of_incidence(const unit_vector&
+						      surface_normal) {
+      pose p = rp_.pose();
+      double ang = acos(dot(surface_normal, p.y_direction()));
+      rp.rotate_about_local_z(ang);
+    }
     void change_orientation(const unit_vector& facing_surface_normal) {
-      rp_.x_direction_parallel_with_plane_of_incidence(facing_surface_normal);
+      x_direction_parallel_with_plane_of_incidence(facing_surface_normal);
       rp_.traveling_direction(facing_surface_normal);
       rp_.rotate_about_local_z(lag_.azimuth_angle());
       rp_.rotate_about_local_x(lag_.polar_angle());
@@ -109,48 +113,6 @@ namespace flick {
 	f = brdf/lag_.brdf();
       }
       rp_.scale_intensity(f);
-    }
-    radiation_package& leaving_radiation_package() {
-      return rp_;
-    } 
-  };
-  
-  class mc_basic {
-    volume* outer_volume_;
-    geometry::navigator<content> nav_;
-    radiation_package rp_;   
-    uniform_random rnd_;
-    
-    bool lost_in_space() {
-      if (!nav_.current_volume().has_outer_volume()
-	  && rp_.weighted_traveling_length() > 0)
-      	return true;
-      return false;
-    }
-  public:
-    mc_basic(geometry::volume<content>& v) {
-      outer_volume_ = &v;
-      nav_ =  geometry::navigator<content>(*outer_volume_);
-    }
-    void run(emitter& em, geometry::volume<content>& emitter_volume) {
-      uniform_random ur;
-      coating::lambert_angle_generator lag;
-      while (!em.is_empty()) {
-	nav_.go_to(emitter_volume);
-	rp_ = em.emit();
-	while (!rp_.is_empty() && !lost_in_space()) {
-	  wall_interactor wi(nav_,rp_,ur,lag);
-	  //particle_interactor pi(nav_,rp_);
-	  //if (wi.will_intersect()) {
-	    wi.move_to_intersection();	   	  
-	    wi.interact();	  	   
-	    //rp_ = wi.leaving_radiation_package();
-	    //} //else if (pi.will_scatter()) {
-	  // pi.move_to_scattering_event()
-	  //pi.scatter()
-	  // }
-	}
-      }
     }
   };
 }
