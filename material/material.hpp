@@ -6,30 +6,69 @@
 #include "../numeric/function.hpp"
 #include "../numeric/physics_function.hpp"
 #include "../numeric/pose.hpp"
+#include "../numeric/bounded_type.hpp"
+#include "../polarization/rayleigh_mueller.hpp"
 
 namespace flick {
+  using wavelength = bounded_type<double, zero, std::exa>;
 namespace material {
-  class basic_material {
+  class base {
   protected:
     pl_function temperature_{constants::T_ntp};
-    double wavelength_{500e-9};
-    double height_{0};
-    unit_vector direction_{0,0,1};
+    wavelength wavelength_{500e-9};
+    //double wavelength_{500e-9};
+    //double height_{0};
+    //unit_vector direction_{0,0,1};
+    pose pose_;
   public:
-    void temperature(const pl_function& t) {
-      temperature_ = t;
+    void set(const pl_function& temperature) {
+      temperature_ = temperature;
     }
-    void wavelength(double wl) {
-      wavelength_ = wl;
-    }
+    //void wavelength(double wl) {
+    //  wavelength_ = wl;
+    // }
+    /*
     void height(double h) {
       height_ = h;
     }
-    void direction(const unit_vector& d) {
-      direction_ = d;
+    */
+    void set(const pose& p) {
+      pose_ = p;
     }
-    virtual double absorption_coefficient() = 0;
-    virtual double scattering_coefficient() = 0;
+    void set(const wavelength& wl) {
+      wavelength_ = wl;
+    }
+    double angle(const unit_vector& scattering_direction) {
+      return acos(dot(pose_.z_direction(),scattering_direction));
+    }
+     //void direction(const unit_vector& d) {
+    //  direction_ = d;
+    //}
+    //virtual double absorption_coefficient() = 0; //remove?
+    //virtual double scattering_coefficient() = 0; //remove?
+    //coefficient coefficient() {}
+
+    virtual double absorption_optical_depth(double distance) {
+      // tbi
+      return 0;
+    }
+    virtual double scattering_optical_depth(double distance) {
+      // tbi
+      return 0;
+    }
+    virtual double absorption_distance(double absorption_optical_depth) {
+      // tbi
+      return std::numeric_limits<double>::max();
+    }
+    virtual double scattering_distance(double scattering_optical_depth) {
+      // tbi
+      return std::numeric_limits<double>::max();
+    }
+    virtual mueller mueller_matrix(const unit_vector& scattering_direction) {
+      mueller m;
+      m.add(0,0,1/(4*constants::pi));
+      return m;
+    }
     /*
     unit_vector proposed_scattering_direction(double random_polar,
 					      double random_azimuth) {
@@ -50,12 +89,19 @@ namespace material {
     }
     */
   };
+  class vacuum : public base {
+  public:
+    double refractive_index() {
+      return 1;
+    }
+  };
+  /*
   void stream_basic_material(std::ostream &os, basic_material& bm) {
     os << "absorption coefficient " << bm.absorption_coefficient()
        << ", scattering coefficient " << bm.scattering_coefficient();
     //return os;
   }
-
+  */
   /*
   class gas : public material {
     std::vector<double> wavelengths_{500e-9};

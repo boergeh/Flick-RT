@@ -18,7 +18,7 @@ namespace flick {
     double weighted_traveling_length_{0};
     //size_t weighted_scattering_events_{0};
     //bool do_not_scatter_?
-    double scattering_optical_depth_to_be_used_{0};
+    //double scattering_optical_depth_to_be_used_{0};
   public:
     radiation_package() = default;
     radiation_package(const pose& p, const stokes& s)

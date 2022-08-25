@@ -6,7 +6,7 @@
 
 namespace flick {
 namespace material {
-  class henyey_greenstein : public basic_material {
+  class henyey_greenstein : public base {
     flick::absorption_coefficient ac_;
     flick::scattering_coefficient sc_;
     asymmetry_factor g_;
@@ -21,9 +21,9 @@ namespace material {
     double scattering_coefficient() {
       return sc_();
     }
-    auto mueller_matrix() {
+    mueller mueller_matrix(const unit_vector& scattering_direction) {
       mueller m;
-      m.add(0,0,flick::henyey_greenstein(g_()).phase_function(direction_.theta()));
+      m.add(0,0,flick::henyey_greenstein(g_()).phase_function(angle(scattering_direction)));
       return m;
     }
     double refractive_index() {
@@ -31,7 +31,7 @@ namespace material {
     }
     friend std::ostream& operator<<(std::ostream &os,
 				    henyey_greenstein& hg) {
-      stream_basic_material(os,hg);
+      //stream_basic_material(os,hg);
       os << ", asymmetry factor " << hg.g_();
       return os;
     }

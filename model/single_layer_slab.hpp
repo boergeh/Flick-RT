@@ -82,7 +82,7 @@ namespace model {
       layer.content().inward_receiver().activate();
       layer.content().outward_receiver().activate();
       bottom.content().inward_receiver().activate();
-      bottom.content().set_coating<coating::grey_lambert>(ba_(),1-ba_());
+      bottom.content().coat<coating::grey_lambert>(ba_(),1-ba_());
       geometry_.move_by({0,0,h_()+1});
       layer.move_by({0,0,h_()});
       layer.insert(bottom);
@@ -95,7 +95,7 @@ namespace model {
       auto direction = unit_vector{constants::pi-theta_0_(),0}; 
       emitter.set_direction<unidirectional>(direction);
       build_geometry();
-      transporter::ordinary_mc(geometry_,geometry_,emitter).run();
+      transporter::ordinary_mc(geometry_,geometry_,emitter).run(1,0.8);
     }
   };
   /*

@@ -221,11 +221,13 @@ namespace geometry {
     volume<T>& current_volume() const {
       return *v_;
     }
-    volume<T>& next_volume(pose observer) const {
+    volume<T>& next_volume(const pose& observer) const {
       std::optional<size_t> n = v_->closest_inner_volume(observer);
       if (n.has_value())
 	return v_->inner_volume(*n);
-      return v_->outer_volume();
+      if (v_->has_outer_volume())
+	return v_->outer_volume();
+      return current_volume();
     }
     std::optional<pose> next_intersection(const pose& observer) const {
       return v_->intersection(observer);

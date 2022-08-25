@@ -7,7 +7,7 @@ namespace flick {
   class stokes
   // see Wikipedia Stokes parameters
   {
-    double I_{1}; 
+    double I_{1}; //should store log(I)?
     double psi_{0};
     double xsi_{constants::pi/2};
     double p_{0};

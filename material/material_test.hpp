@@ -4,7 +4,7 @@ namespace flick {
     using namespace constants;
     using namespace flick;
     material::pure_water pw;
-    auto m = pw.mueller_matrix();
+    //auto m = pw.mueller_matrix();
     //std::cout << m.element(0,0);
     /*
     water w;

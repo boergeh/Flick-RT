@@ -17,11 +17,11 @@ namespace flick {
 	  double S = std::stod(a(7));	
 	  auto wls = range(from_wl, to_wl, n_points).logspace();
 	  material::pure_water pw;
-	  pw.temperature(T);
+	  pw.set(pl_function(T));
 	  pw.salinity(S);
 	  double value = 0;
 	  for (auto wl:wls) {
-	    pw.wavelength(wl);
+	    pw.set(wavelength(wl));
 	    if (a(2)=="absorption_length")
 	      value = 1/pw.absorption_coefficient();
 	    else if (a(2)=="scattering_length")
