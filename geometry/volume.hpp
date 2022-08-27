@@ -66,17 +66,6 @@ namespace geometry {
 	  }
 	}
       }
-      /*
-      std::optional<pose> p = boundary_.intersection(observer);
-      if (p.has_value()) {
-	double d = norm((*p).position()-observer.position());
-	std::cout << "d " << d << std::endl;
-	std::cout << "dmin " << d_min << std::endl;
-	if (d < d_min && d_min < std::numeric_limits<double>::max()) {
-	  throw std::runtime_error("Observer outside current volume");
-	}
-      }
-      */
       return n;
     }
     std::optional<pose> intersection(const pose& observer) const

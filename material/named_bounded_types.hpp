@@ -6,6 +6,8 @@
 namespace flick {
   using scattering_coefficient = bounded_type<double, zero, std::exa>;
   using absorption_coefficient = bounded_type<double, zero, std::exa>;
+  //char af_str[]="asymmetry factor";
+  //using asymmetry_factor = bounded_type<double, negative_one, one,af_str>;
   using asymmetry_factor = bounded_type<double, negative_one, one>;
   using albedo = bounded_type<double, zero, one>;
   using zenith_angle = bounded_type<double, zero, pi_half>;

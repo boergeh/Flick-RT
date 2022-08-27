@@ -14,24 +14,9 @@ namespace flick {
 namespace material {
   class base {
   protected:
-    pl_function temperature_{constants::T_ntp};
     wavelength wavelength_{500e-9};
-    //double wavelength_{500e-9};
-    //double height_{0};
-    //unit_vector direction_{0,0,1};
     pose pose_;
   public:
-    void set(const pl_function& temperature) {
-      temperature_ = temperature;
-    }
-    //void wavelength(double wl) {
-    //  wavelength_ = wl;
-    // }
-    /*
-    void height(double h) {
-      height_ = h;
-    }
-    */
     void set(const pose& p) {
       pose_ = p;
     }
@@ -53,7 +38,6 @@ namespace material {
       return 0;
     }
     virtual double scattering_optical_depth(double distance) {
-      // tbi
       return 0;
     }
     virtual double absorption_distance(double absorption_optical_depth) {
@@ -114,8 +98,8 @@ namespace material {
     */  
 
   
-  /*  
-  class profile {
+  
+  class basic_profile {
   public:
     virtual double column_density(double column_length,
 				  const pose& p) = 0;
@@ -123,19 +107,20 @@ namespace material {
 				 const pose& p) = 0;
   };
   
-  class constant_profile : public profile {
+  class constant_profile : public basic_profile {
     double volumetric_density_;
   public:
     constant_profile(double volumetric_density)
-      : volumetric_density_{volumetric_density} {}
+      : volumetric_density_{volumetric_density} {
+    }
     double column_density(double column_length, const pose& p) {
       return volumetric_density_ * column_length;
     }
-    std::optional<double> column_length(double column_density, const pose& p) {
+    std::optional<double> column_distance(double column_density, const pose& p) {
       return column_density / volumetric_density_;
     }    
   };  
-
+  /*
   class exponential_profile : public profile {
     function<piecewise_exponential_like> volumetric_density;
   public:
@@ -161,8 +146,8 @@ namespace material {
       return volumetric_density.integral_limit_b(h1, column_density * u);
     }    
   };
-
   */
+ 
 
   
   /*

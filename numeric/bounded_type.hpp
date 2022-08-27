@@ -20,17 +20,25 @@ namespace flick {
   using four_pi = std::ratio_multiply<std::ratio<4>,one_pi>;
   using pi_half = std::ratio<3141592653589793238,2000000000000000000>;
 
-  template<class T,  class lower_bound, class upper_bound=std::exa>
+  //template<class T,  class lower_bound, class upper_bound=std::exa>
+  //template<class T,  class lower_bound, class upper_bound, char *name=nullptr>
+  template<class T,  class lower_bound, class upper_bound>
   class bounded_type {
     T value_;
     void check_validity() {
-      bool too_low = static_cast<T>(value_ * lower_bound::den) < lower_bound::num; 
-      bool too_high = static_cast<T>(value_ * upper_bound::den) > upper_bound::num;
+      bool too_low = static_cast<T>(value_ * lower_bound::den)
+	< lower_bound::num; 
+      bool too_high = static_cast<T>(value_ * upper_bound::den)
+	> upper_bound::num;
       if (too_low || too_high) {
+	//std::string s;
+	//if (name!=nullptr)
+	//  s = std::string(name);
 	std::stringstream ss;
 	ss << "bounded type value " << value_
-	   << " is not in the range from " << double(lower_bound::num)/lower_bound::den
-	   << " to " << double(upper_bound::num)/upper_bound::den << " ";
+	   << " is not within the required range "
+	   << double(lower_bound::num) / lower_bound::den
+	   << " to " << double(upper_bound::num) / upper_bound::den << " ";
 	throw std::invalid_argument(ss.str());
       }
     }
@@ -40,7 +48,19 @@ namespace flick {
       check_validity();
     }
     T operator()() const {return value_;}
+    bounded_type& operator=(T new_value) {
+      value_ = new_value;
+      check_validity();
+      return *this;
+    }
+    
+    friend std::ostream& operator<<(std::ostream &os,
+    				    const bounded_type<T,lower_bound, upper_bound>& bt) {
+      os << bt();
+      return os;
+    }
   };
+  
 }
   
 #endif

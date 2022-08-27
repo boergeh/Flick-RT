@@ -19,10 +19,14 @@ namespace flick {
     void coat(Args... a) {
       coating_ = std::make_shared<Coating>(a...);
       has_coating_ = true;
-    }
+    }    
     template <class Material, class... Args>
     void fill(Args... a) {
       material_ = std::make_shared<Material>(a...);
+      has_material_ = true;
+    }
+    void fill(std::shared_ptr<material::base> m) {
+      material_ = m;
       has_material_ = true;
     }
     const coating::base& coating() const {
@@ -46,12 +50,12 @@ namespace flick {
     }
     receiver& outward_receiver() {
       return outward_receiver_;
-    }
-    
+    } 
     friend std::ostream& operator<<(std::ostream &os, const content& c) {
       //os << c.has_active_receiver_;
       return os;
     }
   };
 }
+
 #endif

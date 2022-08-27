@@ -14,6 +14,10 @@ namespace flick {
     bool is_active_{false};
     //bool is_inward_accepting_{true};
   public:
+    void clear() {
+      rps_.clear();
+      rps_.shrink_to_fit();
+    }
     void receive(const radiation_package& rp) {
       if (is_active_)
 	rps_.emplace_back(rp);
@@ -30,6 +34,12 @@ namespace flick {
       for(size_t i=0; i<rps_.size(); ++i)
 	rf += rps_[i].stokes().I();
       return rf;
+    }
+    double mean_traveling_length() {
+      double l = 0;
+      for(size_t i=0; i<rps_.size(); ++i)
+	l += rps_[i].weighted_traveling_length();
+      return l/rps_.size();
     }
     //bool is_active() {
     //  return is_active_;

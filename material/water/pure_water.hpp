@@ -12,6 +12,7 @@ namespace material {
     pl_function temperature_correction_;
     pl_function salinity_correction_;
     pl_function salinity_psu_{0};
+    pl_function temperature_{constants::T_ntp};
     const double pope_fry_temperature_{295};
     const std::string path_{"/material/water"};
   public:
@@ -31,6 +32,9 @@ namespace material {
     }
     void salinity(const pl_function& s) {
       salinity_psu_ = s;
+    }
+    void temperature(const pl_function& temperature) {
+      temperature_ = temperature;
     }
     double absorption_coefficient() {
       double T = temperature_.value(pose_.position().z());

@@ -17,7 +17,7 @@ namespace flick {
 	  double S = std::stod(a(7));	
 	  auto wls = range(from_wl, to_wl, n_points).logspace();
 	  material::pure_water pw;
-	  pw.set(pl_function(T));
+	  pw.temperature(T);
 	  pw.salinity(S);
 	  double value = 0;
 	  for (auto wl:wls) {

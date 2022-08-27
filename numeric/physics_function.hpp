@@ -22,14 +22,15 @@ namespace flick {
       return 1/(4*pi)*(1-pow(g,2))/pow(arg,3./2);
     }
     double inverted_accumulated_angle(double fraction)
-    // Note that fraction has range [0 1]      
+    // Note that fraction has range [0 1], and range value zero
+    // corresponds to angle zero
     {
       double g = asymmetry_factor_;
-      if (fabs(g) < 1e-9) // isotropic
+      if (fabs(g) < 1e-9) // isotropic scattering
 	return acos(1-2*fraction);
-      double arg = (1-pow(g,2))/(1-g+2*g*fraction);
+      double arg = (1-pow(g,2))/(1-g+2*g*(1-fraction));
       double mu = (1+pow(g,2)-pow(arg,2))/(2*g);
-      return acos(-mu);
+      return acos(mu); 
     }
   };
 }

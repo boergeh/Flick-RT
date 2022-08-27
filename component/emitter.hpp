@@ -62,20 +62,24 @@ namespace flick {
   class emitter
   // Point radiometric device
   {
-    vector position_;
-    size_t total_packages_;
-    size_t packages_left_;
-    stokes initial_stokes_;
+    vector position_{0,0,0};
+    size_t total_packages_{0};
+    size_t packages_left_{0};
+    stokes initial_stokes_{1,0,0,0};
     std::shared_ptr<wavelength_distribution> wld_;
     std::shared_ptr<direction_distribution> dd_;
   public:
     emitter() = default;
-    emitter(vector position, const stokes& initial_stokes, size_t packages)
-      : position_{position}, total_packages_{packages}, packages_left_{packages},
+    emitter(vector position, const stokes& initial_stokes, size_t n_packages)
+      : position_{position},
+	total_packages_{n_packages},
+	packages_left_{n_packages},
 	initial_stokes_{initial_stokes},
 	wld_{std::make_shared<monocromatic>(500e-9)},
-	dd_{std::make_shared<isotropic>()}
-    {}
+	dd_{std::make_shared<isotropic>()} {
+    }
+    emitter(size_t n_packages) : emitter({0,0,0,},{1,0,0,0},n_packages) {
+    }
     template <class Wd, class... Args>
     void set_wavelength(Args... a) {
       wld_ = std::make_shared<Wd>(a...);
@@ -93,16 +97,14 @@ namespace flick {
       pose p{position_, dd_->draw()};
       radiation_package rp(p, initial_stokes_);
       rp.wavelength(wld_->draw());
-      --packages_left_;
+      packages_left_--;
       return rp;
     }    
     size_t packages_left() const {
       return packages_left_;
     }
     bool is_empty() const {
-      if (packages_left_ > 0)
-	return false;
-      return true;
+      return (packages_left_ == 0);
     }
     friend std::ostream& operator<<(std::ostream &os, const emitter& em) {
       os << em.position_ << " " << em.initial_stokes_  << " " << em.packages_left_;

@@ -6,6 +6,10 @@
 #include "../component/emitter.hpp"
 
 namespace flick {
+  using cube = geometry::cube<content>;
+  using sphere = geometry::sphere<content>;
+  using semi_infinite_box = geometry::semi_infinite_box<content>;
+
   class wall_interactor {
     geometry::navigator<content>& nav_;
     std::optional<pose> next_wall_intersection_;
@@ -45,17 +49,16 @@ namespace flick {
     }
     void move_through_wall() {
       move_to_wall();
-      rp_.move(+nav_.current_volume().small_step()); //change to moving allong surf norm
+      rp_.move(nav_.current_volume().small_step()); //change to moving allong surf norm
     }    
     void interact_with_wall() {
       unit_vector n = facing_surface_normal();
       if (is_reflected_) {
 	move_close_to_wall();
 	reorient_traveling_direction(n);
-	//reshape_polarization(n);
+	reshape_polarization(n);
 	likelihood_scale_intensity();
       } else if (is_transmitted_) {
-	//std::cout << "transmitted" << std::endl;
 	if (nav_.current_volume().content().has_coating() &&
 	    next_wall_intersection_.has_value()) {
 	  reorient_traveling_direction(-n);
@@ -63,12 +66,9 @@ namespace flick {
 	  likelihood_scale_intensity();
 	}
 	move_through_wall();
-	//std::cout << "moved through wall" << std::endl;
 	if (next_wall_intersection_.has_value())
 	  increment_activated_receiver();
-	//std::cout << "will go next volume" << std::endl;
 	nav_.go_to(*next_volume_);
-	//std::cout << "in next volume" << std::endl;
       } else {
 	absorb_radiation_package();
       }
@@ -120,15 +120,7 @@ namespace flick {
 	rp_.reshape_polarization(coating_->transmission_mueller_matrix());	
     }
     void likelihood_scale_intensity() {
-      double f = 1;
-      if (is_reflected_) {
-	double brdf = coating_->reflection_mueller_matrix().value(0,0);
-	f = brdf/lag_.brdf();
-      } else if (is_transmitted_) {
-	double brdf = coating_->transmission_mueller_matrix().value(0,0);
-	f = brdf/lag_.brdf();
-      }
-      rp_.scale_intensity(f);
+      rp_.scale_intensity(1/lag_.brdf());
     }
     double distance_to_wall() {
       if (next_wall_intersection_.has_value())
