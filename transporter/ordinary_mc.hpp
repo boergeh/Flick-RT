@@ -44,6 +44,7 @@ namespace transporter {
 	  material_interactor mi(rp_,material,random_,scattering_optical_depth,
 				 sampling_asymmetry_factor);
 	  wall_interactor wi(nav_,rp_,random_,lag_);
+	  //std::optional<double> dw = wi.distance_to_wall();
 	  if (mi.distance_to_scattering() < wi.distance_to_wall()) {
 	    mi.deposite_energy_to_heat(mi.distance_to_scattering());
 	    mi.scatter();

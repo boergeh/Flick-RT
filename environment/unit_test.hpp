@@ -76,6 +76,20 @@ namespace flick {
 	errors_++;
       }
     }
+    void check_fast(double max_time,const std::string& s="") {
+      std::chrono::time_point<std::chrono::system_clock> time;
+      time = std::chrono::system_clock::now();
+      std::chrono::duration<double> duration = time - time_1;
+      if (duration > std::chrono::duration<double>(max_time)) {
+	write_begin();
+	std::cout << "\""<< s << "\" " << "runtime of "
+		  << std::setprecision(2) << duration.count()
+		  << " s is slower than the accepted " << max_time
+		  << " s";
+	write_end();
+	errors_++;
+      }
+    }
     void report_throw_failure() {
       write_begin();
       std::cout << "did not throw as expected";

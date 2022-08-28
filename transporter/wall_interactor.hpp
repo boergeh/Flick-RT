@@ -120,9 +120,11 @@ namespace flick {
       rp_.scale_intensity(1/lag_.brdf());
     }
     double distance_to_wall() {
-      if (next_wall_intersection_.has_value())
-	return norm((*next_wall_intersection_).position()-rp_.pose().position());
-      return std::numeric_limits<double>::max(); 
+      if (!next_wall_intersection_.has_value())
+	return 0;// std::numeric_limits<double>::max(); 
+      //return std::optional<double>(false);
+      return norm((*next_wall_intersection_).position()-rp_.pose().position());
+      
     }
   private:
     unit_vector facing_surface_normal() const {
@@ -130,9 +132,6 @@ namespace flick {
       if (dot(n,rp_.pose().z_direction()) < 0)
 	return n;
       return -n;
-      //if (is_moving_outward())
-      //	n = -n;
-      //return n;
     }
     bool is_moving_inward() const {
       if (!next_wall_intersection_.has_value())

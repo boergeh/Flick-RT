@@ -27,10 +27,16 @@ namespace material {
       return scattering_coefficient()*distance;
     }
     double absorption_distance(double absorption_optical_depth) {
-      return absorption_optical_depth/absorption_coefficient();
+       double ac = absorption_coefficient();
+      if (ac > 0)
+	return absorption_optical_depth/ac;
+      return std::numeric_limits<double>::max(); 
     }
     double scattering_distance(double scattering_optical_depth) {
-      return scattering_optical_depth/scattering_coefficient();
+      double sc = scattering_coefficient();
+      if (sc > 0)
+	return scattering_optical_depth/sc;
+      return std::numeric_limits<double>::max(); 
     }
     double absorption_coefficient() {
       return ac_();
