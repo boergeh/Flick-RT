@@ -34,7 +34,6 @@ class material_interactor {
     }
     void find_scattering_direction() {
       double polar_angle = henyey_greenstein{g_}.inverted_accumulated_angle(ur_(0,1));
-      //std::cout << polar_angle << std::endl;
       double azimuth_angle = ur_(0,2*constants::pi);
       pose p = rp_.pose();
       p.rotate_about_local_z(azimuth_angle);

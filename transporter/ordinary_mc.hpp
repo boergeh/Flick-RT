@@ -28,13 +28,15 @@ namespace transporter {
 	      && !nav_.next_intersection(rp_.pose()).has_value());
 	      //&& rp_.weighted_traveling_length() > 0);
     }
-    void run(double sampling_optical_depth=1, double sampling_asymmetry_factor=0.8) {     
+    void run(double sampling_optical_depth=1,
+	     double sampling_asymmetry_factor=0.8) {     
       material::vacuum vacuum;
       while (!emitter_.is_empty()) {
 	nav_.go_to(emitter_volume_);
 	rp_ = emitter_.emit();
 	double scattering_optical_depth = -log(random_(0,1));
 	while (!rp_.is_empty() && !lost_in_space()) {
+	  
 	  if (!nav_.current_volume().content().has_material()) {	  
 	    nav_.current_volume().content().fill<material::vacuum>();
 	  }
@@ -45,12 +47,14 @@ namespace transporter {
 	  if (mi.distance_to_scattering() < wi.distance_to_wall()) {
 	    mi.deposite_energy_to_heat(mi.distance_to_scattering());
 	    mi.scatter();
-	    scattering_optical_depth = -log(random_(0,1)); //include likelihood?
+	    scattering_optical_depth = -log(random_(0,1));
+	    //include likelihood?
 	  } else {
 	    mi.deposite_energy_to_heat(wi.distance_to_wall());
 	    wi.interact_with_wall();
 	    scattering_optical_depth -= material.scattering_optical_depth(wi.distance_to_wall());
 	  }
+	  //std::cout << rp_ << std::endl;
 	}
       }
     }

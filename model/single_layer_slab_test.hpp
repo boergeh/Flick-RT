@@ -15,18 +15,25 @@ namespace flick {
     //slab.set(precision(1));
     slab.set(number_of_packages{100});
 
-    check_small(slab.hemispherical_reflectance(),1e-12);
+    check_small(slab.hemispherical_reflectance(),1e-12,"a");
 
     slab.set(bottom_albedo{1});
-    check_close(slab.hemispherical_reflectance(),1,1e-12);
+    check_close(slab.hemispherical_reflectance(),1,1e-12,"b");
 
     slab.set(bottom_albedo{0.5});
-    check_close(slab.hemispherical_reflectance(),0.5,10);
+    check_close(slab.hemispherical_reflectance(),0.5,20,"c");
 
     a = 1;
     slab.fill<material::henyey_greenstein>(a,b,g);
     slab.set(bottom_albedo(0));
-    check_close(slab.hemispherical_transmittance(),exp(-h()),1);
+    check_close(slab.hemispherical_transmittance(),exp(-h()),1,"d");
+
+    a = 0;
+    b = 1;
+    slab.fill<material::henyey_greenstein>(a,b,g);
+    slab.set(bottom_albedo(1));
+    slab.set(number_of_packages{100});
+    check_close(slab.hemispherical_reflectance(),1,1,"e");
     
   } end_test_case()
 }

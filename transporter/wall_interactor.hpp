@@ -20,6 +20,9 @@ namespace flick {
     coating::lambert_angle_generator& lag_;
     bool is_reflected_{false};
     bool is_transmitted_{true};
+    bool is_moving_inward_;
+    bool is_moving_outward_;
+    unit_vector facing_surface_normal_;
   public:
     wall_interactor(geometry::navigator<content>& nav,
 		    radiation_package& rp,
@@ -28,9 +31,13 @@ namespace flick {
       : nav_{nav}, rp_{rp}, rnd_{ur}, lag_{lag} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
       next_volume_ = &nav_.next_volume(rp_.pose());
+      is_moving_inward_ = is_moving_inward();
+      is_moving_outward_ = is_moving_outward();
+      
       geometry::volume<content>* v = next_volume_;
-      if (is_moving_outward())
+      if (is_moving_outward_) {
       	v = &nav_.current_volume();
+      }
       if (v->content().has_coating() && next_wall_intersection_.has_value()) {
 	coating_ = &v->content().coating();
 	lag_ = coating::lambert_angle_generator{rnd_(0,1),rnd_(0,1)};
@@ -38,6 +45,7 @@ namespace flick {
 	is_reflected_ = (r < coating_->reflectivity());
 	is_transmitted_ = (1-r < coating_->transmissivity());
       }
+      facing_surface_normal_ = facing_surface_normal();
     }
     void move_to_wall() {
       if (next_wall_intersection_.has_value())
@@ -45,61 +53,50 @@ namespace flick {
     }
     void move_close_to_wall() {
       move_to_wall();
-      rp_.move(-nav_.current_volume().small_step()); //change to moving allong surf norm
+      //std::cout<<"pos " << nav_.current_volume().small_step()*facing_surface_normal_*1e7<<std::endl;
+      rp_.move_by(nav_.current_volume().small_step()*facing_surface_normal_);
+      //std::cout << rp_ << std::endl;
+      //rp_.move(-nav_.current_volume().small_step()); 
     }
     void move_through_wall() {
       move_to_wall();
-      rp_.move(nav_.current_volume().small_step()); //change to moving allong surf norm
+      rp_.move_by(-nav_.current_volume().small_step()*facing_surface_normal_);
+      //rp_.move(nav_.current_volume().small_step());
     }    
     void interact_with_wall() {
-      unit_vector n = facing_surface_normal();
+      unit_vector& n = facing_surface_normal_;
       if (is_reflected_) {
 	move_close_to_wall();
 	reorient_traveling_direction(n);
 	reshape_polarization(n);
 	likelihood_scale_intensity();
       } else if (is_transmitted_) {
+	move_through_wall();
 	if (nav_.current_volume().content().has_coating() &&
 	    next_wall_intersection_.has_value()) {
 	  reorient_traveling_direction(-n);
 	  reshape_polarization(-n);
 	  likelihood_scale_intensity();
 	}
-	move_through_wall();
-	if (next_wall_intersection_.has_value())
+	if (next_wall_intersection_.has_value()) {
 	  increment_activated_receiver();
+	}
 	nav_.go_to(*next_volume_);
       } else {
 	absorb_radiation_package();
       }
     }
     void increment_activated_receiver() {
-      if (is_moving_inward())
+      if (is_moving_inward_)
 	next_volume_->content().inward_receiver().receive(rp_);
-      else if (is_moving_outward())
+      else if (is_moving_outward_)
 	nav_.current_volume().content().outward_receiver().receive(rp_);
     }
     auto& current_volume() const {
       return nav_.current_volume();
     }  
-    unit_vector facing_surface_normal() const {
-      unit_vector n = (*next_wall_intersection_).z_direction();
-      if (is_moving_outward())
-	n = -n;
-      return n;
-    }
     void absorb_radiation_package() {
       rp_.scale_intensity(0);
-    }
-    bool is_moving_inward() const {
-      if (!next_wall_intersection_.has_value())
-	return false;
-      if (nav_.is_moving_inward(*next_wall_intersection_,rp_.pose()))
-	return true;
-      return false;
-    }    
-    bool is_moving_outward() const {
-      return !is_moving_inward();
     }
     void set_x_axis_parallel_with_plane_of_incidence(const unit_vector&
 						     surface_normal) {
@@ -126,6 +123,26 @@ namespace flick {
       if (next_wall_intersection_.has_value())
 	return norm((*next_wall_intersection_).position()-rp_.pose().position());
       return std::numeric_limits<double>::max(); 
+    }
+  private:
+    unit_vector facing_surface_normal() const {
+      unit_vector n = (*next_wall_intersection_).z_direction();
+      if (dot(n,rp_.pose().z_direction()) < 0)
+	return n;
+      return -n;
+      //if (is_moving_outward())
+      //	n = -n;
+      //return n;
+    }
+    bool is_moving_inward() const {
+      if (!next_wall_intersection_.has_value())
+	return false;
+      if (nav_.is_moving_inward(*next_wall_intersection_,rp_.pose()))
+	return true;
+      return false;
+    }    
+    bool is_moving_outward() const {
+      return !is_moving_inward();
     }
   };
 }

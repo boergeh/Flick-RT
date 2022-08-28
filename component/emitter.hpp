@@ -78,7 +78,11 @@ namespace flick {
 	wld_{std::make_shared<monocromatic>(500e-9)},
 	dd_{std::make_shared<isotropic>()} {
     }
-    emitter(size_t n_packages) : emitter({0,0,0,},{1,0,0,0},n_packages) {
+    emitter(const vector& position, size_t n_packages)
+      : emitter(position,{1,0,0,0},n_packages) {
+    }
+    emitter(size_t n_packages)
+      : emitter({0,0,0},{1,0,0,0},n_packages) {
     }
     template <class Wd, class... Args>
     void set_wavelength(Args... a) {

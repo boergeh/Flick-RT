@@ -32,7 +32,11 @@ namespace flick {
     }
     void move_to(const vector& position) {
       double distance = norm(position-pose_.position());
-      move(distance);
+      pose_.move_to(position);
+      weighted_traveling_length_ += stokes_.I()*distance;
+    }
+    void move_by(const vector& v) {
+      move_to(pose_.position()+v);
     }
     void wavelength(double wl) {
       wavelength_ = wl;
@@ -40,8 +44,7 @@ namespace flick {
     void traveling_direction(const unit_vector& direction) {
       pose_.rotate_to(direction);
     }
-    void reshape_polarization(const mueller& m)
-    {
+    void reshape_polarization(const mueller& m) {
       stokes_ = m * stokes_;
     }
     void rotate_about_local_x(double angle) {

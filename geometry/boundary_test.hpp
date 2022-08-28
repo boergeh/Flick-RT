@@ -72,7 +72,7 @@ namespace flick {
     auto ui4 = uniform_intersections{b4,10000,limits{1.0,40}};
     check_close(ui4.boundary_area(),pow(2*d,2)*6,9,"r");
     check_close(ui4.enclosed_volume(),pow(2*d,3),9,"s");
-    check_small(rms(ui4.center_of_gravity(),center4),2,"t");
+    check_small(rms(ui4.center_of_gravity(),center4),3,"t");
 
     boundary b5;
     auto sp5 = make_surface<sphere>(1);
