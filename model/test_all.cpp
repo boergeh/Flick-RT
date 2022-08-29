@@ -4,7 +4,8 @@
 int main() {
   using namespace flick;
   unit_test t("model");
-  t.include<single_layer_slab_test>("single_layer_slab_test");
+  t.include<single_layer_slab_test_A>("single_layer_slab_test_A");
+  t.include<single_layer_slab_test_B>("single_layer_slab_test_B");
   t.run_test_cases();
   return 0;
 }

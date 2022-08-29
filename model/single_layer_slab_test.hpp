@@ -1,7 +1,7 @@
 #include "single_layer_slab.hpp"
 
 namespace flick {  
-  begin_test_case(single_layer_slab_test) {
+  begin_test_case(single_layer_slab_test_A) {
     using namespace flick;
     absorption_coefficient a{0};
     scattering_coefficient b{0};
@@ -41,5 +41,24 @@ namespace flick {
 					      azimuth_angle{0},
 					      unit_interval{0.5});
     */
+  } end_test_case()
+
+  begin_test_case(single_layer_slab_test_B) {
+    using namespace flick;
+    absorption_coefficient a{0};
+    scattering_coefficient b{1};
+    asymmetry_factor g{0};
+    thickness h{1};
+    model::single_layer_slab slab{h};
+    slab.fill<material::henyey_greenstein>(a,b,g);    
+    slab.set(bottom_albedo{0});
+    slab.set(incidence_angle{0});
+    slab.set(number_of_packages{1000});
+
+    // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
+    check_close(slab.hemispherical_reflectance(),0.34133, 10);
+
+    // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
+    check_close(slab.hemispherical_transmittance(),0.65867, 10);
   } end_test_case()
 }
