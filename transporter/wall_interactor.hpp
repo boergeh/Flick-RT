@@ -121,10 +121,8 @@ namespace flick {
     }
     double distance_to_wall() {
       if (!next_wall_intersection_.has_value())
-	return 0;// std::numeric_limits<double>::max(); 
-      //return std::optional<double>(false);
-      return norm((*next_wall_intersection_).position()-rp_.pose().position());
-      
+	return 0;
+      return norm((*next_wall_intersection_).position()-rp_.pose().position()); 
     }
   private:
     unit_vector facing_surface_normal() const {

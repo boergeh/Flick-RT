@@ -4,17 +4,22 @@
 #include "../numeric/bounded_type.hpp"
 
 namespace flick {
+  using unit_interval = bounded_type<double, zero, one>;
+
   using scattering_coefficient = bounded_type<double, zero, std::exa>;
   using absorption_coefficient = bounded_type<double, zero, std::exa>;
   //char af_str[]="asymmetry factor";
   //using asymmetry_factor = bounded_type<double, negative_one, one,af_str>;
   using asymmetry_factor = bounded_type<double, negative_one, one>;
-  using albedo = bounded_type<double, zero, one>;
   using zenith_angle = bounded_type<double, zero, pi_half>;
+  using polar_angle = bounded_type<double, zero, one_pi>;
+  using azimuth_angle = bounded_type<double, zero, two_pi>;
   using thickness = bounded_type<double, zero, std::exa>;
   using number_of_packages = bounded_type<size_t, zero, std::exa>;
+  using albedo = unit_interval;
   using bottom_albedo = albedo;
   using incidence_angle = zenith_angle;
+
   /*
   class double_bounded_type {
   protected:

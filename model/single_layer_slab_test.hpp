@@ -29,13 +29,17 @@ namespace flick {
     check_close(slab.hemispherical_transmittance(),exp(-h()),1,"d");
 
     a = 0;
-    b = 0.000000001;
+    b = 1;
     g = 0.5;
     slab.fill<material::henyey_greenstein>(a,b,g);
     slab.set(bottom_albedo{0});
     slab.set(incidence_angle{constants::pi/2*0.4});
     slab.hemispherical_reflectance();
     check_fast(0.1,"e");
-    
+    /*
+    std::cout << slab.directional_reflectance(polar_angle{constants::pi/2},
+					      azimuth_angle{0},
+					      unit_interval{0.5});
+    */
   } end_test_case()
 }

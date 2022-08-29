@@ -34,10 +34,24 @@ namespace flick {
 	rf += rps_[i].stokes().I();
       return rf;
     }
+    double radiant_intensity(const unit_vector& direction,
+			     double acceptance_angle) {
+      double mu_max = 2*constants::pi*(1-cos(acceptance_angle));
+      double sum_ri = 0;
+      double sum_omega = 0;
+      for(size_t i = 0; i < rps_.size(); ++i) {
+	double mu = dot(rps_[i].pose().z_direction(),direction);
+	if (mu < mu_max) {
+	  sum_ri += rps_[i].stokes().I(); 
+	  sum_omega += 2*constants::pi*(1-mu);
+	}
+      }
+      return sum_ri/sum_omega;
+    }
     double mean_traveling_length() {
       double l = 0;
       for(size_t i=0; i<rps_.size(); ++i)
-	l += rps_[i].weighted_traveling_length();
+	l += rps_[i].traveling_length();
       return l/rps_.size();
     }
     //bool is_active() {

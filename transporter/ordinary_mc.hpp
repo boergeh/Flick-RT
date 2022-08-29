@@ -26,7 +26,6 @@ namespace transporter {
     bool lost_in_space() {
       return (!nav_.current_volume().has_outer_volume()
 	      && !nav_.next_intersection(rp_.pose()).has_value());
-	      //&& rp_.weighted_traveling_length() > 0);
     }
     void run(double sampling_optical_depth=1,
 	     double sampling_asymmetry_factor=0.8) {     
@@ -36,7 +35,6 @@ namespace transporter {
 	rp_ = emitter_.emit();
 	double scattering_optical_depth = -log(random_(0,1));
 	while (!rp_.is_empty() && !lost_in_space()) {
-	  
 	  if (!nav_.current_volume().content().has_material()) {	  
 	    nav_.current_volume().content().fill<material::vacuum>();
 	  }
@@ -44,7 +42,6 @@ namespace transporter {
 	  material_interactor mi(rp_,material,random_,scattering_optical_depth,
 				 sampling_asymmetry_factor);
 	  wall_interactor wi(nav_,rp_,random_,lag_);
-	  //std::optional<double> dw = wi.distance_to_wall();
 	  if (mi.distance_to_scattering() < wi.distance_to_wall()) {
 	    mi.deposite_energy_to_heat(mi.distance_to_scattering());
 	    mi.scatter();

@@ -15,8 +15,8 @@ namespace flick {
     pose pose_;
     double wavelength_{500e-9};
     stokes stokes_{1,0,0,0};
-    double weighted_traveling_length_{0};
-    //size_t weighted_scattering_events_{0};
+    double traveling_length_{0};
+    //size_t scattering_events_{0};?
     //bool do_not_scatter_?
     //double scattering_optical_depth_to_be_used_{0};
   public:
@@ -28,12 +28,12 @@ namespace flick {
     }
     void move(double distance) {
       pose_.move_by(pose_.z_direction()*distance);
-      weighted_traveling_length_ += stokes_.I()*distance;
+      traveling_length_ += distance;
     }
     void move_to(const vector& position) {
       double distance = norm(position-pose_.position());
       pose_.move_to(position);
-      weighted_traveling_length_ += stokes_.I()*distance;
+      traveling_length_ += distance;
     }
     void move_by(const vector& v) {
       move_to(pose_.position()+v);
@@ -63,8 +63,8 @@ namespace flick {
 	return true;
       return false;
     }
-    double weighted_traveling_length() const {
-      return weighted_traveling_length_;
+    double traveling_length() const {
+      return traveling_length_;
     }
     auto pose() const {
       return pose_;
@@ -79,8 +79,8 @@ namespace flick {
       os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
 	 << ", wl: " << rp.wavelength_
 	 << ", " << rp.stokes_ << ", length: "
-	 << rp.weighted_traveling_length_ << " ";
-	//<< rp.weighted_scattering_events_;
+	 << rp.traveling_length_ << " ";
+	//<< rp.scattering_events_;
       return os;
     }
   };
