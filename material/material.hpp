@@ -53,6 +53,9 @@ namespace material {
       m.add(0,0,1/(4*constants::pi));
       return m;
     }
+    virtual double sampling_asymmetry_factor() {
+      return 0.8;
+    }
     /*
     unit_vector proposed_scattering_direction(double random_polar,
 					      double random_azimuth) {

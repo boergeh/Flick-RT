@@ -61,4 +61,42 @@ namespace flick {
     // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
     check_close(slab.hemispherical_transmittance(),0.65867, 10);
   } end_test_case()
+
+  begin_test_case(single_layer_slab_test_C) {
+    using namespace flick;
+    absorption_coefficient a{0};
+    scattering_coefficient b{1};
+    asymmetry_factor g{0.5};
+    thickness h{1};
+    model::single_layer_slab slab{h};
+    slab.fill<material::henyey_greenstein>(a,b,g);    
+    slab.set(bottom_albedo{0});
+    slab.set(incidence_angle{0});
+    slab.set(number_of_packages{1000});
+
+    // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
+    check_close(slab.hemispherical_transmittance(),0.82389, 3);
+  } end_test_case()
+  
+    begin_test_case(single_layer_slab_test_D) {
+    using namespace flick;
+    double ssalb = 0.99999;
+    double od = 1;
+    double ac = ssalb*od;
+    double sc = od*(1-ssalb);
+    absorption_coefficient a{ac};
+    scattering_coefficient b{sc};
+    asymmetry_factor g{0.5};
+    thickness h{1};
+    model::single_layer_slab slab{h};
+    slab.fill<material::henyey_greenstein>(a,b,g);    
+    slab.set(bottom_albedo{0});
+    slab.set(incidence_angle{0});
+    slab.set(number_of_packages{1000});
+
+    // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
+    check_close(slab.hemispherical_transmittance(),0.73909, 1);
+
+  } end_test_case()
+
 }

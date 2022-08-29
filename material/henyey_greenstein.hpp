@@ -10,16 +10,18 @@ namespace material {
   class henyey_greenstein : public base {
     flick::absorption_coefficient ac_;
     flick::scattering_coefficient sc_;
-    asymmetry_factor g_;
+    flick::asymmetry_factor g_;
   public:
     henyey_greenstein(const flick::absorption_coefficient& ac,
 		      const flick::scattering_coefficient& sc,
 		      const flick::asymmetry_factor& g)
       : ac_{ac}, sc_{sc}, g_{g} {}
+    
     henyey_greenstein(double ac,
 		      double sc,
 		      double g)
       : ac_{ac}, sc_{sc}, g_{g} {}
+    
     double absorption_optical_depth(double distance) {
       return absorption_coefficient()*distance;
     }
@@ -52,6 +54,9 @@ namespace material {
     }
     double refractive_index() {
       return 1;
+    }
+    double sampling_asymmetry_factor() {
+      return g_();
     }
     friend std::ostream& operator<<(std::ostream &os,
 				    henyey_greenstein& hg) {

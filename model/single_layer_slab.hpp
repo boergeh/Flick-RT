@@ -124,7 +124,8 @@ namespace model {
       auto direction = unit_vector{constants::pi-theta_0_(),0}; 
       emitter.set_direction<unidirectional>(direction);
       build_geometry();
-      transporter::ordinary_mc(geometry_,geometry_,emitter).run(1,0.0);
+      double g = material_->sampling_asymmetry_factor();
+      transporter::ordinary_mc(geometry_,geometry_,emitter).run(1,g);
     }
   };
 }
