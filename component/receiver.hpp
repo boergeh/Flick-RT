@@ -36,17 +36,16 @@ namespace flick {
     }
     double radiant_intensity(const unit_vector& direction,
 			     double acceptance_angle) {
-      double mu_max = 2*constants::pi*(1-cos(acceptance_angle));
-      double sum_ri = 0;
-      double sum_omega = 0;
+      double sum_ri = 0;  
       for(size_t i = 0; i < rps_.size(); ++i) {
 	double mu = dot(rps_[i].pose().z_direction(),direction);
-	if (mu < mu_max) {
+	double omega = 2*constants::pi*(1-mu);
+	if (acos(mu) < acceptance_angle) {
 	  sum_ri += rps_[i].stokes().I(); 
-	  sum_omega += 2*constants::pi*(1-mu);
 	}
-      }
-      return sum_ri/sum_omega;
+      }    
+      double solid_angle = 2*constants::pi*(1-cos(acceptance_angle));
+      return sum_ri/solid_angle;
     }
     double mean_traveling_length() {
       double l = 0;

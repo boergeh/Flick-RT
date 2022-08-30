@@ -21,6 +21,7 @@ namespace model {
     receiver* transmitted_;
     receiver* reflected_;
     double relative_depth_{0.5};
+    double acceptance_angle_{10*constants::pi/180};
   public:
     single_layer_slab(const thickness& h) : h_{h} {}
     void set(const bottom_albedo& ba) {
@@ -45,7 +46,7 @@ namespace model {
       find_receivers();
       return reflected_->radiant_flux()/incident_->radiant_flux();
     }
-    double directional_reflectance(const polar_angle& pa,
+    double directional_reflectance(const zenith_angle& za,
 				   const azimuth_angle& aa,
 				   const unit_interval& relative_depth
 				     = unit_interval{0})
@@ -58,8 +59,9 @@ namespace model {
       set_relative_depth(relative_depth());
       run();
       find_receivers();
-      unit_vector direction{pa(),aa()};
-      return reflected_->radiant_intensity(direction,20/180*constants::pi)/incident_->radiant_flux();
+      unit_vector direction{za(),aa()};
+      return reflected_->radiant_intensity(direction,acceptance_angle_) /
+	incident_->radiant_flux();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
 				       = unit_interval{1})
@@ -80,7 +82,8 @@ namespace model {
       run();
       find_receivers();
       unit_vector direction{pa(),aa()};
-      return transmitted_->radiant_intensity(direction,20/180*constants::pi)/incident_->radiant_flux();
+      return transmitted_->radiant_intensity(direction,acceptance_angle_)/
+	incident_->radiant_flux();
     }
   private:
     void set_relative_depth(double rd) {

@@ -8,6 +8,7 @@ int main() {
   t.include<single_layer_slab_test_B>("single_layer_slab_test_B");
   t.include<single_layer_slab_test_C>("single_layer_slab_test_C");
   t.include<single_layer_slab_test_D>("single_layer_slab_test_D");
+  t.include<single_layer_slab_test_E>("single_layer_slab_test_E");
   t.run_test_cases();
   return 0;
 }
