@@ -20,8 +20,7 @@ namespace model {
     receiver* incident_;
     receiver* transmitted_;
     receiver* reflected_;
-    double relative_depth_{0.5};
-    double acceptance_angle_{10*constants::pi/180};
+    double relative_depth_{0};
   public:
     single_layer_slab(const thickness& h) : h_{h} {}
     void set(const bottom_albedo& ba) {
@@ -46,22 +45,17 @@ namespace model {
       find_receivers();
       return reflected_->radiant_flux()/incident_->radiant_flux();
     }
-    double directional_reflectance(const zenith_angle& za,
-				   const azimuth_angle& aa,
-				   const unit_interval& relative_depth
-				     = unit_interval{0})
-    // See Wikipedia reflectance for definition
-
-    // should search for optimal angle. Gaussian aceptance?
-    // should guess direction directly towards detector?
-    // should sample with high prob. at detector depth?
-    {
+    double relative_radiance(const polar_angle& pa,
+			     const azimuth_angle& aa,
+			     const polar_angle& acceptance_angle=polar_angle{10},
+			     const unit_interval& relative_depth=unit_interval{0}){
       set_relative_depth(relative_depth());
       run();
       find_receivers();
-      unit_vector direction{za(),aa()};
-      return reflected_->radiant_intensity(direction,acceptance_angle_) /
-	incident_->radiant_flux();
+      unit_vector direction{pa(),aa()};
+      double dI_r = reflected_->projected_intensity(direction,acceptance_angle());
+      double dI_t = transmitted_->projected_intensity(direction,acceptance_angle());
+      return (dI_r + dI_t) / incident_->radiant_flux();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
 				       = unit_interval{1})
@@ -71,19 +65,6 @@ namespace model {
       run();
       find_receivers();
       return transmitted_->radiant_flux()/incident_->radiant_flux();
-    }
-    double directional_transmittance(const polar_angle& pa,
-				     const azimuth_angle& aa,
-				     const unit_interval& relative_depth
-				     = unit_interval{0})
-    // See Wikipedia transmittance for definition
-    {
-      set_relative_depth(relative_depth());
-      run();
-      find_receivers();
-      unit_vector direction{pa(),aa()};
-      return transmitted_->radiant_intensity(direction,acceptance_angle_)/
-	incident_->radiant_flux();
     }
   private:
     void set_relative_depth(double rd) {
@@ -112,6 +93,7 @@ namespace model {
       sheet().inward_receiver().activate();
       sheet().outward_receiver().activate();
       sheet().fill(material_);
+      //sheet().coat<coating::grey_lambert>(0,1);
       bottom().coat<coating::grey_lambert>(ba_(),1-ba_());
       geometry_.move_by({0,0,h_()+1});
       surface.move_by({0,0,h_()});

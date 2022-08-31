@@ -44,7 +44,10 @@ namespace transporter {
       scattering_direction_ =  p.z_direction();
     }
     void reorient_traveling_direction() {
+      // unit_vector olddir = rp_.pose().z_direction();
       rp_.rotate_about_local_y(scattering_polar_angle_);
+      //double mu = dot(rp_.pose().z_direction(),olddir);
+      //std::cout << mu << std::endl;
     }
     void reshape_polarization() {
       rp_.reshape_polarization(m_.mueller_matrix(scattering_direction_));
@@ -58,8 +61,7 @@ namespace transporter {
       find_scattering_direction();
       likelihood_scale_intensity();
       make_x_axis_parallel_with_scattering_plane();
-      reshape_polarization();
-     
+      reshape_polarization();    
       reorient_traveling_direction();
     }
   private:

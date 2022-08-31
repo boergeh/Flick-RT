@@ -53,15 +53,11 @@ namespace flick {
     }
     void move_close_to_wall() {
       move_to_wall();
-      //std::cout<<"pos " << nav_.current_volume().small_step()*facing_surface_normal_*1e7<<std::endl;
       rp_.move_by(nav_.current_volume().small_step()*facing_surface_normal_);
-      //std::cout << rp_ << std::endl;
-      //rp_.move(-nav_.current_volume().small_step()); 
     }
     void move_through_wall() {
       move_to_wall();
       rp_.move_by(-nav_.current_volume().small_step()*facing_surface_normal_);
-      //rp_.move(nav_.current_volume().small_step());
     }    
     void interact_with_wall() {
       unit_vector& n = facing_surface_normal_;
@@ -89,7 +85,7 @@ namespace flick {
     void increment_activated_receiver() {
       if (is_moving_inward_)
 	next_volume_->content().inward_receiver().receive(rp_);
-      else if (is_moving_outward_)
+      else
 	nav_.current_volume().content().outward_receiver().receive(rp_);
     }
     auto& current_volume() const {

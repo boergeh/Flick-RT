@@ -1,6 +1,6 @@
 #ifndef flick_interactor
 #define flick_interactor
-
+/*
 #include "../numeric/direction_generator.hpp"
 #include "../numeric/physics_function.hpp"
 #include "../polarization/fresnel.hpp"
@@ -17,7 +17,8 @@ namespace flick {
     void radiation_package(const radiation_package& rp) {
       rp_=rp;
     }
-  };
+  }
+  *;
   /*
   class surface_interactor : public basic_interactor {
   protected:

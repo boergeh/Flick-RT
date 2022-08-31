@@ -66,13 +66,13 @@ namespace flick {
     double traveling_length() const {
       return traveling_length_;
     }
-    auto pose() const {
+    flick::pose pose() const {
       return pose_;
     }
     auto wavelength() {
       return wavelength_;
     }
-    const stokes& stokes() {
+    const flick::stokes& stokes() {
       return stokes_;
     }
     friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
