@@ -23,6 +23,7 @@ namespace flick {
     bool is_moving_inward_;
     bool is_moving_outward_;
     unit_vector facing_surface_normal_;
+    double distance_to_wall_;
   public:
     wall_interactor(geometry::navigator<content>& nav,
 		    radiation_package& rp,
@@ -46,6 +47,7 @@ namespace flick {
 	is_transmitted_ = (1-r < coating_->transmissivity());
       }
       facing_surface_normal_ = facing_surface_normal();
+      distance_to_wall_ = find_distance_to_wall();
     }
     void move_to_wall() {
       if (next_wall_intersection_.has_value())
@@ -116,11 +118,14 @@ namespace flick {
       rp_.scale_intensity(1/lag_.brdf());
     }
     double distance_to_wall() {
+      return distance_to_wall_;
+    }
+  private:
+    double find_distance_to_wall() {
       if (!next_wall_intersection_.has_value())
 	return 0;
       return norm((*next_wall_intersection_).position()-rp_.pose().position()); 
     }
-  private:
     unit_vector facing_surface_normal() const {
       unit_vector n = (*next_wall_intersection_).z_direction();
       if (dot(n,rp_.pose().z_direction()) < 0)

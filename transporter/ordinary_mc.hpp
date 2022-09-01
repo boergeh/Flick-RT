@@ -49,10 +49,10 @@ namespace transporter {
 	    //include likelihood?
 	  } else {
 	    mi.deposite_energy_to_heat(wi.distance_to_wall());
-	    wi.interact_with_wall();
-	    scattering_optical_depth -= material.scattering_optical_depth(wi.distance_to_wall());
+	    wi.interact_with_wall(); 
+	    double tau_s = material.scattering_optical_depth(wi.distance_to_wall());
+	    scattering_optical_depth -= tau_s;
 	  }
-	  //std::cout << rp_ << std::endl;
 	}
       }
     }

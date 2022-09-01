@@ -107,7 +107,7 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{1});
     slab.set(incidence_angle{0});
-    slab.set(number_of_packages{1000});
+    slab.set(number_of_packages{2000});
     polar_angle pa{0};
     azimuth_angle aa{0};
     polar_angle aca{pi/2};
@@ -122,19 +122,15 @@ namespace flick {
     using namespace flick;
     absorption_coefficient a{0};
     scattering_coefficient b{1};
-    asymmetry_factor g{0.0};
+    asymmetry_factor g{0.5};
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{1});
     slab.set(incidence_angle{0.0});
     slab.set(number_of_packages{1000});
-    //polar_angle pa{0};
-    //azimuth_angle aa{0};
-    //polar_angle aca{pi};
     double r = slab.hemispherical_reflectance(unit_interval{0.5});
-    //double r = slab.relative_radiance(pa,aa,aca,unit_interval{0.9});
-    check_close(r, 1,1,"Fa");
+    check(r>1,"internal reflectance should be larger than one inside white slab");
     
   } end_test_case()
 
