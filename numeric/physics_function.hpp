@@ -17,9 +17,8 @@ namespace flick {
     // Note that integral over 4*pi equals one 
     {
       double g = asymmetry_factor_;
-      double pi = constants::pi;
       double arg = 1+pow(g,2)-2*g*cos(angle);
-      return 1/(4*pi)*(1-pow(g,2))/pow(arg,3./2);
+      return 1/(4*constants::pi)*(1-pow(g,2))/pow(arg,3./2);
     }
     double inverted_accumulated_angle(double fraction)
     // Note that fraction has range [0 1], and range value zero

@@ -8,14 +8,14 @@
 #include "../numeric/pose.hpp"
 #include "../numeric/bounded_type.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
+#include "named_bounded_types.hpp"
 
 namespace flick {
-  using wavelength = bounded_type<double, zero, std::exa>;
 namespace material {
   class base {
-  protected:
     wavelength wavelength_{500e-9};
     pose pose_;
+    asymmetry_factor g_;
   public:
     void set(const pose& p) {
       pose_ = p;
@@ -23,38 +23,50 @@ namespace material {
     void set(const wavelength& wl) {
       wavelength_ = wl;
     }
-    double angle(const unit_vector& scattering_direction) {
+    void set(const asymmetry_factor& g) {
+      g_ = g;
+    }
+    double wavelength() const {
+      return wavelength_();
+    }
+    pose pose() const {
+      return pose_;
+    }
+    double asymmetry_factor() const {
+      return g_();
+    }
+    double angle(const unit_vector& scattering_direction) const {
       return acos(dot(pose_.z_direction(),scattering_direction));
     }
-     //void direction(const unit_vector& d) {
-    //  direction_ = d;
-    //}
-    //virtual double absorption_coefficient() = 0; //remove?
-    //virtual double scattering_coefficient() = 0; //remove?
-    //coefficient coefficient() {}
-
+    virtual double absorption_coefficient()=0;
+    virtual double scattering_coefficient()=0;
+    virtual mueller mueller_matrix(const unit_vector& scattering_direction)=0;
     virtual double absorption_optical_depth(double distance) {
-      // tbi
-      return 0;
+      return absorption_coefficient()*distance;
     }
     virtual double scattering_optical_depth(double distance) {
-      return 0;
+      return scattering_coefficient()*distance;
     }
     virtual double absorption_distance(double absorption_optical_depth) {
-      // tbi
-      return std::numeric_limits<double>::max();
+      double ac = absorption_coefficient();
+      if (ac > 0)
+	return absorption_optical_depth/ac;
+      return std::numeric_limits<double>::max(); 
     }
     virtual double scattering_distance(double scattering_optical_depth) {
-      // tbi
-      return std::numeric_limits<double>::max();
+      double sc = scattering_coefficient();
+      if (sc > 0)
+	return scattering_optical_depth/sc;
+      return std::numeric_limits<double>::max(); 
     }
-    virtual mueller mueller_matrix(const unit_vector& scattering_direction) {
-      mueller m;
-      m.add(0,0,1/(4*constants::pi));
-      return m;
+    friend std::ostream& operator<<(std::ostream &os, base& b) {
+      os << "abs_coef: "<< b.absorption_coefficient() << ", scat_coef: "
+	 << b.scattering_coefficient() << ", ref_index: "
+	 << b.refractive_index();
+      return os;
     }
-    virtual double sampling_asymmetry_factor() {
-      return 0.8;
+    virtual double refractive_index() {
+      return 1;
     }
     /*
     unit_vector proposed_scattering_direction(double random_polar,
@@ -78,6 +90,20 @@ namespace material {
   };
   class vacuum : public base {
   public:
+    vacuum() {
+      set(flick::asymmetry_factor{0});
+    }
+    double absorption_coefficient() {
+      return 0;
+    }
+    double scattering_coefficient() {
+      return 0;
+    }
+    mueller mueller_matrix(const unit_vector& scattering_direction) {
+      mueller m;
+      m.add(0,0,1/(4*constants::pi));
+      return m;
+    }
     double refractive_index() {
       return 1;
     }

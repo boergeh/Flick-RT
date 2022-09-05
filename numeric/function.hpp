@@ -205,13 +205,13 @@ namespace flick {
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
     }
-    std::vector<double> x() {
+    std::vector<double> x() const {
       return xv_.all_values();
     }
-    std::vector<double> y() {
+    std::vector<double> y() const {
       return yv_;
     }
-    double value(double x=1) {
+    double value(double x=1) const {
       if (yv_.size()==1)
 	return yv_[0];
       ensure(yv_.size() > 1);
@@ -322,13 +322,13 @@ namespace flick {
     point previous_point(sorted_vector::iterator *it) {
       return point{xv_[it->previous_index()],yv_[it->previous_index()]};
     }
-    std::tuple<point, point> points_at(double x) {
+    std::tuple<point, point> points_at(double x) const {
       size_t n = xv_.find(x);
       point p1{xv_[n],yv_[n]};
       point p2{xv_[n+1],yv_[n+1]};
       return {p1,p2};
     }
-    void ensure(bool b) {
+    void ensure(bool b) const {
       if (!b)
 	throw std::invalid_argument("function");
     }

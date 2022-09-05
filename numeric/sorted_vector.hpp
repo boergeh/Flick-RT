@@ -134,7 +134,7 @@ namespace flick {
     double lower_value() const {
       return values_.front();
     }
-    std::vector<double> all_values() {
+    std::vector<double> all_values() const {
       return values_;
     }
   private:

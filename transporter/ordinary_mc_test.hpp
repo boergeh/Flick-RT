@@ -37,28 +37,35 @@ namespace flick {
 
     size_t n = 10;
     emitter emitter{n};
-    
-    s().fill<material::henyey_greenstein>(0,0,0);
+
+    absorption_coefficient a{0};
+    scattering_coefficient b{0};
+    asymmetry_factor g{0};
+    s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc(s,s,emitter).run();
     check_close(s().outward_receiver().radiant_flux(),n,1);
     check_close(s().outward_receiver().mean_traveling_length(),r,1,"a");
- 
+
+    a = 1;
     emitter.add_packages(n);
     s().outward_receiver().clear();
-    s().fill<material::henyey_greenstein>(1,0,0);
+    s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc(s,s,emitter).run();
     check_close(s().outward_receiver().radiant_flux(),n*exp(-r),1,"b");
-      
+
+    a = 0;
+    b = 1;
+    g = 0.5;
     emitter.add_packages(n);
     s().outward_receiver().clear();
-    s().fill<material::henyey_greenstein>(0,1,0.5);
+    s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc(s,s,emitter).run(1,0.5);
     check_close(s().outward_receiver().radiant_flux(),n,1,"c");
-    
+
     n *= 100; 
     emitter.add_packages(n);
     s().outward_receiver().clear();
-    s().fill<material::henyey_greenstein>(0,1,0.5);
+    s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc(s,s,emitter).run(1,0.6);
     check_close(s().outward_receiver().radiant_flux(),n,5,"diff.sampl.g");
       

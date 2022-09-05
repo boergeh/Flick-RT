@@ -37,13 +37,13 @@ namespace material {
       temperature_ = temperature;
     }
     double absorption_coefficient() {
-      double T = temperature_.value(pose_.position().z());
-      double S = salinity_psu_.value(pose_.position().z());
+      double T = temperature_.value(pose().position().z());
+      double S = salinity_psu_.value(pose().position().z());
       double delta_T = T - pope_fry_temperature_;
       double delta_S = S;
-      double da_dT = temperature_correction_.value(wavelength_());
-      double da_dS = salinity_correction_.value(wavelength_());
-      double a0 = absorption_coefficient_.value(wavelength_());
+      double da_dT = temperature_correction_.value(wavelength());
+      double da_dS = salinity_correction_.value(wavelength());
+      double a0 = absorption_coefficient_.value(wavelength());
       return a0 + da_dT * delta_T + da_dS * delta_S;
     }
     double scattering_coefficient()
@@ -51,7 +51,7 @@ namespace material {
     // spectral absorption, scattering, and real part of refractive
     // index model. Algorithm Technical Basis Document
     {
-      return pow(129.0 / (wavelength_() * 1e9), 4.32);
+      return pow(129.0 / (wavelength() * 1e9), 4.32);
     }
     mueller mueller_matrix(const unit_vector& scattering_direction)
     // Depolarization ratio from R. S. Farinato and R. L. Rowell, “New
@@ -63,7 +63,7 @@ namespace material {
     double refractive_index()
     // Consider update to include temp. and sal. corr.
     {
-      return refractive_index_.value(wavelength_());
+      return refractive_index_.value(wavelength());
     }
   };
 }

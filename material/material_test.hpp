@@ -1,9 +1,37 @@
 #include "water/pure_water.hpp"
+#include "henyey_greenstein.hpp"
+#include "tabulated.hpp"
+#include "../numeric/range.hpp"
+
 namespace flick {
   begin_test_case(material_test) {
     using namespace constants;
     using namespace flick;
     material::pure_water pw;
+    material::henyey_greenstein hg(absorption_coefficient{1},
+				   scattering_coefficient{1},
+				   asymmetry_factor{0.5});
+    ///std::cout << hg;
+
+    double pi = constants::pi;
+    double g = 0.9;
+    auto x = range(0,pi,100).linspace();
+    std::vector<double> y(x.size());
+    for (size_t i=0; i<y.size(); ++i)
+      y[i] = henyey_greenstein(g).phase_function(x[i]);
+    material::phase_function p{pl_function{x,y}};
+    check_close(2*pi*p.integral(),1,0.3,"a");
+    check_close(p.asymmetry_factor(),g,0.3,"b");
+    
+    material::tabulated tab(absorption_coefficient{1},
+    			    scattering_coefficient{1},
+    			    p);
+
+    //const std::string path_{"/material"};
+    // material::phase_function p2 = read<pl_function>(path_+"/tabulated.txt"); 
+    //check_close(2*pi*p2.integral(),1,0.003,"c");
+    //check_close(p2.asymmetry_factor(),g,0.3,"d");
+   
     //auto m = pw.mueller_matrix();
     //std::cout << m.element(0,0);
     /*

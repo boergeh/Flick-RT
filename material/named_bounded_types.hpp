@@ -5,7 +5,7 @@
 
 namespace flick {
   using unit_interval = bounded_type<double, zero, one>;
-
+  using wavelength = bounded_type<double, zero, std::exa>;
   using scattering_coefficient = bounded_type<double, zero, std::exa>;
   using absorption_coefficient = bounded_type<double, zero, std::exa>;
   //char af_str[]="asymmetry factor";
