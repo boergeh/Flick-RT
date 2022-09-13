@@ -3,14 +3,13 @@
 
 #include "../numeric/direction_generator.hpp"
 #include "../polarization/stokes.hpp"
-#include "../polarization/mueller.hpp"
+//#include "../polarization/mueller.hpp"
 #include "../polarization/algorithm.hpp"
 
 namespace flick {
   class radiation_package
   // First Stokes parameter is intensity weight. All radiation
-  // variables may change during transport. All stokes
-  // parameters have units of 'per solid angle'.
+  // variables may change during transport. 
   {
     pose pose_;
     double wavelength_{500e-9};
@@ -41,10 +40,10 @@ namespace flick {
     void wavelength(double wl) {
       wavelength_ = wl;
     }
-    void traveling_direction(const unit_vector& direction) {
-      pose_.rotate_to(direction);
+    void rotate_to(const quaternion& rotation) {
+      pose_ = {pose_.position(),rotation};
     }
-    void reshape_polarization(const mueller& m) {
+    void interact_with_matter(const mueller& m) { 
       stokes_ = m * stokes_;
     }
     void rotate_about_local_x(double angle) {
@@ -58,10 +57,7 @@ namespace flick {
       stokes_.rotate(-angle);
     }
     bool is_empty() const {
-      double epsilon = 1e-9;
-      if (stokes_.I() < 1e-9)
-	return true;
-      return false;
+      return (stokes_.I() < 1e-9);
     }
     double traveling_length() const {
       return traveling_length_;
@@ -75,7 +71,8 @@ namespace flick {
     const flick::stokes& stokes() {
       return stokes_;
     }
-    friend std::ostream& operator<<(std::ostream &os, const radiation_package& rp) {
+    friend std::ostream& operator<<(std::ostream &os,
+				    const radiation_package& rp) {
       os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
 	 << ", wl: " << rp.wavelength_
 	 << ", " << rp.stokes_ << ", length: "

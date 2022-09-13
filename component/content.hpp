@@ -29,14 +29,14 @@ namespace flick {
       material_ = m;
       has_material_ = true;
     }
-    const coating::base& coating() const {
-      if (!coating_)
-	throw std::runtime_error("content::coating");
+    coating::base& coating() const {
+      //if (!coating_)
+      //	throw std::runtime_error("content::coating");
       return *coating_;
     }
     material::base& material() const {
-      if (!material_)
-	throw std::runtime_error("content::material");
+      //if (!material_)
+      //	throw std::runtime_error("content::material");
       return *material_;
     }
     bool has_coating() const {

@@ -5,12 +5,12 @@
 #include "mueller.hpp"
 #include <complex>
 
+// See Wikipedia Fresnel equations. See also the fresnel_curves
+// function below for further documentation.  Relatative refractive
+// index is m = n_2/n_1, where radiation is incident from medium with
+// refractive index n_1, and surface normal is pointing from medium
+// with n_1 into medium with n_2.
 namespace flick {
-  // See Wikipedia Fresnel equations. See also the fresnel_curves
-  // function below for further documentation.  Relatative refractive
-  // index is m = n_2/n_1, where radiation is incident from medium
-  // with refractive index n_1, and surface normal is pointing from
-  // medium with n_1 into medium with n_2.
   using complex = std::complex<double>;
   class fresnel {
     std::complex<double> m_{1,0};
@@ -47,7 +47,7 @@ namespace flick {
     }
     double R_p() const {
       return std::pow(std::abs(r_p()),2);
-    }
+    }   
     double R() const {
       return 0.5*(R_s() + R_p());
     }
@@ -60,6 +60,7 @@ namespace flick {
     double T() const {
       return 0.5*(T_s() + T_p());
     }
+  
     // Mueller matrix elements
     double R_11() const {return 0.5*(R_p()+R_s());}
     double R_12() const {return 0.5*(R_p()-R_s());}

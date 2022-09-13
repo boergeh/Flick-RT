@@ -5,10 +5,9 @@
 #include "../numeric/constants.hpp"
 #include "../numeric/function.hpp"
 #include "../numeric/physics_function.hpp"
+#include "../numeric/named_bounded_types.hpp"
 #include "../numeric/pose.hpp"
-#include "../numeric/bounded_type.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
-#include "named_bounded_types.hpp"
 
 namespace flick {
 namespace material {

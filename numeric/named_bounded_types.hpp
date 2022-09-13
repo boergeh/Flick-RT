@@ -1,7 +1,7 @@
 #ifndef flick_named_bounded_types
 #define flick_named_bounded_types
 
-#include "../numeric/bounded_type.hpp"
+#include "bounded_type.hpp"
 
 namespace flick {
   using unit_interval = bounded_type<double, zero, one>;

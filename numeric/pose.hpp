@@ -52,7 +52,8 @@ namespace flick {
     // applied to reach this pose.
     {
       pose p = *this;
-      vector v = rotate(position_- observer.position(), inv(observer.rotation()));
+      vector v = rotate(position_- observer.position(),
+			inv(observer.rotation()));
       p.move_to(v);
       p.rotate_by(inv(observer.rotation()));
       return p;

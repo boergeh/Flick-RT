@@ -6,13 +6,12 @@
 #include "../material/material.hpp"
 
 namespace flick {
-namespace transporter {  
+namespace transporter {
   class ordinary_mc {
     geometry::volume<content>& outer_volume_;
     geometry::volume<content>& emitter_volume_;
     emitter& emitter_;
-    uniform_random random_;
-    coating::lambert_angle_generator lag_;
+    uniform_random rnd_;
     geometry::navigator<content> nav_;
     radiation_package rp_;
   public:    
@@ -33,28 +32,35 @@ namespace transporter {
       while (!emitter_.is_empty()) {
 	nav_.go_to(emitter_volume_);
 	rp_ = emitter_.emit();
-	double scattering_optical_depth = -log(random_(0,1));
+	double scattering_optical_depth = -log(rnd_(0,1));
 	while (!rp_.is_empty() && !lost_in_space()) {
 	  if (!nav_.current_volume().content().has_material()) {	  
 	    nav_.current_volume().content().fill<material::vacuum>();
 	  }
 	  material::base& material = nav_.current_volume().content().material();
-	  material_interactor mi(rp_,material,random_,scattering_optical_depth,
+	  material_interactor mi(rp_,material,rnd_,scattering_optical_depth,
 				 sampling_asymmetry_factor);
-	  wall_interactor wi(nav_,rp_,random_,lag_);
-	  if (mi.distance_to_scattering() < wi.distance_to_wall()) {
-	    mi.deposite_energy_to_heat(mi.distance_to_scattering());
+	  double dw = distance_to_wall();
+	  double ds = mi.distance_to_scattering();
+	  if (ds < dw) {
+	    mi.deposite_energy_to_heat(ds);
 	    mi.scatter();
-	    scattering_optical_depth = -log(random_(0,1));
-	    //include likelihood?
+	    scattering_optical_depth = -log(rnd_(0,1));
 	  } else {
-	    mi.deposite_energy_to_heat(wi.distance_to_wall());
+	    wall_interactor wi(nav_,rp_,rnd_);
+	    mi.deposite_energy_to_heat(dw);
 	    wi.interact_with_wall(); 
-	    double tau_s = material.scattering_optical_depth(wi.distance_to_wall());
-	    scattering_optical_depth -= tau_s;
+	    scattering_optical_depth -= material.scattering_optical_depth(dw);
 	  }
 	}
       }
+    }
+  private:
+    double distance_to_wall() {
+      std::optional<pose> p = nav_.next_intersection(rp_.pose());
+      if (!p.has_value())
+	return 0;
+      return norm((*p).position()-rp_.pose().position()); 
     }
   };
 }

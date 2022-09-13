@@ -6,7 +6,7 @@ namespace transporter {
   class material_interactor {
     radiation_package& rp_;
     material::base& m_;
-    uniform_random& ur_;
+    uniform_random& rnd_;
     double scattering_optical_depth_;
     double g_;
     unit_vector scattering_direction_;
@@ -17,10 +17,10 @@ namespace transporter {
   public:
     material_interactor(radiation_package& rp,
 			material::base& m,
-			uniform_random& ur,
+			uniform_random& rnd,
 			double scattering_optical_depth,
 			double sampling_asymmetry_factor)
-      : rp_{rp}, m_{m}, ur_{ur}, g_{sampling_asymmetry_factor},
+      : rp_{rp}, m_{m}, rnd_{rnd}, g_{sampling_asymmetry_factor},
 	scattering_optical_depth_{scattering_optical_depth} {
       m_.set(rp_.pose());
       distance_to_scattering_ = m_.scattering_distance(scattering_optical_depth_);
@@ -36,8 +36,8 @@ namespace transporter {
     }
     void find_scattering_direction() {
       scattering_polar_angle_ =
-	henyey_greenstein{g_}.inverted_accumulated_angle(ur_(0,1));
-      scattering_azimuth_angle_ = ur_(0,2*constants::pi);
+	henyey_greenstein{g_}.inverted_accumulated_angle(rnd_(0,1));
+      scattering_azimuth_angle_ = rnd_(0,2*constants::pi);
       pose p = rp_.pose();
       p.rotate_about_local_z(scattering_azimuth_angle_);
       p.rotate_about_local_y(scattering_polar_angle_);
@@ -50,7 +50,7 @@ namespace transporter {
       //std::cout << mu << std::endl;
     }
     void reshape_polarization() {
-      rp_.reshape_polarization(m_.mueller_matrix(scattering_direction_));
+      rp_.interact_with_matter(m_.mueller_matrix(scattering_direction_));
     }
     void likelihood_scale_intensity() {
       double hg = henyey_greenstein{g_}.phase_function(scattering_polar_angle_);

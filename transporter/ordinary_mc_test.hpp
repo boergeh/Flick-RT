@@ -7,15 +7,25 @@ namespace flick {
     semi_infinite_box box;
     box.move_by({0,0,1});
     box().outward_receiver().activate();
+    emitter emitter{2};
+    emitter.set_direction<unidirectional>(unit_vector{0,0,1});
+    transporter::ordinary_mc(box,box,emitter).run();
+    check_close(box().outward_receiver().radiant_flux(),2,1);
+  } end_test_case()
+
+  begin_test_case(ordinary_mc_test_B) {
+    semi_infinite_box box;
+    box.move_by({0,0,1});
+    box().outward_receiver().activate();
     box().coat<coating::grey_lambert>(0,1);
-    size_t np = 1;
+    size_t np = 3;
     emitter emitter{np};
     emitter.set_direction<unidirectional>(unit_vector{0,0,1});
     transporter::ordinary_mc(box,box,emitter).run();
     check_close(box().outward_receiver().radiant_flux(),np,1);
   } end_test_case()
  
-  begin_test_case(ordinary_mc_test_B) {
+  begin_test_case(ordinary_mc_test_C) {
     semi_infinite_box layer;
     semi_infinite_box bottom;
     layer().outward_receiver().activate();
@@ -30,7 +40,7 @@ namespace flick {
     check_close(layer().outward_receiver().radiant_flux(),np,1);
   } end_test_case()
   
-  begin_test_case(ordinary_mc_test_C) {
+  begin_test_case(ordinary_mc_test_D) {
     double r = 1;
     sphere s(r);
     s().outward_receiver().activate();
@@ -67,7 +77,7 @@ namespace flick {
     s().outward_receiver().clear();
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc(s,s,emitter).run(1,0.6);
-    check_close(s().outward_receiver().radiant_flux(),n,5,"diff.sampl.g");
+    check_close(s().outward_receiver().radiant_flux(),n,5,"d");
       
   } end_test_case()
 }

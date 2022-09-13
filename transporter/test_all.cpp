@@ -7,6 +7,7 @@ int main() {
   t.include<ordinary_mc_test_A>("ordinary_mc_test_A");
   t.include<ordinary_mc_test_B>("ordinary_mc_test_B");
   t.include<ordinary_mc_test_C>("ordinary_mc_test_C");
+  t.include<ordinary_mc_test_D>("ordinary_mc_test_D");
   t.run_test_cases();
   return 0;
 }

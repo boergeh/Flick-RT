@@ -50,13 +50,13 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{0});
     slab.set(incidence_angle{0});
-    slab.set(number_of_packages{1000});
+    slab.set(number_of_packages{3000});
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
-    check_close(slab.hemispherical_reflectance(),0.34133, 10);
+    check_close(slab.hemispherical_reflectance(),0.34133, 4,"a");
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
-    check_close(slab.hemispherical_transmittance(),0.65867, 10);
+    check_close(slab.hemispherical_transmittance(),0.65867, 4,"b");
   } end_test_case()
 
   begin_test_case(single_layer_slab_test_C) {
@@ -90,10 +90,10 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{0});
     slab.set(incidence_angle{0});
-    slab.set(number_of_packages{1000});
+    slab.set(number_of_packages{10000});
 
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
-    check_close(slab.hemispherical_transmittance(),0.73909, 10);
+    check_close(slab.hemispherical_transmittance(),0.73909, 1);
 
   } end_test_case()
   
@@ -107,15 +107,15 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{1});
     slab.set(incidence_angle{0});
-    slab.set(number_of_packages{2000});
+    slab.set(number_of_packages{5000});
     polar_angle pa{0};
     azimuth_angle aa{0};
     polar_angle aca{pi/2};
     double r1 = slab.relative_radiance(pa,aa,aca);
-    check_close(r1,1/pi,20,"a");
+    check_close(r1,1/pi,15,"a");
     pa = pi/2;
     double r2 = slab.relative_radiance(pa,aa,aca);
-    check_close(r2,1/(2*pi),20,"b");
+    check_close(r2,1/(2*pi),15,"b");
   } end_test_case()
   
     begin_test_case(single_layer_slab_test_F) {

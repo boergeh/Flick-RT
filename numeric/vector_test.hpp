@@ -9,5 +9,12 @@ namespace flick {
     std::vector<unit_vector> vs{{pi,0}};
     unit_vector uv{0,0,1.01};
     check_small(uv.r()-1,1e-15);
+    /*
+    vector a{1,0,0};
+    vector b{0,2,0};
+    check_small(rms(normal(a,b),vector{0,0,1}),1e-12);
+    vector c{1,0,0};
+    check_small(rms(normal(a,c),vector{0,0,1}),1e-12);
+    */
   } end_test_case()
 }
