@@ -2,6 +2,7 @@
 #define flick_named_bounded_types
 
 #include "bounded_type.hpp"
+#include <complex>
 
 namespace flick {
   using unit_interval = bounded_type<double, zero, one>;
@@ -19,7 +20,9 @@ namespace flick {
   using albedo = unit_interval;
   using bottom_albedo = albedo;
   using incidence_angle = zenith_angle;
-
+  using sampling_asymmetry_factor = asymmetry_factor;
+  using relative_refractive_index = std::complex<double>;
+  //using real_refractive_index = bounded_type<double, zero, std::exa>;
   /*
   class double_bounded_type {
   protected:

@@ -27,7 +27,7 @@ namespace flick {
 	    else if (a(2)=="scattering_length")
 	      value = 1/pw.scattering_coefficient();
 	    else if (a(2)=="refractive_index")
-	      value = pw.refractive_index();
+	      value = pw.real_refractive_index();
 	    else
 	      error();
 	    std::cout << std::setprecision(4) << wl << " " << value << '\n';

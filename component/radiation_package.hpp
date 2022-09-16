@@ -40,8 +40,8 @@ namespace flick {
     void wavelength(double wl) {
       wavelength_ = wl;
     }
-    void rotate_to(const quaternion& rotation) {
-      pose_ = {pose_.position(),rotation};
+    void rotate_to(const rotation& r) {
+      pose_ = {pose_.position(),r()};
     }
     void interact_with_matter(const mueller& m) { 
       stokes_ = m * stokes_;

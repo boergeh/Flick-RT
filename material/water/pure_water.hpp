@@ -8,7 +8,7 @@ namespace flick {
 namespace material {
   class pure_water : public base {
     pp_function absorption_coefficient_;
-    pp_function refractive_index_;
+    pp_function real_refractive_index_;
     pl_function temperature_correction_;
     pl_function salinity_correction_;
     pl_function salinity_psu_{0};
@@ -19,14 +19,14 @@ namespace material {
     pure_water() {
      absorption_coefficient_ = read<pp_function>
        (path_+"/absorption_coefficient.txt"); 
-     refractive_index_ = read<pp_function>
+     real_refractive_index_ = read<pp_function>
        (path_+"/refractive_index.txt"); 
      temperature_correction_ = read<pl_function>
        (path_+"/temperature_correction.txt"); 
      salinity_correction_ = read<pl_function>
        (path_+"/salinity_correction.txt"); 
      absorption_coefficient_.add_extrapolation_points(1);
-     refractive_index_.add_extrapolation_points(1);
+     real_refractive_index_.add_extrapolation_points(1);
      temperature_correction_.add_extrapolation_points(0);
      salinity_correction_.add_extrapolation_points(0);
     }
@@ -60,10 +60,10 @@ namespace material {
     {
       return rayleigh_mueller(angle(scattering_direction), 0.039);
     }
-    double refractive_index()
+    double real_refractive_index()
     // Consider update to include temp. and sal. corr.
     {
-      return refractive_index_.value(wavelength());
+      return real_refractive_index_.value(wavelength());
     }
   };
 }

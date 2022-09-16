@@ -5,7 +5,7 @@
 #include "../environment/input_output.hpp"
 #include "../numeric/constants.hpp"
 #include "../numeric/named_bounded_types.hpp"
-#include "../numeric/pose.hpp"
+#include "../numeric/rotation.hpp"
 #include "../polarization/mueller.hpp"
 #include "../polarization/fresnel.hpp"
 
@@ -17,27 +17,27 @@ namespace coating {
   class base {
   protected:
     wavelength wavelength_{500e-9};
-    pose pose_;
+    rotation incidence_{quaternion{1,0,0,0}};
     std::complex<double> relative_refractive_index_{1,0};
     double ui_polar_{0};
     double ui_azimuth_{0};
-    unit_vector facing_surface_normal_;
+    unit_vector facing_surface_normal_{0,0,1};
     const double pi = constants::pi;
   public:
     virtual mueller reflection_mueller_matrix() = 0;
     virtual mueller transmission_mueller_matrix() = 0;
     virtual double unpolarized_reflectance() = 0;
     virtual double unpolarized_transmittance() = 0;
-    virtual quaternion reflection_rotation() = 0;
-    virtual quaternion transmission_rotation() = 0;
+    virtual rotation reflection_rotation() = 0;
+    virtual rotation transmission_rotation() = 0;
     
     void set_direction_parameters(const unit_interval& ui_polar,
 				  const unit_interval& ui_azimuth) {
       ui_polar_ = ui_polar();
       ui_azimuth_ = ui_azimuth();
     }
-    void set(const pose& p) {
-      pose_ = p;
+    void set_incidence(const rotation& r) {
+      incidence_ = r;
     }
     void set(const unit_vector& facing_surface_normal) {
       facing_surface_normal_ = facing_surface_normal;
@@ -59,14 +59,12 @@ namespace coating {
     {}
     mueller reflection_mueller_matrix() {
       mueller m;
-      //m.add(0,0, 1/(2*pi)*reflectivity_);
       m.add(0,0, reflectivity_);
       return m;
     }
     mueller transmission_mueller_matrix() {
       mueller m;
       m.add(0,0, transmissivity_);
-      //m.add(0,0, 1/(2*pi)*transmissivity_);
       return m;
     }
     double unpolarized_reflectance() {
@@ -75,19 +73,18 @@ namespace coating {
     double unpolarized_transmittance() {
       return transmissivity_;
     }
-    quaternion reflection_rotation() {
+    rotation reflection_rotation() {
       double theta = asin(sqrt(ui_polar_));
       double phi = 2*pi*ui_azimuth_;
-      pose p = pose_;
-      p.rotate_to(facing_surface_normal_);
-      p.rotate_about_local_z(phi);
-      p.rotate_about_local_x(theta);
-      return p.rotation();
+      rotation r{facing_surface_normal_};
+      r.rotate_about_local_z(phi);
+      r.rotate_about_local_x(theta);
+      return r;
     }
-    quaternion transmission_rotation() {
-      pose p{pose_.position(), reflection_rotation()};
-      p.rotate_about_local_x(pi);
-      return p.rotation();
+    rotation transmission_rotation() {
+      rotation r{reflection_rotation()};
+      r.rotate_about_local_x(pi);
+      return r;
     }
   };
 
@@ -115,23 +112,26 @@ namespace coating {
       update_fresnel();
       return f_.T();
     }
-    quaternion reflection_rotation() {
+    rotation reflection_rotation() {
       update_fresnel();
-      pose p = pose_;
-      p.rotate_about(facing_surface_normal_,pi);
-      return p.rotation();
+      rotation r{incidence_};
+      r.rotate_about(facing_surface_normal_,pi);
+      r.rotate_about_local_x(pi);
+      return r;
     }
-    quaternion transmission_rotation() {
+    rotation transmission_rotation() {
       update_fresnel();
-      pose p = pose_;
-      p.rotate_about_local_x(f_.reflection_angle());
-      p.rotate_about_local_x(-real(f_.transmission_angle()));
-      return p.rotation();
+      rotation r{incidence_};
+      //std::cout << '\n' << "dot "<< dot(r.x_direction(),facing_surface_normal_) << std::endl;
+      //assert(fabs(dot(r.x_direction(),facing_surface_normal_))<1e-6);
+      r.rotate_about_local_x(-f_.reflection_angle());
+      r.rotate_about_local_x(real(f_.transmission_angle()));
+      return r;
     }
   private:
     void update_fresnel() {
-      double theta = acos(dot(-pose_.direction(),facing_surface_normal_));
-      f_ = flick::fresnel(relative_refractive_index_, theta);
+      double cos_theta = dot(-incidence_.z_direction(),facing_surface_normal_);
+      f_ = flick::fresnel(relative_refractive_index_, cos_theta);
     } 
   };
 }

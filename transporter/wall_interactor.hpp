@@ -13,6 +13,7 @@ namespace flick {
   class wall_interactor {
     geometry::navigator<content>& nav_;
     std::optional<pose> next_wall_intersection_;
+    geometry::volume<content>* current_volume_;
     geometry::volume<content>* next_volume_;
     coating::base* coating_;
     radiation_package& rp_;
@@ -26,7 +27,19 @@ namespace flick {
 		    uniform_random& ur)
       : nav_{nav}, rp_{rp}, rnd_{ur} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
+      current_volume_ = &nav_.current_volume();
       next_volume_ = &nav_.next_volume(rp_.pose());
+
+      if (!current_volume_->content().has_coating()) {	  
+	current_volume_->content().coat<coating::fresnel>();
+      }
+      if (!next_volume_->content().has_coating()) {	  
+	next_volume_->content().coat<coating::fresnel>();
+      }
+      if (!next_volume_->content().has_material()) {	  
+	next_volume_->content().fill<material::vacuum>();
+      } 
+     
       facing_surface_normal_ = facing_surface_normal();
       move_to_wall();
       align_rp_x_axis_with_wall();
@@ -58,14 +71,14 @@ namespace flick {
 	nav_.go_to(*next_volume_);
       } else {
 	absorb_radiation_package();
-      }	
+      }
     }
   private:
     void increment_activated_receiver() {
       if (is_moving_inward())
 	next_volume_->content().inward_receiver().receive(rp_);
       else
-	nav_.current_volume().content().outward_receiver().receive(rp_);
+	current_volume_->content().outward_receiver().receive(rp_);
     }
     void absorb_radiation_package() {
       rp_.scale_intensity(0);
@@ -74,26 +87,32 @@ namespace flick {
       if (is_moving_inward())
 	coating_ = &next_volume_->content().coating();
       else
-	coating_ = &nav_.current_volume().content().coating();
+	coating_ = &current_volume_->content().coating();
       if (coating_!=nullptr) {
-	coating_->set(wavelength{500e-9});
-	coating_->set(rp_.pose());
+	coating_->set_incidence(rotation{rp_.pose().rotation()});
 	coating_->set(facing_surface_normal_);
 	unit_interval ui_polar{rnd_(0,1)};
 	unit_interval ui_azimuth{rnd_(0,1)};
 	coating_->set_direction_parameters(ui_polar,ui_azimuth);
-	coating_->set(std::complex<double>{1.0,0});
+	coating_->set(relative_refractive_index());
       }
+    }
+    std::complex<double> relative_refractive_index() {
+      std::complex<double> m1 = current_volume_->
+	content().material().refractive_index();
+      std::complex<double> m2 = next_volume_->
+	content().material().refractive_index();
+      return m2 / m1;
     }
     void move_to_wall() {
       if (next_wall_intersection_.has_value())
 	rp_.move_to((*next_wall_intersection_).position());
     }
     void step_back_from_wall() {
-      rp_.move_by(nav_.current_volume().small_step()*facing_surface_normal_);
+      rp_.move_by(current_volume_->small_step()*facing_surface_normal_);
     }
     void step_through_wall() {
-      rp_.move_by(-nav_.current_volume().small_step()*facing_surface_normal_);
+      rp_.move_by(-current_volume_->small_step()*facing_surface_normal_);
     }    
     void align_rp_x_axis_with_wall()
     // Not too proud over this..

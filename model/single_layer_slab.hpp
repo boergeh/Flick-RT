@@ -21,6 +21,7 @@ namespace model {
     receiver* transmitted_;
     receiver* reflected_;
     double relative_depth_{0};
+    std::shared_ptr<transporter::ordinary_mc> omc_;
   public:
     single_layer_slab(const thickness& h) : h_{h} {}
     void set(const bottom_albedo& ba) {
@@ -47,14 +48,18 @@ namespace model {
     }
     double relative_radiance(const polar_angle& pa,
 			     const azimuth_angle& aa,
-			     const polar_angle& acceptance_angle=polar_angle{10},
-			     const unit_interval& relative_depth=unit_interval{0}){
+			     const polar_angle& acceptance_angle
+			     = polar_angle{10},
+			     const unit_interval& relative_depth
+			     = unit_interval{0}) {
       set_relative_depth(relative_depth());
       run();
       find_receivers();
       unit_vector direction{pa(),aa()};
-      double dI_r = reflected_->projected_intensity(direction,acceptance_angle());
-      double dI_t = transmitted_->projected_intensity(direction,acceptance_angle());
+      double dI_r = reflected_->projected_intensity(direction,
+						    acceptance_angle());
+      double dI_t = transmitted_->projected_intensity(direction,
+						      acceptance_angle());
       return (dI_r + dI_t) / incident_->radiant_flux();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
@@ -73,12 +78,9 @@ namespace model {
 	relative_depth_ = geometry_.small_step()*2;
     }
     void find_receivers() {
-      auto nav =  geometry::navigator<content>(geometry_);
-      auto& v_in = nav.find("surface");
-      incident_ = &v_in().inward_receiver();
-      auto& v_sheet = nav.find("sheet");
-      reflected_ = &v_sheet().outward_receiver();
-      transmitted_ = &v_sheet().inward_receiver();
+      incident_ = &omc_->inward_receiver("surface");
+      reflected_ = &omc_->outward_receiver("sheet");
+      transmitted_ = &omc_->inward_receiver("sheet");
     }
     void build_geometry() {
       semi_infinite_box surface;
@@ -93,7 +95,6 @@ namespace model {
       sheet().inward_receiver().activate();
       sheet().outward_receiver().activate();
       sheet().fill(material_);
-      //sheet().coat<coating::grey_lambert>(0,1);
       bottom().coat<coating::grey_lambert>(ba_(),1-ba_());
       geometry_.move_by({0,0,h_()+1});
       surface.move_by({0,0,h_()});
@@ -105,12 +106,13 @@ namespace model {
     }
     void run() {
       emitter emitter{{0,0,h_()+0.5},stokes{1,0,0,0},np_()};
-      emitter.set_wavelength<monocromatic>(500e-9);
-      auto direction = unit_vector{constants::pi-theta_0_(),0}; 
+      unit_vector direction{constants::pi-theta_0_(),0}; 
       emitter.set_direction<unidirectional>(direction);
       build_geometry();
       double g = material_->asymmetry_factor();
-      transporter::ordinary_mc(geometry_,geometry_,emitter).run(1,g);
+      omc_ = std::make_shared<transporter::ordinary_mc>(geometry_);
+      omc_->set(sampling_asymmetry_factor{g});
+      omc_->transport_radiation(emitter,"geometry");
     }
   };
 }

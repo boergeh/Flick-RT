@@ -8,13 +8,14 @@
 #include "../numeric/named_bounded_types.hpp"
 #include "../numeric/pose.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
+#include <complex>
 
 namespace flick {
 namespace material {
   class base {
     wavelength wavelength_{500e-9};
     pose pose_;
-    asymmetry_factor g_;
+    //asymmetry_factor g_;
   public:
     void set(const pose& p) {
       pose_ = p;
@@ -22,17 +23,14 @@ namespace material {
     void set(const wavelength& wl) {
       wavelength_ = wl;
     }
-    void set(const asymmetry_factor& g) {
-      g_ = g;
-    }
+    //void set(const asymmetry_factor& g) {
+    //  g_ = g;
+    //}
     double wavelength() const {
       return wavelength_();
     }
     pose pose() const {
       return pose_;
-    }
-    double asymmetry_factor() const {
-      return g_();
     }
     double angle(const unit_vector& scattering_direction) const {
       return acos(dot(pose_.z_direction(),scattering_direction));
@@ -64,8 +62,16 @@ namespace material {
 	 << b.refractive_index();
       return os;
     }
-    virtual double refractive_index() {
-      return 1;
+    virtual double real_refractive_index()=0;// {
+    //  return 1;
+    //}
+    virtual double asymmetry_factor() {
+      return 0.8;
+    }
+    std::complex<double> refractive_index() {
+      double n = real_refractive_index();
+      double k = absorption_coefficient() * wavelength() / (4*constants::pi); 
+      return std::complex<double>{n,k};
     }
     /*
     unit_vector proposed_scattering_direction(double random_polar,
@@ -87,11 +93,9 @@ namespace material {
     }
     */
   };
+  
   class vacuum : public base {
   public:
-    vacuum() {
-      set(flick::asymmetry_factor{0});
-    }
     double absorption_coefficient() {
       return 0;
     }
@@ -103,7 +107,7 @@ namespace material {
       m.add(0,0,1/(4*constants::pi));
       return m;
     }
-    double refractive_index() {
+    double real_refractive_index() {
       return 1;
     }
   };

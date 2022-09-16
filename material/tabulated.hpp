@@ -79,10 +79,11 @@ namespace material {
     phase_function p_;
   public:
     tabulated(const flick::absorption_coefficient& ac,
-		      const flick::scattering_coefficient& sc,
-		      const phase_function& p)
-      : monocrome_iop{ac,sc}, p_{p} {
-      set(flick::asymmetry_factor{p.asymmetry_factor()});
+	      const flick::scattering_coefficient& sc,
+	      const phase_function& p,
+	      double real_refractive_index = 1)
+      : monocrome_iop{ac,sc,flick::asymmetry_factor{p.asymmetry_factor()},
+      real_refractive_index}, p_{p} {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) {
       mueller m;
@@ -90,7 +91,6 @@ namespace material {
       m.add(0,0,p_.value(theta));
       return m;
     }
- 
   };
 }
 }

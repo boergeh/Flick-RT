@@ -18,11 +18,13 @@ namespace flick {
     complex cos_theta_t_{1,0};
   public:
     fresnel()=default;
-    fresnel(const complex& relative_refractive_index, double incidence_angle)
-      : m_{relative_refractive_index}
+    fresnel(const complex& relative_refractive_index, double cos_incidence_angle)
+      : m_{relative_refractive_index}, cos_theta_i_{cos_incidence_angle}
     {
-      cos_theta_i_ = cos(incidence_angle);
-      double sin_theta_i = sqrt(1-pow(cos_theta_i_,2));
+      double sin_theta_i = 0;
+      double x = 1-pow(cos_theta_i_,2);
+      if (x > 0)
+	sin_theta_i = sqrt(x);
       complex c = complex{sin_theta_i,0}/m_;
       cos_theta_t_ = sqrt(1.-c*c);
     }

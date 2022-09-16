@@ -49,7 +49,7 @@ namespace flick {
 
     std::complex<double> ref{1.33, 0};
     double R = pow((1-ref.real())/(1+ref.real()), 2);
-    fresnel fr(ref,0);
+    fresnel fr(ref,1);
     check_close(fr.R(),R,1e-3);
     
   } end_test_case()

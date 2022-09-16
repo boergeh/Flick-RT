@@ -8,14 +8,11 @@ namespace flick {
     scattering_coefficient b{0};
     asymmetry_factor g{0.5};
     thickness h{1};
-    //std::cout << g;
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.set(bottom_albedo{0});
     slab.set(incidence_angle{0});
-    //slab.set(precision(1));
     slab.set(number_of_packages{100});
-
     check_small(slab.hemispherical_reflectance(),1e-12,"a");
 
     slab.set(bottom_albedo{1});
@@ -37,7 +34,7 @@ namespace flick {
     slab.set(incidence_angle{constants::pi/2*0.4});
     slab.hemispherical_reflectance();
     check_fast(0.1,"e");
-
+    
   } end_test_case()
 
   begin_test_case(single_layer_slab_test_B) {
