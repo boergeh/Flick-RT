@@ -33,7 +33,12 @@ namespace material {
       return pose_;
     }
     double angle(const unit_vector& scattering_direction) const {
-      return acos(dot(pose_.z_direction(),scattering_direction));
+      double d = dot(pose_.z_direction(),scattering_direction);
+      if (d < -1)
+	d = -1;
+      else if (d > 1)
+	d = 1;
+      return acos(d);
     }
     virtual double absorption_coefficient()=0;
     virtual double scattering_coefficient()=0;

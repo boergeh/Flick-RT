@@ -31,22 +31,19 @@ namespace flick {
       double rf = 0;
       for(size_t i = 0; i < rps_.size(); ++i)
 	rf += rps_[i].stokes().I();
-      //std::cout << "n="<<rps_.size() << std::endl;
       return rf;
     }
-    double projected_intensity(const unit_vector& direction,
-			     double acceptance_angle) {
-      double sum_ri = 0;  
+    double radiance(const unit_vector& direction, double acceptance_angle) {
+      double sum = 0;  
       for(size_t i = 0; i < rps_.size(); ++i) {
 	unit_vector prop_dir = rps_[i].pose().z_direction(); 
 	double mu = dot(prop_dir,direction);
-	double omega = 2*constants::pi*(1-mu);
-	if (acos(mu) < acceptance_angle) {
-	  sum_ri += rps_[i].stokes().I()/abs(prop_dir.mu()); 
+	if (mu > cos(acceptance_angle)) {
+	  sum += rps_[i].stokes().I() / abs(prop_dir.mu()); 
 	}
       }    
       double solid_angle = 2*constants::pi*(1-cos(acceptance_angle));
-      return sum_ri/solid_angle;
+      return sum / solid_angle;
     }
     double mean_traveling_length() {
       double l = 0;
@@ -54,12 +51,7 @@ namespace flick {
 	l += rps_[i].traveling_length();
       return l/rps_.size();
     }
-    //bool is_active() {
-    //  return is_active_;
-    //}
-    //void outward_accepting() {
-    //  is_inward_accepting_ = false;
-    //}
+  
     // if size larger than so and so fill histogram empty rps.
     /*
     histogram stokes(enum element, size_t n_bins) const {

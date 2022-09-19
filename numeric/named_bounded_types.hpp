@@ -12,16 +12,23 @@ namespace flick {
   //char af_str[]="asymmetry factor";
   //using asymmetry_factor = bounded_type<double, negative_one, one,af_str>;
   using asymmetry_factor = bounded_type<double, negative_one, one>;
+
   using zenith_angle = bounded_type<double, zero, pi_half>;
   using polar_angle = bounded_type<double, zero, one_pi>;
   using azimuth_angle = bounded_type<double, zero, two_pi>;
+  using angle = bounded_type<double, zero, two_pi>;
+  using vertex_angle = bounded_type<double, zero, one_pi>;
+
+  using number = bounded_type<size_t, zero, std::exa>;
   using thickness = bounded_type<double, zero, std::exa>;
-  using number_of_packages = bounded_type<size_t, zero, std::exa>;
+  
+  //using number_of_packages = bounded_type<size_t, zero, std::exa>;
   using albedo = unit_interval;
-  using bottom_albedo = albedo;
-  using incidence_angle = zenith_angle;
+  //using bottom_albedo = albedo;
+  //using incidence_angle = zenith_angle;
   using sampling_asymmetry_factor = asymmetry_factor;
   using relative_refractive_index = std::complex<double>;
+  using real_refractive_index = bounded_type<double, zero, std::exa>;
   //using real_refractive_index = bounded_type<double, zero, std::exa>;
   /*
   class double_bounded_type {

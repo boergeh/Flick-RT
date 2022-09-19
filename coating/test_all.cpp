@@ -4,7 +4,8 @@
 int main() {
   using namespace flick;
   unit_test t("coating");
-  t.include<coating_test>("coating_test");
+  t.include<coating_test_A>("coating_test_A");
+  t.include<coating_test_B>("coating_test_B");
   t.run_test_cases();
   return 0;
 }

@@ -4,8 +4,6 @@
 #include "algorithm.hpp"
 #include "isotropic_mueller.hpp"
 #include "rayleigh_mueller.hpp"
-//#include "isotropic_surface_mueller.hpp"
-#include "fresnel.hpp"
 #include "../numeric/function.hpp"
 #include "../numeric/range.hpp"
 
@@ -46,11 +44,6 @@ namespace flick {
     check_close(s7.rotation_angle(),pi/2,1e-12);
     s7.rotate(-pi/4);
     check_close(s7.U()/s7.I(),1,1e-12);
-
-    std::complex<double> ref{1.33, 0};
-    double R = pow((1-ref.real())/(1+ref.real()), 2);
-    fresnel fr(ref,1);
-    check_close(fr.R(),R,1e-3);
     
   } end_test_case()
 }

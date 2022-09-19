@@ -63,7 +63,7 @@ namespace flick {
   // Point radiometric device
   {
     vector position_{0,0,0};
-    size_t total_packages_{0};
+    //size_t total_packages_{0};
     size_t packages_left_{0};
     stokes initial_stokes_{1,0,0,0};
     std::shared_ptr<wavelength_distribution> wld_;
@@ -72,7 +72,7 @@ namespace flick {
     emitter() = default;
     emitter(vector position, const stokes& initial_stokes, size_t n_packages)
       : position_{position},
-	total_packages_{n_packages},
+	//total_packages_{n_packages},
 	packages_left_{n_packages},
 	initial_stokes_{initial_stokes},
 	wld_{std::make_shared<monocromatic>(500e-9)},
@@ -91,17 +91,23 @@ namespace flick {
     template <class Dd, class... Args>
     void set_direction(Args... a) {
       dd_ = std::make_shared<Dd>(a...);
-    }   
+    }
+    /*
     void add_packages(size_t n) {
-      total_packages_ += n;
+      //total_packages_ += n;
       packages_left_ += n;
-    }    
+    } 
+    */
+    //void reload_packages(size_t n) {
+    //  packages_left_ = n;
+    //} 
+
     radiation_package emit()
     {
       pose p{position_, dd_->draw()};
       radiation_package rp(p, initial_stokes_);
       rp.wavelength(wld_->draw());
-      packages_left_--;
+      --packages_left_;
       return rp;
     }    
     size_t packages_left() const {

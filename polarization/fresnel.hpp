@@ -21,10 +21,12 @@ namespace flick {
     fresnel(const complex& relative_refractive_index, double cos_incidence_angle)
       : m_{relative_refractive_index}, cos_theta_i_{cos_incidence_angle}
     {
-      double sin_theta_i = 0;
+      if (cos_theta_i_ < -1)
+	cos_theta_i_ = -1;
+      else if (cos_theta_i_ > 1)
+	cos_theta_i_ = 1;
       double x = 1-pow(cos_theta_i_,2);
-      if (x > 0)
-	sin_theta_i = sqrt(x);
+      double sin_theta_i = sqrt(x);
       complex c = complex{sin_theta_i,0}/m_;
       cos_theta_t_ = sqrt(1.-c*c);
     }
@@ -76,6 +78,7 @@ namespace flick {
       return acos(cos_theta_i_);
     }
     complex transmission_angle() const {
+      //assert(1-cos_theta_t_ > 0);
       return acos(cos_theta_t_);
     }
   };

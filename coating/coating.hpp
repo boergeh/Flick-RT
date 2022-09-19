@@ -121,10 +121,8 @@ namespace coating {
     }
     rotation transmission_rotation() {
       update_fresnel();
-      rotation r{incidence_};
-      //std::cout << '\n' << "dot "<< dot(r.x_direction(),facing_surface_normal_) << std::endl;
-      //assert(fabs(dot(r.x_direction(),facing_surface_normal_))<1e-6);
-      r.rotate_about_local_x(-f_.reflection_angle());
+      rotation r{-facing_surface_normal_};
+      assert(fabs(dot(r.x_direction(),facing_surface_normal_))<1e-6);
       r.rotate_about_local_x(real(f_.transmission_angle()));
       return r;
     }

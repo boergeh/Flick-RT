@@ -51,6 +51,9 @@ namespace flick {
       }
     }
     void interact_with_wall() {
+      if (next_wall_intersection_.has_value()) {
+	increment_activated_receiver();
+      }	    
       if (!next_wall_intersection_.has_value()) {
 	nav_.go_to(*next_volume_);
       }
@@ -66,7 +69,6 @@ namespace flick {
 	  rp_.scale_intensity(1/coating_->unpolarized_transmittance());
 	  rp_.rotate_to(coating_->transmission_rotation());
 	}
-	increment_activated_receiver();
 	step_through_wall();
 	nav_.go_to(*next_volume_);
       } else {

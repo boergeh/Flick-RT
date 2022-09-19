@@ -52,12 +52,13 @@ namespace flick {
     s.name("s");
     s().outward_receiver().activate();
 
-    size_t n = 10;
+    size_t n = 2000;
     emitter emitter{n};
-
+    emitter.set_direction<unidirectional>(unit_vector{0,0,1});
     absorption_coefficient a{0};
     scattering_coefficient b{0};
     asymmetry_factor g{0};
+    
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_a{s};
     omc_a.transport_radiation(emitter,"s");
@@ -65,32 +66,25 @@ namespace flick {
     check_close(omc_a.outward_receiver("s").mean_traveling_length(),r,1,"b");
 
     a = 1;
-    emitter.add_packages(n);
-    s().outward_receiver().clear();
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_b{s};
     omc_b.transport_radiation(emitter,"s");
-    check_close(omc_b.outward_receiver("s").radiant_flux(),n*exp(-r),1,"c");
-
+    check_close(omc_b.outward_receiver("s").radiant_flux(),n*exp(-r),0.1,"c");
+    
     a = 0;
     b = 1;
     g = 0.5;
-    emitter.add_packages(n);
-    s().outward_receiver().clear();
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_c{s};
-    omc_c.transport_radiation(emitter,"s");
-    omc_c.set(sampling_asymmetry_factor{0.5});
-    check_close(omc_c.outward_receiver("s").radiant_flux(),n,1,"d");
- 
-    n *= 100; 
-    emitter.add_packages(n);
-    s().outward_receiver().clear();
-    s().fill<material::henyey_greenstein>(a,b,g);
+    omc_c.transport_radiation(emitter,"s",g());
+    //omc_c.set(sampling_asymmetry_factor{0.5});
+    check_close(omc_c.outward_receiver("s").radiant_flux(),n,9,"d");
+
     transporter::ordinary_mc omc_d{s};
-    omc_d.transport_radiation(emitter,"s");
-    omc_d.set(sampling_asymmetry_factor{0.6});
-    check_close(omc_d.outward_receiver("s").radiant_flux(),n,5,"e");
+    //omc_c.set(sampling_asymmetry_factor{0.4});
+    omc_d.transport_radiation(emitter,"s",g()-0.1);
+    check_close(omc_d.outward_receiver("s").radiant_flux(),n,9,"e");
+    
   } end_test_case()
   
   begin_test_case(ordinary_mc_test_E) {
@@ -117,7 +111,6 @@ namespace flick {
     omc.inward_receiver("inner_box").activate();
     omc.content("inner_box").fill<material::henyey_greenstein>(a,b,g,real_n);
     omc.transport_radiation(emitter,"outer_box");
-    omc.set(sampling_asymmetry_factor{0.8});
     double transmittance = omc.inward_receiver("inner_box").radiant_flux() / n;
     double t_benchmark = 1-pow((1-real_n)/(1+real_n),2);
     check_close(transmittance,t_benchmark,5);

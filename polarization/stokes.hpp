@@ -30,6 +30,21 @@ namespace flick {
       if (denominator > 0)
 	xsi_ = 0.5*atan(s[3]/denominator);
     }
+    static stokes unpolarized() {
+      return stokes{{1,0,0,0}};
+    }
+    static stokes s_polarized() {
+      return stokes{{1,1,0,0}};
+    }
+    static stokes p_polarized() {
+      return stokes{{1,-1,0,0}};
+    }
+    static stokes lhc_polarized() {
+      return stokes{{1,0,0,-1}};
+    }
+    static stokes rhc_polarized() {
+      return stokes{1,0,0,1};
+    }
     double I() const {return I_;}
     double Q() const {return I_*p_*cos(2*psi_)*cos(2*xsi_);}
     double U() const {return I_*p_*sin(2*psi_)*cos(2*xsi_);}

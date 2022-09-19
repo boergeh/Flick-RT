@@ -8,9 +8,9 @@ int main() {
 
   model::single_layer_slab slab{thickness{1}};
   slab.fill<material::henyey_greenstein>(a,b,g);    
-  slab.set(bottom_albedo{1});
-  slab.set(incidence_angle{constants::pi/4});
-  slab.set(number_of_packages{10000});
+  slab.brighten_bottom(albedo{1});
+  slab.orient_source(zenith_angle{constants::pi/4});
+  slab.load_packages(number{10000});
   
   std::cout << "slab heimispherical reflectance: "
 	    << slab.hemispherical_reflectance() << std::endl;

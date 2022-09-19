@@ -12,26 +12,31 @@ namespace model {
   // set precision instead of packages? 
   {
     thickness h_;
-    incidence_angle theta_0_;
-    bottom_albedo ba_;
+    zenith_angle theta_0_{0};
+    albedo albedo_{0};
     semi_infinite_box geometry_;
-    number_of_packages np_;
+    number n_packages_{1};
     std::shared_ptr<material::base> material_;
-    receiver* incident_;
+    receiver* incidence_;
     receiver* transmitted_;
     receiver* reflected_;
     double relative_depth_{0};
+    stokes stokes_{stokes::unpolarized()};
     std::shared_ptr<transporter::ordinary_mc> omc_;
   public:
-    single_layer_slab(const thickness& h) : h_{h} {}
-    void set(const bottom_albedo& ba) {
-      ba_ = ba;
+    single_layer_slab(const thickness& h) : h_{h} {
     }
-    void set(const number_of_packages& np) {
-      np_ = np;
+    void brighten_bottom(const albedo& a) {
+      albedo_ = a;
     }
-    void set(const incidence_angle& ia) {
-      theta_0_ = ia;
+    void load_packages(const number& n) {
+      n_packages_ = n;
+    }
+    void orient_source(const zenith_angle& za) {
+      theta_0_ = za;
+    }
+    void initiate_source(const stokes& s) {
+      stokes_ = s;
     }
     template <class Material, class... Args>
     void fill(Args... a) {
@@ -44,23 +49,21 @@ namespace model {
       set_relative_depth(relative_depth());
       run();
       find_receivers();
-      return reflected_->radiant_flux()/incident_->radiant_flux();
+      return reflected_->radiant_flux()/incidence_->radiant_flux();
     }
-    double relative_radiance(const polar_angle& pa,
-			     const azimuth_angle& aa,
-			     const polar_angle& acceptance_angle
-			     = polar_angle{10},
-			     const unit_interval& relative_depth
-			     = unit_interval{0}) {
+    double radiance(const polar_angle& pa,
+		    const azimuth_angle& aa,
+		    const vertex_angle& acceptance_angle
+		    = vertex_angle{1},
+		    const unit_interval& relative_depth
+		    = unit_interval{0}) {
       set_relative_depth(relative_depth());
       run();
       find_receivers();
       unit_vector direction{pa(),aa()};
-      double dI_r = reflected_->projected_intensity(direction,
-						    acceptance_angle());
-      double dI_t = transmitted_->projected_intensity(direction,
-						      acceptance_angle());
-      return (dI_r + dI_t) / incident_->radiant_flux();
+      double L_r = reflected_->radiance(direction, acceptance_angle());
+      double L_t = transmitted_->radiance(direction, acceptance_angle());
+      return (L_r + L_t) / incidence_->radiant_flux();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
 				       = unit_interval{1})
@@ -69,18 +72,29 @@ namespace model {
       set_relative_depth(relative_depth());
       run();
       find_receivers();
-      return transmitted_->radiant_flux()/incident_->radiant_flux();
+      return transmitted_->radiant_flux()/incidence_->radiant_flux();
     }
   private:
+    double relative_skin_depth() {
+      return geometry_.small_step()/h_()*2;
+    }
     void set_relative_depth(double rd) {
+      double epsilon = relative_skin_depth();
+      rd = std::clamp<double>(rd,epsilon,1-epsilon);
       relative_depth_ = rd;
-      if (relative_depth_ < geometry_.small_step())
-	relative_depth_ = geometry_.small_step()*2;
     }
     void find_receivers() {
-      incident_ = &omc_->inward_receiver("surface");
-      reflected_ = &omc_->outward_receiver("sheet");
+      incidence_ = &omc_->inward_receiver("surface");
       transmitted_ = &omc_->inward_receiver("sheet");
+      reflected_ = &omc_->outward_receiver("sheet");
+
+      double epsilon = relative_skin_depth();
+      if (relative_depth_ < epsilon) {
+	reflected_ = &omc_->outward_receiver("surface");
+      }
+      else if (relative_depth_ > 1-epsilon) {
+	transmitted_ = &omc_->inward_receiver("bottom");
+      }
     }
     void build_geometry() {
       semi_infinite_box surface;
@@ -91,11 +105,13 @@ namespace model {
       sheet.name("sheet");
       bottom.name("bottom");
       surface().inward_receiver().activate();
+      surface().outward_receiver().activate();
       surface().fill(material_);
       sheet().inward_receiver().activate();
       sheet().outward_receiver().activate();
       sheet().fill(material_);
-      bottom().coat<coating::grey_lambert>(ba_(),1-ba_());
+      bottom().inward_receiver().activate();
+      bottom().coat<coating::grey_lambert>(albedo_(),1-albedo_());
       geometry_.move_by({0,0,h_()+1});
       surface.move_by({0,0,h_()});
       sheet.move_by({0,0,h_()*(1-relative_depth_)});
@@ -105,14 +121,13 @@ namespace model {
       geometry_.insert(surface);
     }
     void run() {
-      emitter emitter{{0,0,h_()+0.5},stokes{1,0,0,0},np_()};
+      emitter emitter{{0,0,h_()+0.5},stokes_,n_packages_()};
       unit_vector direction{constants::pi-theta_0_(),0}; 
       emitter.set_direction<unidirectional>(direction);
       build_geometry();
       double g = material_->asymmetry_factor();
       omc_ = std::make_shared<transporter::ordinary_mc>(geometry_);
-      omc_->set(sampling_asymmetry_factor{g});
-      omc_->transport_radiation(emitter,"geometry");
+      omc_->transport_radiation(emitter,"geometry",g);
     }
   };
 }
