@@ -13,26 +13,25 @@ namespace transporter {
     uniform_random rnd_;
     geometry::navigator<content> nav_;
     radiation_package rp_;
-    //double sampling_asymmetry_factor_{0.8};
   public:
     ordinary_mc(const geometry::volume<flick::content>& outer_volume)
       : outer_volume_{outer_volume} {
       nav_ = geometry::navigator<flick::content>(outer_volume_);
     }
-    //void set(const sampling_asymmetry_factor& saf) {
-    //  sampling_asymmetry_factor_ = saf();
-    //}
     bool lost_in_space() {
       return (!nav_.current_volume().has_outer_volume()
 	      && !nav_.next_intersection(rp_.pose()).has_value());
     }
     flick::content& content(const std::string& volume_name) {
+      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content();
     }
     receiver& inward_receiver(const std::string& volume_name) {
+      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content().inward_receiver();
     }
     receiver& outward_receiver(const std::string& volume_name) {
+      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content().outward_receiver();
     }
     void transport_radiation(emitter em,
@@ -61,6 +60,7 @@ namespace transporter {
 	    mi.deposite_energy_to_heat(dw);
 	    wi.interact_with_wall(); 
 	    scattering_optical_depth -= material.scattering_optical_depth(dw);
+	    assert(scattering_optical_depth >= 0);
 	  }
 	}
       }

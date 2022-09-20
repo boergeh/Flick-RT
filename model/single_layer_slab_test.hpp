@@ -48,7 +48,7 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
-    slab.load_packages(number{3000});
+    slab.load_packages(number{3500});
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
     check_close(slab.hemispherical_reflectance(),0.34133, 5,"a");
@@ -109,7 +109,7 @@ namespace flick {
     polar_angle pa{0};
     azimuth_angle aa{0};
     polar_angle aca{pi/2};
-    double r1 = slab.radiance(pa,aa,aca);
+    double r1 = slab.radiance(pa,aa,aca,unit_interval{0});
     check_close(r1,1/pi,15,"a");
     pa = pi/2;
     double r2 = slab.radiance(pa,aa,aca);

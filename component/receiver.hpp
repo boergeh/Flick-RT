@@ -34,16 +34,27 @@ namespace flick {
       return rf;
     }
     double radiance(const unit_vector& direction, double acceptance_angle) {
-      double sum = 0;  
+      double sum = 0;
+      // size_t n=0;
       for(size_t i = 0; i < rps_.size(); ++i) {
 	unit_vector prop_dir = rps_[i].pose().z_direction(); 
 	double mu = dot(prop_dir,direction);
 	if (mu > cos(acceptance_angle)) {
-	  sum += rps_[i].stokes().I() / abs(prop_dir.mu()); 
+	  
+	  //std::cout << rps_[i].stokes().I() << ", ";
+	  //std::cout << mu << ", ";
+	  //std::cout <<  abs(prop_dir.mu()) << ", ";
+	  //std::cout << cos(0.5*acceptance_angle) << ", "<<std::endl;
+	  sum += rps_[i].stokes().I() / fabs(prop_dir.mu());
+	  //n++;
 	}
-      }    
+      }
+      //if (n==0)
+      //	n++;
       double solid_angle = 2*constants::pi*(1-cos(acceptance_angle));
-      return sum / solid_angle;
+      double L = sum /solid_angle;
+      //std::cout << "L " << L << std::endl;
+      return L;
     }
     double mean_traveling_length() {
       double l = 0;

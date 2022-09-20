@@ -43,7 +43,7 @@ namespace flick {
       return stokes{{1,0,0,-1}};
     }
     static stokes rhc_polarized() {
-      return stokes{1,0,0,1};
+      return stokes{{1,0,0,1}};
     }
     double I() const {return I_;}
     double Q() const {return I_*p_*cos(2*psi_)*cos(2*xsi_);}

@@ -3,13 +3,10 @@
 
 #include "../numeric/direction_generator.hpp"
 #include "../polarization/stokes.hpp"
-//#include "../polarization/mueller.hpp"
 #include "../polarization/algorithm.hpp"
 
 namespace flick {
   class radiation_package
-  // First Stokes parameter is intensity weight. All radiation
-  // variables may change during transport. 
   {
     pose pose_;
     double wavelength_{500e-9};
@@ -17,7 +14,6 @@ namespace flick {
     double traveling_length_{0};
     //size_t scattering_events_{0};?
     //bool do_not_scatter_?
-    //double scattering_optical_depth_to_be_used_{0};
   public:
     radiation_package() = default;
     radiation_package(const pose& p, const stokes& s)
@@ -77,7 +73,6 @@ namespace flick {
 	 << ", wl: " << rp.wavelength_
 	 << ", " << rp.stokes_ << ", length: "
 	 << rp.traveling_length_ << " ";
-	//<< rp.scattering_events_;
       return os;
     }
   };

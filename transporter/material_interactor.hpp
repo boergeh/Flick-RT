@@ -29,7 +29,8 @@ namespace transporter {
       rp_.move(distance_to_scattering_);
     }
     void deposite_energy_to_heat(double distance) {
-      rp_.scale_intensity(exp(-m_.absorption_optical_depth(distance)));
+      double tau = m_.absorption_optical_depth(distance);
+      rp_.scale_intensity(exp(-tau));
     }
     double distance_to_scattering() {
       return distance_to_scattering_;
