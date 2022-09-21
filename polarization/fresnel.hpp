@@ -27,12 +27,13 @@ namespace flick {
 	cos_theta_i_ = 1;
       double x = 1-pow(cos_theta_i_,2);
       double sin_theta_i = sqrt(x);
+      assert(sin_theta_i >= -1 && sin_theta_i <= 1);
       complex c = complex{sin_theta_i,0}/m_;
       cos_theta_t_ = sqrt(1.-c*c);
     }
     complex r_s() const {
-      const complex& a = cos_theta_i_;
-      const complex b = m_ * cos_theta_t_;
+      double a = cos_theta_i_;
+      complex b = m_ * cos_theta_t_;
       return (a-b)/(a+b);
     }
     complex r_p() const {

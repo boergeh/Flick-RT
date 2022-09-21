@@ -59,7 +59,7 @@ namespace flick {
       if (!std::isfinite(diff) | (diff > percent)) {
 	write_begin();
 	std::cout <<  "\""<< s << "\" " << " the difference between "
-		  << value1 << " and " << value2 << " is " << diff
+		  << value1 << " and benchmark " << value2 << " is " << diff
 		  << " %, which is larger than the accepted "
 		  << percent << " %";
 	write_end();

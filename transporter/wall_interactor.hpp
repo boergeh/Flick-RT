@@ -20,6 +20,7 @@ namespace flick {
     uniform_random& rnd_;
     bool is_reflected_{false};
     bool is_transmitted_{true};
+    bool is_moving_inward_;
     unit_vector facing_surface_normal_;
   public:
     wall_interactor(geometry::navigator<content>& nav,
@@ -29,7 +30,7 @@ namespace flick {
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
       current_volume_ = &nav_.current_volume();
       next_volume_ = &nav_.next_volume(rp_.pose());
-
+      is_moving_inward_ = is_moving_inward();
       if (!current_volume_->content().has_coating()) {	  
 	current_volume_->content().coat<coating::fresnel>();
       }
@@ -46,14 +47,13 @@ namespace flick {
       set_coating();
       double r = rnd_(0,1);
       if (coating_!=nullptr) {
+	//std::cout << coating_->unpolarized_reflectance() << std::endl;
+	//std::cout << coating_->unpolarized_transmittance() << std::endl;
 	is_reflected_ = (r < coating_->unpolarized_reflectance());
 	is_transmitted_ = (1-r < coating_->unpolarized_transmittance());
       }
     }
     void interact_with_wall() {
-      if (next_wall_intersection_.has_value()) {
-	increment_activated_receiver();
-      }	    
       if (!next_wall_intersection_.has_value()) {
 	nav_.go_to(*next_volume_);
       }
@@ -74,19 +74,28 @@ namespace flick {
       } else {
 	absorb_radiation_package();
       }
+      if (next_wall_intersection_.has_value()) {
+	increment_activated_receiver();
+      }	    
+
     }
   private:
     void increment_activated_receiver() {
-      if (is_moving_inward())
+      bool is_moving_outward = !is_moving_inward_;
+      if (is_moving_inward_ && is_transmitted_)
 	next_volume_->content().inward_receiver().receive(rp_);
-      else
+      else if (is_moving_outward && is_transmitted_)
 	current_volume_->content().outward_receiver().receive(rp_);
+      else if (is_moving_inward_ && is_reflected_)
+	next_volume_->content().outward_receiver().receive(rp_);
+      else if (is_moving_outward && is_reflected_)
+	current_volume_->content().inward_receiver().receive(rp_);
     }
     void absorb_radiation_package() {
       rp_.scale_intensity(0);
     }
     void set_coating() {
-      if (is_moving_inward())
+      if (is_moving_inward_)
 	coating_ = &next_volume_->content().coating();
       else
 	coating_ = &current_volume_->content().coating();
