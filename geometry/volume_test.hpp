@@ -11,7 +11,6 @@ namespace geometry {
     };
     cube<content> c{1};       
     auto ui = c.get_uniform_intersections(10000);
-    //write<uniform_intersections>(ui,"volume_view.txt",4);
     check_close(ui.boundary_area(),6,9);
     check_close(ui.enclosed_volume(),1,9);
     check_small(rms(ui.center_of_gravity(),{0,0,0}),0.1);
@@ -33,7 +32,6 @@ namespace geometry {
     nav.go_outward();
     nav.go_outward(); 
     pose observer{{0,0,-10},{0,0}};
-    //check_throw(nav.next_intersection(observer));
     observer.move_to({0,0,-2.99});
     vector pos = (*nav.next_intersection(observer)).position();
     check_small(rms(pos,{0,0,-2}),1e-9);
@@ -89,7 +87,10 @@ namespace geometry {
     nav.go_to(nav.next_volume(observer1));
     pose observer2{{0,0,2},{0,0,1}};
     nav.go_to(nav.next_volume(observer2));
-    
+
+    nav.go_to("bottom");
+    check(nav.find("atmosphere").name()=="atmosphere","find error");
+    check_throw(nav.find("wrongname"));
   } end_test_case()
 }
 }

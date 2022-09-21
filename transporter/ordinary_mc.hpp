@@ -23,15 +23,12 @@ namespace transporter {
 	      && !nav_.next_intersection(rp_.pose()).has_value());
     }
     flick::content& content(const std::string& volume_name) {
-      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content();
     }
     receiver& inward_receiver(const std::string& volume_name) {
-      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content().inward_receiver();
     }
     receiver& outward_receiver(const std::string& volume_name) {
-      nav_.go_to_outermost_volume();
       return nav_.find(volume_name).content().outward_receiver();
     }
     void transport_radiation(emitter em,

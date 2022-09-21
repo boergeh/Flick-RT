@@ -153,7 +153,7 @@ namespace flick {
     vertex_angle acceptance{pi};
     
     double r1 = slab.hemispherical_reflectance();
-    check_small(r1,1e-12,"a");
+    check(r1 > 0.01,"a");
 
   } end_test_case()
 

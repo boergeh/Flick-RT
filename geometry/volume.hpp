@@ -202,9 +202,12 @@ namespace geometry {
       return *v_;
     }
     volume<T>& find(const std::string& name) {
+      go_to_outermost_volume();
       volume<T>* v0 = v_;
       volume<T>& v_found = go_to(name);
       v_ = v0;
+      if (v_found.name()!=name)
+	throw  std::runtime_error("volume named "+name+" not found");
       return v_found;
     }
     volume<T>& current_volume() const {
