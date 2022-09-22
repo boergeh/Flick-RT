@@ -30,13 +30,9 @@ namespace flick {
       has_material_ = true;
     }
     coating::base& coating() const {
-      //if (!coating_)
-      //	throw std::runtime_error("content::coating");
       return *coating_;
     }
     material::base& material() const {
-      //if (!material_)
-      //	throw std::runtime_error("content::material");
       return *material_;
     }
     bool has_coating() const {
@@ -51,10 +47,6 @@ namespace flick {
     receiver& outward_receiver() {
       return outward_receiver_;
     } 
-    friend std::ostream& operator<<(std::ostream &os, const content& c) {
-      //os << c.has_active_receiver_;
-      return os;
-    }
   };
 }
 

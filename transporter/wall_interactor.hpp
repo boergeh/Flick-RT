@@ -47,8 +47,6 @@ namespace flick {
       set_coating();
       double r = rnd_(0,1);
       if (coating_!=nullptr) {
-	//std::cout << coating_->unpolarized_reflectance() << std::endl;
-	//std::cout << coating_->unpolarized_transmittance() << std::endl;
 	is_reflected_ = (r < coating_->unpolarized_reflectance());
 	is_transmitted_ = (1-r < coating_->unpolarized_transmittance());
       }
@@ -61,9 +59,11 @@ namespace flick {
 	rp_.interact_with_matter(coating_->reflection_mueller_matrix());
 	rp_.scale_intensity(1/coating_->unpolarized_reflectance());
 	rp_.rotate_to(coating_->reflection_rotation());
+	receive_reflected_packages();
 	step_back_from_wall();
       }
       else if (is_transmitted_) {
+	receive_transmitted_packages();
 	if (coating_!=nullptr) {
 	  rp_.interact_with_matter(coating_->transmission_mueller_matrix());
 	  rp_.scale_intensity(1/coating_->unpolarized_transmittance());
@@ -71,25 +71,24 @@ namespace flick {
 	}
 	step_through_wall();
 	nav_.go_to(*next_volume_);
-      } else {
+      }
+      else {
+	receive_transmitted_packages();
 	absorb_radiation_package();
       }
-      if (next_wall_intersection_.has_value()) {
-	increment_activated_receiver();
-      }	    
-
     }
   private:
-    void increment_activated_receiver() {
-      bool is_moving_outward = !is_moving_inward_;
-      if (is_moving_inward_ && is_transmitted_)
-	next_volume_->content().inward_receiver().receive(rp_);
-      else if (is_moving_outward && is_transmitted_)
-	current_volume_->content().outward_receiver().receive(rp_);
-      else if (is_moving_inward_ && is_reflected_)
+    void receive_reflected_packages() {
+      if (is_moving_inward_)
 	next_volume_->content().outward_receiver().receive(rp_);
-      else if (is_moving_outward && is_reflected_)
+      else
 	current_volume_->content().inward_receiver().receive(rp_);
+    }
+    void receive_transmitted_packages() {
+      if (is_moving_inward_)
+	next_volume_->content().inward_receiver().receive(rp_);
+      else
+	current_volume_->content().outward_receiver().receive(rp_);
     }
     void absorb_radiation_package() {
       rp_.scale_intensity(0);
@@ -145,8 +144,8 @@ namespace flick {
       return -n;
     }
     bool is_moving_inward() const {
-      if (!next_wall_intersection_.has_value())
-	return false;
+      //if (!next_wall_intersection_.has_value())
+      //	return false;
       return nav_.is_moving_inward(*next_wall_intersection_,rp_.pose());
     }    
   };

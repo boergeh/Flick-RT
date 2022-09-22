@@ -91,36 +91,27 @@ namespace flick {
     semi_infinite_box bottom_box;
     inner_box.name("inner_box");
     outer_box.name("outer_box");
-    bottom_box.name("bottom_box");
-    outer_box.move_by({0,0,1});
-    inner_box.move_by({0,0,-1});
-    bottom_box.move_by({0,0,-2});
+    outer_box.move_by({0,0,3});
+    inner_box.move_by({0,0,2});
     absorption_coefficient a{0};
     scattering_coefficient b{0};
     asymmetry_factor g{0};
-    double real_n{3};
+    double real_n{9};
     inner_box().fill<material::henyey_greenstein>(a,b,g,real_n);
     inner_box().inward_receiver().activate();
     bottom_box().inward_receiver().activate();
     inner_box().outward_receiver().activate();
-
-    inner_box.insert(bottom_box);
     outer_box.insert(inner_box);
 
-    size_t n = 100000;
-    emitter emitter{n};
+    size_t n = 2000;
+    emitter emitter{{0,0,2.5},n};
     emitter.set_direction<unidirectional>(unit_vector{0,0,-1});   
     transporter::ordinary_mc omc{outer_box};
-    //omc.inward_receiver("inner_box").activate();
-    //omc.inward_receiver("bottom_box").activate();
-    //omc.outward_receiver("inner_box").activate();
-    //omc.content("inner_box").fill<material::henyey_greenstein>(a,b,g,real_n);
     omc.transport_radiation(emitter,"outer_box");
-    double transmittance = omc.inward_receiver("inner_box").radiant_flux() / n;
     double reflectance = omc.outward_receiver("inner_box").radiant_flux() / n;
+    double transmittance = omc.inward_receiver("inner_box").radiant_flux() / n;
     double r_benchmark = pow((1-real_n)/(1+real_n),2);
     double t_benchmark = 1-r_benchmark;
-    check(reflectance > 0.01);
     check_close(reflectance,r_benchmark,5,"r");
     check_close(transmittance,t_benchmark,5,"t");
 

@@ -112,7 +112,7 @@ namespace flick {
     double r1 = slab.radiance(pa,aa,aca,unit_interval{0});
     check_close(r1,1/pi,15,"a");
     pa = pi/2;
-    double r2 = slab.radiance(pa,aa,aca);
+    double r2 = slab.radiance(pa,aa,aca,unit_interval{0.5});
     check_close(r2,1/(2*pi),15,"b");
   } end_test_case()
   
@@ -134,12 +134,13 @@ namespace flick {
     begin_test_case(single_layer_slab_test_G) {
     const double pi = constants::pi;
     using namespace flick;
+    model::single_layer_slab slab{thickness{1}};
+
     absorption_coefficient a{0};
     scattering_coefficient b{0};
     asymmetry_factor g{0.0};
     real_refractive_index n{1.33};
-    thickness h{1};
-    model::single_layer_slab slab{h};
+
     double brewster = atan(n());
 
     slab.fill<material::henyey_greenstein>(a,b,g,n());    

@@ -8,8 +8,6 @@
 namespace flick {
 namespace model {
   class single_layer_slab
-  // remote sensing reflectance method?
-  // set precision instead of packages? 
   {
     thickness h_;
     zenith_angle theta_0_{0};
@@ -17,7 +15,7 @@ namespace model {
     semi_infinite_box geometry_;
     number n_packages_{1};
     std::shared_ptr<material::base> material_;
-    receiver* incidence_;
+    //receiver* incidence_;
     receiver* transmitted_;
     receiver* reflected_;
     double relative_depth_{0};
@@ -46,10 +44,11 @@ namespace model {
 				     = unit_interval{0})
     // See Wikipedia reflectance for definition
     {
-      set_relative_depth(relative_depth());
+      //set_relative_depth(relative_depth());
+      relative_depth_ = relative_depth();
       run();
       find_receivers();
-      return reflected_->radiant_flux()/incidence_->radiant_flux();
+      return reflected_->radiant_flux()/n_packages_();//incidence_->radiant_flux();
     }
     double radiance(const polar_angle& pa,
 		    const azimuth_angle& aa,
@@ -57,34 +56,35 @@ namespace model {
 		    = vertex_angle{1},
 		    const unit_interval& relative_depth
 		    = unit_interval{0}) {
-      set_relative_depth(relative_depth());
+      //set_relative_depth(relative_depth());
+      relative_depth_ = relative_depth();
       run();
       find_receivers();
       unit_vector direction{pa(),aa()};
       double L_r = reflected_->radiance(direction, acceptance_angle());
       double L_t = transmitted_->radiance(direction, acceptance_angle());
-      return (L_r + L_t) / incidence_->radiant_flux();
+      return (L_r + L_t) / n_packages_();//incidence_->radiant_flux();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
 				       = unit_interval{1})
     // See Wikipedia transmittance for definition
     {
-      set_relative_depth(relative_depth());
+      relative_depth_ = relative_depth();
+      //set_relative_depth(relative_depth());
       run();
       find_receivers();
-      return transmitted_->radiant_flux()/incidence_->radiant_flux();
+      return transmitted_->radiant_flux()/n_packages_(); //incidence_->radiant_flux();
     }
   private:
     double relative_skin_depth() {
       return geometry_.small_step()/h_()*2;
     }
-    void set_relative_depth(double rd) {
+    double sheet_relative_depth() {
       double epsilon = relative_skin_depth();
-      rd = std::clamp<double>(rd,epsilon,1-epsilon);
-      relative_depth_ = rd;
+      return std::clamp<double>(relative_depth_,epsilon,1-epsilon);
     }
     void find_receivers() {
-      incidence_ = &omc_->inward_receiver("surface");
+      //incidence_ = &omc_->inward_receiver("surface");
       transmitted_ = &omc_->inward_receiver("sheet");
       reflected_ = &omc_->outward_receiver("sheet");
 
@@ -114,7 +114,7 @@ namespace model {
       bottom().coat<coating::grey_lambert>(albedo_(),1-albedo_());
       geometry_.move_by({0,0,h_()+1});
       surface.move_by({0,0,h_()});
-      sheet.move_by({0,0,h_()*(1-relative_depth_)});
+      sheet.move_by({0,0,h_()*(1-sheet_relative_depth())});
       sheet.insert(bottom);
       surface.insert(sheet);
       geometry_.clear();
