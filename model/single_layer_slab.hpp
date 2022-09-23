@@ -15,7 +15,6 @@ namespace model {
     semi_infinite_box geometry_;
     number n_packages_{1};
     std::shared_ptr<material::base> material_;
-    //receiver* incidence_;
     receiver* transmitted_;
     receiver* reflected_;
     double relative_depth_{0};
@@ -44,36 +43,36 @@ namespace model {
 				     = unit_interval{0})
     // See Wikipedia reflectance for definition
     {
-      //set_relative_depth(relative_depth());
       relative_depth_ = relative_depth();
       run();
       find_receivers();
-      return reflected_->radiant_flux()/n_packages_();//incidence_->radiant_flux();
+      return reflected_->radiant_flux()/n_packages_();
     }
-    double radiance(const polar_angle& pa,
-		    const azimuth_angle& aa,
-		    const vertex_angle& acceptance_angle
-		    = vertex_angle{1},
-		    const unit_interval& relative_depth
-		    = unit_interval{0}) {
-      //set_relative_depth(relative_depth());
+    double relative_radiance(const polar_angle& pa,
+			     const azimuth_angle& aa,
+			     const vertex_angle& acceptance_angle
+			     = vertex_angle{1},
+			     const unit_interval& relative_depth
+			     = unit_interval{0})
+    // Radiance in a given propagation direction relative to incoming
+    // surface irradiance.
+    {
       relative_depth_ = relative_depth();
       run();
       find_receivers();
       unit_vector direction{pa(),aa()};
       double L_r = reflected_->radiance(direction, acceptance_angle());
       double L_t = transmitted_->radiance(direction, acceptance_angle());
-      return (L_r + L_t) / n_packages_();//incidence_->radiant_flux();
+      return (L_r + L_t) / n_packages_();
     }
     double hemispherical_transmittance(const unit_interval& relative_depth
 				       = unit_interval{1})
     // See Wikipedia transmittance for definition
     {
       relative_depth_ = relative_depth();
-      //set_relative_depth(relative_depth());
       run();
       find_receivers();
-      return transmitted_->radiant_flux()/n_packages_(); //incidence_->radiant_flux();
+      return transmitted_->radiant_flux()/n_packages_();
     }
   private:
     double relative_skin_depth() {
@@ -84,15 +83,14 @@ namespace model {
       return std::clamp<double>(relative_depth_,epsilon,1-epsilon);
     }
     void find_receivers() {
-      //incidence_ = &omc_->inward_receiver("surface");
       transmitted_ = &omc_->inward_receiver("sheet");
       reflected_ = &omc_->outward_receiver("sheet");
 
       double epsilon = relative_skin_depth();
-      if (relative_depth_ < epsilon) {
+      if (relative_depth_ <= epsilon) {
 	reflected_ = &omc_->outward_receiver("surface");
       }
-      else if (relative_depth_ > 1-epsilon) {
+      else if (relative_depth_ >= 1-epsilon) {
 	transmitted_ = &omc_->inward_receiver("bottom");
       }
     }

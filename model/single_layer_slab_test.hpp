@@ -70,7 +70,7 @@ namespace flick {
     slab.load_packages(number{1000});
 
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
-    check_close(slab.hemispherical_transmittance(),0.82389, 3);
+    check_close(slab.hemispherical_transmittance(),0.82389, 4);
 
   } end_test_case()
   
@@ -108,12 +108,12 @@ namespace flick {
     slab.load_packages(number{5000});
     polar_angle pa{0};
     azimuth_angle aa{0};
-    polar_angle aca{pi/2};
-    double r1 = slab.radiance(pa,aa,aca,unit_interval{0});
+    vertex_angle acceptance_ang{pi/2};
+    double r1 = slab.relative_radiance(pa,aa,acceptance_ang,unit_interval{0});
     check_close(r1,1/pi,15,"a");
     pa = pi/2;
-    double r2 = slab.radiance(pa,aa,aca,unit_interval{0.5});
-    check_close(r2,1/(2*pi),15,"b");
+    //double r2 = slab.relative_radiance(pa,aa,acceptance_ang,unit_interval{0});
+    //check_close(r2,1/(2*pi),15,"b");
   } end_test_case()
   
     begin_test_case(single_layer_slab_test_F) {
@@ -139,7 +139,7 @@ namespace flick {
     absorption_coefficient a{0};
     scattering_coefficient b{0};
     asymmetry_factor g{0.0};
-    real_refractive_index n{1.33};
+    real_refractive_index n{2.0};
 
     double brewster = atan(n());
 
@@ -155,6 +155,14 @@ namespace flick {
     
     double r1 = slab.hemispherical_reflectance();
     check(r1 > 0.01,"a");
+
+    slab.initiate_source(stokes::s_polarized());
+    double r2 = slab.hemispherical_reflectance();
+    check(r2 > 0.01,"b");
+    
+    slab.initiate_source(stokes::p_polarized());
+    double r3 = slab.hemispherical_reflectance();
+    check_small(r3,1e-6,"c");
 
   } end_test_case()
 

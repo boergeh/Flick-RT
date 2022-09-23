@@ -43,7 +43,7 @@ namespace flick {
      
       facing_surface_normal_ = facing_surface_normal();
       move_to_wall();
-      align_rp_x_axis_with_wall();
+      align_rp_x_axis_with_plane_of_incidence();
       set_coating();
       double r = rnd_(0,1);
       if (coating_!=nullptr) {
@@ -124,7 +124,7 @@ namespace flick {
     void step_through_wall() {
       rp_.move_by(-current_volume_->small_step()*facing_surface_normal_);
     }    
-    void align_rp_x_axis_with_wall()
+    void align_rp_x_axis_with_plane_of_incidence()
     // Not too proud over this..
     {
       pose p = rp_.pose();
@@ -134,7 +134,7 @@ namespace flick {
 	if (d <= 1 && d >= -1) // avoid rounding errors
 	  rp_.rotate_about_local_z(acos(d));
 	if (dot(normal,rp_.pose().x_direction()) < 0)
-	  rp_.rotate_about_local_z(constants::pi);
+	  rp_.rotate_about_local_z(constants::pi/2);
       }
     }
     unit_vector facing_surface_normal() const {
