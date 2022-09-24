@@ -262,11 +262,13 @@ namespace geometry {
 	if (pb.has_value()) {
 	  intersections.emplace_back(*pb);
 	  observer.move_to((*pb).position());
-	  observer.move_by(observer.z_direction()*b.small_step());
+	  observer = step_away_from_surface(observer,(*pb).z_direction(),
+					    b.small_step());
 	} else if (pr.has_value()) {
 	  observer = b.placement().rotate_to(dg.isotropic());
 	  observer.move_to((*pr).position());
-	  observer.move_by(-(*pr).z_direction()*b.small_step());
+	  observer = step_away_from_surface(observer,(*pr).z_direction(),
+					    -b.small_step());	  
 	  observer.rotate_to(dg.lambertian(-(*pr).z_direction()));	  
 	  n++;
 	} else {
@@ -274,6 +276,14 @@ namespace geometry {
 	}
       }
       return intersections;
+    }
+    pose step_away_from_surface(pose p, const unit_vector& surface_normal,
+				 double step_length) {
+      int s = +1;
+      double d = dot(p.z_direction(),surface_normal);
+      if (d < 0)
+	s = -1;
+      return p.move_by(s*surface_normal*step_length);
     }
   };
 }
