@@ -4,6 +4,7 @@
 #include "../numeric/vector.hpp"
 #include "mueller.hpp"
 #include <complex>
+#include <cassert>
 
 // See Wikipedia Fresnel equations. See also the fresnel_curves
 // function below for further documentation.  Relatative refractive
