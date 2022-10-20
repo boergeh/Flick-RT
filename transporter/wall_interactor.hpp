@@ -28,6 +28,7 @@ namespace flick {
 		    uniform_random& ur)
       : nav_{nav}, rp_{rp}, rnd_{ur} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
+      assert(next_wall_intersection_.has_value());
       current_volume_ = &nav_.current_volume();
       next_volume_ = &nav_.next_volume(rp_.pose());
       is_moving_inward_ = is_moving_inward();
@@ -52,10 +53,8 @@ namespace flick {
       }
     }
     void interact_with_wall() {
-      if (!next_wall_intersection_.has_value()) {
-	nav_.go_to(*next_volume_);
-      }
-      else if (is_reflected_) {
+      nav_.go_to(*next_volume_);
+      if (is_reflected_) {
 	rp_.interact_with_matter(coating_->reflection_mueller_matrix());
 	rp_.scale_intensity(1/coating_->unpolarized_reflectance());
 	rp_.rotate_to(coating_->reflection_rotation());
@@ -115,8 +114,7 @@ namespace flick {
       return m2 / m1;
     }
     void move_to_wall() {
-      if (next_wall_intersection_.has_value())
-	rp_.move_to((*next_wall_intersection_).position());
+      rp_.move_to((*next_wall_intersection_).position());
     }
     void step_back_from_wall() {
       rp_.move_by(current_volume_->small_step()*facing_surface_normal_);

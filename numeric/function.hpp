@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+#include <memory>
 #include "sorted_vector.hpp"
 
 namespace flick {

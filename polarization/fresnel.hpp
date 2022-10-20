@@ -5,6 +5,7 @@
 #include "mueller.hpp"
 #include <complex>
 #include <cassert>
+#include <algorithm>
 
 // See Wikipedia Fresnel equations. See also the fresnel_curves
 // function below for further documentation.  Relatative refractive
@@ -22,10 +23,7 @@ namespace flick {
     fresnel(const complex& relative_refractive_index, double cos_incidence_angle)
       : m_{relative_refractive_index}, cos_theta_i_{cos_incidence_angle}
     {
-      if (cos_theta_i_ < -1)
-	cos_theta_i_ = -1;
-      else if (cos_theta_i_ > 1)
-	cos_theta_i_ = 1;
+      cos_theta_i_ = std::clamp<double>(cos_theta_i_,-1,1);
       double x = 1-pow(cos_theta_i_,2);
       double sin_theta_i = sqrt(x);
       assert(sin_theta_i >= -1 && sin_theta_i <= 1);

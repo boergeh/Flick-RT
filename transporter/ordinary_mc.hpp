@@ -6,13 +6,14 @@
 #include "../material/material.hpp"
 
 namespace flick {
-  using navigator = geometry::navigator<content>;
+  using navigator = geometry::navigator<flick::content>;
 namespace transporter {
   class ordinary_mc {
-    geometry::volume<content> outer_volume_;
+    geometry::volume<flick::content> outer_volume_;
     uniform_random rnd_;
-    geometry::navigator<content> nav_;
+    geometry::navigator<flick::content> nav_;
     radiation_package rp_;
+    std::optional<pose> intersection_;
   public:
     ordinary_mc(const geometry::volume<flick::content>& outer_volume)
       : outer_volume_{outer_volume} {
@@ -20,7 +21,7 @@ namespace transporter {
     }
     bool lost_in_space() {
       return (!nav_.current_volume().has_outer_volume()
-	      && !nav_.next_intersection(rp_.pose()).has_value());
+	      && !intersection_.has_value());
     }
     flick::content& content(const std::string& volume_name) {
       return nav_.find(volume_name).content();
@@ -39,6 +40,7 @@ namespace transporter {
 	nav_.go_to(*ev);
 	rp_ = em.emit();
 	double scattering_optical_depth = -log(rnd_(0,1));
+	intersection_ = nav_.next_intersection(rp_.pose());
 	while (!rp_.is_empty() && !lost_in_space()) {
 	  if (!nav_.current_volume().content().has_material()) {
 	    nav_.current_volume().content().fill<material::vacuum>();
@@ -46,27 +48,29 @@ namespace transporter {
 	  material::base& material = nav_.current_volume().content().material();
 	  material_interactor mi(rp_,material,rnd_,scattering_optical_depth,
 				 sampling_asymmetry_factor);
-	  double dw = distance_to_wall();
+	  double dw = distance_to_wall(intersection_);
 	  double ds = mi.distance_to_scattering();
-	  if (ds < dw) {
+	  if (intersection_.has_value() && ds < dw) {
 	    mi.deposite_energy_to_heat(ds);
 	    mi.scatter();
 	    scattering_optical_depth = -log(rnd_(0,1));
-	  } else {
+	  } 
+	  else if (intersection_.has_value()) {
 	    wall_interactor wi(nav_,rp_,rnd_);
 	    mi.deposite_energy_to_heat(dw);
 	    wi.interact_with_wall(); 
 	    scattering_optical_depth -= material.scattering_optical_depth(dw);
 	    assert(scattering_optical_depth >= 0);
 	  }
+	  else {//Can be needed for volumes with overlapping surfaces
+	    nav_.go_outward();
+	  }
+	  intersection_ = nav_.next_intersection(rp_.pose());  
 	}
       }
     }
   private:
-    double distance_to_wall() {
-      std::optional<pose> p = nav_.next_intersection(rp_.pose());
-      if (!p.has_value())
-	return 0;
+    double distance_to_wall(const std::optional<pose>& p) {
       return norm((*p).position()-rp_.pose().position()); 
     }
   };

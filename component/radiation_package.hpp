@@ -8,9 +8,9 @@
 namespace flick {
   class radiation_package
   {
-    pose pose_;
+    flick::pose pose_;
     double wavelength_{500e-9};
-    stokes stokes_{1,0,0,0};
+    flick::stokes stokes_{1,0,0,0};
     double traveling_length_{0};
     //size_t scattering_events_{0};?
     //bool do_not_scatter_?
