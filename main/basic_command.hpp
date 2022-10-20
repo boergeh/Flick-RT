@@ -6,7 +6,7 @@
 #include "../environment/input_output.hpp"
 
 namespace flick {
-  namespace {
+  namespace command {
     class basic_command {
       std::vector<std::string> arguments_;
       std::string name_;

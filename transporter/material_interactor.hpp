@@ -64,10 +64,6 @@ namespace transporter {
     }
   private:
     void make_x_axis_parallel_with_scattering_plane() {
-      //const pose& p = rp_.pose();
-      //vector n = cross(p.z_direction(),scattering_direction_);
-      //double ang = acos(dot(n, p.x_direction()));
-      //rp_.rotate_about_local_z(ang);
       rp_.rotate_about_local_z(scattering_azimuth_angle_);
     }
   };

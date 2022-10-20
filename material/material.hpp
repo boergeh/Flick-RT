@@ -13,8 +13,8 @@
 namespace flick {
 namespace material {
   class base {
-    wavelength wavelength_{500e-9};
-    pose pose_;
+    flick::wavelength wavelength_{500e-9};
+    flick::pose pose_;
     //asymmetry_factor g_;
   public:
     void set(const pose& p) {
@@ -29,7 +29,7 @@ namespace material {
     double wavelength() const {
       return wavelength_();
     }
-    pose pose() const {
+    flick::pose pose() const {
       return pose_;
     }
     double angle(const unit_vector& scattering_direction) const {
