@@ -14,7 +14,7 @@ namespace geometry {
     struct element {
       std::shared_ptr<surface::base> surface_ptr;
       pose placement;
-      bool inside_out{false}; // Is this needed?? Could set atmospheric top at 100 km
+      bool inside_out{false};
     };
     std::vector<element> elements_;
     pose placement_{{0,0,0},no_rotation()};

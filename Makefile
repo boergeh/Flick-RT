@@ -37,7 +37,6 @@ clean:
 	cd model; make clean
 	cd main; make clean
 	rm -f *~
-
 check-env:
 ifndef FLICK_PATH
 	@echo

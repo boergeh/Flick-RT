@@ -66,9 +66,6 @@ namespace geometry {
       double r_{1};
     public:
       sphere(double r) : r_{r} {}
-      //static std::shared_ptr<surface::sphere> ptr(double r) {
-      //	 return std::make_shared<surface::sphere>(r);
-      // }
       void set_observer(const pose& o) {
 	observer_ = o;
 	const unit_vector &l = o.z_direction();
@@ -107,4 +104,5 @@ namespace geometry {
   }
 }
 }
+
 #endif

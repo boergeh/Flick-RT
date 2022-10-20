@@ -144,8 +144,6 @@ namespace flick {
       return -n;
     }
     bool is_moving_inward() const {
-      //if (!next_wall_intersection_.has_value())
-      //	return false;
       return nav_.is_moving_inward(*next_wall_intersection_,rp_.pose());
     }    
   };
