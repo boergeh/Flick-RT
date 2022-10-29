@@ -2,7 +2,7 @@
 
 namespace flick {
   begin_test_case(function_test) {
-    double epsilon = 1e-12;
+    double epsilon = 1e-11;
     function<piecewise_exponential> fa{{-1,1},{1,1}};
     check_small(fa.derivative(-3), epsilon, "a1");
     check_close(fa.value(-3), 1, epsilon, "a2");
@@ -56,8 +56,8 @@ namespace flick {
     check(!limit.has_value(), "d3");
     
     function<piecewise_power> fe{{1,2},{1,1}};
-    check_small(fe.derivative(-3), epsilon, "e1");
-    check_close(fe.value(-3), 1, epsilon, "e2");
+    check_small(fe.derivative(3), epsilon, "e1");
+    check_close(fe.value(3), 1, epsilon, "e2");
     check_close(fe.integral(3,7), 4, epsilon, "e3");
     check_close(fe.integral(0.5,3), 2.5, epsilon, "e4");
 
@@ -73,7 +73,7 @@ namespace flick {
     function<piecewise_power> fg{{0.1,1,7},{pow(0.1,2),pow(1,2),pow(7,2)}};
     check_small(fg.integral(1,1),epsilon,"g0");
     check_close(fg.value(1.1), pow(1.1,2), epsilon, "g1");
-    check_close(fg.derivative(7), 7./2, epsilon, "g2");
+    check_close(fg.derivative(7), 14, epsilon, "g2");
     check_close(fg.integral(1,2), 1./3*(pow(2,3)-1), epsilon, "g3");
     integral_value = fg.integral(0.1,10);
     limit = fg.integral_limit_b(0.1,integral_value);
@@ -127,5 +127,19 @@ namespace flick {
     check_close(acc.back(),2,1e-12,"fpa");
     auto ia = inverted_accumulation(fp);
     check_close(ia.value(2),1,1e-12,"fpb");
+
+    pp_function ppf{{400e-9,400.1e-9},{1,1e6}};
+    check(!isnan(ppf.value(400.05e-9)),"ppf_a");
+    check(!isnan(ppf.integral(399e-9,401e-9)),"ppf_b");
+    check(!isnan(ppf.derivative(399e-9)),"ppf_c");
+    check(ppf.integral_limit_b(399e-9,1).has_value(),"ppf_d");
+
+    pe_function pef{{400e-9,400.1e-9},{1,1e6}};
+    check(!isnan(pef.value(400.05e-9)),"pef_a");
+    check(!isnan(pef.integral(399e-9,401e-9)),"pef_b");
+    check(!isnan(pef.derivative(399e-9)),"pef_c");
+    check(pef.integral_limit_b(399e-9,1).has_value(),"pef_d");
+
+
   } end_test_case()
 }

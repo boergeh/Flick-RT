@@ -22,25 +22,24 @@ namespace flick {
  
   class basic_interpolation {
   protected:
-    point p1;
-    point p2;
-    double a;
-    double b;
+    double x1, x2, y1, y2;
   public:
     basic_interpolation(const point& low, const point& high)
-      : p1{low}, p2{high} {
+      : x1{low.x()}, x2{high.x()}, y1{low.y()}, y2{high.y()} {
     }
   };
   
   class piecewise_linear : public basic_interpolation {
+    double a;
+    double b;
   public:
     static step_type get_step_type() {
       return step_type::linear;
     }
     piecewise_linear(const point& low, const point& high)
       : basic_interpolation(low, high) {
-      a = (p2.y()-p1.y())/(p2.x()-p1.x());
-      b = p1.y()-a*p1.x();
+      a = (y2-y1)/(x2-x1);
+      b = y1-a*x1;
     }
     double y(double x) {
       return a * x + b;
@@ -69,6 +68,8 @@ namespace flick {
   };
 
   class piecewise_exponential : public basic_interpolation {
+    double a;
+    double k;
   public:
     static step_type get_step_type() {
       return step_type::linear;
@@ -76,28 +77,28 @@ namespace flick {
     piecewise_exponential(const point& low, const point& high)
       : basic_interpolation(low, high) {
       ensure(low.y() > 0 && high.y() > 0);
-      b = (log(p2.y())-log(p1.y())) / (p2.x()-p1.x());
-      a = exp(log(p1.y()) - b * p1.x());
+      k = log(y2/y1) / (x2-x1);
     }
     double y(double x) {
-      return a * exp(b*x);
+      return y1*pow(y2/y1,(x-x1)/(x2-x1));
     }
     double derivative(double x) {
-      return a * b * exp(b*x);
+      return y(x)*k;
     }
     double integral(double limit_a, double limit_b) {
-      if (fabs(b) < std::numeric_limits<double>::epsilon())
-	return a*(limit_b-limit_a);
-      return a/b*(exp(b*limit_b)-exp(b*limit_a));
+      if (fabs(k) < std::numeric_limits<double>::epsilon())
+	return y1*(limit_b-limit_a);
+      return (y(limit_b)-y(limit_a))/k;
     }
     std::optional<double> integral_limit_b(double limit_a,
 					   double integral_value) {
-      if (fabs(b) < std::numeric_limits<double>::epsilon())
-	return limit_a + integral_value / a;
-      double arg = integral_value*b/a + exp(b*limit_a);
+      if (fabs(k) < std::numeric_limits<double>::epsilon())
+	return limit_a + integral_value / y1;
+      double a = y1*exp(-k*x1);
+      double arg = integral_value*k/a + exp(k*limit_a);
       if (arg <= 0)
 	return std::nullopt;
-      return log(arg)/b;
+      return log(arg)/k;
     }
   private:
     void ensure(bool b) {
@@ -108,6 +109,7 @@ namespace flick {
   };
 
   class piecewise_power : public basic_interpolation {
+    double k;
   public:
     static step_type get_step_type() {
       return step_type::exponential;
@@ -116,31 +118,30 @@ namespace flick {
       : basic_interpolation(low, high) {
       ensure(low.x() > 0 && high.x() > 0);
       ensure(low.y() > 0 && high.y() > 0);
-      b = (log(p2.y())-log(p1.y())) / (log(p2.x())-log(p1.x()));
-      a = exp(log(p1.y()) - b * log(p1.x()));
+      k = log(y2/y1) / log(x2/x1);
     }
     double y(double x) {
-      return a*pow(x,b);
+      return y1*pow(x/x1,k);
     }
     double derivative(double x) {
-      if (fabs(b) < std::numeric_limits<double>::epsilon())
+      if (fabs(k) < std::numeric_limits<double>::epsilon())
 	return 0;
-      return a / b * pow(x,b-1);
+      return y1*k*pow(x/x1,k-1)/x1;
     }
     double integral(double limit_a, double limit_b) {
       ensure(limit_a > 0 && limit_b > 0);
-      if (fabs(b+1) < std::numeric_limits<double>::epsilon())
-	return a*log(limit_b/limit_a);
-      return a/(b+1)*(pow(limit_b,b+1)-pow(limit_a,b+1));
+      if (fabs(k+1) < std::numeric_limits<double>::epsilon())
+	return y1*x1*log(limit_b/limit_a);
+      return y1/(k+1)*x1*(pow(limit_b/x1,k+1)-pow(limit_a/x1,k+1));
     }
     std::optional<double> integral_limit_b(double limit_a,
 					   double integral_value) {
-      if (fabs(b+1) < std::numeric_limits<double>::epsilon())
-	return limit_a * exp(integral_value/a);
-      double arg = integral_value*(b+1)/a + pow(limit_a,b+1);
+      if (fabs(k+1) < std::numeric_limits<double>::epsilon())
+	return limit_a * exp(integral_value/(y1*x1));
+      double arg = integral_value*(k+1)/(x1*y1) + pow(limit_a/x1,k+1);
       if (arg <= 0)
 	return std::nullopt;
-      return pow(arg,1/(b+1));
+      return x1*pow(arg,1/(k+1));
     }
   private:
     void ensure(bool b) {
@@ -200,11 +201,14 @@ namespace flick {
     void scale_x(double factor) {
       ensure(factor > 0);
       xv_.scale(factor);
-    }
+    }   
     void scale_y(double factor) {
       ensure(factor > 0);
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
+    }
+    void normalize() {
+      scale_y(1/integral());
     }
     std::vector<double> x() const {
       return xv_.all_values();
@@ -334,9 +338,24 @@ namespace flick {
 	throw std::invalid_argument("function");
     }
   };
+  
   template<class Interpolation>
   function<Interpolation> inverted_accumulation(function<Interpolation>& f) {
     return function<Interpolation>{f.accumulation(),f.x()};
+  }
+  template<class Interpolation>
+  function<Interpolation> density_spectrum(function<Interpolation>& f, size_t n_points) {
+    function<Interpolation> fn = f;
+    fn.normalize();
+    fn = inverted_accumulation(fn);
+    std::vector<double> unit_interval = range(0,1,n_points+1).linspace();
+    std::vector<double> x(n_points);
+    std::vector<double> y(n_points);
+    for (size_t i=0; i < n_points; ++i) {
+      x[i] = fn.value(unit_interval[i]);
+      y[i] = f.value(x[i]);
+    }
+    return function<Interpolation>{x,y};
   }
   double significant_digits(double x, size_t n) {
     std::stringstream ss;
