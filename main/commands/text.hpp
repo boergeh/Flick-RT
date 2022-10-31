@@ -1,4 +1,4 @@
-#include "../basic_command.hpp"
+#include "basic_command.hpp"
 #include "../../environment/input_output.hpp"
 #include "../../numeric/function.hpp"
 

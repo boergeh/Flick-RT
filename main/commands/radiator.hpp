@@ -1,4 +1,4 @@
-#include "../basic_command.hpp"
+#include "basic_command.hpp"
 #include "../../radiator/planck.hpp"
 
 namespace flick {
@@ -9,7 +9,7 @@ namespace flick {
 	if (a(1)=="planck") {
 	  double T = std::stod(a(2));
 	  size_t n_points = std::stoi(a(3));
-	  std::cout << planck(T).irradiance_spectrum(n_points);
+	  std::cout << flick::radiator::planck(T).spectrum(n_points);
 	} else {
 	  error();
 	}

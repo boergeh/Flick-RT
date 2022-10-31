@@ -125,8 +125,10 @@ namespace flick {
     function<piecewise_linear> fp{{-1,0,1},{0,1,2}};
     auto acc = fp.accumulation();
     check_close(acc.back(),2,1e-12,"fpa");
-    auto ia = inverted_accumulation(fp);
-    check_close(ia.value(2),1,1e-12,"fpb");
+    auto icd = inverted_cumulative_distribution(fp);
+    check_close(icd.value(1),1,1e-12,"fpb");
+    auto is = importance_sampled(fp,10);
+    check_close(is.integral(),fp.integral(),1e-12,"fpc");
 
     pp_function ppf{{400e-9,400.1e-9},{1,1e6}};
     check(!isnan(ppf.value(400.05e-9)),"ppf_a");

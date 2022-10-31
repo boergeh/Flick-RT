@@ -1,7 +1,7 @@
 #ifndef flick_command_help
 #define flick_command_help
 
-#include "../basic_command.hpp"
+#include "basic_command.hpp"
 
 namespace flick {
   namespace command {

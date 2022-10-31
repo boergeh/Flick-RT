@@ -1,7 +1,7 @@
 #ifndef flick_command_iop
 #define flick_command_iop
 
-#include "../basic_command.hpp"
+#include "basic_command.hpp"
 #include "../../material/water/pure_water.hpp"
 
 namespace flick {

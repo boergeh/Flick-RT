@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "../environment/input_output.hpp"
+#include "../../environment/input_output.hpp"
+#include "../../environment/exception.hpp"
 
 namespace flick {
   namespace command {
@@ -32,6 +33,25 @@ namespace flick {
 	std::cout << t << std::endl;  
       }
     };
+  }
+  
+  template<typename Command>
+  bool run(const std::vector<std::string>& args) {
+    Command c;
+    c.set_arguments(args);
+    if (!args.empty() && c.has_name(args.at(0))) {
+      try {
+	c.run();
+      } catch (const flick::exception& e) {
+	std::cout << "\n Flick exception in " << e.what() << "\n\n";
+      } catch (const std::exception& e) {
+	std::cout << "\n c++ standard exception: " << e.what() << "\n\n";
+      } catch (...) {
+	std::cout << "\n Unknown exception" << "\n\n";
+      }
+      return true;
+    }
+    return false;
   }
 }
 

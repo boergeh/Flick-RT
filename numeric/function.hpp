@@ -8,13 +8,15 @@
 #include <cmath>
 #include <memory>
 #include "sorted_vector.hpp"
+#include "range.hpp"
+#include "../environment/exception.hpp"
 
 namespace flick {
   struct point {
     double x_;
     double y_;
   public:
-    point(){}
+    point() = default;
     point(double x, double y) : x_(x), y_(y){}
     double x() const {return x_;}
     double y() const {return y_;}
@@ -103,7 +105,7 @@ namespace flick {
   private:
     void ensure(bool b) {
       if (!b) {
-	throw std::invalid_argument("piecewise_exponential");
+	throw exception("piecewise_exponential");
       }
     }    
   };
@@ -159,7 +161,7 @@ namespace flick {
     sorted_vector xv_;
     std::shared_ptr<sorted_vector::iterator> it;
   public:
-    function() {};
+    function() = default;
     function(double value) : xv_{{1}}, yv_{std::vector<double>{value}} {}
     function(const std::vector<double>& xv, const std::vector<double>& yv)
       : xv_{xv}, yv_{yv} {
@@ -283,7 +285,9 @@ namespace flick {
       for (size_t i=0; i < xv_.size()-1; ++i) {
 	point p1 = {xv_[i], yv_[i]};
 	point p2 = {xv_[i+1], yv_[i+1]};
-	area += Interpolation{p1,p2}.integral(p1.x(), p2.x());
+	double da = Interpolation{p1,p2}.integral(p1.x(), p2.x());
+	ensure(da > 0);
+	area += da;
 	a[i+1] = area;
       }
       return a;
@@ -335,24 +339,35 @@ namespace flick {
     }
     void ensure(bool b) const {
       if (!b)
-	throw std::invalid_argument("function");
+	throw exception("function");
     }
   };
+
+  template<class Interpolation>
+  function<Interpolation> multiply(const function<Interpolation>& fa,
+				   const function<Interpolation>& fb,
+				   const std::vector<double>& xv) {
+    std::vector<double> yv(xv.size());
+    for (size_t i=0; i < xv.size(); ++i)
+      yv[i] = fa.value(xv[i])*fb.value(xv[i]);
+    return function<Interpolation>{xv,yv};
+  }
+
+  template<class Interpolation>
+  function<piecewise_linear> inverted_cumulative_distribution(function<Interpolation> f) {
+    f.normalize();
+    return function<piecewise_linear>{f.accumulation(),f.x()};
+  }
   
   template<class Interpolation>
-  function<Interpolation> inverted_accumulation(function<Interpolation>& f) {
-    return function<Interpolation>{f.accumulation(),f.x()};
-  }
-  template<class Interpolation>
-  function<Interpolation> density_spectrum(function<Interpolation>& f, size_t n_points) {
-    function<Interpolation> fn = f;
-    fn.normalize();
-    fn = inverted_accumulation(fn);
-    std::vector<double> unit_interval = range(0,1,n_points+1).linspace();
+  function<Interpolation> importance_sampled(const function<Interpolation>& f,
+					     size_t n_points) {
+    function<piecewise_linear> inv_cum = inverted_cumulative_distribution(f);      
+    std::vector<double> unit_interval = range(0,1,n_points).linspace();
     std::vector<double> x(n_points);
     std::vector<double> y(n_points);
     for (size_t i=0; i < n_points; ++i) {
-      x[i] = fn.value(unit_interval[i]);
+      x[i] = inv_cum.value(unit_interval[i]);
       y[i] = f.value(x[i]);
     }
     return function<Interpolation>{x,y};

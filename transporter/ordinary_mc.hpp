@@ -6,7 +6,6 @@
 #include "../material/material.hpp"
 
 namespace flick {
-  using navigator = geometry::navigator<flick::content>;
 namespace transporter {
   class ordinary_mc {
     geometry::volume<flick::content> outer_volume_;
@@ -62,14 +61,17 @@ namespace transporter {
 	    scattering_optical_depth -= material.scattering_optical_depth(dw);
 	    assert(scattering_optical_depth >= 0);
 	  }
-	  else {//Can be needed for volumes with overlapping surfaces
-	    nav_.go_outward();
+	  else {
+	    exit_semi_infinite_volume();
 	  }
 	  intersection_ = nav_.next_intersection(rp_.pose());  
 	}
       }
     }
   private:
+    void exit_semi_infinite_volume() {
+      nav_.go_outward();
+    }
     double distance_to_wall(const std::optional<pose>& p) {
       return norm((*p).position()-rp_.pose().position()); 
     }

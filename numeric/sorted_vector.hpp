@@ -1,6 +1,8 @@
 #ifndef flick_sorted_vector
 #define flick_sorted_vector
 
+#include "../environment/exception.hpp"
+
 namespace flick {
   enum class step_type{linear, exponential};
   class sorted_vector
@@ -140,7 +142,7 @@ namespace flick {
   private:
     void ensure(bool b) const {
       if (!b)
-	throw std::invalid_argument("sorted_vector");
+	throw exception("sorted_vector");
     }
     double estimate_number_of_bins_to_skip(size_t n, double value) const {
       if (step_type_ == step_type::linear)
