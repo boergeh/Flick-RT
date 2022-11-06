@@ -1,13 +1,11 @@
 
-flick iop <parameters>
+flick iop <material_name> <property> <from_wavelength> <to_wavelength>
+  <number_of_points> [tempeature] [salinity_in_psu]
 
-parameters:
+  pure_water is the only implemented material name.
 
-  pure_water {type} <from wavelength> <to wavelength>
-  <number of wavelengths> [tempeature] [salinity in psu]
-
-    where {type} = absorption_length, scattering_length, or
-    refractive_index.
+  property: can be absorption_length, scattering_length, or
+  refractive_index
 
 Example:
 

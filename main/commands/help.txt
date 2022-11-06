@@ -1,5 +1,5 @@
 
-Get elaborated help by writing 'flick help' followed by any of the
+Get more help by writing 'flick help' followed by any of the
 following commands:
 	  	  
   radiator	Radiation source spectra		

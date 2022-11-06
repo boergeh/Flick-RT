@@ -11,7 +11,7 @@ namespace flick {
       toa_solar() {
 	spectrum_ = read<pp_function>(path_+"/toa_solar.txt");
       }
-      double irradiance(double wavelength) {
+      double irradiance(double wavelength) const {
 	return spectrum_.value(wavelength);
       }
     };

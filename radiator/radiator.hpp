@@ -13,13 +13,13 @@ namespace flick {
     protected:
       pp_function spectrum_;     
     public:
-      double irradiance(double wavelength) {
+      double irradiance(double wavelength) const {
 	return spectrum_.value(wavelength);
       }
       const pp_function& spectrum() const {
 	return spectrum_;
       }
-      pp_function spectrum(size_t n_points) {	
+      pp_function spectrum(size_t n_points) const {	
 	return importance_sampled(spectrum_, n_points);
       }
     };

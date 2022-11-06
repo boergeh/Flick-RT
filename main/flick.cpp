@@ -16,6 +16,6 @@ int main(int argc, char* argv[]) {
   if (run<command::iop>(a)) return 0;
   if (run<command::text>(a)) return 0;
   std::cout << "\n Cannot recognize command. Try flick help.\n" << std::endl;
-  return 0;
+  return -1;
 }
 
