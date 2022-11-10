@@ -1,31 +1,31 @@
 
 flick radiator <name> [argument ...]
 
-    Lists irradiance spectrum versus wavelength for a given
-    radiator. Following Flick's SI-unit convention, the unit of
-    irradiance is W m^-3, where 1 W m^-3 corresponds to 1e-9 W m^-2
-    nm^-1.
+  Lists irradiance spectrum versus wavelength for a given
+  radiator. Following Flick's SI-unit convention, the unit of
+  irradiance is W m^-3, where 1 W m^-3 corresponds to 1e-9 W m^-2
+  nm^-1.
 
 Usage 1:
---------
-    flick radiator planck <temperature> <number_of_points>
 
-    Black-body spectrum from a surface with a given temperature.
+  flick radiator planck <temperature> <number_of_points>
 
-    Example:
+  Black-body spectrum from a surface with a given temperature.
+
+  Example:
     
-    flick radiator planck 6000 20
+  flick radiator planck 6000 20
 
 Usage 2:
---------
-    flick radiator toa-solar 
 
-    Top-of-atmosphere solar irradiance spectrum at normal incidence at
-    average Sun-Earth distance.
+  flick radiator toa-solar 
 
-    Example:
+  Top-of-atmosphere solar irradiance spectrum at normal incidence at
+  average Sun-Earth distance.
 
-    flick radiator toa-solar
+  Example:
+
+  flick radiator toa-solar
 
 
 Remember: unless other units are explicitly stated, Flick is always

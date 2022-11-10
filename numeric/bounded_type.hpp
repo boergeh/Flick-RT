@@ -6,7 +6,6 @@
 #include <ratio>
 
 namespace flick {
-  //constexpr auto pi = 3.14159265358979323846;
   using negative_one = std::ratio<-1>;
   using zero = std::ratio<0>;
   using one = std::ratio<1>;
@@ -15,13 +14,12 @@ namespace flick {
   using four = std::ratio<4>;
   using five = std::ratio<5>;
   using fifteen = std::ratio<15>;
+  using hundred = std::ratio<100>;
   using one_pi = std::ratio<3141592653589793238,1000000000000000000>;
   using two_pi = std::ratio_multiply<std::ratio<2>,one_pi>;
   using four_pi = std::ratio_multiply<std::ratio<4>,one_pi>;
   using pi_half = std::ratio<3141592653589793238,2000000000000000000>;
 
-  //template<class T,  class lower_bound, class upper_bound=std::exa>
-  //template<class T,  class lower_bound, class upper_bound, char *name=nullptr>
   template<class T,  class lower_bound, class upper_bound>
   class bounded_type {
     T value_;
@@ -31,9 +29,6 @@ namespace flick {
       bool too_high = static_cast<T>(value_ * upper_bound::den)
 	> upper_bound::num;
       if (too_low || too_high) {
-	//std::string s;
-	//if (name!=nullptr)
-	//  s = std::string(name);
 	std::stringstream ss;
 	ss << "bounded type value " << value_
 	   << " is not within the required range "

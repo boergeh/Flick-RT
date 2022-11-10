@@ -1,6 +1,9 @@
 #include "single_layer_slab.hpp"
 
 namespace flick {
+  
+  percentage p{10};
+
   const double pi = constants::pi;
   begin_test_case(single_layer_slab_test_A) {
     using namespace flick;
@@ -10,30 +13,19 @@ namespace flick {
     asymmetry_factor g{0.0};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.load_packages(number{100});
-    
+    slab.adjust_accuracy(percentage{20});
     check_small(slab.hemispherical_reflectance(),1e-12,"a");
 
     slab.brighten_bottom(albedo{1});
     check_close(slab.hemispherical_reflectance(),1,1e-12,"b");
 
     slab.brighten_bottom(albedo{0.5});
-    check_close(slab.hemispherical_reflectance(),0.5,50,"c");
+    check_close(slab.hemispherical_reflectance(),0.5,20,"c");
     
     a = 1;
-    slab.load_packages(number{1});
     slab.fill<material::henyey_greenstein>(a,b,g);
     slab.brighten_bottom(albedo{0});
-    check_close(slab.hemispherical_transmittance(),exp(-h()),1,"d");
-    
-    a = 0;
-    b = 1;
-    g = 0.5;
-    slab.fill<material::henyey_greenstein>(a,b,g);
-    slab.brighten_bottom(albedo{0});
-    slab.orient_source(zenith_angle{constants::pi/2*0.4});
-    slab.hemispherical_reflectance();
-    check_fast(0.1,"e");
+    check_close(slab.hemispherical_transmittance(),exp(-h()),p(),"d");
 
   } end_test_case()
   
@@ -48,13 +40,13 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
-    slab.load_packages(number{3500});
+    slab.adjust_accuracy(p);
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
-    check_close(slab.hemispherical_reflectance(),0.34133, 5,"a");
+    check_close(slab.hemispherical_reflectance(),0.34133, p(),"a");
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
-    check_close(slab.hemispherical_transmittance(),0.65867, 4,"b");
+    check_close(slab.hemispherical_transmittance(),0.65867, p(),"b");
   } end_test_case()
 
   begin_test_case(single_layer_slab_test_C) {
@@ -67,10 +59,10 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
-    slab.load_packages(number{1000});
+    slab.adjust_accuracy(p);
 
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
-    check_close(slab.hemispherical_transmittance(),0.82389, 4);
+    check_close(slab.hemispherical_transmittance(),0.82389, p());
 
   } end_test_case()
   
@@ -88,10 +80,10 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
-    slab.load_packages(number{1000});
-
+    slab.adjust_accuracy(p);
+    
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
-    check_close(slab.hemispherical_transmittance(),0.73909, 5);
+    check_close(slab.hemispherical_transmittance(),0.73909,p());
 
   } end_test_case()
   
@@ -105,15 +97,12 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{1});
     slab.orient_source(zenith_angle{0});
-    slab.load_packages(number{5000});
+    slab.adjust_accuracy(p);
     polar_angle pa{0};
     azimuth_angle aa{0};
     vertex_angle acceptance_ang{pi/2};
     double r1 = slab.relative_radiance(pa,aa,acceptance_ang,unit_interval{0});
-    check_close(r1,1/pi,15,"a");
-    pa = pi/2;
-    //double r2 = slab.relative_radiance(pa,aa,acceptance_ang,unit_interval{0});
-    //check_close(r2,1/(2*pi),15,"b");
+    check_close(r1,1/pi,p());
   } end_test_case()
   
     begin_test_case(single_layer_slab_test_F) {
@@ -126,7 +115,7 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.brighten_bottom(albedo{1});
     slab.orient_source(zenith_angle{0.0});
-    slab.load_packages(number{2000});
+    slab.adjust_accuracy(percentage{20});
     double r = slab.hemispherical_reflectance(unit_interval{0.5});
     check(r>1,"internal reflectance should be larger than 1 inside white slab");
   } end_test_case()
@@ -146,7 +135,7 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g,n());    
     slab.orient_source(zenith_angle{brewster});
     slab.initiate_source(stokes::unpolarized());
-    slab.load_packages(number{1000});
+    slab.adjust_accuracy(percentage{20});
     slab.brighten_bottom(albedo{0});
     
     polar_angle theta{brewster};

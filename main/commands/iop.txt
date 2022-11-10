@@ -1,17 +1,22 @@
 
 flick iop <material_name> <property> <from_wavelength> <to_wavelength>
-  <number_of_points> [tempeature] [salinity_in_psu]
+  <number_of_points> [temperature] [salinity_in_psu]
 
-  pure_water is the only implemented material name.
+  List material optical properties versus wavelength.
 
-  property: can be absorption_length, scattering_length, or
-  refractive_index
+Parameters:
+
+  <material_name>
+    Use 'pure_water', which is the only implemented material.
+    
+  <property>
+    Select 'absorption_length', 'scattering_length', or 'refractive_index'
 
 Example:
 
- flick iop pure_water absorption_length 400e-9 700e-9 10 273 35
+  flick iop pure_water absorption_length 400e-9 700e-9 10 273 35
 
 Remember: unless other units are explicitly stated, Flick is always
-using SI units for input and output of physical values,
+using SI units for input and output of physical values, see
 https://en.wikipedia.org/wiki/International_System_of_Units.
 

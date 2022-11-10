@@ -7,9 +7,9 @@
 #include <vector>
 #include <cmath>
 #include <memory>
+#include <stdexcept>
 #include "sorted_vector.hpp"
 #include "range.hpp"
-#include "../environment/exception.hpp"
 
 namespace flick {
   struct point {
@@ -105,7 +105,7 @@ namespace flick {
   private:
     void ensure(bool b) {
       if (!b) {
-	throw exception("piecewise_exponential");
+	throw std::runtime_error("numeric piecewise exponential interpolation");
       }
     }    
   };
@@ -339,7 +339,7 @@ namespace flick {
     }
     void ensure(bool b) const {
       if (!b)
-	throw exception("function");
+	throw std::runtime_error("numeric function");
     }
   };
 

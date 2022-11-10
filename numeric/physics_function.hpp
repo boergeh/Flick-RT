@@ -2,9 +2,6 @@
 #define flick_physics_functions
 
 #include "constants.hpp"
-#include "function.hpp"
-#include "range.hpp"
-#include "../environment/exception.hpp"
 
 namespace flick {
   class henyey_greenstein

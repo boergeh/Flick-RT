@@ -1,20 +1,21 @@
 
- flick text <parameters>
+flick text <sub_command> [argument ...] <file_name>
 
-parameters:
+Usage 1:
 
-  xy <file_with_tabulated_xy_data.txt>
+  flick text xy file_with_tabulated_xy_data.txt
+  
+  List xy-values in a text file with two columns with xy-data. Any
+  header text will be omitted.
 
-    List xy-values in a text file with two columns with xy-data. Any
-    header text will be omitted.
+Usage 2:
 
+  flick text xy-precision <nx> <ny> file_with_tabulated_xy_data.txt
 
-  xy-precision <nx> <ny> <file_with_tabulated_xy_data.txt>
+  List xy-values with a given precision, where 'nx' and 'ny' are the
+  number of significant figures in x and y columns,
+  respectively. Header text will be included.
 
-    List xy-values with a given precision, where 'nx' and 'ny' are the
-    number of significant figures in x and y columns,
-    respectively. Header text will be included.
+  Example:
 
-Example:
-
- flick text xy-precision 4 4 file_with_tabulated_xy_data.txt
+  flick text xy-precision 4 4 file_with_tabulated_xy_data.txt
