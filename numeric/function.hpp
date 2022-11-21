@@ -159,7 +159,6 @@ namespace flick {
     std::string header_;
     std::vector<double> yv_;
     sorted_vector xv_;
-    std::shared_ptr<sorted_vector::iterator> it;
   public:
     function() = default;
     function(double value) : xv_{{1}}, yv_{std::vector<double>{value}} {}
@@ -189,7 +188,9 @@ namespace flick {
       yv_.emplace_back(yv_.back()*weight);
       yv_.emplace_back(yv_.back()*weight);
     }
-    size_t size() {return yv_.size();}
+    size_t size() const {
+      return yv_.size();
+    }
     void header(const std::string& h) {
       header_ = h;
     }
@@ -225,14 +226,15 @@ namespace flick {
       auto [p1, p2] = points_at(x);
       return Interpolation{p1,p2}.y(x);      
     }
-    double derivative(double x) {
+    double derivative(double x) const {
       ensure(yv_.size() > 1);
       auto [p1, p2] = points_at(x);
       return Interpolation{p1,p2}.derivative(x);
     }
     std::optional<double> integral_limit_b(double limit_a,
-					   double integral_value) {
+					   double integral_value) const {
       ensure(yv_.size() > 1);
+      std::shared_ptr<sorted_vector::iterator> it;
       if (integral_value > 0)
 	it = std::make_shared<sorted_vector::ascending_iterator>(xv_);
       else
@@ -253,8 +255,9 @@ namespace flick {
 	it->move_to_next_bin();
       }      
     }
-    double integral(double limit_a, double limit_b) {      
+    double integral(double limit_a, double limit_b) const {      
       ensure(yv_.size() > 1);
+      std::shared_ptr<sorted_vector::iterator> it;
       if (limit_a < limit_b) {
 	it = std::make_shared<sorted_vector::ascending_iterator>(xv_);
       } else {
@@ -274,10 +277,10 @@ namespace flick {
 	it->move_to_next_bin();
       }      
     }
-    double integral() {
+    double integral() const {
       return integral(xv_[0],xv_[xv_.size()-1]);
     }
-    std::vector<double> accumulation() {
+    std::vector<double> accumulation() const {
       ensure(xv_.size()>1);
       std::vector<double> a(xv_.size());
       a[0] = 0;
@@ -308,7 +311,7 @@ namespace flick {
       return is;
     }
   private:
-    std::string read_header(std::istream& is) {
+    std::string read_header(std::istream& is) const {
       std::string h;
       std::string s;
       std::streampos start = is.tellg();
@@ -325,10 +328,10 @@ namespace flick {
 	is.seekg(start);
       return h+"\n\n";
     }
-    point next_point(sorted_vector::iterator *it) {
+    point next_point(sorted_vector::iterator *it) const {
       return point{xv_[it->next_index()],yv_[it->next_index()]};
     }
-    point previous_point(sorted_vector::iterator *it) {
+    point previous_point(sorted_vector::iterator *it) const {
       return point{xv_[it->previous_index()],yv_[it->previous_index()]};
     }
     std::tuple<point, point> points_at(double x) const {

@@ -2,7 +2,6 @@
 #define flick_single_layer_slab
 
 #include "../numeric/named_bounded_types.hpp"
-#include "../material/henyey_greenstein.hpp"
 #include "../transporter/ordinary_mc.hpp"
 
 namespace flick {

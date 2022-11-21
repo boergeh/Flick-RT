@@ -137,26 +137,22 @@ namespace flick {
       x_ /= r;
       y_ /= r;
       z_ /= r;
-    } 
-    double mu() const {return z_/r();}
+    }
+//   static unit_vector z() {
+ //     return unit_vector{0,0,1};
+    //  }
+    double mu() const {
+      return z_/r();
+    }
   };
+  
   unit_vector operator-(const unit_vector& uv) {
     return unit_vector(-uv.x(), -uv.y(), -uv.z());
   }
   unit_vector normalize(const vector& v) {
     return unit_vector{v.x(),v.y(),v.z()};
   }
-  /*
-  unit_vector normal(const vector& a, const vector& b) {
-    double epsilon = std::numeric_limits<double>::epsilon()*10; 
-    vector c = cross(a,b);
-    if (norm(c) < epsilon) {
-      c = cross(a+vector{epsilon,0,0},b);
-      std::cout << "\n"<< c;
-    }
-    return normalize(c);
-  }
-  */
+
   class rotate {
   private:
     vector v;

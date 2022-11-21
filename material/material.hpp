@@ -15,7 +15,6 @@ namespace material {
   class base {
     flick::wavelength wavelength_{500e-9};
     flick::pose pose_;
-    //asymmetry_factor g_;
   public:
     void set(const pose& p) {
       pose_ = p;
@@ -23,9 +22,6 @@ namespace material {
     void set(const wavelength& wl) {
       wavelength_ = wl;
     }
-    //void set(const asymmetry_factor& g) {
-    //  g_ = g;
-    //}
     double wavelength() const {
       return wavelength_();
     }
@@ -42,7 +38,9 @@ namespace material {
     }
     virtual double absorption_coefficient()=0;
     virtual double scattering_coefficient()=0;
+    virtual double real_refractive_index()=0;
     virtual mueller mueller_matrix(const unit_vector& scattering_direction)=0;
+
     virtual double absorption_optical_depth(double distance) {
       return absorption_coefficient()*distance;
     }
@@ -67,9 +65,6 @@ namespace material {
 	 << b.refractive_index();
       return os;
     }
-    virtual double real_refractive_index()=0;// {
-    //  return 1;
-    //}
     virtual double asymmetry_factor() {
       return 0.8;
     }
@@ -78,25 +73,6 @@ namespace material {
       double k = absorption_coefficient() * wavelength() / (4*constants::pi); 
       return std::complex<double>{n,k};
     }
-    /*
-    unit_vector proposed_scattering_direction(double random_polar,
-					      double random_azimuth) {
-      double g = proposed_asymmetry_factor_;
-      double polar_angle = henyey_greenstein{g}.inverted_accumulated_angle(random_polar);
-      double azimuth_angle = random_azimuth*2*constants::pi;
-      return {polar_angle, azimuth_angle};
-    }
-    */
-    /*
-    double proposed_polar_angle(double random) {
-      double g = proposed_asymmetry_factor_;
-      return henyey_greenstein{g}.inverted_accumulated_angle(random);
-    }
-    double proposed_azimuth_angle(double random) {
-      double isotropic = random * 2 * constants::pi;
-      return isotropic;
-    }
-    */
   };
   
   class vacuum : public base {
@@ -116,6 +92,7 @@ namespace material {
       return 1;
     }
   };
+  
   /*
   void stream_basic_material(std::ostream &os, basic_material& bm) {
     os << "absorption coefficient " << bm.absorption_coefficient()
@@ -135,7 +112,7 @@ namespace material {
     */  
 
   
-  
+  /*  
   class basic_profile {
   public:
     virtual double column_density(double column_length,
@@ -156,7 +133,9 @@ namespace material {
     std::optional<double> column_distance(double column_density, const pose& p) {
       return column_density / volumetric_density_;
     }    
-  };  
+  };
+  */
+  
   /*
   class exponential_profile : public profile {
     function<piecewise_exponential_like> volumetric_density;

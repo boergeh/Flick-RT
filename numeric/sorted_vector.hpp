@@ -14,58 +14,58 @@ namespace flick {
 
     class iterator {
     protected:
-      size_t current_bin{0};
-      int directed_step;
-      sorted_vector *sv_;
+      size_t current_bin_{0};
+      int directed_step_;
+      sorted_vector const * sv_;
     public:
       void move_to_next_bin() {
-	current_bin += directed_step;
+	current_bin_ += directed_step_;
       }
       void move_to_bin_at(double value) {
-	current_bin = sv_->find(value);
+	current_bin_ = sv_->find(value);
       }
-      virtual size_t next_index() = 0;
-      virtual size_t previous_index() = 0;
-      virtual bool is_in_end_bin() = 0;
+      virtual size_t next_index() const = 0;
+      virtual size_t previous_index() const = 0;
+      virtual bool is_in_end_bin() const = 0;
     };    
     class ascending_iterator : public iterator {
     public:
-      ascending_iterator(sorted_vector& sv){
+      ascending_iterator(const sorted_vector& sv){
 	sv_ = &sv;
-	directed_step = 1;
+	directed_step_ = 1;
       }
-      size_t next_index() {
-	return current_bin + 1;
+      size_t next_index() const {
+	return current_bin_ + 1;
       }
-      size_t previous_index() {
-	return current_bin;
+      size_t previous_index() const {
+	return current_bin_;
       }
-      bool is_in_end_bin() {
-	if (current_bin == sv_->values_.size()-2)
+      bool is_in_end_bin() const {
+	if (current_bin_ == sv_->values_.size()-2)
 	  return true;
 	return false;
       }
     };
     class descending_iterator : public iterator {
     public:
-      descending_iterator(sorted_vector& sv){
+      descending_iterator(const sorted_vector& sv) {
 	sv_ = &sv;
-	directed_step = -1;
+	directed_step_ = -1;
       }
-      size_t next_index() {
-	return current_bin;
+      size_t next_index() const {
+	return current_bin_;
       }
-      size_t previous_index() {
-	return current_bin + 1;
+      size_t previous_index() const {
+	return current_bin_ + 1;
       }
-      bool is_in_end_bin() {
-	if (current_bin == 0)
+      bool is_in_end_bin() const {
+	if (current_bin_ == 0)
 	  return true;
 	return false;
       }
     };
     
-    sorted_vector(){}
+    sorted_vector() = default;
     sorted_vector(const std::vector<double>& v)
       : values_{v} {
       for (size_t i = 0; i < v.size()-1; ++i)
@@ -177,4 +177,5 @@ namespace flick {
     return os;
   }
 }
+
 #endif

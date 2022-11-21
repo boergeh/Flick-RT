@@ -1,4 +1,5 @@
 #include "single_layer_slab.hpp"
+#include "../material/henyey_greenstein.hpp"
 
 namespace flick {
   
@@ -43,7 +44,7 @@ namespace flick {
     slab.adjust_accuracy(p);
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
-    check_close(slab.hemispherical_reflectance(),0.34133, p(),"a");
+    check_close(slab.hemispherical_reflectance(),0.34133, 1.5*p(),"a");
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
     check_close(slab.hemispherical_transmittance(),0.65867, p(),"b");
@@ -151,8 +152,45 @@ namespace flick {
     
     slab.initiate_source(stokes::p_polarized());
     double r3 = slab.hemispherical_reflectance();
-    check_small(r3,1e-6,"c");
-
+    check_small(r3,1e-6,"c");  
   } end_test_case()
 
+   begin_test_case(single_layer_slab_test_H) {
+    // Exam UiB, Feb. 2022, PHYS2005, Problem 2e 
+    const double pi = constants::pi;
+    using namespace flick;
+    absorption_coefficient a{0};
+    scattering_coefficient b{0};
+    asymmetry_factor g{0.0};
+    real_refractive_index n{1.33};
+    double theta0 = pi/4;
+    model::single_layer_slab slab{thickness{1}};
+    slab.adjust_accuracy(p);    
+    slab.initiate_source(stokes::s_polarized());
+    slab.orient_source(zenith_angle{theta0});
+    slab.fill<material::henyey_greenstein>(a,b,g,n());  
+    double T = slab.hemispherical_transmittance();
+    double incident_irradiance = 1e-3/1e-4*cos(theta0);
+    double bottom_irradiance = incident_irradiance*T;
+    double power_hitting_shell = bottom_irradiance*1e-6;
+    check_close(power_hitting_shell,6.7012e-6,p());
+  } end_test_case()
+
+   begin_test_case(single_layer_slab_test_I) {
+    /*
+    const double pi = constants::pi;
+    using namespace flick;
+    absorption_coefficient a{0};
+    scattering_coefficient b{0};
+    asymmetry_factor g{0.0};
+    real_refractive_index n{1/1.33};
+    double theta0 = pi/4;
+    model::single_layer_slab slab{thickness{1}};
+    slab.adjust_accuracy(percentage{5});    
+    slab.initiate_source(stokes::s_polarized());
+    slab.orient_source(zenith_angle{theta0});
+    slab.fill<material::henyey_greenstein>(a,b,g,n());  
+    check_close(slab.hemispherical_reflectance(),1,0.0001);
+    */
+  } end_test_case()
 }
