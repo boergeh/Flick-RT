@@ -14,15 +14,16 @@ namespace flick {
       concentration_ = read<pe_function>
 	("material/gas/profile_input/"+file_name);
     }
-    double value(double height_above_surface) {
+    double value(double height_above_surface) const {
       return concentration_.value(height_above_surface);
     }
   };
   struct concentration_profile : public profile {
     using profile::profile;
-    double stp_thickness() {
+    double stp_thickness() const {
       double molecules_per_area = concentration_.integral(0,120e3);
-      return molecules_per_area * constants::k_B * constants::T_stp / constants::P_stp;
+      return molecules_per_area * constants::k_B * constants::T_stp
+	/ constants::P_stp;
     }
   };
   struct temperature_profile : public profile {

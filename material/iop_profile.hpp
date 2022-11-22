@@ -30,15 +30,8 @@ namespace flick {
     basic_iop_profile() = default;
     basic_iop_profile(const pe_function& vertical_profile)
       : profile_{vertical_profile} {}
-    //    void basic_iop_profile(const std::vector<double>& heights,
-    //			   const std::vector<double>& iop_values) {
-    //profile_ = pe_function{heights, iop_values};
-    ///}
     virtual double optical_depth(const pose& start, double distance) const = 0;
     virtual double distance(const pose& start, double optical_depth) const = 0;
-    //void append(double height, double iop_value) {
-    //  profile_.append(point{height,iop_value});
-    //}
   };
     
   class iop_z_profile : public basic_iop_profile {
