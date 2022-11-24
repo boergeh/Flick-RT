@@ -167,7 +167,7 @@ namespace flick {
       ensure(xv.size()==yv.size() && xv.size() > 1);
       xv_.set_step_type(Interpolation::get_step_type());
     }
-    void add_extrapolation_points(double weight=1) {
+    auto add_extrapolation_points(double weight=1) {
       ensure(xv_.size() > 1);
       if (Interpolation::get_step_type()!=step_type::linear)
 	ensure(weight > 0);
@@ -187,31 +187,37 @@ namespace flick {
       yv_.insert(yv_.begin(),yv_[0]*weight);
       yv_.emplace_back(yv_.back()*weight);
       yv_.emplace_back(yv_.back()*weight);
+      return *this;
     }
     size_t size() const {
       return yv_.size();
     }
-    void header(const std::string& h) {
+    auto header(const std::string& h) {
       header_ = h;
+      return *this;
     }
     std::string header() const {
       return header_;
     }
-    void append(const point& p) {
+    auto append(const point& p) {
       xv_.append(p.x());
       yv_.push_back(p.y());
+      return *this;
     }
-    void scale_x(double factor) {
+    auto scale_x(double factor) {
       ensure(factor > 0);
       xv_.scale(factor);
+      return *this;
     }   
-    void scale_y(double factor) {
+    auto scale_y(double factor) {
       ensure(factor > 0);
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
+      return *this;
     }
-    void normalize() {
+    auto normalize() {
       scale_y(1/integral());
+      return *this;
     }
     std::vector<double> x() const {
       return xv_.all_values();

@@ -20,22 +20,28 @@ namespace flick {
 	return optical_depth / value_;
       return std::numeric_limits<double>::max(); 
     }
+    double value(double height) {
+      return value_;
+    }
   };
   
   class basic_iop_profile {
   protected:
     pe_function profile_;
-    const double epsilon_ = std::numeric_limits<double>::epsilon()*10;
+    double epsilon_ = std::numeric_limits<double>::epsilon()*10;
   public:
     basic_iop_profile() = default;
     basic_iop_profile(const pe_function& vertical_profile)
       : profile_{vertical_profile} {}
     virtual double optical_depth(const pose& start, double distance) const = 0;
     virtual double distance(const pose& start, double optical_depth) const = 0;
+    double value(double height) {
+      return profile_.value(height);
+    }
   };
     
   class iop_z_profile : public basic_iop_profile {
-    const unit_vector z_direction_{0,0,1};
+    unit_vector z_direction_{0,0,1};
     public:
     using basic_iop_profile::basic_iop_profile;
     double optical_depth(const pose& start, double distance) const {

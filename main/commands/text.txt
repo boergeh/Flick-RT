@@ -19,3 +19,14 @@ Usage 2:
   Example:
 
   flick text xy-precision 4 4 file_with_tabulated_xy_data.txt
+
+Usage 3:
+
+  flick text xy-scale <kx> <ky> file_with_tabulated_xy_data.txt
+
+  List scaled xy-values, where 'kx' and 'ky' are the scaling factors
+  for x and y columns, respectively. Header text will be included.
+
+  Example:
+
+  flick text xy-scale 1e-9 1e-4 file_with_tabulated_xy_data.txt

@@ -20,6 +20,15 @@ namespace flick {
 	  std::string fname = a(4);
 	  auto f = read<pp_function>("./"+fname);
 	  std::cout << significant_digits(f,nx,ny);
+	} else if (a(1)=="xy-scale")  {
+	  double kx = std::stod(a(2));
+	  double ky = std::stod(a(3));
+	  std::string fname = a(4);
+	  auto f = read<pp_function>("./"+fname);
+	  auto x = f.x();
+	  auto y = f.y();
+	  for (size_t i=0; i < x.size(); ++i)
+	    std::cout << kx*x[i] << " " << ky*y[i] << '\n';
 	} else {
 	  error();
 	}
