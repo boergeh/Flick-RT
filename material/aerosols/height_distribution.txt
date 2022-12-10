@@ -1,0 +1,11 @@
+/* Height distribution of aerosol concentration. Integral from zero to
+infinity will be normalized to one, using exponential interpolation
+and extrapolation.
+
+column 1: height [m]
+column 2: probability density [1/m]
+*/
+
+0   1
+500 1
+1000 0.1

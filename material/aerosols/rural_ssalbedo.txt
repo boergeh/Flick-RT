@@ -1,0 +1,26 @@
+/* Rural aerosol single scattering albedo adapted from: Ruiz-Arias,
+J.A., Dudhia, J. and Gueymard, C.A., 2014. A simple parameterization
+of the short-wave aerosol optical properties for surface direct and
+diffuse irradiances assessment in a numerical weather
+model. Geoscientific Model Development, 7(3), pp.1159-1174.
+
+row 1: number of relative humidity values
+row 2: number of frequency values
+row 3: relative humidity values [unitless]
+row 4: radiation frequencies [1/s]
+row 5 and onwards: one row for each relative humidity value and one
+column for each frequency
+*/
+
+8
+14
+0 0.5 0.7 0.8 0.9 0.95 0.98 0.99
+37.376e-12 86.595e-12 107.49e-12 128.94e-12 146.53e-12 168.05e-12 204.92e-12 235.87e-12 296.795e-12 427.30e-12 562.25e-12 762.63e-12 986.16e-12 1294.4e-12
+0.8634 0.8730 0.6695 0.8530 0.8601 0.8365 0.7949 0.8113 0.8810 0.9305 0.9436 0.9532 0.9395 0.8007 
+0.8589 0.8428 0.6395 0.8571 0.8645 0.8408 0.8007 0.8167 0.8845 0.9326 0.9454 0.9545 0.9416 0.8070 
+0.8548 0.8000 0.6025 0.8668 0.8740 0.8503 0.8140 0.8309 0.8943 0.9370 0.9489 0.9577 0.9451 0.8146 
+0.8578 0.7298 0.5666 0.9030 0.9049 0.8863 0.8591 0.8701 0.9178 0.9524 0.9612 0.9677 0.9576 0.8476 
+0.8590 0.7010 0.5606 0.9312 0.9288 0.9183 0.9031 0.9112 0.9439 0.9677 0.9733 0.9772 0.9699 0.8829 
+0.8594 0.6933 0.5620 0.9465 0.9393 0.9346 0.9290 0.9332 0.9549 0.9738 0.9782 0.9813 0.9750 0.8980 
+0.8648 0.6842 0.5843 0.9597 0.9488 0.9462 0.9470 0.9518 0.9679 0.9808 0.9839 0.9864 0.9794 0.9113 
+0.8618 0.6786 0.5897 0.9658 0.9522 0.9530 0.9610 0.9651 0.9757 0.9852 0.9871 0.9883 0.9835 0.9236 
