@@ -17,13 +17,13 @@ namespace material {
 		  const flick::asymmetry_factor& g,
 		  double real_refractive_index = 1)
       : ac_{ac}, sc_{sc}, g_{g}, real_refractive_index_{real_refractive_index} {}    
-    double absorption_coefficient() {
+    double absorption_coefficient() const {
       return ac_();
     }
-    double scattering_coefficient() {
+    double scattering_coefficient() const {
       return sc_();
     }
-    double asymmetry_factor() {
+    double asymmetry_factor() const {
       return g_();
     }
     double real_refractive_index() const {

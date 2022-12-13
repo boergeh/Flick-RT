@@ -16,7 +16,7 @@ namespace material {
       : monocrome_iop{ac,sc,flick::asymmetry_factor{p.asymmetry_factor()},
       real_refractive_index}, p_{p} {
     }
-    mueller mueller_matrix(const unit_vector& scattering_direction) {
+    mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
       double theta = angle(scattering_direction);
       m.add(0,0,p_.value(theta));

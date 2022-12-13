@@ -58,6 +58,7 @@ namespace flick {
     double g_;
     pl_function residuals_;
   public:
+    phase_function() = default;
     phase_function(const pe_function& p) {
       size_t n = p.size();
       pl_function p_mu;
@@ -132,6 +133,7 @@ namespace flick {
     };
     std::vector<element> elements_;
   public:
+    angular_mueller() = default;
     angular_mueller(const phase_function& p)
       : p_{p} {
       add(0,0,pl_function{p.x(),p.y()});

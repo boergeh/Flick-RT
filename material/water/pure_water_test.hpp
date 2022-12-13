@@ -1,42 +1,15 @@
-#include "water/pure_water.hpp"
-#include "henyey_greenstein.hpp"
-#include "tabulated.hpp"
-#include "z_profile.hpp"
-#include "../numeric/range.hpp"
+#include "pure_water.hpp"
 
 namespace flick {
-  begin_test_case(material_test) {
-    using namespace constants;
+  begin_test_case(pure_water_test) {
     using namespace flick;
     material::pure_water pw;
-    material::henyey_greenstein hg(absorption_coefficient{1},
-				   scattering_coefficient{1},
-				   asymmetry_factor{0.5});
-    double pi = constants::pi;
-    double g = 0.9;
-    phase_function p = hg_phase_function(g,100);
-    check_close(2*pi*p.integral(),1,0.03,"a");
-    check_close(p.asymmetry_factor(),g,0.03,"b");
-    
-    material::tabulated tab(absorption_coefficient{1},
-    			    scattering_coefficient{1},
-    			    p);
-
-    const std::string path_{"/material"};
-    phase_function p2 = read<pe_function>(path_+"/tabulated.txt"); 
-    check_close(2*pi*p2.integral(),1,0.3,"c");
-
-    material::aggregate_z_profile a({0,1},{0,1,3.14});
-   
-    //auto m = pw.mueller_matrix();
-    //std::cout << m.element(0,0);
+    pw.set(wavelength{500e-9});
+    check_close(pw.absorption_coefficient(),0.02,5);
+    pw.salinity(pl_function{35});
+    pw.temperature({273});
+    check_close(pw.absorption_coefficient(),0.021,2);
     /*
-    water w;
-    w.wavelength(500e-9);
-    check_close(w.abs_coef(),0.02,5);
-    w.salinity(pl_function{35});
-    w.temperature({273});
-    check_close(w.abs_coef(),0.021,2);
     w.wavelength(835e-9);
     check_close(w.abs_coef(),2.99,1);
     w.salinity(pl_function{0});

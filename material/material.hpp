@@ -36,24 +36,25 @@ namespace material {
 	d = 1;
       return acos(d);
     }
-    virtual double absorption_coefficient()=0;
-    virtual double scattering_coefficient()=0;
+    virtual double absorption_coefficient() const = 0;
+    virtual double scattering_coefficient() const = 0;
     virtual double real_refractive_index() const = 0;
-    virtual mueller mueller_matrix(const unit_vector& scattering_direction)=0;
+    virtual mueller mueller_matrix(const unit_vector&
+				   scattering_direction) const = 0;
 
-    virtual double absorption_optical_depth(double distance) {
+    virtual double absorption_optical_depth(double distance) const {
       return absorption_coefficient()*distance;
     }
-    virtual double scattering_optical_depth(double distance) {
+    virtual double scattering_optical_depth(double distance) const {
       return scattering_coefficient()*distance;
     }
-    virtual double absorption_distance(double absorption_optical_depth) {
+    virtual double absorption_distance(double absorption_optical_depth) const {
       double ac = absorption_coefficient();
       if (ac > 0)
 	return absorption_optical_depth/ac;
       return std::numeric_limits<double>::max(); 
     }
-    virtual double scattering_distance(double scattering_optical_depth) {
+    virtual double scattering_distance(double scattering_optical_depth) const {
       double sc = scattering_coefficient();
       if (sc > 0)
 	return scattering_optical_depth/sc;
@@ -65,10 +66,10 @@ namespace material {
 	 << b.refractive_index();
       return os;
     }
-    virtual double asymmetry_factor() {
+    virtual double asymmetry_factor() const {
       return 0.8;
     }
-    std::complex<double> refractive_index() {
+    std::complex<double> refractive_index() const {
       double n = real_refractive_index();
       double k = absorption_coefficient() * wavelength() / (4*constants::pi); 
       return std::complex<double>{n,k};
@@ -77,13 +78,13 @@ namespace material {
   
   class vacuum : public base {
   public:
-    double absorption_coefficient() {
+    double absorption_coefficient() const {
       return 0;
     }
-    double scattering_coefficient() {
+    double scattering_coefficient() const {
       return 0;
     }
-    mueller mueller_matrix(const unit_vector& scattering_direction) {
+    mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
       m.add(0,0,1/(4*constants::pi));
       return m;

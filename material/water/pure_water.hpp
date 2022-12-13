@@ -36,7 +36,7 @@ namespace material {
     void temperature(const pl_function& temperature) {
       temperature_ = temperature;
     }
-    double absorption_coefficient() {
+    double absorption_coefficient() const {
       double T = temperature_.value(pose().position().z());
       double S = salinity_psu_.value(pose().position().z());
       double delta_T = T - pope_fry_temperature_;
@@ -46,14 +46,14 @@ namespace material {
       double a0 = absorption_coefficient_.value(wavelength());
       return a0 + da_dT * delta_T + da_dS * delta_S;
     }
-    double scattering_coefficient()
+    double scattering_coefficient() const
     // Consider update with temp. corr according to: Pure water
     // spectral absorption, scattering, and real part of refractive
     // index model. Algorithm Technical Basis Document
     {
       return pow(129.0 / (wavelength() * 1e9), 4.32);
     }
-    mueller mueller_matrix(const unit_vector& scattering_direction)
+    mueller mueller_matrix(const unit_vector& scattering_direction) const
     // Depolarization ratio from R. S. Farinato and R. L. Rowell, “New
     // values of the light scattering depolarization and anisotropy of
     // water,” J. Chem. Phys. 65, 593–595 (1976).

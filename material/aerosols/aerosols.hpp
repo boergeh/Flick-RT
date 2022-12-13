@@ -37,7 +37,7 @@ namespace material {
     aerosols(double optical_depth_at_550nm, double relative_humidity)
       : od550_{optical_depth_at_550nm}, rh_{relative_humidity} {
     }
-    mueller mueller_matrix(const unit_vector& scattering_direction) {
+    mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
       double theta = angle(scattering_direction);
       double frequency = constants::c/wavelength();
@@ -45,14 +45,14 @@ namespace material {
       m.add(0,0,flick::henyey_greenstein(g).phase_function(theta));
       return m;
     }
-    double optical_depth() {
+    double optical_depth() const {
       size_t i = 0;
       if (wavelength() > 550e-9)
 	i = 1;
       double alpha = alpha_functions_[i].value(rh_);
       return od550_ * pow(wavelength()/550e-9, -alpha);	
     }
-    double real_refractive_index() {
+    double real_refractive_index() const {
       return 1;
     }
   protected:
