@@ -36,5 +36,9 @@ namespace flick {
     
     //double tau_horizon = tau_zenith * 35;
     //    profile::z_varying zv{f,pose{{0,0,0},unit_vector{pi/4,0}}};
+
+    double i = atmlike.integral();
+    atmlike.add(atmlike,{0, 11});
+    check_close(atmlike.integral(),2*i,1e-9,"f");
   } end_test_case()
 }

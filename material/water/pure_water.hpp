@@ -60,7 +60,7 @@ namespace material {
     {
       return rayleigh_mueller(angle(scattering_direction), 0.039);
     }
-    double real_refractive_index()
+    double real_refractive_index() const
     // Consider update to include temp. and sal. corr.
     {
       return real_refractive_index_.value(wavelength());

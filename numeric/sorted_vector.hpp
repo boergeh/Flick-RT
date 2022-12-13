@@ -71,6 +71,9 @@ namespace flick {
       for (size_t i = 0; i < v.size()-1; ++i)
 	ensure(v[i] < v[i+1]);
     }
+    void clear() {
+      values_.clear();
+    }
     void set_step_type(step_type st) {
       if (st == step_type::exponential)
 	ensure(values_.at(0) > 0);
@@ -136,7 +139,7 @@ namespace flick {
     double lower_value() const {
       return values_.front();
     }
-    std::vector<double> all_values() const {
+    const std::vector<double>& all_values() const {
       return values_;
     }
   private:

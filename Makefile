@@ -11,6 +11,7 @@ build:
 	cd material; make obj link
 	cd coating; make obj link
 	cd material/gas; make obj link
+	cd material/aerosols; make obj link
 	cd transporter; make obj link
 	cd radiator; make obj link
 	cd model; make obj link
@@ -21,6 +22,8 @@ test:
 	@cd polarization; make test
 	@cd component; make test
 	@cd material; make test
+	@cd material/gas; make test
+	@cd material/aerosols; make test
 	@cd coating; make test
 	@cd transporter; make test
 	@cd model; make test
@@ -31,6 +34,8 @@ clean:
 	cd polarization; make clean
 	cd component; make clean	
 	cd material; make clean
+	cd material/gas; make clean
+	cd material/aerosols; make clean
 	cd coating; make clean
 	cd transporter; make clean
 	cd radiator; make clean

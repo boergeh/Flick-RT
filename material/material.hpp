@@ -38,7 +38,7 @@ namespace material {
     }
     virtual double absorption_coefficient()=0;
     virtual double scattering_coefficient()=0;
-    virtual double real_refractive_index()=0;
+    virtual double real_refractive_index() const = 0;
     virtual mueller mueller_matrix(const unit_vector& scattering_direction)=0;
 
     virtual double absorption_optical_depth(double distance) {
@@ -88,7 +88,7 @@ namespace material {
       m.add(0,0,1/(4*constants::pi));
       return m;
     }
-    double real_refractive_index() {
+    double real_refractive_index() const {
       return 1;
     }
   };

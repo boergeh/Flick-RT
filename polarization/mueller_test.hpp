@@ -19,13 +19,11 @@ namespace flick {
     check_close(am.value(0,0,0),15.12,1);
     check_small(am.value(1,0,0),1e-12);
 
-    angular_mueller am2(hg_phase_function(0.9,100));
+    angular_mueller am2(hg_phase_function(0.0,100));
     am2.add(3,3,pl_function{{0,3.14159},{1,1}});
-    //am2.print(0);
-
-    //am2.print(0);
-    //am2.add(am2,0.0);
-    //am2.print(0);
+    check_close(am2.value(3,3,0),1,1e-9);
+    am.add(am2,0.5);
+    check_close(am.value(3,3,0),0.5,1e-9);
   } end_test_case()
 }
 

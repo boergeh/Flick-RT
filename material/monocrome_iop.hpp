@@ -26,7 +26,7 @@ namespace material {
     double asymmetry_factor() {
       return g_();
     }
-    double real_refractive_index() {
+    double real_refractive_index() const {
       return real_refractive_index_;
     }
   };

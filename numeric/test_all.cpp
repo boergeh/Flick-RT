@@ -7,6 +7,7 @@
 #include "sorted_vector_test.hpp"
 #include "function_test.hpp"
 #include "physics_function_test.hpp"
+#include "table_test.hpp"
 
 int main() {
   using namespace flick;
@@ -19,6 +20,7 @@ int main() {
   t.include<pose_test>("pose_test");
   t.include<range_test>("range_test");
   t.include<physics_function_test>("physics_function_test");
+  t.include<table_test>("table_test");
   t.run_test_cases();
   return 0;
 } 

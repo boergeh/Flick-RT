@@ -12,6 +12,24 @@
 #include "range.hpp"
 
 namespace flick {
+  std::string read_header(std::istream& is) {
+    std::string h;
+    std::string s;
+    std::streampos start = is.tellg();
+    is >> s;
+    if (s.size() > 1 && s.substr(0,2)=="/*") {
+      while (!(is.eof() || (s.size() > 1 && s.substr(s.size()-2)=="*/"))) {
+	is >> s;
+      }
+      std::streamoff sz = is.tellg() - start; 
+      is.seekg(start);
+      h.resize(sz);
+      is.read(&h[0], sz);
+    } else
+      is.seekg(start);
+    return h+"\n\n";
+  }
+
   struct point {
     double x_;
     double y_;
@@ -167,6 +185,11 @@ namespace flick {
       ensure(xv.size()==yv.size() && xv.size() > 1);
       xv_.set_step_type(Interpolation::get_step_type());
     }
+    auto clear() {
+      xv_.clear();
+      yv_.clear();
+      return *this;
+    }
     auto add_extrapolation_points(double weight=1) {
       ensure(xv_.size() > 1);
       if (Interpolation::get_step_type()!=step_type::linear)
@@ -219,10 +242,10 @@ namespace flick {
       scale_y(1/integral());
       return *this;
     }
-    std::vector<double> x() const {
+    const std::vector<double>& x() const {
       return xv_.all_values();
     }
-    std::vector<double> y() const {
+    const std::vector<double>& y() const {
       return yv_;
     }
     double value(double x=1) const {
@@ -310,30 +333,13 @@ namespace flick {
     }
     friend std::istream& operator>>(std::istream &is,
 				    function<Interpolation>& f) {
-      f.header(f.read_header(is));
+      f.header(read_header(is));
       double x, y;
       while(is >> x >> y)
 	f.append({x,y});
       return is;
     }
   private:
-    std::string read_header(std::istream& is) const {
-      std::string h;
-      std::string s;
-      std::streampos start = is.tellg();
-      is >> s;
-      if (s.size() > 1 && s.substr(0,2)=="/*") {
-	while (!(is.eof() || (s.size() > 1 && s.substr(s.size()-2)=="*/"))) {
-	  is >> s;
-	}
-	std::streamoff sz = is.tellg() - start; 
-	is.seekg(start);
-	h.resize(sz);
-	is.read(&h[0], sz);
-      } else
-	is.seekg(start);
-      return h+"\n\n";
-    }
     point next_point(sorted_vector::iterator *it) const {
       return point{xv_[it->next_index()],yv_[it->next_index()]};
     }
@@ -359,6 +365,16 @@ namespace flick {
     std::vector<double> yv(xv.size());
     for (size_t i=0; i < xv.size(); ++i)
       yv[i] = fa.value(xv[i])*fb.value(xv[i]);
+    return function<Interpolation>{xv,yv};
+  }
+
+  template<class Interpolation>
+  function<Interpolation> divide(const function<Interpolation>& fa,
+				 const function<Interpolation>& fb,
+				 const std::vector<double>& xv) {
+    std::vector<double> yv(xv.size());
+    for (size_t i=0; i < xv.size(); ++i)
+      yv[i] = fa.value(xv[i]) / fb.value(xv[i]);
     return function<Interpolation>{xv,yv};
   }
 

@@ -5,61 +5,12 @@
 #include "../iop_profile.hpp"
 #include "../../polarization/rayleigh_mueller.hpp"
 #include "atmosphere_state.hpp"
+#include "cross_section.hpp"
+#include "../z_profile.hpp"
 
 namespace flick {
-  class o3_cross_section {
-    std::vector<pp_function> cross_sections_;
-    std::vector<int> temperatures_{221,241,273};
-  public:
-    o3_cross_section() {
-      for (size_t i=0; i<temperatures_.size(); ++i) {
-	std::string fname = "cross_section_o3_"+
-	  std::to_string(temperatures_[i])+"K.txt";
-	cross_sections_.emplace_back(read<pp_function>
-				     ("material/gas/cross_section_input/"+fname));
-      }
-    }
-    double value(double wavelength, double temperature) {
-      pp_function f;
-      for (size_t i=0; i<cross_sections_.size(); ++i) {
-	f.append({static_cast<double>(temperatures_[i]),
-	    cross_sections_[i].value(wavelength)});
-      }
-      return f.value(temperature); 
-    }
-    double longest() {
-      return cross_sections_[0].x().back();
-    }
-  };
-
-namespace material {
-  
-  class basic_z_profile : public base {
-  protected:
-    iop_z_profile a_profile_;
-    iop_z_profile s_profile_;
-  public:
-    double absorption_coefficient() {
-      return a_profile_.value(pose().position().z());
-    }
-    double scattering_coefficient() {
-      return s_profile_.value(pose().position().z());
-    }
-    double absorption_optical_depth(double distance) {
-      return a_profile_.optical_depth(pose(),distance);
-    }
-    double scattering_optical_depth(double distance) {
-      return s_profile_.optical_depth(pose(),distance);
-    }
-    double absorption_distance(double absorption_optical_depth) {
-      return s_profile_.distance(pose(),absorption_optical_depth);
-    }
-    double scattering_distance(double scattering_optical_depth) {
-      return s_profile_.distance(pose(),scattering_optical_depth);
-    }
-  };
-  
-  class atmosphere : public basic_z_profile {
+namespace material {  
+  class atmosphere : public z_profile {
     std::vector<lines> l_;
     o3_cross_section o3_;
   public:
