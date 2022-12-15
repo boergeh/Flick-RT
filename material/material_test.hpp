@@ -3,6 +3,7 @@
 #include "tabulated.hpp"
 #include "z_profile.hpp"
 #include "../numeric/range.hpp"
+#include "aerosols/aerosols.hpp"
 
 namespace flick {
   begin_test_case(material_test) {
@@ -26,7 +27,33 @@ namespace flick {
     phase_function p2 = read<pe_function>(path_+"/tabulated.txt"); 
     check_close(2*pi*p2.integral(),1,0.3,"c");
 
-    material::aggregate_z_profile a({0,1},{0,1,3.14});
+    material::rural_aerosols ra;
+    material::aggregate_z_profile ag({0,1.5e3,100e3},{0,1,3.14});
+    ag.set(pose{{0,0,0},unit_vector{0,0,1}});
+    ag.add(ra);
+    check_close(ag.scattering_optical_depth(100e3),
+		ra.scattering_optical_depth(100e3),1e-9,"a");
+    unit_vector u{0,0};
+    check_close(ag.mueller_matrix(u).value(0,0),
+		ra.mueller_matrix(u).value(0,0),1e-9,"b");
+    ag.add(ra);
+    check_close(ag.absorption_optical_depth(100e3),
+    		2*ra.absorption_optical_depth(100e3),1e-9,"c");
+    ag.add(ag);
+    check_close(ag.absorption_optical_depth(100e3),
+    		4*ra.absorption_optical_depth(100e3),1e-9,"d");
+
+    u = unit_vector{3.14,0};
+    check_close(ag.mueller_matrix(u).value(0,0),
+		ra.mueller_matrix(u).value(0,0),1e-9,"e");
+    material::urban_aerosols ua;
+    ag.add(ua);
+    check_close(ag.absorption_optical_depth(100e3),
+    		4*ra.absorption_optical_depth(100e3)+
+		ua.absorption_optical_depth(100e3),1e-9,"f");
+
+    check_close(ag.mueller_matrix(u).value(0,0),
+		ra.mueller_matrix(u).value(0,0)*0.999,0.07,"g");
    
     //auto m = pw.mueller_matrix();
     //std::cout << m.element(0,0);

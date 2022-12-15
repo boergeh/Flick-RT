@@ -255,6 +255,9 @@ namespace flick {
       auto [p1, p2] = points_at(x);
       return Interpolation{p1,p2}.y(x);      
     }
+    size_t low_index_near(double x) const {
+      return xv_.find(x);
+    }
     double derivative(double x) const {
       ensure(yv_.size() > 1);
       auto [p1, p2] = points_at(x);
@@ -307,6 +310,8 @@ namespace flick {
       }      
     }
     double integral() const {
+      if (xv_.size() == 0)
+	return 0;
       return integral(xv_[0],xv_[xv_.size()-1]);
     }
     std::vector<double> accumulation() const {

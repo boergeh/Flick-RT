@@ -18,8 +18,6 @@ namespace material {
      model. Geoscientific Model Development, 7(3), pp.1159-1174. */
   {
   protected:
-    iop_z_profile a_profile_;
-    iop_z_profile s_profile_;    
     std::vector<double> humidity_{0, 0.5, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99};
     std::vector<std::vector<double>> alpha_;
     std::vector<pl_function> alpha_functions_;
@@ -65,7 +63,8 @@ namespace material {
       std::vector<double> a, s;
       for (size_t i=0; i<h.size(); ++i) {
 	double att_coef = od550_ * d.value(h[i]);
-	s.push_back(omega.value(rh_,wavelength()) * att_coef);
+	double frequency = constants::c/wavelength();
+	s.push_back(omega.value(rh_,frequency) * att_coef);
 	a.push_back(att_coef - s.back());
       }
       a_profile_ = iop_z_profile(pe_function(h,a));

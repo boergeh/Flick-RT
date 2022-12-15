@@ -86,6 +86,11 @@ namespace flick {
 	new_y[i] = value(xx[i]);
       return new_y;
     }
+    bool empty() {
+      if (residuals_.size()==0)
+	return true;
+      return false;
+    }
     double value(double angle) const {
       return flick::henyey_greenstein(g_).phase_function(angle)
 	+ residuals_.value(cos(angle));
@@ -138,6 +143,23 @@ namespace flick {
       : p_{p} {
       add(0,0,pl_function{p.x(),p.y()});
     }
+    angular_mueller& append(size_t row, size_t col,
+			    double angle, double value) {
+      auto& e = elements_;
+      for (size_t i=0; i<e.size(); ++i) {
+	if (e[i].row == row && e[i].col == col) {
+	  e[i].f.append({angle,value});
+	  return *this;
+	}
+      }
+      element new_e;
+      new_e.row = row;
+      new_e.col = col;
+      new_e.f = pl_function{};
+      e.push_back(new_e);
+      e.back().f.append({angle,value});
+      return *this;
+    }
     angular_mueller& add(size_t row, size_t col,
 			 const pl_function& f) {
       elements_.push_back(element{row,col, normalize(f)});
@@ -158,7 +180,11 @@ namespace flick {
       }
       return 0;
     }
-    void add(const angular_mueller& am, double fractional_weight) {
+    angular_mueller& add(const angular_mueller& am, double fractional_weight) {
+      if (p_.empty()) {
+	*this = am; 
+	return *this;
+      }
       double w = fractional_weight;
       auto& e1 = elements_;
       auto& e2 = am.elements_;
@@ -197,7 +223,8 @@ namespace flick {
 	}	  
       }
       elements_ = new_e;
-      uppdate_phase_function(am,fractional_weight);
+      update_phase_function(am,fractional_weight);
+      return *this;
     }
     void print(double angle) {
       auto& e = elements_;
@@ -222,7 +249,7 @@ namespace flick {
       }
       return pl_function{x,y};
     }
-    void uppdate_phase_function(const angular_mueller& am,
+    void update_phase_function(const angular_mueller& am,
 				double fractional_weight) {
       double w = fractional_weight;
       pl_function p1{p_.x(),p_.y()}; 

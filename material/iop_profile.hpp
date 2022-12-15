@@ -35,16 +35,32 @@ namespace flick {
       : profile_{vertical_profile} {}
     virtual double optical_depth(const pose& start, double distance) const = 0;
     virtual double distance(const pose& start, double optical_depth) const = 0;
+    const std::vector<double>& heights() const {
+      return profile_.x();
+    }
+    size_t low_index_near(double height) const {
+      return profile_.low_index_near(height);
+    }
     double value(double height) const {
       return profile_.value(height);
     }
     double integral() const {
       return profile_.integral();
     }
-    void add(const basic_iop_profile& p,
+    basic_iop_profile& add(const basic_iop_profile& p,
 	     const std::vector<double>& heights)
     // Add profiles while maintaining sum of height integrals
     {
+      if (profile_.size() == 0) {
+	double intg = p.profile_.integral();
+	for (size_t i=0; i<heights.size(); ++i) {
+	  double x = heights[i];
+	  double y = p.profile_.value(x);
+	  profile_.append({x,y});
+	}
+	profile_.scale_y(intg/profile_.integral());
+	return *this;
+      }
       double i1 = profile_.integral();
       double i2 = p.profile_.integral();
       pe_function new_profile;
@@ -56,6 +72,12 @@ namespace flick {
       double new_i = new_profile.integral();
       new_profile.scale_y((i1+i2)/new_i);
       profile_ = new_profile;
+      return *this;
+    }
+    friend std::ostream& operator<<(std::ostream &os,
+				    const basic_iop_profile& p) {
+      os << p.profile_;
+      return os;
     }
   };
     
