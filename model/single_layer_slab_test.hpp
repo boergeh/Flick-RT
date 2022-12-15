@@ -17,15 +17,15 @@ namespace flick {
     slab.adjust_accuracy(percentage{20});
     check_small(slab.hemispherical_reflectance(),1e-12,"a");
 
-    slab.brighten_bottom(albedo{1});
+    slab.set_bottom(albedo{1});
     check_close(slab.hemispherical_reflectance(),1,1e-12,"b");
 
-    slab.brighten_bottom(albedo{0.5});
+    slab.set_bottom(albedo{0.5});
     check_close(slab.hemispherical_reflectance(),0.5,20,"c");
     
     a = 1;
     slab.fill<material::henyey_greenstein>(a,b,g);
-    slab.brighten_bottom(albedo{0});
+    slab.set_bottom(albedo{0});
     check_close(slab.hemispherical_transmittance(),exp(-h()),p(),"d");
 
   } end_test_case()
@@ -39,7 +39,7 @@ namespace flick {
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.brighten_bottom(albedo{0});
+    slab.set_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
     slab.adjust_accuracy(p);
 
@@ -58,7 +58,7 @@ namespace flick {
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.brighten_bottom(albedo{0});
+    slab.set_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
     slab.adjust_accuracy(p);
 
@@ -79,7 +79,7 @@ namespace flick {
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.brighten_bottom(albedo{0});
+    slab.set_bottom(albedo{0});
     slab.orient_source(zenith_angle{0});
     slab.adjust_accuracy(p);
     
@@ -96,7 +96,7 @@ namespace flick {
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.brighten_bottom(albedo{1});
+    slab.set_bottom(albedo{1});
     slab.orient_source(zenith_angle{0});
     slab.adjust_accuracy(p);
     polar_angle pa{0};
@@ -114,7 +114,7 @@ namespace flick {
     thickness h{1};
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
-    slab.brighten_bottom(albedo{1});
+    slab.set_bottom(albedo{1});
     slab.orient_source(zenith_angle{0.0});
     slab.adjust_accuracy(percentage{20});
     double r = slab.hemispherical_reflectance(unit_interval{0.5});
@@ -137,7 +137,7 @@ namespace flick {
     slab.orient_source(zenith_angle{brewster});
     slab.initiate_source(stokes::unpolarized());
     slab.adjust_accuracy(percentage{20});
-    slab.brighten_bottom(albedo{0});
+    slab.set_bottom(albedo{0});
     
     polar_angle theta{brewster};
     azimuth_angle phi{pi};

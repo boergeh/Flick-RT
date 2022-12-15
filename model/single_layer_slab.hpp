@@ -19,7 +19,6 @@ namespace flick {
       return n_packages_;
     }
     void add(double value) {
-      //std::cout << n_packages_ << " "<< value<< std::endl;
       weights_.push_back(n_packages_);
       values_.push_back(value);
       n_packages_ *= 2;
@@ -73,7 +72,7 @@ namespace model {
   public:
     single_layer_slab(const thickness& h) : h_{h} {
     }
-    void brighten_bottom(const albedo& a) {
+    void set_bottom(const albedo& a) {
       albedo_ = a;
     }
     void adjust_accuracy(const percentage& p) {

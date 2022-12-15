@@ -1,4 +1,5 @@
 #include "../../model/single_layer_slab.hpp"
+#include "../../material/henyey_greenstein.hpp"
 
 int main() {
   using namespace flick;  
@@ -8,9 +9,9 @@ int main() {
 
   model::single_layer_slab slab{thickness{1}};
   slab.fill<material::henyey_greenstein>(a,b,g);    
-  slab.brighten_bottom(albedo{0.5});
+  slab.set_bottom(albedo{0.5});
   slab.orient_source(zenith_angle{constants::pi/4});
-  slab.load_packages(number{10000});
+  slab.adjust_accuracy(percentage{10});
   
   std::cout << "slab heimispherical reflectance: "
 	    << slab.hemispherical_reflectance() << std::endl;

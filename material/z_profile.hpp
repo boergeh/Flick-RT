@@ -13,12 +13,6 @@ namespace material {
     double real_refractive_index_{1};
     double height_{0};
   public:
-    //double height() const {
-    //  return height_;
-    //}
-    //void height(double h) {
-    //  height_ = h;
-    //}
     const iop_z_profile& a_profile() const {
       return a_profile_;
     }
