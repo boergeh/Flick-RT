@@ -131,15 +131,15 @@ namespace flick {
     check_close(is.integral(),fp.integral(),1e-12,"fpc");
 
     pp_function ppf{{400e-9,400.1e-9},{1,1e6}};
-    check(!isnan(ppf.value(400.05e-9)),"ppf_a");
-    check(!isnan(ppf.integral(399e-9,401e-9)),"ppf_b");
-    check(!isnan(ppf.derivative(399e-9)),"ppf_c");
+    check(!std::isnan(ppf.value(400.05e-9)),"ppf_a");
+    check(!std::isnan(ppf.integral(399e-9,401e-9)),"ppf_b");
+    check(!std::isnan(ppf.derivative(399e-9)),"ppf_c");
     check(ppf.integral_limit_b(399e-9,1).has_value(),"ppf_d");
 
     pe_function pef{{400e-9,400.1e-9},{1,1e6}};
-    check(!isnan(pef.value(400.05e-9)),"pef_a");
-    check(!isnan(pef.integral(399e-9,401e-9)),"pef_b");
-    check(!isnan(pef.derivative(399e-9)),"pef_c");
+    check(!std::isnan(pef.value(400.05e-9)),"pef_a");
+    check(!std::isnan(pef.integral(399e-9,401e-9)),"pef_b");
+    check(!std::isnan(pef.derivative(399e-9)),"pef_c");
     check(pef.integral_limit_b(399e-9,1).has_value(),"pef_d");
 
 
