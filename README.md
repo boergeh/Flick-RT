@@ -12,7 +12,7 @@ For macOS and Linux:
 
  flick help -- for further documentation and usage examples  
 
-You will need to have a c++ compiler (e.g. clang++ or g++) already install, and you will be instructed on how to set necessary environmental variables during the first compilation.  
+You will need to have a c++ compiler (e.g. clang++ or g++) already install.  
 
 Flick is distributed under the MIT license.  
 https://docs.openmc.org/en/stable/license.html
