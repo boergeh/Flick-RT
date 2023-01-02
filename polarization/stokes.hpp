@@ -91,10 +91,10 @@ namespace flick {
       return polarized_part/s_[0];
     }
     friend std::ostream& operator<<(std::ostream &os, const stokes& s) {
-      os << "[I Psi Xsi p]: " << s.I() << " " << s.rotation_angle()
+      os << "[I Psi Xsi p] " << s.I() << " " << s.rotation_angle()
 	 << " " << s.eccentricity_angle()
 	 << " " << s. degree_of_polarization() << ", " <<
-	"[I Q U V]: "<< s.I() << " " << s.Q() << " " << s.U()
+	"[I Q U V] "<< s.I() << " " << s.Q() << " " << s.U()
 	 << " " << s.V() <<'\n';
       return os;
     }

@@ -48,6 +48,14 @@ namespace coating {
     void set(const std::complex<double>& relative_refractive_index) {
       relative_refractive_index_ = relative_refractive_index;
     }
+    friend std::ostream& operator<<(std::ostream &os, base& b) {
+      os << " at wavelength " <<  b.wavelength_
+	 << ", polar_ui " << b.ui_polar_ << ", and azimuth_ui "
+	 << b.ui_azimuth_ <<": ";
+      os << "reflectance "<< b.unpolarized_reflectance();
+      os << ", transmittance "<< b.unpolarized_transmittance();
+      return os;
+    }
   };
   
   class grey_lambert : public base {

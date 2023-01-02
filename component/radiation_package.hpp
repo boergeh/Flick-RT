@@ -12,6 +12,7 @@ namespace flick {
     double wavelength_{500e-9};
     flick::stokes stokes_{1,0,0,0};
     double traveling_length_{0};
+    unit_vector emission_direction_;
     //size_t scattering_events_{0};?
     //bool do_not_scatter_?
   public:
@@ -58,21 +59,28 @@ namespace flick {
     double traveling_length() const {
       return traveling_length_;
     }
-    flick::pose pose() const {
+    const unit_vector& emission_direction() const {
+      return emission_direction_;
+    }
+    void emission_direction(const unit_vector& ed) {
+      emission_direction_ = ed;
+    }
+    const flick::pose& pose() const {
       return pose_;
     }
-    auto wavelength() {
+    auto wavelength() const {
       return wavelength_;
     }
-    const flick::stokes& stokes() {
+    const flick::stokes& stokes() const {
       return stokes_;
     }
     friend std::ostream& operator<<(std::ostream &os,
 				    const radiation_package& rp) {
-      os << "xyz: " << rp.pose_.position() << ", dir: "<<rp.pose_.z_direction()
-	 << ", wl: " << rp.wavelength_
-	 << ", " << rp.stokes_ << ", length: "
-	 << rp.traveling_length_ << " ";
+      os << "xyz " << rp.pose_.position() << ", dir "<<rp.pose_.z_direction()
+	 << ", wl " << rp.wavelength_
+	 << ", " << rp.stokes_ << ", length "
+	 << rp.traveling_length_ << ", emission_dir "<<rp.emission_direction_
+	 << " ";
       return os;
     }
   };

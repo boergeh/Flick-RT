@@ -61,8 +61,10 @@ namespace material {
       return std::numeric_limits<double>::max(); 
     }
     friend std::ostream& operator<<(std::ostream &os, base& b) {
-      os << "abs_coef: "<< b.absorption_coefficient() << ", scat_coef: "
-	 << b.scattering_coefficient() << ", ref_index: "
+      os << " at wavelength " <<  b.wavelength()
+	 << " and pose " << b.pose() << ": ";
+      os << "abs_coef "<< b.absorption_coefficient() << ", scat_coef "
+	 << b.scattering_coefficient() << ", ref_index "
 	 << b.refractive_index();
       return os;
     }

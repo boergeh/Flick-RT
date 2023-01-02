@@ -207,7 +207,7 @@ namespace geometry {
       volume<T>& v_found = go_to(name);
       v_ = v0;
       if (v_found.name()!=name)
-	throw  std::runtime_error("volume named "+name+" not found");
+	throw  std::runtime_error("volume named \""+name+"\" not found");
       return v_found;
     }
     volume<T>& current_volume() const {

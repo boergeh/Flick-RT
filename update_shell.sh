@@ -24,7 +24,7 @@ else
     echo 'shell profile script, source it, and run make again'
     echo ''
     echo 'FLICK_PATH=$HOME/Flick-RT'
-    echo 'FLICK_COMPILER="clang++ -std=c++20"'
+    echo 'FLICK_COMPILER="g++ -std=c++20"'
     echo 'PATH=$FLICK_PATH/main:$PATH'
     echo ''
     exit 1
