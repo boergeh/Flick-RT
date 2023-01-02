@@ -8,14 +8,14 @@
 namespace flick {
 namespace model {
   class layer {
-    thickness t_{1};
+    flick::thickness t_{1};
     std::shared_ptr<material::base> material_;
     std::shared_ptr<coating::base> coating_;
     std::string name_;
     bool active_receivers_{false};
   public:
     layer() = default;
-    layer(thickness t, const std::string& name="")
+    layer(const flick::thickness& t, const std::string& name="")
       : t_{t}, name_{name} {
     }
     template <class Material, class... Args>
