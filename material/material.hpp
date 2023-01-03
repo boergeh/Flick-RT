@@ -60,7 +60,7 @@ namespace material {
 	return scattering_optical_depth/sc;
       return std::numeric_limits<double>::max(); 
     }
-    friend std::ostream& operator<<(std::ostream &os, base& b) {
+    friend std::ostream& operator<<(std::ostream &os, const base& b) {
       os << " at wavelength " <<  b.wavelength()
 	 << " and pose " << b.pose() << ": ";
       os << "abs_coef "<< b.absorption_coefficient() << ", scat_coef "

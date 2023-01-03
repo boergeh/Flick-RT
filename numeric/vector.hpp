@@ -138,14 +138,11 @@ namespace flick {
       y_ /= r;
       z_ /= r;
     }
-//   static unit_vector z() {
- //     return unit_vector{0,0,1};
-    //  }
     double mu() const {
       return z_/r();
     }
   };
-  
+
   unit_vector operator-(const unit_vector& uv) {
     return unit_vector(-uv.x(), -uv.y(), -uv.z());
   }

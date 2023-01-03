@@ -18,20 +18,24 @@ namespace flick {
     template <class Coating, class... Args>
     void coat(Args... a) {
       coating_ = std::make_shared<Coating>(a...);
-      has_coating_ = true;
+      if (coating_!=nullptr)
+	has_coating_ = true;
     }
     void coat(std::shared_ptr<coating::base> c) {
       coating_ = c;
-      has_coating_ = true;
+      if (coating_!=nullptr)
+	has_coating_ = true;
     }
     template <class Material, class... Args>
     void fill(Args... a) {
       material_ = std::make_shared<Material>(a...);
-      has_material_ = true;
+      if (material_!=nullptr)
+	has_material_ = true;
     }
     void fill(std::shared_ptr<material::base> m) {
       material_ = m;
-      has_material_ = true;
+      if (material_!=nullptr)
+	has_material_ = true;
     }
     coating::base& coating() const {
       return *coating_;

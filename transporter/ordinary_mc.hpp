@@ -57,14 +57,14 @@ namespace transporter {
 	  else if (intersection_.has_value()) {
 	    wall_interactor wi(nav_,rp_,rnd_);
 	    mi.deposite_energy_to_heat(dw);
-	    wi.interact_with_wall(); 
+	    wi.interact_with_wall();
 	    scattering_optical_depth -= material.scattering_optical_depth(dw);
 	    assert(scattering_optical_depth >= 0);
 	  }
 	  else {
 	    exit_semi_infinite_volume();
 	  }
-	  intersection_ = nav_.next_intersection(rp_.pose());  
+	  intersection_ = nav_.next_intersection(rp_.pose());
 	}
       }
     }

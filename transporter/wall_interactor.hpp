@@ -40,8 +40,7 @@ namespace flick {
       }
       if (!next_volume_->content().has_material()) {	  
 	next_volume_->content().fill<material::vacuum>();
-      } 
-     
+      }
       facing_surface_normal_ = facing_surface_normal();
       move_to_wall();
       align_rp_x_axis_with_plane_of_incidence();
@@ -107,6 +106,7 @@ namespace flick {
       }
     }
     std::complex<double> relative_refractive_index() {
+      
       std::complex<double> m1 = current_volume_->
 	content().material().refractive_index();
       std::complex<double> m2 = next_volume_->

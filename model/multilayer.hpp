@@ -1,7 +1,7 @@
 #ifndef flick_plane_parallel
 #define flick_plane_parallel
 
-//#include "../numeric/named_bounded_types.hpp"
+#include "../numeric/histogram.hpp"
 #include "../transporter/ordinary_mc.hpp"
 //#include "distribution.hpp"
 
@@ -63,7 +63,7 @@ namespace model {
 
   template <class Coating, class... Args>
   layer bottom_layer(Args... a) {
-    model::layer l(thickness{0});
+    model::layer l(thickness{1});
     l.name("bottom");
     l.coat<Coating>(a...);
     return l;
@@ -87,8 +87,8 @@ namespace model {
     }
     void transport_radiation(const emitter& em,
 			     const std::string& volume_name) {
-      if (volume_name == "bottom")
-	throw std::runtime_error("Cannot emit from bottom");
+      //if (volume_name == "bottom")
+      //	throw std::runtime_error("Cannot emit from bottom");
       omc_ = std::make_shared<transporter::ordinary_mc>(volume_);
       double g = 0.7;
       omc_->transport_radiation(em,volume_name,g);

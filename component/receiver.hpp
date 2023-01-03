@@ -2,15 +2,12 @@
 #define flick_receiver
 
 #include "radiation_package.hpp"
-//#include "histogram.hpp"
+#include "../numeric/histogram.hpp"
 
 namespace flick {
   class receiver
   {
     std::vector<radiation_package> rps_;
-    //std::vector<histogram> stokes(4);
-    //histogram traveling_length_;
-    //histogram scattering_events_;
     bool is_active_{false};
   public:
     void clear() {
@@ -35,25 +32,15 @@ namespace flick {
     }
     double radiance(const unit_vector& direction, double acceptance_angle) {
       double sum = 0;
-      // size_t n=0;
       for(size_t i = 0; i < rps_.size(); ++i) {
 	unit_vector prop_dir = rps_[i].pose().z_direction(); 
 	double mu = dot(prop_dir,direction);
 	if (mu > cos(acceptance_angle)) {
-	  
-	  //std::cout << rps_[i].stokes().I() << ", ";
-	  //std::cout << mu << ", ";
-	  //std::cout <<  abs(prop_dir.mu()) << ", ";
-	  //std::cout << cos(0.5*acceptance_angle) << ", "<<std::endl;
 	  sum += rps_[i].stokes().I() / fabs(prop_dir.mu());
-	  //n++;
 	}
       }
-      //if (n==0)
-      //	n++;
       double solid_angle = 2*constants::pi*(1-cos(acceptance_angle));
       double L = sum /solid_angle;
-      //std::cout << "L " << L << std::endl;
       return L;
     }
     double mean_traveling_length() {
@@ -62,17 +49,19 @@ namespace flick {
 	l += rps_[i].traveling_length();
       return l/rps_.size();
     }
-  
-    // if size larger than so and so fill histogram empty rps.
-    /*
-    histogram stokes(enum element, size_t n_bins) const {
-      histrogram h(equal_bins{-pi,pi,n_bins})
-      for (size_t i=0; i < rps_.size(); ++i) {
-	h.add()
+    histogram polar_angle_distribution(size_t n_emitter, size_t n_receiver) {
+      double epsilon = 1e-9;
+      equal_bins x_bins{-epsilon, 1+epsilon, n_emitter};
+      equal_bins y_bins{-epsilon, 1+epsilon, n_receiver};
+      histogram h(x_bins,y_bins);
+      for(size_t i = 0; i < rps_.size(); ++i) {
+	double x = rps_[i].emission_direction().mu();
+	unit_vector surf_normal = {0,0,1};
+	double y = dot(rps_[i].pose().z_direction(),surf_normal);
+	h.add(x,y,rps_[i].stokes().I());
       }
-      
+      return h;
     }
-    */
     friend std::ostream& operator<<(std::ostream &os, const receiver& re) {
       for (auto& rp : re.rps_) {
 	os << rp << '\n';

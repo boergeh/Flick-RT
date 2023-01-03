@@ -30,7 +30,8 @@ namespace flick {
     histogram(equal_bins xb, equal_bins yb)
       : x_bins{xb}, y_bins{yb}, h{xb.n,std::vector<double>(yb.n,0.0)} {} 
     histogram(equal_bins xb)
-      : x_bins{xb}, y_bins{equal_bins{-1,1,1}}, h{xb.n,std::vector<double>(1,0.0)} {} 
+      : x_bins{xb}, y_bins{equal_bins{-1,1,1}},
+	h{xb.n,std::vector<double>(1,0.0)} {} 
     void add(double x, double y, double value) {
       size_t i = x_bins.n*(x-x_bins.min)/(x_bins.max-x_bins.min);
       size_t j = y_bins.n*(y-y_bins.min)/(y_bins.max-y_bins.min);
@@ -46,23 +47,26 @@ namespace flick {
     }
     double bin_value(size_t i, size_t j) const {
       return h.at(i).at(j);
-    }
-    
-    void write(std::ostream& str) const {
+    } 
+    void write(std::ostream& os) const {
       if (y_bins.n > 1) {
-	str << "nan" << " ";
+	os << "nan" << " ";
 	for (size_t j = 0; j < y_bins.n; ++j) {
-	  str <<  y_bins.midpoint(j) << " ";
+	  os <<  y_bins.midpoint(j) << " ";
 	}
-	str << '\n';
+	os << '\n';
       }
       for (size_t i = 0; i < x_bins.n; ++i) {
-	str << x_bins.midpoint(i) << " ";
+	os << x_bins.midpoint(i) << " ";
 	for (size_t j = 0; j < y_bins.n; ++j) {
-	  str << h[i][j] << " ";
+	  os << h[i][j] << " ";
 	}
-	str << '\n';
+	os << '\n';
       }
+    }
+    friend std::ostream& operator<<(std::ostream &os, const histogram& h) {
+      h.write(os);
+      return os;
     }
   };
   void write(const histogram& h, const std::string& file_name,
@@ -72,7 +76,6 @@ namespace flick {
     h.write(of);
     of.close();
   }
-
 }
 
 #endif
