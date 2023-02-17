@@ -2,11 +2,11 @@
 #define flick_lines
 
 #include <fstream>
-//#include <numbers>
 #include "../../environment/input_output.hpp"
 #include "../../numeric/constants.hpp"
 #include "../../numeric/range.hpp"
 #include "../../numeric/sorted_vector.hpp"
+#include "../../numeric/function.hpp"
 
 
 namespace flick {  
@@ -16,7 +16,11 @@ namespace flick {
   {    
   public:
     lines(const std::string& gas_file_name) {
-      read_lines_input(path()+"/material/gas/lines_input/"+gas_file_name);
+      std::string p = "/material/gas/lines_input/";
+      const std::string &f = gas_file_name; 
+      read_lines_input(path()+p+f);
+      total_internal_partition_sum_ =
+      	read<pl_function>(p+f.substr(0,f.size()-4)+"_q.txt");
     }
     void total_pressure(double p) {
       total_pressure_ = p;
@@ -73,6 +77,7 @@ namespace flick {
     double temperature_{300};   
     sorted_vector wavenumbers_;
     std::vector<line_parameters> lines_;
+    pl_function total_internal_partition_sum_;
 
     double add_line_wings(int step, size_t close_line,
 			  double readout_wavenumber) const {
@@ -85,6 +90,23 @@ namespace flick {
       }
       return total_abs;
     }
+    double temperature_dependence_factor(int line_number, double nu_star) const
+    // See e.g. https://www.bytran.org/howtolbl.htm
+    {
+      double c_2 = constants::c*constants::h/constants::k_B;
+      double E_low = lines_.at(line_number).lower_state_energy;
+      double a = -c_2 * E_low;
+      double b = -c_2 * nu_star;
+      double T =  temperature_;
+      double T_ref = reference_temperature_;
+      double Q_ref = total_internal_partition_sum_.value(T_ref);
+      double Q_T = total_internal_partition_sum_.value(T);
+      double f1 = Q_ref / Q_T;
+      double f2 = exp(a/T) / exp(a/T_ref);
+      double f3 = (1-exp(b/T)) / (1-exp(b/T_ref));
+      return f1*f2*f3;
+    }
+    
     double absorption_from(int line_number,
 			   double readout_wavenumber) const {
       if (line_number < 0)
@@ -102,19 +124,19 @@ namespace flick {
       double S = lines_.at(line_number).line_intensity;
       double gam_air = lines_.at(line_number).air_half_width;
       double gam_self = lines_.at(line_number).self_half_width;
-      double E_low = lines_.at(line_number).lower_state_energy;
       double n_air = lines_.at(line_number).temperature_exponent;
       double delta_air = lines_.at(line_number).line_shift;
       double gam = pow(T_ref/T,n_air)*(gam_air*(p-p_self)+gam_self*p_self);
       double nu_star = nu0+delta_air*p;
       double f_L = gam/constants::pi/(pow(gam,2)+pow(nu-nu_star,2));
+      double f_t = temperature_dependence_factor(line_number, nu_star);
       if (nu < 200) { // Van Vleck-Weisskopf lineshape
 	f_L = gam/constants::pi*nu/nu0*
 	  (1/(pow(gam,2)+pow(nu-nu_star,2))+1/(pow(gam,2)+pow(nu+nu_star,2)));
       }
       double cm2_to_m2 = 1e-4;
       double N = molecules_per_volume(partial_pressure_, T);
-      return S * f_L * cm2_to_m2 * N;
+      return S * f_L * f_t * cm2_to_m2 * N;
     }   
     void read_lines_input(const std::string& file) {
       std::ifstream ifs(file);

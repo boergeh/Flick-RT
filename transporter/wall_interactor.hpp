@@ -123,7 +123,7 @@ namespace flick {
       rp_.move_by(-current_volume_->small_step()*facing_surface_normal_);
     }    
     void align_rp_x_axis_with_plane_of_incidence()
-    // Not too proud over this..
+    // Not too proud over this one..
     {
       pose p = rp_.pose();
       vector normal = cross(p.z_direction(),facing_surface_normal_);

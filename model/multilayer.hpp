@@ -87,8 +87,6 @@ namespace model {
     }
     void transport_radiation(const emitter& em,
 			     const std::string& volume_name) {
-      //if (volume_name == "bottom")
-      //	throw std::runtime_error("Cannot emit from bottom");
       omc_ = std::make_shared<transporter::ordinary_mc>(volume_);
       double g = 0.7;
       omc_->transport_radiation(em,volume_name,g);

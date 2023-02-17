@@ -30,3 +30,11 @@ Start Data Search
 
 Open file in Emacs and go to last line with alt> write number of lines at
 the beginning of the buffer (alt<)
+
+
+Download total internal partition function, Q, from
+https://hitran.org/docs/iso-meta/
+see also 
+https://www.bytran.org/howtolbl.htm
+only Q-values from the most abundant isotope is used
+

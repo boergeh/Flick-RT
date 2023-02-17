@@ -25,7 +25,7 @@ namespace flick {
     
     //std::cout << s; 
 
-    emitter em{{0,0,-0.1},100};
+    emitter em{{0,0,0},100};
     em.set_direction<unidirectional>(unit_vector{0,0,1});
     s.transport_radiation(em,"hg1");
     check(s.outward_receiver("hg2").radiant_flux()>0);
