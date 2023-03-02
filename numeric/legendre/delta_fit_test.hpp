@@ -13,6 +13,10 @@ namespace flick {
     delta_fit df(f(),n_terms);
     check_close(2*df.coefficients().at(0),1/(2*constants::pi),0.1);
     check_close(df.function_values({-1}).at(0),f().value(-1),0.1);
-    
+
+    auto g = flick::read<flick::pl_function>("./petzold_phase_function.txt");
+    n_terms = 20;
+    delta_fit df2(g,n_terms);
+    check_close(df2.function_values({-1}).at(0),g.value(-1),0.1);
   } end_test_case()
 }
