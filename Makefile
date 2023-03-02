@@ -34,6 +34,7 @@ test:
 	@cd radiator; make test
 clean:	
 	cd numeric; make clean
+	cd numeric/legendre; make clean
 	cd geometry; make clean
 	cd polarization; make clean
 	cd component; make clean	

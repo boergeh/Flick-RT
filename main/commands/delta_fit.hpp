@@ -11,12 +11,13 @@ namespace flick {
       void run() {
 	size_t n_terms = std::stoi(a(1));
 	std::string fname = a(3);
-	auto f = flick::read<flick::pl_function>("./"+fname);
+	auto f = flick::read<flick::pe_function>("./"+fname);
 	if (a(2)=="coefficients") {
 	   std::cout << flick::delta_fit(f,n_terms).coefficients();
 	}
-	else if (a(2)=="function_value") {
-	  std::cout << flick::delta_fit(f,n_terms).function_values({-1, -0.766,0.999,0.9999,0.99999758 ,1});
+	else if (a(2)=="function_values") {
+	  std::vector<double> y = flick::delta_fit(f,n_terms).function_values(f.x());
+	  std::cout << pl_function{f.x(),y}; 
 	}
 	else
 	  error();

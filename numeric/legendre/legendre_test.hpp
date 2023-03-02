@@ -3,7 +3,13 @@
 #include "../constants.hpp"
 
 namespace flick {
-  begin_test_case(legendre_test) {
+  begin_test_case(legendre_test_A) {
+    auto p = legendre(129,{0.5});
+    check_close(p.value(64,0),-0.0755712307,1e-8);
+    check_close(p.value(128,0),-0.01953466424,1e-8);
+  } end_test_case()
+  
+  begin_test_case(legendre_test_B) {
     struct f {
       double g = 0.3;
       double value(double mu) const {
