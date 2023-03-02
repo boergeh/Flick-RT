@@ -5,6 +5,7 @@ following commands:
   radiator	Radiation source spectra		
   iop		Inherent optical properties of materials
   text		Reading and modifying text files
+  delta_fit     Fitting Legendre coefficients to phase function
 
 Example:
 

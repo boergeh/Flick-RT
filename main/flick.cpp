@@ -5,6 +5,7 @@
 #include "commands/help.hpp"
 #include "commands/radiator.hpp"
 #include "commands/iop.hpp"
+#include "commands/delta_fit.hpp"
 #include "commands/text.hpp"
 
 int main(int argc, char* argv[]) {
@@ -14,8 +15,9 @@ int main(int argc, char* argv[]) {
   if (run<command::help>(a)) return 0;
   if (run<command::radiator>(a)) return 0;
   if (run<command::iop>(a)) return 0;
+  if (run<command::delta_fit>(a)) return 0;
   if (run<command::text>(a)) return 0;
-  std::cout << "\n Cannot recognize command. Try flick help.\n" << std::endl;
+  std::cout << "\n Cannot recognize command, try 'flick help'.\n" << std::endl;
   return -1;
 }
 

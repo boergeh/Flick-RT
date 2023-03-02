@@ -1,0 +1,33 @@
+
+flick delta_fit <number_of_terms> <argument> <phase_function_file_name>
+
+ <phase_function_file_name>
+
+    Name of a two-column text file, where the first column contains
+    cosine of the scattering angle in the range -1 to 1, and the
+    second column contains phase function values normalized such that
+    the integrated area under the curve is 1/(2*pi). Note that the
+    integrated phase function over all 4*pi solid angles will then be
+    unity.
+
+Usage 1:
+
+  flick delta_fit 10 coefficients petzold_phase_function.txt
+
+  Lists 10 Legendre expansion term coefficients, a_l, such that the
+  relative difference between the input tabulated Petzold phase
+  function and f = sum a_l * P_l is as small as possible, where P_l is
+  the Legendre polynomials. The first listed coefficient, a_0, equals
+  half the area under the fitted phase function curve. k = 4*pi*a_0 is
+  therfore the scaling factor for the scattering coefficient, and each
+  of the 10 expansion coefficient should be divided by k in order to
+  be used together with the scaled scattering coefficient.
+
+Usage 2:
+
+  flick delta_fit 10 function_values petzold_phase_function.txt
+
+  Lists a 10-term fitted phase function. First output column contains
+  cosine of scattering angel and second column contains function
+  values.
+

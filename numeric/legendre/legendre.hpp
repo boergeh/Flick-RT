@@ -4,7 +4,6 @@
 #include <vector>
 #include "../../environment/input_output.hpp"
 #include "../function.hpp"
-#include <cmath>
 
 namespace flick {
   two_columns read_quadrature(size_t n_points) {
@@ -74,17 +73,17 @@ namespace flick {
   }
 
   class legendre_evaluation {
-    const std::vector<double>& terms_;
+    const std::vector<double>& coefficients_;
   public:
-    legendre_evaluation(const std::vector<double>& terms)
-      : terms_{terms} {}
+    legendre_evaluation(const std::vector<double>& coefficients)
+      : coefficients_{coefficients} {}
     std::vector<double> values(const std::vector<double>& x) {
       std::vector<double> values(x.size());
-      legendre legendre(terms_.size(), x);
+      legendre legendre(coefficients_.size(), x);
       for (size_t i=0; i < x.size(); ++i) {
 	double v = 0;
-	for (size_t l=0; l < terms_.size(); ++l) {
-	  v += terms_[l]*legendre.value(l,i);
+	for (size_t l=0; l < coefficients_.size(); ++l) {
+	  v += coefficients_[l]*legendre.value(l,i);
 	}
 	values[i] = v;
       }

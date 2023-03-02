@@ -5,6 +5,13 @@
 #include <iostream>
 #include <iomanip>
 
+std::ostream& operator<<(std::ostream& out, const std::vector<double>& v) {
+  for (const auto& i: v)
+    std::cout << i << " ";
+  std::cout << "\n";
+  return out;
+}
+
 namespace flick {
   std::string path() {
     std::string path;

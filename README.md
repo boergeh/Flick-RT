@@ -1,5 +1,5 @@
 
-Flick-RT is a general radiative transport code  
+Flick-RT is a 3D Monte Carlo radiative transport code  
 
 Clone from GitHub with:  
  git clone https://github.com/boergeh/Flick-RT.git  
@@ -12,7 +12,7 @@ For macOS and Linux:
 
  flick help -- for further documentation and usage examples  
 
-You will need to have a c++ compiler (e.g. clang++ or g++) already installed.  
+You will need to have a c++ compiler (e.g. clang++ or g++) and the Armadillo linear algebra library https://arma.sourceforge.net already installed.  
 
 Flick is distributed under the MIT license.  
 https://docs.openmc.org/en/stable/license.html

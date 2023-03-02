@@ -5,6 +5,7 @@ all:	check-env build test
 
 build:	
 	cd numeric; make obj link
+	cd numeric/legendre; make obj link
 	cd geometry; make obj link
 	cd polarization; make obj link
 	cd component; make obj link
@@ -19,6 +20,7 @@ build:
 	cd main; make obj link
 test:	
 	@cd numeric; make test
+	@cd numeric/legendre; make test
 	@cd geometry; make test
 	@cd polarization; make test
 	@cd component; make test
