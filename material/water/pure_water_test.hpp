@@ -15,6 +15,15 @@ namespace flick {
     check_close(pw.absorption_coefficient(),3.02,1);
     pw.temperature({273+30});
     check_close(pw.absorption_coefficient(),3.47,1);
+
+    pw.set(wavelength{270e-9});
+    pw.temperature({273+0});
+    pw.salinity(0);
+    check_close(pw.real_refractive_index(),1.37,0.2);
+    pw.set(wavelength{1001e-9});
+    check_close(pw.real_refractive_index(),1.326,0.2);
+    pw.set(wavelength{2000e-9});
+    check_close(pw.real_refractive_index(),1.31,0.2);
   
   } end_test_case()
 }
