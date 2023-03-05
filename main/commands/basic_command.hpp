@@ -13,7 +13,7 @@ namespace flick {
       std::string name_;
     public:
       basic_command(std::string name) : name_{name}{}
-      std::string a(size_t n) {
+      std::string a(size_t n) const {
 	if (n >= arguments_.size())
 	  return "";
 	return arguments_.at(n);
@@ -21,14 +21,14 @@ namespace flick {
       void set_arguments(const std::vector<std::string>& args) {
 	arguments_ = args;
       }
-      bool has_name(const std::string& name) {
+      bool has_name(const std::string& name) const {
 	return (name_ == name);
       }
-      void error() {
+      void error() const {
 	std::cout << "\nCannot recognize "+name_+
 	  " arguments. Try 'flick help "+name_+"'.\n" << std::endl;  
       }
-      void show(const std::string& fname) {
+      void show(const std::string& fname) const {
 	auto t = read<flick::text>("main/commands/"+fname);
 	std::cout << t << std::endl;  
       }

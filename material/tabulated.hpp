@@ -7,11 +7,11 @@
 namespace flick {
 namespace material {
   class tabulated : public monocrome_iop {
-    phase_function p_;
+    hg_fit_phase_function p_;
   public:
     tabulated(const flick::absorption_coefficient& ac,
 	      const flick::scattering_coefficient& sc,
-	      const phase_function& p,
+	      const hg_fit_phase_function& p,
 	      double real_refractive_index = 1)
       : monocrome_iop{ac,sc,flick::asymmetry_factor{p.asymmetry_factor()},
       real_refractive_index}, p_{p} {

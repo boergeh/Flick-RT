@@ -2,6 +2,7 @@
 #define flick_mueller
 #include "../numeric/function.hpp"
 #include "../numeric/physics_function.hpp"
+//#include "../numeric/legendre/delta_fit.hpp"
 namespace flick {
   class mueller
   // Holds non-zero Mueller matrix element values for one angle
@@ -51,27 +52,28 @@ namespace flick {
     return os;
   }
 
-  class phase_function
+  class hg_fit_phase_function
   // Represent phase function as a Henyey-Greenstein with
   // residuals.
   {
     double g_;
     pl_function residuals_;
+    pe_function p_mu_;
   public:
-    phase_function() = default;
-    phase_function(const pe_function& p) {
+    hg_fit_phase_function() = default;
+    hg_fit_phase_function(const pe_function& p) {
       size_t n = p.size();
-      pl_function p_mu;
       for (size_t i=0; i<n; ++i) {
 	double mu = cos(p.x()[n-i-1]);
-	p_mu.append({mu,p.y()[n-i-1]});
+	p_mu_.append({mu,p.y()[n-i-1]});
       }
-      g_ = asymmetry_factor_(p_mu);
+      g_ = asymmetry_factor_(p_mu_);
       for (size_t i=0; i<4; ++i) {
-	set_residuals(p_mu);
-	g_ += asymmetry_factor_(residuals_);
+	set_residuals(p_mu_);
+	pe_function pe_residuals{residuals_.x(),residuals_.y()};
+	g_ += asymmetry_factor_(pe_residuals);
       }
-      set_residuals(p_mu);
+      set_residuals(p_mu_);
     }
     std::vector<double> x() const {
       std::vector<double> new_x(residuals_.size());
@@ -101,8 +103,11 @@ namespace flick {
     double integral() const {
       return 1/(2*constants::pi) + residuals_.integral();
     }
+    //delta_fit<pe_function> legendre_fit(size_t n_terms) {
+    //return delta_fit<pe_function>(p_mu_, n_terms);
+    //}
   private:
-    void set_residuals(const pl_function& p) {
+    void set_residuals(const pe_function& p) {
       residuals_.clear();
       for (size_t i=0; i<p.size(); ++i) {
 	double mu = p.x()[i];
@@ -111,7 +116,7 @@ namespace flick {
 	residuals_.append({mu, r});
       }
     }
-    double asymmetry_factor_(const pl_function& p) {
+    double asymmetry_factor_(const pe_function& p) {
       pl_function p2;
       for (size_t i=0; i<p.size(); ++i) {
 	double mu = p.x()[i];
@@ -121,16 +126,16 @@ namespace flick {
     }    
   };
 
-  phase_function hg_phase_function(double g, size_t n_points) {
+  pe_function hg_phase_function(double g, size_t n_points) {
     auto x = range(0,constants::pi,n_points).linspace();
     std::vector<double> y(x.size());
     for (size_t i=0; i<y.size(); ++i)
       y[i] = henyey_greenstein(g).phase_function(x[i]);
-    return phase_function{pe_function{x,y}};    
+    return pe_function{x,y};    
   }
  
   class angular_mueller {
-    phase_function p_;
+    hg_fit_phase_function p_;
     struct element {
       size_t row;
       size_t col;
@@ -139,7 +144,7 @@ namespace flick {
     std::vector<element> elements_;
   public:
     angular_mueller() = default;
-    angular_mueller(const phase_function& p)
+    angular_mueller(const hg_fit_phase_function& p)
       : p_{p} {
       add(0,0,pl_function{p.x(),p.y()});
     }
@@ -237,8 +242,8 @@ namespace flick {
       }
     }
   private:
-    pl_function add_elements(const pl_function& f1, const phase_function& p1,
-			     const pl_function& f2, const phase_function& p2,
+    pl_function add_elements(const pl_function& f1, const hg_fit_phase_function& p1,
+			     const pl_function& f2, const hg_fit_phase_function& p2,
 			     double w) {
       std::vector<double> x = p_.x();
       std::vector<double> y(x.size());
@@ -261,7 +266,7 @@ namespace flick {
       for (size_t i=0; i<x.size(); ++i) {
 	y[i] = (1-w)*p1.value(x[i]) + w*p2.value(x[i]);
       }
-      p_ = phase_function(pe_function{x,y});
+      p_ = hg_fit_phase_function(pe_function{x,y});
     }
     pl_function normalize(const pl_function& f) {
       pl_function f_new;

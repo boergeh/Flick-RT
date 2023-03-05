@@ -3,37 +3,93 @@
 
 #include "basic_command.hpp"
 #include "../../material/water/pure_water.hpp"
+#include "../../numeric/legendre/delta_fit.hpp"
+#include "../../environment/input_output.hpp"
 
 namespace flick {
   namespace command {
-    struct iop : public basic_command {
+    class iop : public basic_command {
+      std::vector<double> wls_;
+    public:
       iop():basic_command("iop"){};
       void run() {
-	if (a(1)=="pure_water") {
-	  double from_wl = std::stod(a(3));
-	  double to_wl = std::stod(a(4));
-	  double n_points = std::stod(a(5));	
-	  double T = std::stod(a(6));	
+	double from_wl = std::stod(a(3));
+	double to_wl = std::stod(a(4));
+	double n_points = std::stod(a(5));	
+	double T = constants::T_stp;	
+	double S = 0;
+	if (!std::empty(a(6)))
+	  double T = std::stod(a(6));
+	if (!std::empty(a(7)))
 	  double S = std::stod(a(7));	
-	  auto wls = range(from_wl, to_wl, n_points).logspace();
-	  material::pure_water pw;
-	  pw.temperature(T);
-	  pw.salinity(S);
+	wls_ = range(from_wl, to_wl, n_points).logspace();
+	
+	if (a(1)=="pure_water") {
+	  material::pure_water m;
+	  m.temperature(T);
+	  m.salinity(S);
+	  stream_iops(m, a(2));
+	}
+      }
+    private:
+      template<class Material>
+      void stream_iops(Material& m, const std::string& property) const {
+	const std::string& p = property;
+	if (p.substr(0,6)=="AccuRT") {
+	  size_t i1 = p.find("_");
+	  size_t i2 = p.rfind("_");
+	  size_t layer_n = std::stoi(p.substr(i1+1,i2-i1-1));
+	  size_t n_terms = std::stoi(p.substr(i2+1,p.size()));
+	  stream_AccuRT(m,layer_n, n_terms);
+	} else {
 	  double value = 0;
-	  for (auto wl:wls) {
-	    pw.set(wavelength(wl));
-	    if (a(2)=="absorption_length")
-	      value = 1/pw.absorption_coefficient();
-	    else if (a(2)=="scattering_length")
-	      value = 1/pw.scattering_coefficient();
-	    else if (a(2)=="refractive_index")
-	      value = pw.real_refractive_index();
-	    else
+	  for (auto wl:wls_) {
+	    m.set(wavelength(wl));
+	    if (p=="absorption_length")
+	      value = 1/m.absorption_coefficient();
+	    else if (p=="scattering_length")
+	      value = 1/m.scattering_coefficient();
+	    else if (p=="refractive_index")
+	      value = m.real_refractive_index();
+	    else {
 	      error();
-	    std::cout << std::setprecision(4) << wl << " " << value << '\n';
+	      break;
+	    }
+	    std::cout << std::setprecision(5) << wl << " " << value << '\n';
 	  }
-	} else
-	  error();
+	}
+      }
+      template<class Material>
+      void stream_AccuRT(Material& m, size_t layer_n, size_t n_terms) const {
+	std::cout
+	  << "# AccuRT configuration file for a one-layer user_specified material #\n"
+	  << "PROFILE_LABEL = layer_numbering #\n"
+	  << "MATERIAL_PROFILE = " << layer_n << " 1 #\n"
+	  << "WAVELENGTHS = ";
+	for (auto wl:wls_)
+	  std::cout << wl*1e9 << " ";
+	std::cout << "#\n";
+	delta_fit df(material::phase_function(m),n_terms);
+	//double k = df.coefficients()[0];
+	auto normalized_scaled_coef = stdv_multiply(df.coefficients(),(1/df.scaling_factor())*4*constants::pi);
+	//	auto normalized_scaled_coef = stdv_multiply(df.coefficients(),1/df.scaling_factor());
+
+	for (size_t i=0; i<wls_.size(); ++i) {
+	  m.set(wavelength(wls_[i]));
+	  std::cout << "A_"<<layer_n<<"_" << std::to_string(i+1) << " = "
+		    << m.absorption_coefficient() << " #\n"
+		    << "S_"<<layer_n<<"_" << std::to_string(i+1) << " = "
+		    << m.scattering_coefficient()*df.scaling_factor() << " #\n"
+		    << "P_"<<layer_n<<"_" <<  std::to_string(i+1) << " = ";
+	  std::cout << normalized_scaled_coef << " #\n";
+	}
+	std::cout << "REFRACTIVE_INDICES = ";
+	for (size_t i=0; i<wls_.size(); ++i) {
+	  m.set(wavelength(wls_[i]));
+	  std::cout << m.real_refractive_index() << " ";
+	}
+	std::cout << "#\n";
+	std::cout << "TURN_OFF_DELTA_FIT = false #\n";
       }
     };    
   }

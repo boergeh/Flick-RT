@@ -100,7 +100,7 @@ namespace material {
 	mueller m = p.mueller_matrix(unit_vector{angles_[i],0});
 	f.append({angles_[i],m.value(0,0)});
       }
-      angular_mueller am{phase_function{f}};
+      angular_mueller am{hg_fit_phase_function{f}};
       for (size_t i=0; i<angles_.size(); ++i) {	
 	mueller m = p.mueller_matrix(unit_vector{angles_[i],0});
 	for (size_t j=1; j<m.size(); ++j) {

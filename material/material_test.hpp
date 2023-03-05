@@ -8,21 +8,27 @@ namespace flick {
   begin_test_case(material_test) {
     using namespace constants;
     using namespace flick;
+    double g = 0.5;
     material::henyey_greenstein hg(absorption_coefficient{1},
 				   scattering_coefficient{1},
-				   asymmetry_factor{0.5});
+				   asymmetry_factor{g});
+    material::phase_function pf(hg);
+    hg_fit_phase_function hgpf{hg_phase_function(g,100)};
+    check_close(pf.value(0),hgpf.value(constants::pi/2), 1e-13);
+
     double pi = constants::pi;
-    double g = 0.9;
-    phase_function p = hg_phase_function(g,100);
+    g = 0.9;
+    hg_fit_phase_function p{hg_phase_function(g,100)};
     check_close(2*pi*p.integral(),1,0.03,"a");
     check_close(p.asymmetry_factor(),g,0.03,"b");
+
     
     material::tabulated tab(absorption_coefficient{1},
     			    scattering_coefficient{1},
     			    p);
 
     const std::string path_{"/material"};
-    phase_function p2 = read<pe_function>(path_+"/tabulated.txt"); 
+    hg_fit_phase_function p2 = read<pe_function>(path_+"/tabulated.txt"); 
     check_close(2*pi*p2.integral(),1,0.3,"c");
 
     material::rural_aerosols ra;

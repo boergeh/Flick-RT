@@ -1,6 +1,7 @@
 #include "algorithm.hpp"
 #include "isotropic_mueller.hpp"
 #include "rayleigh_mueller.hpp"
+#include "mueller.hpp"
 
 namespace flick {
   begin_test_case(mueller_test) {
@@ -24,6 +25,11 @@ namespace flick {
     check_close(am2.value(3,3,0),1,1e-9);
     am.add(am2,0.5);
     check_close(am.value(3,3,0),0.5,1e-9);
+
+    //phase_function hgp = hg_phase_function(0.0,100);
+    //check_close(hgp.legendre_fit(32).coefficients()[0],1/(4*constants::pi),1e-3);
+    //check_small(hgp.legendre_fit(32).coefficients()[1],1e-15);
+
   } end_test_case()
 }
 

@@ -78,6 +78,30 @@ namespace material {
     }
   };
   
+  class phase_function
+  /* Phase function relative to current traveling direction, keeping
+     azimuth angle equal to zero */  
+  {    
+    material::base& mat_;
+  public:
+    phase_function(material::base& mat) : mat_{mat} {}
+    double value(double mu) const {
+      double theta = acos(mu);
+      mueller m = mat_.mueller_matrix(unit_vector{theta,0});
+      return m.value(0,0);
+    }
+  };
+  
+  /*
+  std::vector<double> phase_function_expansion(Material& m, size_t n_terms) {
+    m.set(pose{{0,0,0},{0,0}});
+    auto angle = range(0,2*constants::pi,n_terms*3).linspace();
+    for (auto a:angles) {
+
+    }
+  }
+  */
+  
   class vacuum : public base {
   public:
     double absorption_coefficient() const {

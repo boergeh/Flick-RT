@@ -85,7 +85,7 @@ namespace material {
     // index of refraction of seawater. Applied optics, 34(18),
     // pp.3477-3480.
     {
-      std::vector<double> n = {1.31405, 1.31405e-4, -1.05e-6, 1.6e-8, -2.02e-6,15.868,
+      std::vector<double> n = {1.31405, 1.31405e-4, -1.05e-6, 1.6e-8, -2.02e-6, 15.868,
 	0.01155, -0.00423, -4382, 1.1455e6};
       double T = temperature_.value(pose().position().z())-273.15; // [Celsius]
       double S = salinity_psu_.value(pose().position().z());

@@ -2,21 +2,32 @@
 flick iop <material_name> <property> <from_wavelength> <to_wavelength>
   <number_of_points> [temperature] [salinity_in_psu]
 
-  List material optical properties versus wavelength.
+  Lists material optical properties versus wavelength.
 
 Parameters:
 
   <material_name>
-    Use 'pure_water', which is the only implemented material.
+
+    Use 'pure_water' which is currently the only implemented command line material.
     
   <property>
-    Select 'absorption_length', 'scattering_length', or 'refractive_index'
 
-Example:
+    Select 'absorption_length', 'scattering_length',
+    'refractive_index', or 'AccuRT_1_8'
+
+    The 'AccuRT_1_10' property will list user specified material input
+    for the AccuRT radiative transfer code. The two sub-numbers '_1'
+    and '_8' (which may be changed) give input for layer 1 with 8
+    phase function expansion terms.
+
+Examples:
 
   flick iop pure_water absorption_length 400e-9 700e-9 10 273 35
 
+  flick iop pure_water AccuRT_1_8 400e-9 700e-9 10 273 35
+
+
 Remember: unless other units are explicitly stated, Flick is always
-using SI units for input and output of physical values, see
+using SI units (m, kg, s) for input and output of physical values, see
 https://en.wikipedia.org/wiki/International_System_of_Units.
 
