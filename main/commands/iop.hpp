@@ -3,6 +3,8 @@
 
 #include "basic_command.hpp"
 #include "../../material/water/pure_water.hpp"
+#include "../../material/henyey_greenstein.hpp"
+#include "../../material/tabulated.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
 #include "../../environment/input_output.hpp"
 
@@ -13,23 +15,42 @@ namespace flick {
     public:
       iop():basic_command("iop"){};
       void run() {
-	double from_wl = std::stod(a(3));
-	double to_wl = std::stod(a(4));
-	double n_points = std::stod(a(5));	
-	double T = constants::T_stp;	
-	double S = 0;
-	if (!std::empty(a(6)))
-	  double T = std::stod(a(6));
-	if (!std::empty(a(7)))
-	  double S = std::stod(a(7));	
+	double from_wl = std::stod(a(2));
+	double to_wl = std::stod(a(3));
+	double n_points = std::stod(a(4));	
 	wls_ = range(from_wl, to_wl, n_points).logspace();
 	
-	if (a(1)=="pure_water") {
+	if (a(5)=="pure_water") {
+	  double T = constants::T_stp;	
+	  double S = 0;
+	  if (!std::empty(a(6)))
+	    double T = std::stod(a(6));
+	  if (!std::empty(a(7)))
+	    double S = std::stod(a(7));	
 	  material::pure_water m;
 	  m.temperature(T);
 	  m.salinity(S);
-	  stream_iops(m, a(2));
+	  stream_iops(m, a(1));
 	}
+	else if (a(5)=="henyey_greenstein") {
+	  absorption_coefficient abs{std::stod(a(6))};
+	  scattering_coefficient sca{std::stod(a(7))};
+	  asymmetry_factor g{std::stod(a(8))};
+	  double real_refractive_index{std::stod(a(9))};
+	  material::henyey_greenstein m(abs,sca,g,real_refractive_index);
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="tabulated") {
+	  absorption_coefficient abs{std::stod(a(6))};
+	  scattering_coefficient sca{std::stod(a(7))};
+	  std::string  file_name{a(8)};
+	  double real_refractive_index{std::stod(a(9))};
+	  tabulated_phase_function p = read<pe_function>("./"+file_name);
+	  material::tabulated m(abs,sca,p,real_refractive_index);
+	  stream_iops(m, a(1));
+	}
+	else
+	  error();
       }
     private:
       template<class Material>
@@ -62,7 +83,7 @@ namespace flick {
       template<class Material>
       void stream_AccuRT(Material& m, size_t layer_n, size_t n_terms) const {
 	std::cout
-	  << "# AccuRT configuration file for a one-layer user_specified material #\n"
+	  << "# AccuRT configuration file for a one-layer user-specified material #\n"
 	  << "PROFILE_LABEL = layer_numbering #\n"
 	  << "MATERIAL_PROFILE = " << layer_n << " 1 #\n"
 	  << "WAVELENGTHS = ";
@@ -70,10 +91,8 @@ namespace flick {
 	  std::cout << wl*1e9 << " ";
 	std::cout << "#\n";
 	delta_fit df(material::phase_function(m),n_terms);
-	//double k = df.coefficients()[0];
-	auto normalized_scaled_coef = stdv_multiply(df.coefficients(),(1/df.scaling_factor())*4*constants::pi);
-	//	auto normalized_scaled_coef = stdv_multiply(df.coefficients(),1/df.scaling_factor());
-
+	auto normalized_scaled_coef =
+	  stdv_multiply(df.coefficients(),1/df.scaling_factor()*4*constants::pi);
 	for (size_t i=0; i<wls_.size(); ++i) {
 	  m.set(wavelength(wls_[i]));
 	  std::cout << "A_"<<layer_n<<"_" << std::to_string(i+1) << " = "

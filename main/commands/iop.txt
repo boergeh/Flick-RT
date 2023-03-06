@@ -1,30 +1,42 @@
 
-flick iop <material_name> <property> <from_wavelength> <to_wavelength>
-  <number_of_points> [temperature] [salinity_in_psu]
+flick iop <property> <from_wavelength> <to_wavelength>
+  <number_of_points> <material_name> [material_specific_parameters]...
 
   Lists material optical properties versus wavelength.
 
 Parameters:
 
-  <material_name>
-
-    Use 'pure_water' which is currently the only implemented command line material.
-    
   <property>
 
     Select 'absorption_length', 'scattering_length',
     'refractive_index', or 'AccuRT_1_8'
 
-    The 'AccuRT_1_10' property will list user specified material input
-    for the AccuRT radiative transfer code. The two sub-numbers '_1'
-    and '_8' (which may be changed) give input for layer 1 with 8
-    phase function expansion terms.
+    The 'AccuRT_1_8' property will list user specified material to be
+    used as input for the AccuRT radiative transfer code. The two
+    sub-numbers '_1' and '_8' (which may be changed) give input for
+    layer 1 with 8 phase function expansion terms.
+    
+  <material_name> [material_specific_parameters]...
+
+    Select among the following materials with corresponding paramters:
+
+    'pure_water' [temperature] [salinity_in_psu]
+    
+    'henyey_greenstein' <absorption_length> <scattering_length> <asymmetry_factor>
+      <refractive_index>
+    
+    'tabulated' <absorption_length> <scattering_length> <phase_function_file_name>
+      <refractive_index>
 
 Examples:
 
-  flick iop pure_water absorption_length 400e-9 700e-9 10 273 35
+  flick iop absorption_length 400e-9 700e-9 10 pure_water 273 35
 
-  flick iop pure_water AccuRT_1_8 400e-9 700e-9 10 273 35
+  flick iop AccuRT_1_8 400e-9 700e-9 10 pure_water 273 35
+
+  flick iop AccuRT_1_8 400e-9 400e-9 1 henyey_greenstein 10 5 0.8 1.33
+
+  flick iop AccuRT_1_8 400e-9 400e-9 1 tabulated 10 5 petzold_phase_function.txt 1.33
 
 
 Remember: unless other units are explicitly stated, Flick is always
