@@ -1,5 +1,8 @@
+Command:
 
-flick delta_fit <number_of_terms> <argument> <phase_function_file_name>
+  flick delta_fit <number_of_terms> <argument> <phase_function_file_name>
+
+Parameters:
 
  <phase_function_file_name>
 
@@ -10,7 +13,7 @@ flick delta_fit <number_of_terms> <argument> <phase_function_file_name>
     integrated phase function over all 4*pi solid angles will then be
     unity.
 
-Usage 1:
+Example 1:
 
   flick delta_fit 10 coefficients petzold_phase_function.txt
 
@@ -23,7 +26,7 @@ Usage 1:
   of the 10 expansion coefficient should be divided by k in order to
   be used together with the scaled scattering coefficient.
 
-Usage 2:
+Example 2:
 
   flick delta_fit 10 function_values petzold_phase_function.txt
 
@@ -31,3 +34,6 @@ Usage 2:
   cosine of scattering angel and second column contains function
   values.
 
+Remember: Unless other units are explicitly stated, Flick is always
+using SI units (m, kg, s) for input and output of physical values, see
+https://en.wikipedia.org/wiki/International_System_of_Units.

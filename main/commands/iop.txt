@@ -1,6 +1,8 @@
 
-flick iop <property> <from_wavelength> <to_wavelength>
-  <number_of_points> <material_name> [material_specific_parameters]...
+Command:
+
+  flick iop <property> <from_wavelength> <to_wavelength>
+    <number_of_points> <material_name> [material_specific_parameters]...
 
   Lists material optical properties versus wavelength.
 
@@ -22,11 +24,11 @@ Parameters:
 
     'pure_water' <temperature> <salinity_in_psu>
     
-    'henyey_greenstein' <absorption_length> <scattering_length> <asymmetry_factor>
-      <refractive_index>
+    'henyey_greenstein' <absorption_length> <scattering_length>
+      <asymmetry_factor> <refractive_index>
     
-    'tabulated' <absorption_length> <scattering_length> <phase_function_file_name>
-      <refractive_index>
+    'tabulated' <absorption_length> <scattering_length>
+      <phase_function_file_name> <refractive_index>
 
 Examples:
 
