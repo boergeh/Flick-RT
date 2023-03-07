@@ -20,7 +20,7 @@ Parameters:
 
     Select among the following materials with corresponding paramters:
 
-    'pure_water' [temperature] [salinity_in_psu]
+    'pure_water' <temperature> <salinity_in_psu>
     
     'henyey_greenstein' <absorption_length> <scattering_length> <asymmetry_factor>
       <refractive_index>

@@ -21,12 +21,8 @@ namespace flick {
 	wls_ = range(from_wl, to_wl, n_points).logspace();
 	
 	if (a(5)=="pure_water") {
-	  double T = constants::T_stp;	
-	  double S = 0;
-	  if (!std::empty(a(6)))
-	    double T = std::stod(a(6));
-	  if (!std::empty(a(7)))
-	    double S = std::stod(a(7));	
+	  double T = std::stod(a(6));
+	  double S = std::stod(a(7));	
 	  material::pure_water m;
 	  m.temperature(T);
 	  m.salinity(S);
