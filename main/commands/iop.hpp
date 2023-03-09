@@ -96,7 +96,10 @@ namespace flick {
 		    << "S_"<<layer_n<<"_" << std::to_string(i+1) << " = "
 		    << m.scattering_coefficient()*df.scaling_factor() << " #\n"
 		    << "P_"<<layer_n<<"_" <<  std::to_string(i+1) << " = ";
-	  std::cout << normalized_scaled_coef << " #\n";
+	  for (size_t j=0; j < normalized_scaled_coef.size(); ++j) {
+	    std::cout << normalized_scaled_coef[j]/(2*j+1) << " "; 
+	  }
+	  std::cout << " #\n";
 	}
 	std::cout << "REFRACTIVE_INDICES = ";
 	for (size_t i=0; i<wls_.size(); ++i) {

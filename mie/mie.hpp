@@ -36,6 +36,7 @@ namespace flick {
   };
    
   class parameterized_monodisperesed_mie : public basic_mie
+  // Approximate Mie-code solutions for large spheres, see:
   // Stamnes, K., Hamre, B., Stamnes, J.J., Ryzhikov, G., Biryulina,
   // M., Mahoney, R., Hauss, B. and Sei, A., 2011. Modeling of
   // radiation transport in coupled atmosphere-snow-ice-ocean
@@ -63,7 +64,7 @@ namespace flick {
 		      std::complex<double> m_sphere,
 		      double vacuum_wavelength) :
       basic_mie::basic_mie(m_host,m_sphere,vacuum_wavelength) {
-      g0_ = read<pl_function>("mie/g_parametrized.txt");
+      g0_ = read<pl_function>("mie/g_parameterized.txt");
     }
     void set_radius(double r) {
       radius_ = r;
@@ -92,6 +93,7 @@ namespace flick {
       else
 	return std::vector<double>(angles_.size(),0);
     }
+    
   };
   
   class size_distribution {
@@ -103,26 +105,34 @@ namespace flick {
       return 0;
     }
   };
-  class log_normal : public size_distribution {
+  class log_normal_distribution : public size_distribution {
     
   };
 
-  class geometric : public size_distribution {
+  class geometric_distribution : public size_distribution {
   };
 
-  class gamma : public size_distribution {
+  class gamma_distribution : public size_distribution {
   };
 
   template<class Size_distribution, class Monodisperesed_mie>
   class mie {
     size_t accuracy_;
+    bool has_changed() {
+    }
   public:
     mie(size_t accuracy) : accuracy_{accuracy} {}
     double extinction_cross_section() {
-      //integrate
-    }
-  private:
-    double step() {
+      //integrate(md,"")
+      double a = 0;
+      double r_1 = sd_.mean();
+      double r_2 = r_1 + sd_.width()*direction;
+      while (has_changed()) {
+	weighted_iop_function f(mm_,sd_,"extinction_cross_section");
+	da = integral(f,r1,r2);
+	r_1 = r_2;
+	r_2 = next_radius(r1, da);
+      }
     }
   };
  
