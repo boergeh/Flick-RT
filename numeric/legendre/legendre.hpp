@@ -4,6 +4,7 @@
 #include <vector>
 #include "../../environment/input_output.hpp"
 #include "../function.hpp"
+#include "../std_operators.hpp"
 
 namespace flick {
   two_columns read_quadrature(size_t n_points) {
@@ -14,6 +15,7 @@ namespace flick {
   
   template<class Function>
   class gl_integral {
+  protected:
     size_t n_points_;
     two_columns quadrature_;
     const Function& f_;
@@ -34,7 +36,41 @@ namespace flick {
       return v/2*range;
     }
   };
+  
+  template<class Function>
+  class gl_integral_vector {
+  protected:
+    size_t n_points_;
+    two_columns quadrature_;
+    Function& f_;
+  public:
+    gl_integral_vector(Function& f, size_t n_points)
+      : f_{f}, n_points_{n_points} {
+      quadrature_ = read_quadrature(n_points);
+    }
+    std::vector<double> value(double from, double to) {
+      double range = to-from;
+      const std::vector<double>& x0 = quadrature_.column(0);
+      std::vector<double> x_shifted = from + (x0+1)/2*range;
+      const std::vector<double>& weights = quadrature_.column(1);
 
+      size_t n_out = f_.size();;
+      std::vector<std::vector<double>> m;
+      m.resize(n_out, std::vector<double>(n_points_));
+      for (size_t i = 0; i < n_points_; ++i) {
+	std::vector<double> y = f_.value(x_shifted[i]);
+	for (size_t j = 0; j < y.size(); ++j) {
+	   m[j][i] = weights[i] * y[j];
+	}
+      }
+      std::vector<double> v(n_out);
+      for (size_t j = 0; j < v.size(); ++j) {
+	v[j] = sum(m[j])/2*range;
+      }
+      return v;   
+    }
+  };
+  
   class legendre {
     std::vector<std::vector<double>> p_;
   public:

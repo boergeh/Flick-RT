@@ -20,7 +20,7 @@ namespace flick {
     size_t n_terms = 12;
     size_t quad_points = 100;
     check_close(gl_integral(f(),quad_points).value(-1,1),
-		1/(2*constants::pi),0.2);
+    		1/(2*constants::pi),0.2);
     std::vector<double> terms = legendre_expansion(f(),n_terms,quad_points); 
     for (size_t i=0; i < terms.size(); ++i) {
       check_close(terms[i],pow(f().g,i)*(2.*i+1)/2/(2*constants::pi),0.01);
