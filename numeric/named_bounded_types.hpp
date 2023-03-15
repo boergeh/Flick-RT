@@ -24,7 +24,7 @@ namespace flick {
   using albedo = unit_interval;
   using sampling_asymmetry_factor = asymmetry_factor;
   using relative_refractive_index = std::complex<double>;
-  using real_refractive_index = bounded_type<double, zero, std::exa>;
+  using real_refractive_index = bounded_type<double, zero, std::exa>; 
 }
 
 #endif

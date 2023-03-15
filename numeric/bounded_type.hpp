@@ -31,7 +31,7 @@ namespace flick {
       if (too_low || too_high) {
 	std::stringstream ss;
 	ss << "bounded type value " << value_
-	   << " is not within the required range "
+	   << " is not within the required interval "
 	   << double(lower_bound::num) / lower_bound::den
 	   << " to " << double(upper_bound::num) / upper_bound::den << " ";
 	throw std::invalid_argument(ss.str());
@@ -43,6 +43,7 @@ namespace flick {
       check_validity();
     }
     T operator()() const {return value_;}
+    T value() const {return value_;}
     bounded_type& operator=(T new_value) {
       value_ = new_value;
       check_validity();
@@ -50,12 +51,12 @@ namespace flick {
     }
     
     friend std::ostream& operator<<(std::ostream &os,
-    				    const bounded_type<T,lower_bound, upper_bound>& bt) {
+    				    const bounded_type<T,lower_bound,
+				    upper_bound>& bt) {
       os << bt();
       return os;
     }
-  };
-  
+  }; 
 }
-  
+
 #endif
