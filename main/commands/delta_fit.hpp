@@ -16,7 +16,8 @@ namespace flick {
 	   std::cout << flick::delta_fit(f,n_terms).coefficients();
 	}
 	else if (a(2)=="function_values") {
-	  std::vector<double> y = flick::delta_fit(f,n_terms).function_values(f.x());
+	  std::vector<double> y =
+	    flick::delta_fit(f,n_terms).function_values(f.x());
 	  std::cout << pl_function{f.x(),y}; 
 	}
 	else

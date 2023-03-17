@@ -73,7 +73,7 @@ namespace flick {
     return v;
   }
   double rms(const stdvector& v) {
-    return pow(sum(v^2),1./2);
+    return sqrt(pow(sum(v^2),1./2));
   }
 
 }

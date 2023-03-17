@@ -48,7 +48,7 @@ namespace flick {
     double radius_{1e-6};
     stdvector angles_{0,pi_/2,pi_};
 
-    int precision_{2};
+    int precision_{3};
   public:
     basic_monodispeersed_mie(const refractive_index& m_host,
 			     const refractive_index& m_sphere,
@@ -57,10 +57,9 @@ namespace flick {
     }
     virtual void radius(double r) = 0;
     virtual void angles(const stdvector& angles) = 0;
-    virtual double extinction_cross_section() const = 0;
     virtual double absorption_cross_section() const = 0;
-    virtual double asymmetry_factor() const = 0;
-    virtual stdvector scattering_function(size_t row, size_t col) const = 0;
+    virtual double scattering_cross_section() const = 0;
+    virtual stdvector scattering_matrix_element(size_t row, size_t col) const = 0;
 
     void precision(size_t n) {
       precision_ = n;
@@ -87,8 +86,9 @@ namespace flick {
 
     void update_efficiency() {    
       stdcomplex arg = 1./n_ * (pow(n_,3) - pow(pow(n_,2)-1., 3./2));
-      double Qa0 = 8./3 * m_sphere_.value().imag() *
-	m_host_.size_parameter(vacuum_wl_.value(),radius_).real() * std::abs(arg);
+      double Qa0 = 8./3 * m_sphere_.value().imag()
+	* m_host_.size_parameter(vacuum_wl_.value(),radius_).real()
+	* std::abs(arg);
       Qa_  = 0.94 * (1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {
@@ -96,6 +96,9 @@ namespace flick {
     }
     double asymmetry_factor() const {
       return pow(g0_.value(n_), pow(1-Qa_, 0.6));
+    }
+    double extinction_cross_section() const {
+      return 2 * geometrical_cross_section();
     }
   public:
     parameterized_monodisperesed_mie(const refractive_index& m_host,
@@ -113,26 +116,42 @@ namespace flick {
     void angles(const stdvector& angles) {
       angles_ = angles;
     }
-    double extinction_cross_section() const {
-      return 2 * geometrical_cross_section();
-    }
     double absorption_cross_section() const {
       return Qa_ * geometrical_cross_section();
     }
-    stdvector scattering_function(size_t row, size_t col) const {
+    double scattering_cross_section() const {
+      return extinction_cross_section() - absorption_cross_section();
+    }
+    stdvector scattering_matrix_element(size_t row, size_t col) const
+    // Note that integratinig element 0,0 over all 4*pi solid angles gives
+    // the scattering cross section, where we count from 0 instead of one.
+    {
       if (row == 0 && col == 0) {
-	stdvector p(angles_.size());
+	stdvector hg(angles_.size());
 	double g = asymmetry_factor();
-	for (size_t i=0; i<p.size(); ++i) {
-	  p[i] = henyey_greenstein(g).phase_function(angles_[i]);
+	for (size_t i=0; i<hg.size(); ++i) {
+	  hg[i] = henyey_greenstein(g).phase_function(angles_[i]);
 	}
-	return p;
+	return hg * scattering_cross_section();
       }
       else
 	return stdvector(angles_.size(),0);
     }    
   };
 
+  class monodisperesed_mie : public basic_monodispeersed_mie
+  // Implementation based on the following two papers: (1) Mishchenko,
+  // M.I. and Yang, P., 2018. Far-field Lorenz–Mie scattering in an
+  // absorbing host medium: theoretical formalism and FORTRAN
+  // program. Journal of Quantitative Spectroscopy and Radiative
+  // Transfer, 205, pp.241-252. (2) Mishchenko, M.I., Dlugach, J.M.,
+  // Lock, J.A. and Yurkin, M.A., 2018. Far-field Lorenz–Mie
+  // scattering in an absorbing host medium. II: Improved stability of
+  // the numerical algorithm. Journal of Quantitative Spectroscopy and
+  // Radiative Transfer, 217, pp.274-277.
+  {
+  };
+    
   class size_distribution {
   protected:
     const double pi_{constants::pi};
@@ -164,8 +183,6 @@ namespace flick {
       return b_;
     }
     double weighted_integral(double alpha) const {
-      double k = 1/(2*pow(b_,2));
-      double e = pow(2*k*a_+alpha,2)/(4*k) - k*pow(a_,2);
       double arg = pow(a_/b_ + alpha*b_,2);
       return exp(0.5*(arg - pow(a_/b_,2)));
     }
@@ -211,41 +228,63 @@ namespace flick {
     }
   };
  
-  struct extinction_quantity : public basic_quantity {
-    extinction_quantity(basic_monodispeersed_mie& bm,
+  struct absorption_quantity : public basic_quantity {
+    absorption_quantity(basic_monodispeersed_mie& bm,
 			     const size_distribution& sd)
       : basic_quantity(bm,sd) {
       double rc = sd_.center();
       bm_.radius(rc);
-      alpha_ = 2;
-      center_quantity_ = {bm_.extinction_cross_section()/pow(rc,alpha_)};
-      size_ = 1;
-    }  
-    stdvector value(double x) {
-      double r = exp(x);
-      bm_.radius(r);
-      double v = bm_.extinction_cross_section()*r*sd_.value(r)
-      - center_quantity_[0]*pow(r,alpha_)*r*sd_.value(r);
-      return stdvector{v};
-    }
-  };
-
-  struct absorption_quantity : public basic_quantity {
-    absorption_quantity(basic_monodispeersed_mie& bm,
-			const size_distribution& sd)
-      : basic_quantity(bm,sd) {
-      double rc = sd_.center();
       alpha_ = 3;
-      bm_.radius(rc);
       center_quantity_ = {bm_.absorption_cross_section()/pow(rc,alpha_)};
       size_ = 1;
     }  
     stdvector value(double x) {
       double r = exp(x);
       bm_.radius(r);
-      double v = bm_.absorption_cross_section()*r*sd_.value(r)
-      - center_quantity_[0]*pow(r,alpha_)*r*sd_.value(r);
+      double v = (bm_.absorption_cross_section() - center_quantity_[0]
+		  * pow(r,alpha_)) * r * sd_.value(r);
       return stdvector{v};
+    }
+  };
+
+  struct scattering_quantity : public basic_quantity {
+    scattering_quantity(basic_monodispeersed_mie& bm,
+			const size_distribution& sd)
+      : basic_quantity(bm,sd) {
+      double rc = sd_.center();
+      alpha_ = 2;
+      bm_.radius(rc);
+      center_quantity_ = {bm_.scattering_cross_section()/pow(rc,alpha_)};
+      size_ = 1;
+    }  
+    stdvector value(double x) {
+      double r = exp(x);
+      bm_.radius(r);
+      double v = (bm_.scattering_cross_section() - center_quantity_[0]
+	* pow(r,alpha_)) * r * sd_.value(r);
+      return stdvector{v};
+    }
+  };
+
+  struct smatrix_quantity : public basic_quantity {
+    size_t row_;
+    size_t col_;
+    smatrix_quantity(basic_monodispeersed_mie& bm,
+		     const size_distribution& sd,
+		     size_t row, size_t col)
+      : basic_quantity(bm,sd), row_{row}, col_{col} {
+      double rc = sd_.center();
+      alpha_ = 0;
+      bm_.radius(rc);
+      center_quantity_ = bm_.scattering_matrix_element(row_,col_)
+	/ pow(rc,alpha_);
+      size_ = center_quantity_.size();
+    }  
+    stdvector value(double x) {
+      double r = exp(x);
+      bm_.radius(r);
+      return (bm_.scattering_matrix_element(row_,col_)
+	      - center_quantity_*pow(r,alpha_)) * r * sd_.value(r);
     }
   };
   
@@ -256,7 +295,7 @@ namespace flick {
 
     const double error_goal_ = pow(10,-bm_.precision());
 
-    size_t n_q_points_{0};
+    size_t n_quadrature_points_;
 
     double relative_rms_error(const stdvector& v1, const stdvector& v2) {
       return rms(v1/(v2+std::numeric_limits<double>::epsilon()));
@@ -270,69 +309,94 @@ namespace flick {
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
       while (error > error_goal_ && n < n_points.size()) {
-	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);
-	n_q_points_ += n_points[n];
+	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
+	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_rms_error(a-previous_a, compare_a);
-	
-	std::cout << "  rest area "<< a[0] << std::endl;
-	std::cout << "  delta area "<<  a-previous_a << std::endl;
-	std::cout << "  previous area "<< previous_a[0] << std::endl;
-	std::cout << "  current error "<< error << std::endl;
-	std::cout << "  using "<<n_points[n] << " quadrature points\n";
+
+	  /*
+	  std::cout << "  compare area "<< compare_a << std::endl;
+	  std::cout << "  rest area "<< a << std::endl;
+	  std::cout << "  delta area "<<  a-previous_a << std::endl;
+	  std::cout << "  current error "<< error << std::endl;
+	  std::cout << "  using "<<n_points[n] << " quadrature points\n";
+	  */
+	  
 	}
 	previous_a = a;
 	n++;	
       }
-      if (n==n_points.size()) {
-	std::cout << "Warning: Mie sub integral still at "<< error*100
-		  << " % error using 100 quadrature points";
-      }
       return a;
     }  
     stdvector integral() {
-      //double restore_radius = bm_.radius();
+      size_t total_q_points = 0;
+      size_t n_intervals = 0;
       double x0 = log(bq_->distribution_center());
       stdvector previous_a = bq_->center_quantity()
 	* bq_->sd().weighted_integral(bq_->alpha());
       stdvector a = previous_a;
       stdvector direction{-1, 1};
-      std::cout << "\nEstimated total area before loop "<<a[0] << std::endl;
+
+      //std::cout << "\nEstimated total area before loop "<<a << std::endl;
+
       for (size_t i=0; i<2; ++i) { // Both sides of max
+	double width_factor = 3;
 	double error = std::numeric_limits<double>::max();
-	std::cout << "Direction " << direction[i] << std::endl;
+
+	//std::cout << "Direction " << direction[i] << std::endl;
+
 	double x1 = x0;
-	size_t n = 0;
 	while (error > error_goal_) {
+	  double x2 = x1 + width_factor * bq_->width()*direction[i];	 
+
+	  //std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
+
+	  stdvector da = integral(x1, x2, previous_a)*direction[i];
+	  total_q_points += n_quadrature_points_;	  
+	  if (n_quadrature_points_ > 90) {
+	    width_factor /= 2;
+	  } else {
+	    a += da;
+
+	    //std::cout << "total area "<< a << std::endl;
+
+	    error = relative_rms_error(a-previous_a,a);
+	    previous_a = a;
+	    x1 = x2;
+	  }
+	  /*
+	  std::cout << "Width factor: "<< width_factor << std::endl;
 	  std::cout << "error: "<<error <<", goal "
-		    << error_goal_ << std::endl;
-	  double x2 = x1 + bq_->width()*direction[i];	 
-	  std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
-	  a += integral(x1, x2, previous_a)*direction[i];
-	  std::cout << "total area "<<a[0] << std::endl;
-	  error = relative_rms_error(a-previous_a,a);
-	  previous_a = a;
-	  x1 = x2;
-	  n++;
+	  	    << error_goal_ << std::endl;
+	  */
+	  if (n_quadrature_points_ < 8) {
+	    width_factor *= 2;
+	  }
+	  n_intervals++;
 	}
       }
-      std::cout << "Used a total of " << n_q_points_
-      << " quadrature points"<<std::endl;
-      //bm_.radius(restore_radius);
-      
+      /*
+      std::cout << "Used a total of " << total_q_points
+      		<< " quadrature points and "<<n_intervals
+      		<< " sub intervals." <<std::endl;
+      */
       return a;
     }
   public:
     polydispersed_mie(basic_monodispeersed_mie& bm,
 		      const size_distribution& sd)
       : bm_{bm}, sd_{sd} {}
-    double extinction_cross_section() {
-      bq_ = std::make_shared<extinction_quantity>(bm_,sd_);
-      return integral()[0];
-    }
     double absorption_cross_section() {
       bq_ = std::make_shared<absorption_quantity>(bm_,sd_);
       return integral()[0];
+    }
+    double scattering_cross_section() {
+      bq_ = std::make_shared<scattering_quantity>(bm_,sd_);
+      return integral()[0];
+    }
+    stdvector scattering_matrix_element(size_t row, size_t col) {
+      bq_ = std::make_shared<smatrix_quantity>(bm_,sd_,row,col);
+      return integral(); 
     }
   };
 }
