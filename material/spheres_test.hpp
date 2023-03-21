@@ -12,5 +12,9 @@ namespace flick {
     //			parameterized_monodispersed_mie> s(0.15,sd,v,pw);
     material::parameterized_spheres s(0.15,sd,v,pw);
     s.set(wavelength{1500e-9});
+
+    material::water_cloud<log_normal_distribution,
+			  parameterized_monodispersed_mie> wc(1e-6,sd);
+
   } end_test_case()
 }
