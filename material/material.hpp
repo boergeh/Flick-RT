@@ -16,10 +16,10 @@ namespace material {
     flick::wavelength wavelength_{500e-9};
     flick::pose pose_;
   public:
-    void set(const pose& p) {
+    virtual void set(const pose& p) {
       pose_ = p;
     }
-    void set(const wavelength& wl) {
+    virtual void set(const wavelength& wl) {
       wavelength_ = wl;
     }
     double wavelength() const {

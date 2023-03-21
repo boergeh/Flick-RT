@@ -9,6 +9,7 @@
 #include "../numeric/named_bounded_types.hpp"
 #include "../environment/input_output.hpp"
 #include <complex>
+#include <tuple>
 
 namespace flick {
   using stdcomplex = std::complex<double>;
@@ -38,7 +39,7 @@ namespace flick {
     }
   };
     
-  class basic_monodispeersed_mie {
+  class basic_monodispersed_mie {
   protected:
     const double pi_{constants::pi};
     
@@ -50,7 +51,7 @@ namespace flick {
 
     int precision_{3};
   public:
-    basic_monodispeersed_mie(const refractive_index& m_host,
+    basic_monodispersed_mie(const refractive_index& m_host,
 			     const refractive_index& m_sphere,
 			     const wavelength& vacuum_wl)
       : m_host_{m_host}, m_sphere_{m_sphere}, vacuum_wl_{vacuum_wl} {
@@ -72,7 +73,7 @@ namespace flick {
     }
   };
    
-  class parameterized_monodisperesed_mie : public basic_monodispeersed_mie
+  class parameterized_monodispersed_mie : public basic_monodispersed_mie
   // Approximate Mie-code solutions for large spheres, see:
   // Stamnes, K., Hamre, B., Stamnes, J.J., Ryzhikov, G., Biryulina,
   // M., Mahoney, R., Hauss, B. and Sei, A., 2011. Modeling of
@@ -101,10 +102,10 @@ namespace flick {
       return 2 * geometrical_cross_section();
     }
   public:
-    parameterized_monodisperesed_mie(const refractive_index& m_host,
+    parameterized_monodispersed_mie(const refractive_index& m_host,
 				     const refractive_index& m_sphere,
 				     const wavelength& vacuum_wl) :
-      basic_monodispeersed_mie::basic_monodispeersed_mie(m_host,
+      basic_monodispersed_mie::basic_monodispersed_mie(m_host,
 							 m_sphere,
 							 vacuum_wl) {
       g0_ = read<pl_function>("mie/g_parameterized.txt");
@@ -139,7 +140,7 @@ namespace flick {
     }    
   };
 
-  class monodisperesed_mie : public basic_monodispeersed_mie
+  class monodispersed_mie : public basic_monodispersed_mie
   // Implementation based on the following two papers: (1) Mishchenko,
   // M.I. and Yang, P., 2018. Far-field Lorenz–Mie scattering in an
   // absorbing host medium: theoretical formalism and FORTRAN
@@ -152,7 +153,9 @@ namespace flick {
   {
   };
     
-  class size_distribution {
+  class size_distribution
+  // Size number distribution. Integral over all sizes equals one.
+  {
   protected:
     const double pi_{constants::pi};
     double a_;
@@ -164,6 +167,9 @@ namespace flick {
     virtual double width() const = 0;
     virtual double value(double x) const = 0;
     virtual double weighted_integral(double alpha) const = 0;
+    double particles_per_volume(double volume_fraction) const {
+      return volume_fraction * 1/(4./3*pi_*weighted_integral(3));
+    }
   };
   
   class log_normal_distribution : public size_distribution
@@ -183,26 +189,29 @@ namespace flick {
       return b_;
     }
     double weighted_integral(double alpha) const {
-      double arg = pow(a_/b_ + alpha*b_,2);
-      return exp(0.5*(arg - pow(a_/b_,2)));
+      return exp(a_*alpha+0.5*pow(alpha*b_,2));
+    }
+    static std::tuple<double, double>
+    from_volume_distribution(double mu, double sigma) {
+      return {mu-3*pow(sigma,2), sigma};
     }
   };
   
-  class geometric_distribution : public size_distribution {
-  };
+  //class geometric_distribution : public size_distribution {
+  //};
 
-  class gamma_distribution : public size_distribution {
-  };
+  //class gamma_distribution : public size_distribution {
+  //};
   
   class basic_quantity {
   protected:
-    basic_monodispeersed_mie& bm_;
+    basic_monodispersed_mie& bm_;
     const size_distribution& sd_;
     stdvector center_quantity_;
     double alpha_{0};
     size_t size_{1};
   public:
-    basic_quantity(basic_monodispeersed_mie& bm,
+    basic_quantity(basic_monodispersed_mie& bm,
 		   const size_distribution& sd)
       : bm_{bm}, sd_{sd} {
     }
@@ -210,12 +219,6 @@ namespace flick {
 
     stdvector center_quantity() const {
       return center_quantity_;
-    }
-    double distribution_center() const {
-      return sd_.center();
-    }
-    double width() const {
-      return sd_.width();
     }
     const size_distribution& sd() const {
       return sd_;
@@ -229,7 +232,7 @@ namespace flick {
   };
  
   struct absorption_quantity : public basic_quantity {
-    absorption_quantity(basic_monodispeersed_mie& bm,
+    absorption_quantity(basic_monodispersed_mie& bm,
 			     const size_distribution& sd)
       : basic_quantity(bm,sd) {
       double rc = sd_.center();
@@ -248,7 +251,7 @@ namespace flick {
   };
 
   struct scattering_quantity : public basic_quantity {
-    scattering_quantity(basic_monodispeersed_mie& bm,
+    scattering_quantity(basic_monodispersed_mie& bm,
 			const size_distribution& sd)
       : basic_quantity(bm,sd) {
       double rc = sd_.center();
@@ -269,7 +272,7 @@ namespace flick {
   struct smatrix_quantity : public basic_quantity {
     size_t row_;
     size_t col_;
-    smatrix_quantity(basic_monodispeersed_mie& bm,
+    smatrix_quantity(basic_monodispersed_mie& bm,
 		     const size_distribution& sd,
 		     size_t row, size_t col)
       : basic_quantity(bm,sd), row_{row}, col_{col} {
@@ -287,14 +290,13 @@ namespace flick {
 	      - center_quantity_*pow(r,alpha_)) * r * sd_.value(r);
     }
   };
-  
+ 
+  template<class Monodispersed_mie, class Size_distribution>
   class polydispersed_mie {
     std::shared_ptr<basic_quantity> bq_;
-    basic_monodispeersed_mie& bm_;
-    const size_distribution& sd_;
-
-    const double error_goal_ = pow(10,-bm_.precision());
-
+    Monodispersed_mie mm_;
+    Size_distribution sd_;
+    const double error_goal_ = pow(10,-mm_.precision());
     size_t n_quadrature_points_;
 
     double relative_rms_error(const stdvector& v1, const stdvector& v2) {
@@ -313,15 +315,12 @@ namespace flick {
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_rms_error(a-previous_a, compare_a);
-
 	  /*
 	  std::cout << "  compare area "<< compare_a << std::endl;
 	  std::cout << "  rest area "<< a << std::endl;
 	  std::cout << "  delta area "<<  a-previous_a << std::endl;
 	  std::cout << "  current error "<< error << std::endl;
-	  std::cout << "  using "<<n_points[n] << " quadrature points\n";
-	  */
-	  
+	  std::cout << "  using "<<n_points[n] << " quadrature points\n";	  */
 	}
 	previous_a = a;
 	n++;	
@@ -331,7 +330,7 @@ namespace flick {
     stdvector integral() {
       size_t total_q_points = 0;
       size_t n_intervals = 0;
-      double x0 = log(bq_->distribution_center());
+      double x0 = log(bq_->sd().center());
       stdvector previous_a = bq_->center_quantity()
 	* bq_->sd().weighted_integral(bq_->alpha());
       stdvector a = previous_a;
@@ -347,7 +346,7 @@ namespace flick {
 
 	double x1 = x0;
 	while (error > error_goal_) {
-	  double x2 = x1 + width_factor * bq_->width()*direction[i];	 
+	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	 
 
 	  //std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
 
@@ -383,19 +382,19 @@ namespace flick {
       return a;
     }
   public:
-    polydispersed_mie(basic_monodispeersed_mie& bm,
-		      const size_distribution& sd)
-      : bm_{bm}, sd_{sd} {}
+    polydispersed_mie(Monodispersed_mie mm, Size_distribution sd)
+      : mm_{mm}, sd_{sd} {
+    }
     double absorption_cross_section() {
-      bq_ = std::make_shared<absorption_quantity>(bm_,sd_);
+      bq_ = std::make_shared<absorption_quantity>(mm_,sd_);
       return integral()[0];
     }
     double scattering_cross_section() {
-      bq_ = std::make_shared<scattering_quantity>(bm_,sd_);
+      bq_ = std::make_shared<scattering_quantity>(mm_,sd_);
       return integral()[0];
     }
     stdvector scattering_matrix_element(size_t row, size_t col) {
-      bq_ = std::make_shared<smatrix_quantity>(bm_,sd_,row,col);
+      bq_ = std::make_shared<smatrix_quantity>(mm_,sd_,row,col);
       return integral(); 
     }
   };
