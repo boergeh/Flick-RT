@@ -1,5 +1,5 @@
-#ifndef flick_material_pure_water
-#define flick_material_pure_water
+#ifndef flick_material_pure_ice
+#define flick_material_pure_ice
 
 #include "../material.hpp"
 #include "../../polarization/rayleigh_mueller.hpp"

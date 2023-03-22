@@ -85,8 +85,11 @@ namespace flick {
     pl_function g0_;
     double n_ = m_sphere_.relative_to(m_host_).real();
 
-    void update_efficiency() {    
-      stdcomplex arg = 1./n_ * (pow(n_,3) - pow(pow(n_,2)-1., 3./2));
+    void update_efficiency() {
+      double n = n_;
+      if (n<1)
+	n = 1/n;
+      stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
       double Qa0 = 8./3 * m_sphere_.value().imag()
 	* m_host_.size_parameter(vacuum_wl_.value(),radius_).real()
 	* std::abs(arg);
@@ -109,6 +112,7 @@ namespace flick {
 							 m_sphere,
 							 vacuum_wl) {
       g0_ = read<pl_function>("mie/g_parameterized.txt");
+      update_efficiency();
     }
     void radius(double r) {
       radius_ = r;

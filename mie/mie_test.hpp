@@ -1,7 +1,20 @@
 #include "mie.hpp"
 
 namespace flick {
-  begin_test_case(mie_test) {
+  begin_test_case(mie_test_A) {
+    refractive_index m_host{1.3,0};
+    refractive_index m_sphere{1.0,0};
+    parameterized_monodispersed_mie mono_mie(m_host,
+					     m_sphere,
+					     wavelength(500e-9));
+    const double pi = constants::pi;
+    double r = 0.001;
+    mono_mie.radius(r);
+    check_close(mono_mie.scattering_cross_section(),2*pi*pow(r,2),0.1);
+    check_small(mono_mie.absorption_cross_section(),1e-12);
+  } end_test_case()
+
+  begin_test_case(mie_test_B) {
     refractive_index m_host{1,0};
     refractive_index m_sphere{1.3,1e-4};
     

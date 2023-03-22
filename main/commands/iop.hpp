@@ -3,6 +3,8 @@
 
 #include "basic_command.hpp"
 #include "../../material/water/pure_water.hpp"
+#include "../../material/ice/pure_ice.hpp"
+#include "../../material/spheres.hpp"
 #include "../../material/henyey_greenstein.hpp"
 #include "../../material/tabulated.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
@@ -26,6 +28,42 @@ namespace flick {
 	  material::pure_water m;
 	  m.temperature(T);
 	  m.salinity(S);
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="pure_ice") {
+	  material::pure_ice m;
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="water_cloud") {
+	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9))); 
+	  material::spheres<log_normal_distribution,
+			    material::vacuum,
+			    material::pure_water,
+			    parameterized_monodispersed_mie>
+	    m(std::stod(a(7)), sd, material::vacuum(), material::pure_water());
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="bubbles_in_ice") {
+	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
+	  material::spheres<log_normal_distribution,
+			    material::pure_ice,
+			    material::vacuum,
+			    parameterized_monodispersed_mie>
+	    m(std::stod(a(7)), sd, material::pure_ice(), material::vacuum());
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="brines_in_ice") {
+	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
+	  double T = 273.15;
+	  double S = std::stod(a(10));	
+	  material::pure_water w;
+	  w.temperature(T);
+	  w.salinity(S);
+	  material::spheres<log_normal_distribution,
+			    material::pure_ice,
+			    material::pure_water,
+			    parameterized_monodispersed_mie>
+	    m(std::stod(a(7)), sd, material::pure_ice(), w);
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="henyey_greenstein") {
@@ -107,7 +145,7 @@ namespace flick {
 	  std::cout << m.real_refractive_index() << " ";
 	}
 	std::cout << "#\n";
-	std::cout << "TURN_OFF_DELTA_FIT = false #\n";
+	std::cout << "TURN_OFF_DELTA_FIT = true #\n";
       }
     };    
   }

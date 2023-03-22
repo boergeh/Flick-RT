@@ -88,37 +88,6 @@ namespace material {
       return 1;
     }   
   };
-
-  template<class Size_distribution, class Host_material,
-	   class Sphere_material>
-  class parameterized_spheres : public spheres<Size_distribution,
-					       Host_material,
-					       Sphere_material,
-					       parameterized_monodispersed_mie> {
-  public:
-     parameterized_spheres(double volume_fraction,
-	    const Size_distribution& sd,
-	    const Host_material& hm,
-	    const Sphere_material& sm)
-      : spheres<Size_distribution,Host_material,Sphere_material,
-		parameterized_monodispersed_mie>::spheres(volume_fraction,sd,hm,sm){}
-  };
-
-  template<class Size_distribution, class Monodispersed_mie>
-  class water_cloud : public spheres<Size_distribution,
-				     material::vacuum,
-				     material::pure_water,
-				     Monodispersed_mie> {
-  public:
-    water_cloud(double volume_fraction,
-		const Size_distribution& sd)
-      : spheres<Size_distribution,
-		material::vacuum,
-		material::pure_water,
-		Monodispersed_mie>::spheres(volume_fraction,sd,
-					    material::vacuum(),
-					    material::pure_water()){}
-  };
   
 }
 }
