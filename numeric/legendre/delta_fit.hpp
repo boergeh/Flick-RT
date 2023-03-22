@@ -10,9 +10,10 @@ namespace flick {
   class delta_fit {
     std::vector<double> coefficients_;
   public:
-    delta_fit(const Function& f, size_t n_terms)
+    delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
-      std::vector<double> x = range(-1,1,n_terms*3).linspace();      
+      int n_points = pow(n_terms,1.6);
+      std::vector<double> x = range(-1,1,n_points).linspace();      
       arma::mat m(x.size(), n_terms);
       legendre p(n_terms, x);
       for (size_t i=0; i<x.size(); ++i) {
@@ -29,6 +30,7 @@ namespace flick {
       return coefficients_;
     }
     std::vector<double> function_values(const std::vector<double>& x) {
+      //return flick::abs(legendre_evaluation(coefficients_).values(x));
       return legendre_evaluation(coefficients_).values(x);
     }
     double scaling_factor() const {

@@ -75,6 +75,12 @@ namespace flick {
   double rms(const stdvector& v) {
     return sqrt(pow(sum(v^2),1./2));
   }
+  stdvector abs(stdvector v) {
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = std::abs(v[i]);
+    return v;
+  }
+
 
 }
 #endif
