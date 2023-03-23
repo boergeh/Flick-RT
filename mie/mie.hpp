@@ -12,8 +12,7 @@
 #include <tuple>
 
 namespace flick {
-  using stdcomplex = std::complex<double>;
-
+  /*
   class refractive_index {
     stdcomplex value_{1,0};
   public:
@@ -38,22 +37,32 @@ namespace flick {
       return value_ / m.value();
     }
   };
-    
+  */
+  
   class basic_monodispersed_mie {
   protected:
     const double pi_{constants::pi};
-    
-    refractive_index m_host_;
-    refractive_index m_sphere_;
-    wavelength vacuum_wl_;
+
+    stdcomplex m_host_;
+    stdcomplex m_sphere_;
+    double vacuum_wl_;
     double radius_{1e-6};
     stdvector angles_{0,pi_/2,pi_};
+    stdcomplex wavenumber_in_host_{2*constants::pi*m_host_/vacuum_wl_};
+
+    stdcomplex size_parameter_in_host() {
+      return wavenumber_in_host_ * radius_;
+    };
+    
+    //refractive_index m_host_;
+    //refractive_index m_sphere_;
+    //wavelength vacuum_wl_;
 
     int precision_{3};
   public:
-    basic_monodispersed_mie(const refractive_index& m_host,
-			     const refractive_index& m_sphere,
-			     const wavelength& vacuum_wl)
+    basic_monodispersed_mie(const stdcomplex& m_host,
+			     const stdcomplex& m_sphere,
+			     double vacuum_wl)
       : m_host_{m_host}, m_sphere_{m_sphere}, vacuum_wl_{vacuum_wl} {
     }
     virtual void radius(double r) = 0;
@@ -83,16 +92,15 @@ namespace flick {
   {
     double Qa_{0};
     pl_function g0_;
-    double n_ = m_sphere_.relative_to(m_host_).real();
+    double n_ = std::real(m_sphere_ / m_host_);
 
     void update_efficiency() {
       double n = n_;
       if (n<1)
 	n = 1/n;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-      double Qa0 = 8./3 * m_sphere_.value().imag()
-	* m_host_.size_parameter(vacuum_wl_.value(),radius_).real()
-	* std::abs(arg);
+      double Qa0 = 8./3 * std::imag(m_sphere_)
+	* std::real(wavenumber_in_host_ * radius_) * std::abs(arg);
       Qa_  = 0.94 * (1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {
@@ -105,9 +113,9 @@ namespace flick {
       return 2 * geometrical_cross_section();
     }
   public:
-    parameterized_monodispersed_mie(const refractive_index& m_host,
-				     const refractive_index& m_sphere,
-				     const wavelength& vacuum_wl) :
+    parameterized_monodispersed_mie(const stdcomplex& m_host,
+				     const stdcomplex& m_sphere,
+				     double vacuum_wl) :
       basic_monodispersed_mie::basic_monodispersed_mie(m_host,
 							 m_sphere,
 							 vacuum_wl) {
@@ -144,19 +152,6 @@ namespace flick {
     }    
   };
 
-  class monodispersed_mie : public basic_monodispersed_mie
-  // Implementation based on the following two papers: (1) Mishchenko,
-  // M.I. and Yang, P., 2018. Far-field Lorenz–Mie scattering in an
-  // absorbing host medium: theoretical formalism and FORTRAN
-  // program. Journal of Quantitative Spectroscopy and Radiative
-  // Transfer, 205, pp.241-252. (2) Mishchenko, M.I., Dlugach, J.M.,
-  // Lock, J.A. and Yurkin, M.A., 2018. Far-field Lorenz–Mie
-  // scattering in an absorbing host medium. II: Improved stability of
-  // the numerical algorithm. Journal of Quantitative Spectroscopy and
-  // Radiative Transfer, 217, pp.274-277.
-  {
-  };
-    
   class size_distribution
   // Size number distribution. Integral over all sizes equals one.
   {

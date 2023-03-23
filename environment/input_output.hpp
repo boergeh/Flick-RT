@@ -6,18 +6,21 @@
 #include <iomanip>
 #include <vector>
 
+/*
 std::ostream& operator<<(std::ostream& out, const std::vector<double>& v) {
   for (const auto& i: v)
     std::cout << i << " ";
   std::cout << "\n";
   return out;
 }
-
+*/
+/*
 std::vector<double> stdv_multiply(std::vector<double> v, double k) {
   for (size_t i = 0; i < v.size(); ++i)
     v[i] *= k;
   return v;  
 }
+*/
 
 namespace flick {
   std::string path() {

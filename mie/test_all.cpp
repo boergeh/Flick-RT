@@ -6,6 +6,7 @@ int main() {
   unit_test t("mie");
   t.include<mie_test_A>("mie_test_A");
   t.include<mie_test_B>("mie_test_B");
+  t.include<mie_test_C>("mie_test_C");
   t.run_test_cases();
   return 0;
 } 

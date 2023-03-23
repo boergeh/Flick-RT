@@ -125,8 +125,8 @@ namespace flick {
 	  std::cout << wl*1e9 << " ";
 	std::cout << "#\n";
 	delta_fit df(material::phase_function(m),n_terms);
-	auto normalized_scaled_coef =
-	  stdv_multiply(df.coefficients(),1/df.scaling_factor()*4*constants::pi);
+	auto normalized_scaled_coef = df.coefficients()/df.scaling_factor()
+	  * 4 * constants::pi;
 	for (size_t i=0; i<wls_.size(); ++i) {
 	  m.set(wavelength(wls_[i]));
 	  std::cout << "A_"<<layer_n<<"_" << std::to_string(i+1) << " = "

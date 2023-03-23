@@ -1,16 +1,26 @@
 #ifndef flick_std_operators
 #define flick_std_operators
 #include <vector>
+#include <complex>
+#include <iostream>
 
 namespace flick {
   using stdvector = std::vector<double>;
-
+  using stdcomplex = std::complex<double>;
+  using stdvectorc = std::vector<stdcomplex>;
+  using namespace std::complex_literals;
+  
   stdvector& operator+=(stdvector& v1, const stdvector& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] += v2[i];
     return v1;
   }
   stdvector operator+(stdvector v1, const stdvector& v2) {  
+    for (size_t i=0; i<v1.size(); ++i)
+      v1[i] += v2[i];
+    return v1;
+  }
+  stdvectorc operator+(stdvectorc v1, const stdvectorc& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] += v2[i];
     return v1;
@@ -30,12 +40,22 @@ namespace flick {
       v1[i] -= v2[i];
     return v1;
   }
+  stdvectorc operator-(stdvectorc v1, const stdvectorc& v2) {  
+    for (size_t i=0; i<v1.size(); ++i)
+      v1[i] -= v2[i];
+    return v1;
+  }
   stdvector operator-(stdvector v1, double v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] -= v2;
     return v1;
   }
   stdvector operator*(stdvector v1, const stdvector& v2) {  
+    for (size_t i=0; i<v1.size(); ++i)
+      v1[i] *= v2[i];
+    return v1;
+  }
+  stdvectorc operator*(stdvectorc v1, const stdvectorc& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] *= v2[i];
     return v1;
@@ -50,7 +70,17 @@ namespace flick {
       v[i] *= k;
     return v;
   }
+  stdvectorc operator*(stdcomplex k, stdvectorc v) {  
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] *= k;
+    return v;
+  }
   stdvector operator/(stdvector v1, const stdvector& v2) {  
+    for (size_t i=0; i<v1.size(); ++i)
+      v1[i] /= v2[i];
+    return v1;
+  }
+  stdvectorc operator/(stdvectorc v1, const stdvectorc& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] /= v2[i];
     return v1;
@@ -80,7 +110,17 @@ namespace flick {
       v[i] = std::abs(v[i]);
     return v;
   }
-
-
+  std::ostream& operator<<(std::ostream& out, const stdvector& v) {
+    for (const auto& i: v)
+      std::cout << i << " ";
+    std::cout << "\n";
+    return out;
+  }
+  std::ostream& operator<<(std::ostream& out, const stdvectorc& v) {
+    for (const auto& i: v)
+      std::cout << i << " ";
+    std::cout << "\n";
+    return out;
+  }
 }
 #endif

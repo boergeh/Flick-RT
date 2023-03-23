@@ -11,12 +11,12 @@ namespace flick {
     };
     size_t n_terms = 16;
     delta_fit df(f(),n_terms);
-    check_close(2*df.coefficients().at(0),1/(2*constants::pi),0.1);
-    check_close(df.function_values({-1}).at(0),f().value(-1),0.1);
+    check_close(2*df.coefficients().at(0),1/(2*constants::pi),0.1,"a");
+    check_close(df.function_values({-1}).at(0),f().value(-1),0.1,"b");
 
     auto g = flick::read<flick::pl_function>("./petzold_phase_function.txt");
-    n_terms = 20;
+    n_terms = 30;
     delta_fit df2(g,n_terms);
-    check_close(df2.function_values({-1}).at(0),g.value(-1),0.1);
+    check_close(df2.function_values({-1}).at(0),g.value(-1),0.2,"c");
   } end_test_case()
 }

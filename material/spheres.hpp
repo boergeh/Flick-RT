@@ -29,9 +29,9 @@ namespace material {
     
     void update_mie() const {
       if (has_changed_) {
-	flick::refractive_index m_host = host_material_.refractive_index();
-	flick::refractive_index m_sphere = sphere_material_.refractive_index();	
-	Monodisperesed_mie mono_mie(m_host,m_sphere,flick::wavelength{wavelength()});
+	stdcomplex m_host = host_material_.refractive_index();
+	stdcomplex m_sphere = sphere_material_.refractive_index();	
+	Monodisperesed_mie mono_mie(m_host,m_sphere, wavelength());
 	mono_mie.precision(precision_);
 	mono_mie.angles(angles_);
 	poly_mie_ = std::make_shared<pm>(mono_mie, size_distribution_);
