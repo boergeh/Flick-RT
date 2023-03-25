@@ -48,36 +48,40 @@ namespace flick
     }
   };
 
-  class bessel_first_kind : public special_function {    
-    stdcomplex r_asymptotic(const stdcomplex& z, size_t n_terms) {
-      return z/(2*n_terms+1.);
+  class spherical_bessel : public special_function {    
+    stdcomplex r_asymptotic(const stdcomplex& z, size_t large_n) {
+      return z/(2*large_n+1.);
     }
-    stdvectorc r(const stdcomplex& z, int n_high, int n_low,
-		 const stdcomplex& r_high) {
-      stdvectorc v(n_high-n_low);
-      v.end()[-1] = r_high;
-      for (int n=v.size()-2; n>=0; --n) {
+        
+    stdvectorc r(const stdcomplex& z, size_t n_terms_high, int n_terms_low) {
+      stdvectorc v(n_terms_high);
+      v.end()[-1] = r_asymptotic(z,n_terms_high+1);
+      for (int n=n_terms_high-2; n>=n_terms_low; --n) {
 	v[n] = 1./((2*n+1.)/z - v[n+1]);
       }
       return v;
     }
   public:
-    bessel_first_kind(const stdcomplex& z, int n_terms)
+    spherical_bessel(const stdcomplex& z, int n_terms)
       : special_function(z,n_terms) {
       double error = 1;
       int n_extra = 2;
       stdcomplex r_previous = r_asymptotic(z,n_terms);
-      while(log10(error) > -std::numeric_limits<double>::digits10) {
-	stdcomplex r0 = r_asymptotic(z,n_terms+n_extra);
-	stdcomplex r_extra = r(z,n_terms+n_extra,n_terms,r0).front();
-	error = std::abs(r_extra/r_previous-1.0);
+      
+      while(log10(error) > -(std::numeric_limits<double>::digits10)) {
+	///stdcomplex r0 = r_asymptotic(z,n_terms+n_extra);
+	stdcomplex r_high = r(z,n_terms+n_extra,n_terms-1)[n_terms-1];
+	error = abs(r_high/r_previous-1.0);
 	n_extra *= 2;
-	r_previous = r_extra;
+	r_previous = r_high;
       }
-      stdvectorc r_stable = r(z,n_terms,0,r_previous);
+      
+      //r_previous = r_asymptotic(z,n_terms);
+      //r_previous = r(z,n_terms+n_extra,n_terms,r_previous)[0];
+      stdvectorc r_stable = r(z,n_terms+n_extra+10,0);
       //std::cout << "r_prev: " << r_previous <<std::endl;
       //std::cout << "r_stable: " << r_stable <<std::endl;
-      //std::cout << "dn = "<< n_extra << ", error = " << error << std::endl;
+      std::cout << "dn = "<< n_extra/2 << ", error = " << error << std::endl;
 
       f_[0] = sin(z)/z;
       for (size_t n=1; n<f_.size(); ++n) {
@@ -86,14 +90,17 @@ namespace flick
     }
   };
 
-  class monodispersed_mie : public basic_monodispersed_mie {
-    
-    int n_terms_ = n_terms();
+  class monodispersed_mie : public basic_monodispersed_mie {  
+    int n_terms_;
+    stdvectorc a_;
+    stdvectorc b_;
+    stdvectorc S11_;
+    stdvectorc S22_;
+    double C_ext_;
+    double C_scat_;
 
-    int n_terms() {
-      stdcomplex x = size_parameter_in_host();
-      return std::abs(x) + 4.05*std::pow(std::abs(x),1./3) + 14.;
-    }
+    const double pi_ = constants::pi;
+
     std::tuple<stdvector,stdvector> pi_tau_polynomials(double angle) {
       stdvector pi(n_terms_);
       stdvector tau(n_terms_+1);
@@ -111,16 +118,8 @@ namespace flick
       return {pi, tau};      
     }
   public:
-    //using basic_monodispersed_mie::basic_monodispersed_mie;
-    
-    monodispersed_mie(const stdcomplex& m_host,
-		      const stdcomplex& m_sphere,
-		      double vacuum_wl) :
-      basic_monodispersed_mie::basic_monodispersed_mie(m_host,
-						       m_sphere,
-						       vacuum_wl) {
-    }
-    
+    using basic_monodispersed_mie::basic_monodispersed_mie;
+ 
     std::tuple<stdvectorc,stdvectorc> ab_coefficients() {
       //std::cout << "n_terms = " << n_terms_ << std::endl;
       //std::cout << "x: " << size_parameter_in_host() <<std::endl;
@@ -128,11 +127,13 @@ namespace flick
       stdcomplex m = m_sphere_ / m_host_;
       stdcomplex x = size_parameter_in_host();
       
-      bessel_first_kind jx(x,n_terms_);
+      spherical_bessel jx(x,n_terms_);
       stdvectorc jx_t = jx.terms();
+      //std::cout << "jx_t "<<jx_t[2] << std::endl;
+
       stdvectorc jx_d = jx.times_z_derivatives();
       
-      bessel_first_kind jmx(m*x,n_terms_);  
+      spherical_bessel jmx(m*x,n_terms_);  
       stdvectorc jmx_t = jmx.terms();
       stdvectorc jmx_d = jmx.times_z_derivatives();
       
@@ -146,45 +147,79 @@ namespace flick
 
       return {(pow(m,2)*A-B)/(pow(m,2)*C-D), (A-B)/(C-D)};      
     }
+    std::tuple<stdvectorc,stdvectorc> s_functions() {
+      stdvectorc S11(angles_.size(),stdcomplex{0,0});
+      stdvectorc S22(angles_.size(),stdcomplex{0,0});
+      for (size_t i=0; i<angles_.size(); ++i) {
+	auto [pi, tau] = pi_tau_polynomials(angles_[i]);
+	for (size_t n=1; n<n_terms_; ++n) {
+	  stdcomplex c = 1i/wavenumber_in_host_*(2*n+1.)/(n*(n+1.));
+	  S11[i] += c*(a_[n]*tau[n] + b_[n]*pi[n]);
+	  S22[i] += c*(a_[n]*pi[n] + b_[n]*tau[n]);
+	}
+      }
+      return {S11, S22};
+    }
+    std::tuple<double,double> es_coefficients() {
+      stdcomplex ext{0,0};
+      double scat{0};
+      const stdcomplex& k = wavenumber_in_host_;
+      for (size_t n=1; n<n_terms_; ++n) {
+	ext += (2*n+1.) * (a_[n] + b_[n]);
+	scat += (2*n+1) * (norm(a_[n]) + norm(b_[n]));
+	//std::cout << a_[n] << " " << b_[n] <<  "  " ;
+      }
+      double C_ext = 2*pi_/real(k)*real(ext/k); 
+      double C_scat = 2*pi_/norm(k)*scat; 
+      return {C_ext, C_scat};
+    }
     void radius(double r) {
       radius_ = r;
-      n_terms_ = n_terms();
+      stdcomplex x = size_parameter_in_host();
+      n_terms_ = 8. + std::abs(x) + 4.05*std::pow(std::abs(x),1./3);
+      std::tie(a_, b_) = ab_coefficients();
+      std::tie(C_ext_, C_scat_) = es_coefficients();
     }
     void angles(const stdvector& angles) {
       angles_ = angles;
+      std::tie(S11_, S22_) = s_functions();
     }
     double absorption_cross_section() const {
-      return 0;
+      return C_ext_ - C_scat_;
     }
     double scattering_cross_section() const {
-      return 0;
+      return C_scat_;
     }
     stdvector scattering_matrix_element(size_t row, size_t col) const
-    // Note that integratinig element 0,0 over all 4*pi solid angles gives
-    // the scattering cross section, where we count from 0 instead of one.
+    // Note that integratinig element F11 over all 4*pi solid angles gives
+    // the scattering cross section.
     {
-      return {0};
+      bool F11 = (row==0 and col==0);
+      bool F22 = (row==1 and col==1);
+      bool F33 = (row==2 and col==2);
+      bool F44 = (row==3 and col==3);
+      bool F12 = (row==0 and col==1);
+      bool F21 = (row==1 and col==0);
+      bool F34 = (row==2 and col==3);
+      bool F43 = (row==3 and col==2);
+
+      if (F11 or F22)
+	return 0.5*((abs(S11_)^2)+(abs(S22_)^2));
+      else if (F33 or F44)
+	return real(S11_*conj(S22_));
+      else if (F12 or F21)
+	return 0.5*((abs(S11_)^2)-(abs(S22_)^2));
+      else if (F34)
+	return imag(S11_*conj(S22_));
+      else if (F44)
+	return -1*imag(S11_*conj(S22_));
+      else
+	return stdvector(angles_.size(),0);
     }    
   };
 }
-/*
-function [a, b] = expansion_coefficients(m,x1,n_max)
-  for n=1:n_max
-    jmx = besselj(n+0.5,m*x1);
-    jx = besselj(n+0.5,x1);
-    hx = besselh(n+0.5,1,x1);
-    dmxjmx = m*x1*besselj(n-1+0.5,m*x1)-n*besselj(n+0.5,m*x1);
-    dxjx = x1*besselj(n-1+0.5,x1)-n*besselj(n+0.5,x1);
-    dxhx = x1*besselh(n-1+0.5,1,x1)-n*besselh(n+0.5,1,x1);  
-    A = jmx*dxjx;
-    B = jx*dmxjmx;
-    C = jmx*dxhx;
-    D = hx*dmxjmx;
-    a(n) = (m^2*A-B)/(m^2*C-D);
-    b(n) = (A-B)/(C-D);
-  end
-end
 
+/*
 function [pi, tau] = pi_tau_polynomials(theta, n_max)
   pi(1) = 1;
   pi(2) = 3*cos(theta);

@@ -97,17 +97,46 @@ namespace flick {
     return s;
   }
   stdvector operator^(stdvector v, double k) {
-    double s=0;
     for (size_t i=0; i<v.size(); ++i)
       v[i] = std::pow(v[i],k);
     return v;
   }
+  /*
+  stdvector pow(stdvector v, double k) {
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = std::pow(v[i],k);
+    return v;
+  }
+  */
   double rms(const stdvector& v) {
     return sqrt(pow(sum(v^2),1./2));
   }
   stdvector abs(stdvector v) {
     for (size_t i=0; i<v.size(); ++i)
       v[i] = std::abs(v[i]);
+    return v;
+  }
+  stdvector abs(const stdvectorc& vc) {
+    stdvector v(vc.size());
+    for (size_t i=0; i<vc.size(); ++i)
+      v[i] = std::abs(vc[i]);
+    return v;
+  }
+  stdvectorc conj(stdvectorc v) {
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = std::conj(v[i]);
+    return v;
+  }
+  stdvector real(const stdvectorc& vc) {
+    stdvector v(vc.size());
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = std::real(vc[i]);
+    return v;
+  }
+  stdvector imag(const stdvectorc& vc) {
+    stdvector v(vc.size());
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = std::imag(vc[i]);
     return v;
   }
   std::ostream& operator<<(std::ostream& out, const stdvector& v) {

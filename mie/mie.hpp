@@ -46,19 +46,15 @@ namespace flick {
     stdcomplex m_host_;
     stdcomplex m_sphere_;
     double vacuum_wl_;
-    double radius_{1e-6};
-    stdvector angles_{0,pi_/2,pi_};
-    stdcomplex wavenumber_in_host_{2*constants::pi*m_host_/vacuum_wl_};
+    double radius_;
+    stdvector angles_; //{0,pi_/2,pi_};
+    stdcomplex wavenumber_in_host_{2*pi_*m_host_/vacuum_wl_};
 
     stdcomplex size_parameter_in_host() {
       return wavenumber_in_host_ * radius_;
     };
-    
-    //refractive_index m_host_;
-    //refractive_index m_sphere_;
-    //wavelength vacuum_wl_;
 
-    int precision_{3};
+    int precision_{3}; // move
   public:
     basic_monodispersed_mie(const stdcomplex& m_host,
 			     const stdcomplex& m_sphere,
@@ -71,10 +67,10 @@ namespace flick {
     virtual double scattering_cross_section() const = 0;
     virtual stdvector scattering_matrix_element(size_t row, size_t col) const = 0;
 
-    void precision(size_t n) {
+    void precision(size_t n) { // move
       precision_ = n;
     }
-    int precision() const {
+    int precision() const { // move
       return precision_;
     }
     double radius() const {
@@ -91,17 +87,17 @@ namespace flick {
   // Transfer, 112(4), pp.714-726.
   {
     double Qa_{0};
-    pl_function g0_;
-    double n_ = std::real(m_sphere_ / m_host_);
-
+    //pl_function g0_;
+    double n_ = real(m_sphere_ / m_host_);
+    pl_function g0_ = read<pl_function>("mie/g_parameterized.txt");
+    
     void update_efficiency() {
       double n = n_;
       if (n<1)
 	n = 1/n;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-      double Qa0 = 8./3 * std::imag(m_sphere_)
-	* std::real(wavenumber_in_host_ * radius_) * std::abs(arg);
-      Qa_  = 0.94 * (1 - exp(-Qa0 / 0.94));
+      double Qa0 = 8./3*imag(m_sphere_)*real(size_parameter_in_host())*abs(arg);
+      Qa_ = 0.94 * (1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {
       return pi_ * pow(radius_,2);
@@ -113,6 +109,8 @@ namespace flick {
       return 2 * geometrical_cross_section();
     }
   public:
+    using basic_monodispersed_mie::basic_monodispersed_mie;
+    /*
     parameterized_monodispersed_mie(const stdcomplex& m_host,
 				     const stdcomplex& m_sphere,
 				     double vacuum_wl) :
@@ -122,6 +120,7 @@ namespace flick {
       g0_ = read<pl_function>("mie/g_parameterized.txt");
       update_efficiency();
     }
+    */
     void radius(double r) {
       radius_ = r;
       update_efficiency();
