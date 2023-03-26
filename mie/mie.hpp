@@ -53,6 +53,9 @@ namespace flick {
     stdcomplex size_parameter_in_host() {
       return wavenumber_in_host_ * radius_;
     };
+    double size_parameter_in_vacuum() {
+      return 2*pi_*radius_/vacuum_wl_;
+    };
 
     int precision_{3}; // move
   public:
@@ -94,12 +97,8 @@ namespace flick {
       double n = n_;
       if (n<1)
       	n = 1/n;
-      //stdcomplex n = m_sphere_/m_host_;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-      //double x_vacuum = 2*pi_*radius_/vacuum_wl_;
-      //double Qa0 = 8./3*imag(m_sphere_)*x_vacuum*abs(arg);
-      double Qa0 = 8./3*imag(m_sphere_)*real(size_parameter_in_host())*abs(arg);
-      //double Qa0 = imag(8./3*m_sphere_*size_parameter_in_host()*arg);
+      double Qa0 = 8./3*imag(m_sphere_)*size_parameter_in_vacuum()*abs(arg);
       Qa_ = 0.94 * (1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {

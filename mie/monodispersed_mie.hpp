@@ -94,19 +94,19 @@ namespace flick
     const double pi_ = constants::pi;
 
     std::tuple<stdvector,stdvector> pi_tau_polynomials(double angle) {
-      stdvector pi(n_terms_);
-      stdvector tau(n_terms_+1);
-      double u = cos(angle);
-      pi[0] = 1;
-      pi[1] = 3 * u;
+      stdvector pi(n_terms_+1);
+      stdvector tau(n_terms_);
+      double u = std::cos(angle);
+      pi[0] = 0; 
+      pi[1] = 1;
       tau[0] = u;
       for (size_t n=1; n<n_terms_; ++n) {
 	double s = u * pi[n];
 	double t = s - pi[n-1];
-	pi[n+1] = s + (n+1) / n * t;
+	pi[n+1] = s + (n+1.) / n * t;
 	tau[n] = n * t - pi[n-1];
       }
-      tau.pop_back();
+      pi.pop_back();
       return {pi, tau};      
     }
   public:
@@ -207,24 +207,6 @@ namespace flick
     }    
   };
 }
-
-/*
-function [pi, tau] = pi_tau_polynomials(theta, n_max)
-  pi(1) = 1;
-  pi(2) = 3*cos(theta);
-  tau(1) = cos(theta);
-  for n=2:n_max
-    s = cos(theta)*pi(n);
-    t = s-pi(n-1);
-    pi(n+1) = s + (n+1)/n*t;
-    tau(n) = n*t-pi(n-1);
-  end
-  pi(end)=[];
-end
-
-*/
-
-
 
 #endif
 

@@ -121,17 +121,35 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(mie_test_F) {
+    double pi = constants::pi;
     stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.3 + 1e-5i;
+    stdcomplex m_sphere = 1.33 + 1e-5i;
     double wl = 500e-9;
     double r = 100e-6;
+    stdvector angles = range(0,pi,100).linspace();
     monodispersed_mie mie(m_host,m_sphere,wl);
     mie.radius(r);
+    mie.angles(angles);
     parameterized_monodispersed_mie pmie(m_host,m_sphere,wl);
     pmie.radius(r);
+    pmie.angles(angles);
     check_close(pmie.absorption_cross_section(),
     		mie.absorption_cross_section(),2.1,"abs");
     check_close(pmie.scattering_cross_section(),
-    		mie.scattering_cross_section(),0.8,"scat");
+    		mie.scattering_cross_section(),1,"scat");
+
+    auto [S11, S22] = mie.s_functions();
+    double k1 = 2*pi*m_host.real()/wl;
+    double Cext = 4*pi/k1*imag(S11[0]);
+    check_close(Cext,mie.scattering_cross_section()
+		+mie.absorption_cross_section(),1e-12);
+    
+    stdvector f = mie.scattering_matrix_element(0,0)*sin(angles);
+    double Cscat = 2*pi*pl_function(angles,f).integral();
+    check_close(Cscat, mie.scattering_cross_section(),50);
+
+    f = pmie.scattering_matrix_element(0,0)*sin(angles);
+    Cscat = 2*pi*pl_function(angles,f).integral();
+    check_close(Cscat, pmie.scattering_cross_section(),0.8);
   } end_test_case()
 }
