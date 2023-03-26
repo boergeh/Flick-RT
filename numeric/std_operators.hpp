@@ -96,18 +96,17 @@ namespace flick {
       s += v[i];
     return s;
   }
+  stdcomplex sum(const stdvectorc& v) {
+    stdcomplex s{0,0};
+    for (size_t i=0; i<v.size(); ++i)
+      s += v[i];
+    return s;
+  }
   stdvector operator^(stdvector v, double k) {
     for (size_t i=0; i<v.size(); ++i)
       v[i] = std::pow(v[i],k);
     return v;
   }
-  /*
-  stdvector pow(stdvector v, double k) {
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::pow(v[i],k);
-    return v;
-  }
-  */
   double rms(const stdvector& v) {
     return sqrt(pow(sum(v^2),1./2));
   }
@@ -152,4 +151,5 @@ namespace flick {
     return out;
   }
 }
+
 #endif

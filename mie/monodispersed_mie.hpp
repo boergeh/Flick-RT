@@ -55,7 +55,7 @@ namespace flick
         
     stdvectorc r(const stdcomplex& z, size_t n_terms_high, int n_terms_low) {
       stdvectorc v(n_terms_high);
-      v.end()[-1] = r_asymptotic(z,n_terms_high+1);
+      v.end()[-1] = r_asymptotic(z,n_terms_high-1);
       for (int n=n_terms_high-2; n>=n_terms_low; --n) {
 	v[n] = 1./((2*n+1.)/z - v[n+1]);
       }
@@ -67,24 +67,16 @@ namespace flick
       double error = 1;
       int n_extra = 2;
       stdcomplex r_previous = r_asymptotic(z,n_terms);
-      
       while(log10(error) > -(std::numeric_limits<double>::digits10)) {
-	///stdcomplex r0 = r_asymptotic(z,n_terms+n_extra);
 	stdcomplex r_high = r(z,n_terms+n_extra,n_terms-1)[n_terms-1];
 	error = abs(r_high/r_previous-1.0);
 	n_extra *= 2;
 	r_previous = r_high;
       }
-      
-      //r_previous = r_asymptotic(z,n_terms);
-      //r_previous = r(z,n_terms+n_extra,n_terms,r_previous)[0];
-      stdvectorc r_stable = r(z,n_terms+n_extra+10,0);
-      //std::cout << "r_prev: " << r_previous <<std::endl;
-      //std::cout << "r_stable: " << r_stable <<std::endl;
-      std::cout << "dn = "<< n_extra/2 << ", error = " << error << std::endl;
-
+      stdvectorc r_stable = r(z,n_terms+n_extra,2);
       f_[0] = sin(z)/z;
-      for (size_t n=1; n<f_.size(); ++n) {
+      f_[1] = sin(z)/pow(z,2)-cos(z)/z; // Avoids instability when sin(z)=0
+      for (size_t n=2; n<f_.size(); ++n) {
 	f_[n] = r_stable[n] * f_[n-1];
       }
     }
@@ -121,16 +113,11 @@ namespace flick
     using basic_monodispersed_mie::basic_monodispersed_mie;
  
     std::tuple<stdvectorc,stdvectorc> ab_coefficients() {
-      //std::cout << "n_terms = " << n_terms_ << std::endl;
-      //std::cout << "x: " << size_parameter_in_host() <<std::endl;
-
       stdcomplex m = m_sphere_ / m_host_;
       stdcomplex x = size_parameter_in_host();
       
       spherical_bessel jx(x,n_terms_);
       stdvectorc jx_t = jx.terms();
-      //std::cout << "jx_t "<<jx_t[2] << std::endl;
-
       stdvectorc jx_d = jx.times_z_derivatives();
       
       spherical_bessel jmx(m*x,n_terms_);  
@@ -145,7 +132,10 @@ namespace flick
       stdvectorc C = jmx_t * hx_d;
       stdvectorc D = hx_t * jmx_d;
 
-      return {(pow(m,2)*A-B)/(pow(m,2)*C-D), (A-B)/(C-D)};      
+      stdvectorc a = (pow(m,2)*A-B)/(pow(m,2)*C-D);
+      stdvectorc b = (A-B)/(C-D);
+      
+      return {a, b};      
     }
     std::tuple<stdvectorc,stdvectorc> s_functions() {
       stdvectorc S11(angles_.size(),stdcomplex{0,0});
@@ -167,7 +157,6 @@ namespace flick
       for (size_t n=1; n<n_terms_; ++n) {
 	ext += (2*n+1.) * (a_[n] + b_[n]);
 	scat += (2*n+1) * (norm(a_[n]) + norm(b_[n]));
-	//std::cout << a_[n] << " " << b_[n] <<  "  " ;
       }
       double C_ext = 2*pi_/real(k)*real(ext/k); 
       double C_scat = 2*pi_/norm(k)*scat; 

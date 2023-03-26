@@ -87,16 +87,19 @@ namespace flick {
   // Transfer, 112(4), pp.714-726.
   {
     double Qa_{0};
-    //pl_function g0_;
     double n_ = real(m_sphere_ / m_host_);
     pl_function g0_ = read<pl_function>("mie/g_parameterized.txt");
     
     void update_efficiency() {
       double n = n_;
       if (n<1)
-	n = 1/n;
+      	n = 1/n;
+      //stdcomplex n = m_sphere_/m_host_;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
+      //double x_vacuum = 2*pi_*radius_/vacuum_wl_;
+      //double Qa0 = 8./3*imag(m_sphere_)*x_vacuum*abs(arg);
       double Qa0 = 8./3*imag(m_sphere_)*real(size_parameter_in_host())*abs(arg);
+      //double Qa0 = imag(8./3*m_sphere_*size_parameter_in_host()*arg);
       Qa_ = 0.94 * (1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {
@@ -110,17 +113,6 @@ namespace flick {
     }
   public:
     using basic_monodispersed_mie::basic_monodispersed_mie;
-    /*
-    parameterized_monodispersed_mie(const stdcomplex& m_host,
-				     const stdcomplex& m_sphere,
-				     double vacuum_wl) :
-      basic_monodispersed_mie::basic_monodispersed_mie(m_host,
-							 m_sphere,
-							 vacuum_wl) {
-      g0_ = read<pl_function>("mie/g_parameterized.txt");
-      update_efficiency();
-    }
-    */
     void radius(double r) {
       radius_ = r;
       update_efficiency();

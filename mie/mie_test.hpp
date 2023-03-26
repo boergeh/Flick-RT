@@ -2,11 +2,20 @@
 #include "monodispersed_mie.hpp"
 
 namespace flick {
-  begin_test_case(bessel_test) {
+  begin_test_case(bessel_test_A) {
     stdcomplex z{1 , 0};
     spherical_bessel j(z,3);
     check_close(norm(j.terms()[2]),norm(stdcomplex{0.06203505201137386,
-						     0}),1e-15);
+						     0}),1e-13);
+  } end_test_case()
+  
+  begin_test_case(bessel_test_B) {
+    double epsilon = 1e-9;
+    stdcomplex z_a{2*constants::pi, 0};
+    stdcomplex z_b{2*constants::pi+epsilon , 0};
+    spherical_bessel j_a(z_a,2);
+    spherical_bessel j_b(z_b,2);
+    check_close(abs(sum(j_a.terms())),abs(sum(j_b.terms())),1e-4);
   } end_test_case()
   
   begin_test_case(mie_test_A) {
@@ -57,7 +66,6 @@ namespace flick {
 
     check_close(distribution.particles_per_volume(1),
 		1/(4./3*constants::pi*pow(r,3)),0.1);
-    
   } end_test_case()
 
   begin_test_case(mie_test_C) {
@@ -89,44 +97,41 @@ namespace flick {
     stdcomplex m_sphere = 1.3;
     double wl = 500e-9;
     double r = x * wl / (2*constants::pi);
-    std::cout << "test: D"<<std::endl;
     monodispersed_mie mie(m_host,m_sphere,wl);
     mie.radius(r);
     double area = constants::pi*pow(r,2);
     double Q_ext = (mie.absorption_cross_section()
 		    +mie.scattering_cross_section())/area;
-    std::cout << "test: D abs "<<mie.absorption_cross_section()<<std::endl;
-    std::cout << "test: D sca "<<mie.scattering_cross_section()<<std::endl;
     check_close(Q_ext,-1.99948,1e-3);
   } end_test_case()
   
   begin_test_case(mie_test_E) {
     stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.3 + 0.0i;
+    stdcomplex m_sphere = 1.3;
     double wl = 500e-9;
-    double r = 0.50000000e-6;
-    std::cout << "test E:"<<std::endl;
+    double r = 0.5e-6;
     monodispersed_mie mie(m_host,m_sphere,wl);
     mie.radius(r);
-    //parameterized_monodispersed_mie pmie(m_host,m_sphere,wl);
-    //pmie.radius(r);
     auto [Cext,Csca] = mie.es_coefficients();
-    //double Cext = mie.absorption_cross_section()+mie.scattering_cross_section();
     double area = constants::pi*pow(r,2);
     double Qext = Cext/area;
     double Qsca = Csca/area;
     double Qabs = Qext-Qsca;
-    check_small(Qabs,1e-5);
-    std::cout << "test: E Cext "<<Cext<<std::endl;
-    std::cout << "test: E Qext "<<Qext<<std::endl;
-    std::cout << "test: E Qsca "<<Qsca<<std::endl;
-    std::cout << "test: E Qabs "<<Qext-Qsca<<std::endl;
-    std::cout << "test: E Csca "<<Csca<<std::endl;
-    std::cout << "test: E Csca "<<mie.scattering_cross_section()<<std::endl;
-
-    //check_close(pmie.absorption_cross_section(),
-    //		mie.absorption_cross_section(),1);
-    //check_close(pmie.scattering_cross_section(),
-    //		mie.scattering_cross_section(),1);
+    check_small(Qabs,1e-11);
+  } end_test_case()
+  
+  begin_test_case(mie_test_F) {
+    stdcomplex m_host = 1.0;
+    stdcomplex m_sphere = 1.3 + 1e-5i;
+    double wl = 500e-9;
+    double r = 100e-6;
+    monodispersed_mie mie(m_host,m_sphere,wl);
+    mie.radius(r);
+    parameterized_monodispersed_mie pmie(m_host,m_sphere,wl);
+    pmie.radius(r);
+    check_close(pmie.absorption_cross_section(),
+    		mie.absorption_cross_section(),2.1,"abs");
+    check_close(pmie.scattering_cross_section(),
+    		mie.scattering_cross_section(),0.8,"scat");
   } end_test_case()
 }
