@@ -15,7 +15,7 @@ namespace flick {
     double k = 3/(3+f)*4./3*3/(16*constants::pi);
     mueller m;
     m.add(0,0, k*(1+f*c*c));
-    m.add(0,1, -k*f*c*c);
+    m.add(0,1, -k*f*s*s);
     m.add(1,0, -k*f*s*s);
     m.add(1,1, k*f*(1+c*c));
     m.add(2,2, k*2*f*c);

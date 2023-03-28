@@ -44,12 +44,19 @@ namespace flick {
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="bubbles_in_ice") {
+	  double r_mean = std::stod(a(8));
+	  double width = std::stod(a(9));
+	  double volfrac = std::stod(a(7));
+	  //material::bubbles_in_ice<monodispersed_mie> m(volfrac,r_mean,width);
+	  //material::bubbles_in_ice<parameterized_monodispersed_mie> m(volfrac,r_mean,width);
+	  
 	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
 	  material::spheres<log_normal_distribution,
 			    material::pure_ice,
 			    material::vacuum,
-			    parameterized_monodispersed_mie>
+			    monodispersed_mie>
 	    m(std::stod(a(7)), sd, material::pure_ice(), material::vacuum());
+	  
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="brines_in_ice") {

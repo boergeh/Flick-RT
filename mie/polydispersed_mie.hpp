@@ -1,147 +1,13 @@
-#ifndef flick_mie
-#define flick_mie
+#ifndef flick_polydispersed_mie
+#define flick_polydispersed_mie
 
-#include "../numeric/constants.hpp"
-#include "../numeric/std_operators.hpp"
-#include "../numeric/function.hpp"
-#include "../numeric/physics_function.hpp"
+#include "basic_monodispersed_mie.hpp"
 #include "../numeric/legendre/legendre.hpp"
-#include "../numeric/named_bounded_types.hpp"
+#include "../numeric/std_operators.hpp"
 #include "../environment/input_output.hpp"
-#include <complex>
 #include <tuple>
 
 namespace flick {
-  /*
-  class refractive_index {
-    stdcomplex value_{1,0};
-  public:
-    refractive_index() = default;
-    refractive_index(const stdcomplex& m) : value_{m} {
-      bounded_type<double, zero, std::exa>(m.real());
-      bounded_type<double, zero, std::exa>(m.imag());
-    }
-    refractive_index(double real, double imag)
-      : refractive_index{stdcomplex{real,imag}} {
-    }
-    const stdcomplex& value() const {
-      return value_;
-    }
-    stdcomplex wavenumber(double vacuum_wavelength) const {
-      return 2 * constants::pi * value_ / vacuum_wavelength;
-    }
-    stdcomplex size_parameter(double vacuum_wavelength, double radius) const {
-      return wavenumber(vacuum_wavelength) * radius;
-    }
-    stdcomplex relative_to(const refractive_index& m) const {
-      return value_ / m.value();
-    }
-  };
-  */
-  
-  class basic_monodispersed_mie {
-  protected:
-    const double pi_{constants::pi};
-
-    stdcomplex m_host_;
-    stdcomplex m_sphere_;
-    double vacuum_wl_;
-    double radius_{1e-6};
-    stdvector angles_{0};
-    stdcomplex wavenumber_in_host_{2*pi_*m_host_/vacuum_wl_};
-
-    stdcomplex size_parameter_in_host() {
-      return wavenumber_in_host_ * radius_;
-    };
-    double size_parameter_in_vacuum() {
-      return 2*pi_*radius_/vacuum_wl_;
-    };
-
-    int precision_{3}; // move
-  public:
-    basic_monodispersed_mie(const stdcomplex& m_host,
-			     const stdcomplex& m_sphere,
-			     double vacuum_wl)
-      : m_host_{m_host}, m_sphere_{m_sphere}, vacuum_wl_{vacuum_wl} {
-    }
-    virtual void radius(double r) = 0;
-    virtual void angles(const stdvector& angles) = 0;
-    virtual double absorption_cross_section() const = 0;
-    virtual double scattering_cross_section() const = 0;
-    virtual stdvector scattering_matrix_element(size_t row, size_t col) const = 0;
-
-    void precision(size_t n) { // move
-      precision_ = n;
-    }
-    int precision() const { // move
-      return precision_;
-    }
-    double radius() const {
-      return radius_;
-    }
-  };
-   
-  class parameterized_monodispersed_mie : public basic_monodispersed_mie
-  // Approximate Mie-code solutions for large spheres, see:
-  // Stamnes, K., Hamre, B., Stamnes, J.J., Ryzhikov, G., Biryulina,
-  // M., Mahoney, R., Hauss, B. and Sei, A., 2011. Modeling of
-  // radiation transport in coupled atmosphere-snow-ice-ocean
-  // systems. Journal of Quantitative Spectroscopy and Radiative
-  // Transfer, 112(4), pp.714-726.
-  {
-    double Qa_{0};
-    double n_ = real(m_sphere_ / m_host_);
-    pl_function g0_ = read<pl_function>("mie/g_parameterized.txt");
-    
-    void update_efficiency() {
-      double n = n_;
-      if (n<1)
-      	n = 1/n;
-      stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-      double Qa0 = 8./3*imag(m_sphere_)*size_parameter_in_vacuum()*abs(arg);
-      Qa_ = 0.94 * (1 - exp(-Qa0 / 0.94));
-    }
-    double geometrical_cross_section() const {
-      return pi_ * pow(radius_,2);
-    }
-    double asymmetry_factor() const {
-      return pow(g0_.value(n_), pow(1-Qa_, 0.6));
-    }
-    double extinction_cross_section() const {
-      return 2 * geometrical_cross_section();
-    }
-  public:
-    using basic_monodispersed_mie::basic_monodispersed_mie;
-    void radius(double r) {
-      radius_ = r;
-      update_efficiency();
-    }
-    void angles(const stdvector& angles) {
-      angles_ = angles;
-    }
-    double absorption_cross_section() const {
-      return Qa_ * geometrical_cross_section();
-    }
-    double scattering_cross_section() const {
-      return extinction_cross_section() - absorption_cross_section();
-    }
-    stdvector scattering_matrix_element(size_t row, size_t col) const
-    // Note that integratinig element 0,0 over all 4*pi solid angles gives
-    // the scattering cross section, where we count from 0 instead of one.
-    {
-      if (row == 0 && col == 0) {
-	stdvector hg(angles_.size());
-	double g = asymmetry_factor();
-	for (size_t i=0; i<hg.size(); ++i) {
-	  hg[i] = henyey_greenstein(g).phase_function(angles_[i]);
-	}
-	return hg * scattering_cross_section();
-      }
-      else
-	return stdvector(angles_.size(),0);
-    }    
-  };
-
   class size_distribution
   // Size number distribution. Integral over all sizes equals one.
   {
@@ -285,9 +151,12 @@ namespace flick {
     std::shared_ptr<basic_quantity> bq_;
     Monodispersed_mie mm_;
     Size_distribution sd_;
-    const double error_goal_ = pow(10,-mm_.precision());
+    int precision_{3};
     size_t n_quadrature_points_;
 
+    double error_goal() {
+      return pow(10,-precision_+1);
+    }
     double relative_rms_error(const stdvector& v1, const stdvector& v2) {
       return rms(v1/(v2+std::numeric_limits<double>::epsilon()));
     }
@@ -299,17 +168,17 @@ namespace flick {
       stdvector a(bq_->size(),0);
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
-      while (error > error_goal_ && n < n_points.size()) {
+      while (error > error_goal() && n < n_points.size()) {
 	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_rms_error(a-previous_a, compare_a);
-	  /*
-	  std::cout << "  compare area "<< compare_a << std::endl;
-	  std::cout << "  rest area "<< a << std::endl;
-	  std::cout << "  delta area "<<  a-previous_a << std::endl;
-	  std::cout << "  current error "<< error << std::endl;
-	  std::cout << "  using "<<n_points[n] << " quadrature points\n";	  */
+	  
+	  //std::cout << "  compare area "<< compare_a << std::endl;
+	  //std::cout << "  rest area "<< a << std::endl;
+	  //std::cout << "  delta area "<<  a-previous_a << std::endl;
+	  //std::cout << "  current error "<< error << std::endl;
+	  //std::cout << "  using "<<n_points[n] << " quadrature points\n";	  
 	}
 	previous_a = a;
 	n++;	
@@ -328,13 +197,13 @@ namespace flick {
       //std::cout << "\nEstimated total area before loop "<<a << std::endl;
 
       for (size_t i=0; i<2; ++i) { // Both sides of max
-	double width_factor = 3;
+	double width_factor = 0.2;
 	double error = std::numeric_limits<double>::max();
 
 	//std::cout << "Direction " << direction[i] << std::endl;
 
 	double x1 = x0;
-	while (error > error_goal_) {
+	while (error > error_goal()) {
 	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	 
 
 	  //std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
@@ -351,12 +220,13 @@ namespace flick {
 	    error = relative_rms_error(a-previous_a,a);
 	    previous_a = a;
 	    x1 = x2;
+	    //std::cout << "Width factor: "<< width_factor << std::endl;
+
 	  }
-	  /*
-	  std::cout << "Width factor: "<< width_factor << std::endl;
-	  std::cout << "error: "<<error <<", goal "
-	  	    << error_goal_ << std::endl;
-	  */
+	  
+	  //std::cout << "error: "<<error <<", goal "
+	  //	    << error_goal_ << std::endl;
+	  
 	  if (n_quadrature_points_ < 8) {
 	    width_factor *= 2;
 	  }
@@ -364,15 +234,18 @@ namespace flick {
 	}
       }
       
-      std::cout << "Used a total of " << total_q_points
-      		<< " quadrature points and "<<n_intervals
-      		<< " sub intervals." <<std::endl;
+      //std::cout << "Used a total of " << total_q_points
+      //		<< " quadrature points and "<<n_intervals
+      //		<< " sub intervals." <<std::endl;
       
       return a;
     }
   public:
     polydispersed_mie(Monodispersed_mie mm, Size_distribution sd)
       : mm_{mm}, sd_{sd} {
+    }
+    void precision(size_t n) {
+      precision_ = n;
     }
     double absorption_cross_section() {
       bq_ = std::make_shared<absorption_quantity>(mm_,sd_);
@@ -390,41 +263,3 @@ namespace flick {
 }
 
 #endif
-
-/*
-#include <cmath>
-#include <vector>
-
-void expansion_coefficients(double m, double x1, int n_max, stdvector& a, stdvector& b) {
-    a.resize(n_max);
-    b.resize(n_max);
-
-    for (int n = 1; n <= n_max; ++n) {
-        double jmx = std::cyl_bessel_j(n+0.5, m*x1);
-        double jx = std::cyl_bessel_j(n+0.5, x1);
-        double hx = std::cyl_neumann(n+0.5, x1);
-        double dmxjmx = m*x1*std::cyl_bessel_j(n-1+0.5, m*x1) - n*std::cyl_bessel_j(n+0.5, m*x1);
-        double dxjx = x1*std::cyl_bessel_j(n-1+0.5, x1) - n*std::cyl_bessel_j(n+0.5, x1);
-        double dxhx = x1*std::cyl_neumann(n-1+0.5, x1) - n*std::cyl_neumann(n+0.5, x1);  
-        double A = jmx*dxjx;
-        double B = jx*dmxjmx;
-        double C = jmx*dxhx;
-        double D = hx*dmxjmx;
-        a[n-1] = (m*m*A-B)/(m*m*C-D);
-        b[n-1] = (A-B)/(C-D);
-    }
-}
-
-
-  Move to material to reduce deps.
-  template<class Material>
-  class material_refracitve_index : public refractive_index {
-    const Material& m_;
-  public:
-    material_refractive_index(const Material& m) : m_{m} {}
-    std::complex<double> value() {
-      return std::complex<double>(m_.real_refractvie_index(),m_.imag...);
-    } 
-  };
-  */
-

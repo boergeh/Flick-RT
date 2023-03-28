@@ -1,17 +1,26 @@
 #include "../environment/unit_test.hpp"
-#include "mie_test.hpp"
+#include "parameterized_monodispersed_mie_test.hpp"
+#include "monodispersed_mie_test.hpp"
+#include "polydispersed_mie_test.hpp"
 
 int main() {
   using namespace flick;
   unit_test t("mie");
-  t.include<bessel_test_A>("bessel_test_A");
-  t.include<bessel_test_B>("bessel_test_B");
-  t.include<mie_test_A>("mie_test_A");
-  t.include<mie_test_B>("mie_test_B");
-  t.include<mie_test_C>("mie_test_C");
-  t.include<mie_test_D>("mie_test_D");
-  t.include<mie_test_E>("mie_test_E");
-  t.include<mie_test_F>("mie_test_F");
+  t.include<p_mono_mie_test>("parameterized_mono_mie");
+  
+  t.include<mono_mie_bessel_test_A>("mono_mie_bessel_test_A");
+  t.include<mono_mie_bessel_test_B>("mono_mie_bessel_test_B");
+  t.include<mono_mie_test_A>("mono_mie_test_A");
+  t.include<mono_mie_test_B>("mono_mie_test_B");
+  t.include<mono_mie_test_C>("mono_mie_test_C");
+  t.include<mono_mie_test_D>("mono_mie_test_D");
+  t.include<mono_mie_test_E>("mono_mie_test_E");
+  t.include<mono_mie_test_F>("mono_mie_test_F");
+
+  t.include<poly_mie_test_A>("poly_mie_test_A");
+  t.include<poly_mie_test_B>("poly_mie_test_B");
+  t.include<poly_mie_test_C>("poly_mie_test_C");
+
   t.run_test_cases();
   return 0;
 } 

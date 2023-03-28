@@ -1,7 +1,7 @@
 #ifndef flick_monodispersed_mie
 #define flick_monodispersed_mie
 
-#include "mie.hpp"
+#include "basic_monodispersed_mie.hpp"
 
 namespace flick
   // Implementation based on the following two papers: (1) Mishchenko,
@@ -83,17 +83,19 @@ namespace flick
   };
 
   class monodispersed_mie : public basic_monodispersed_mie {  
+    const double pi_ = constants::pi;
+
     int n_terms_;
     stdvectorc a_;
     stdvectorc b_;
-    stdvectorc S11_;
-    stdvectorc S22_;
     double C_ext_;
     double C_scat_;
-
-    const double pi_ = constants::pi;
-
-    std::tuple<stdvector,stdvector> pi_tau_polynomials(double angle) {
+    mutable stdvectorc S11_;
+    mutable stdvectorc S22_;
+    mutable bool changed_radius_ = true;
+    mutable bool changed_angles_ = true;
+    
+    std::tuple<stdvector,stdvector> pi_tau_polynomials(double angle) const {
       stdvector pi(n_terms_+1);
       stdvector tau(n_terms_);
       double u = std::cos(angle);
@@ -137,7 +139,7 @@ namespace flick
       
       return {a, b};      
     }
-    std::tuple<stdvectorc,stdvectorc> s_functions() {
+    std::tuple<stdvectorc,stdvectorc> s_functions() const {
       stdvectorc S11(angles_.size(),stdcomplex{0,0});
       stdvectorc S22(angles_.size(),stdcomplex{0,0});
       for (size_t i=0; i<angles_.size(); ++i) {
@@ -150,7 +152,7 @@ namespace flick
       }
       return {S11, S22};
     }
-    std::tuple<double,double> es_coefficients() {
+    std::tuple<double,double> es_coefficients() const {
       stdcomplex ext{0,0};
       double scat{0};
       const stdcomplex& k = wavenumber_in_host_;
@@ -168,10 +170,11 @@ namespace flick
       n_terms_ = 8. + std::abs(x) + 4.05*std::pow(std::abs(x),1./3);
       std::tie(a_, b_) = ab_coefficients();
       std::tie(C_ext_, C_scat_) = es_coefficients();
+      changed_radius_ = true;
     }
     void angles(const stdvector& angles) {
       angles_ = angles;
-      std::tie(S11_, S22_) = s_functions();
+      changed_angles_ = true;
     }
     double absorption_cross_section() const {
       return C_ext_ - C_scat_;
@@ -183,6 +186,12 @@ namespace flick
     // Note that integratinig element F11 over all 4*pi solid angles gives
     // the scattering cross section.
     {
+      if (changed_angles_ or changed_radius_) {
+	std::tie(S11_, S22_) = s_functions();
+	changed_radius_ = false;
+	changed_angles_ = false;
+      }
+      
       bool F11 = (row==0 and col==0);
       bool F22 = (row==1 and col==1);
       bool F33 = (row==2 and col==2);
@@ -200,7 +209,7 @@ namespace flick
 	return 0.5*((abs(S11_)^2)-(abs(S22_)^2));
       else if (F34)
 	return imag(S11_*conj(S22_));
-      else if (F44)
+      else if (F43)
 	return -1*imag(S11_*conj(S22_));
       else
 	return stdvector(angles_.size(),0);
