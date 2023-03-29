@@ -30,6 +30,11 @@ namespace material {
      temperature_correction_.add_extrapolation_points(0);
      salinity_correction_.add_extrapolation_points(0);
     }
+    pure_water(double salinity_psu, double temperature)
+      : pure_water()  {
+      salinity_psu_ = salinity_psu;
+      temperature_ = temperature;
+    }  
     void salinity(const pl_function& s) {
       salinity_psu_ = s;
     }
@@ -61,7 +66,8 @@ namespace material {
       return rayleigh_mueller(angle(scattering_direction), 0.039);
     }
     double real_refractive_index() const
-    // Partly following https://spot.colorado.edu/~braup/glims/Rottgers-liquid_water-
+    // Partly following https://spot.colorado.edu/
+    // ~braup/glims/Rottgers-liquid_water-
     // absorption-spectral-spectroscopy-ATBD_waterradiance_watermodel_v2.pdf
     {
       double wl_1 = 280e-9;

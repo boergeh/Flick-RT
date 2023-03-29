@@ -21,28 +21,27 @@ namespace material {
 
     const std::vector<int> row_{0,0,1,1,2,2,3,3};
     const std::vector<int> col_{0,1,0,1,2,3,2,3};
-    stdvector angles_ = {0,constants::pi};//range(0,constants::pi,2).linspace();
     int precision_{3};
     using pm = polydispersed_mie<Monodispersed_mie,Size_distribution>;
 
+    mutable stdvector tabulated_angles_{0};
     mutable std::shared_ptr<pm> poly_mie_;
     mutable bool has_changed_{true};
     mutable std::vector<pl_function> scattering_matrix_elements_;
-    
     
     void update_mie() const {
       if (has_changed_) {
 	stdcomplex m_host = host_material_.refractive_index();
 	stdcomplex m_sphere = sphere_material_.refractive_index();	
 	Monodispersed_mie mono_mie(m_host,m_sphere,wavelength());
-	mono_mie.angles(angles_);
-	//mono_mie.radius(1e-6);
+	mono_mie.angles(tabulated_angles_);
 	poly_mie_ = std::make_shared<pm>(mono_mie, size_distribution_);
+	
 	for (size_t i=0; i < row_.size(); ++i) {
 	  scattering_matrix_elements_[i] =
-	    pl_function(angles_,poly_mie_->
+	    pl_function(tabulated_angles_,poly_mie_->
 			scattering_matrix_element(row_[i],col_[i]));
-	}
+	}	
       }
       has_changed_ = false;
     }
@@ -65,8 +64,8 @@ namespace material {
       precision_ = n;
       has_changed_ = true;
     }
-    void angles(const stdvector& angles) {
-      angles_ = angles;
+    void tabulated_angles(const stdvector& angles) {
+      tabulated_angles_ = angles;
       has_changed_ = true;
     }
     double absorption_coefficient() const {
@@ -80,10 +79,14 @@ namespace material {
 	      * size_distribution_.particles_per_volume(volume_fraction_);
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {
+      double theta = angle(scattering_direction);
+      if (tabulated_angles_.size() <= 1)
+	has_changed_ = true;
+	tabulated_angles_ = stdvector{theta};
       update_mie();
       mueller m;
       for (size_t i=0; i<scattering_matrix_elements_.size(); ++i) {
-	double s = scattering_matrix_elements_[i].value(angle(scattering_direction));
+	double s = scattering_matrix_elements_[i].value(theta);
 	m.add(row_[i],col_[i],s/poly_mie_->scattering_cross_section());
       }
       return m;  
@@ -99,14 +102,45 @@ namespace material {
 					 material::pure_ice,
 					 material::vacuum,
 					 Monodispersed_mie> {
-    bubbles_in_ice(double volume_fraction,double r_mean, double width) :
+    bubbles_in_ice(double volume_fraction,double mu, double sigma) :
       spheres<log_normal_distribution,
 	      material::pure_ice,
 	      material::vacuum,
 	      Monodispersed_mie>(volume_fraction,
-				 log_normal_distribution(log(r_mean),width),
+				 log_normal_distribution(mu,sigma),
 				 material::pure_ice(),
 				 material::vacuum()) {}
+  };
+  
+  template<class Monodispersed_mie>
+  struct brines_in_ice : public spheres<log_normal_distribution,
+					 material::pure_ice,
+					 material::pure_water,
+					 Monodispersed_mie> {
+    brines_in_ice(double volume_fraction, double mu, double sigma,
+		   double salinity) :
+      spheres<log_normal_distribution,
+	      material::pure_ice,
+	      material::pure_water,
+	      Monodispersed_mie>(volume_fraction,
+				 log_normal_distribution(mu,sigma),
+				 material::pure_ice(),
+				 material::pure_water(salinity,273.15)) {}
+  };
+  
+  template<class Monodispersed_mie>
+  struct water_cloud : public spheres<log_normal_distribution,
+				      material::vacuum,
+				      material::pure_water,
+				      Monodispersed_mie> {
+    water_cloud(double volume_fraction, double mu, double sigma) :
+      spheres<log_normal_distribution,
+	      material::vacuum,
+	      material::pure_water,
+	      Monodispersed_mie>(volume_fraction,
+				 log_normal_distribution(mu,sigma),
+				 material::vacuum(),
+				 material::pure_water()) {}
   };
   
 }

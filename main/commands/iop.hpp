@@ -35,31 +35,67 @@ namespace flick {
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="water_cloud") {
+	  double mu = log(std::stod(a(8)));
+	  double sigma = log(std::stod(a(9)));
+	  double volfrac = std::stod(a(7));
+	  if (a(6)=="full_mie") {
+	    material::water_cloud<monodispersed_mie> m(volfrac,mu,sigma);
+	   stream_iops(m, a(1));
+	  } else {
+	    material::water_cloud<parameterized_monodispersed_mie>
+	      m(volfrac,mu,sigma);
+	    stream_iops(m, a(1));
+	  }
+	  /*
 	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9))); 
 	  material::spheres<log_normal_distribution,
 			    material::vacuum,
 			    material::pure_water,
 			    parameterized_monodispersed_mie>
 	    m(std::stod(a(7)), sd, material::vacuum(), material::pure_water());
-	  stream_iops(m, a(1));
+	  */
+	  //stream_iops(m, a(1));
 	}
 	else if (a(5)=="bubbles_in_ice") {
-	  double r_mean = std::stod(a(8));
-	  double width = std::stod(a(9));
+	  double mu = log(std::stod(a(8)));
+	  double sigma = log(std::stod(a(9)));
 	  double volfrac = std::stod(a(7));
-	  //material::bubbles_in_ice<monodispersed_mie> m(volfrac,r_mean,width);
-	  //material::bubbles_in_ice<parameterized_monodispersed_mie> m(volfrac,r_mean,width);
+	  if (a(6)=="full_mie") {
+	    material::bubbles_in_ice<monodispersed_mie> m(volfrac,mu,sigma);
+	   stream_iops(m, a(1));
+	  } else {
+	    material::bubbles_in_ice<parameterized_monodispersed_mie>
+	      m(volfrac,mu,sigma);
+	    stream_iops(m, a(1));
+	  }
 	  
+	  //material::bubbles_in_ice<parameterized_monodispersed_mie> m(volfrac,r_mean,width);
+	  /*
 	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
 	  material::spheres<log_normal_distribution,
 			    material::pure_ice,
 			    material::vacuum,
 			    monodispersed_mie>
 	    m(std::stod(a(7)), sd, material::pure_ice(), material::vacuum());
-	  
-	  stream_iops(m, a(1));
+	  */
+	  //stream_iops(m, a(1));
 	}
 	else if (a(5)=="brines_in_ice") {
+	  double mu = log(std::stod(a(8)));
+	  double sigma = log(std::stod(a(9)));
+	  double volfrac = std::stod(a(7));
+	  double salinity = std::stod(a(10));
+	  if (a(6)=="full_mie") {
+	    material::brines_in_ice<monodispersed_mie> m(volfrac,mu,
+							 sigma,salinity);
+	    stream_iops(m, a(1));
+	  } else {
+	    material::brines_in_ice<parameterized_monodispersed_mie>
+	      m(volfrac,mu, sigma,salinity);
+	    stream_iops(m, a(1));
+	  }
+	  
+	  /*
 	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
 	  double T = 273.15;
 	  double S = std::stod(a(10));	
@@ -71,7 +107,9 @@ namespace flick {
 			    material::pure_water,
 			    parameterized_monodispersed_mie>
 	    m(std::stod(a(7)), sd, material::pure_ice(), w);
-	  stream_iops(m, a(1));
+	  */
+	  
+	  //stream_iops(m, a(1));
 	}
 	else if (a(5)=="henyey_greenstein") {
 	  absorption_coefficient abs{std::stod(a(6))};

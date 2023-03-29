@@ -182,8 +182,10 @@ namespace flick {
     function(double value) : xv_{{1}}, yv_{std::vector<double>{value}} {}
     function(const std::vector<double>& xv, const std::vector<double>& yv)
       : xv_{xv}, yv_{yv} {
-      ensure(xv.size()==yv.size() && xv.size() > 1);
-      xv_.set_step_type(Interpolation::get_step_type());
+      if (yv.size()>1) {
+	ensure(xv.size()==yv.size() && xv.size() > 1);
+	xv_.set_step_type(Interpolation::get_step_type());
+      }
     }
     auto clear() {
       xv_.clear();

@@ -30,7 +30,6 @@ namespace flick {
       return coefficients_;
     }
     std::vector<double> function_values(const std::vector<double>& x) {
-      //return flick::abs(legendre_evaluation(coefficients_).values(x));
       return legendre_evaluation(coefficients_).values(x);
     }
     double scaling_factor() const {
