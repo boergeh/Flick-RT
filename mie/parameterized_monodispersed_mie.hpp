@@ -7,24 +7,30 @@
 
 namespace flick { 
   class parameterized_monodispersed_mie : public basic_monodispersed_mie
-  // Approximate Mie-code solutions for large spheres, see:
-  // Stamnes, K., Hamre, B., Stamnes, J.J., Ryzhikov, G., Biryulina,
-  // M., Mahoney, R., Hauss, B. and Sei, A., 2011. Modeling of
-  // radiation transport in coupled atmosphere-snow-ice-ocean
-  // systems. Journal of Quantitative Spectroscopy and Radiative
-  // Transfer, 112(4), pp.714-726.
+  // Approximate Mie-code solutions for large spheres, see: Stamnes,
+  // K., Hamre, B., Stamnes, J.J., Ryzhikov, G., Biryulina, M.,
+  // Mahoney, R., Hauss, B. and Sei, A., 2011. Modeling of radiation
+  // transport in coupled atmosphere-snow-ice-ocean systems. Journal
+  // of Quantitative Spectroscopy and Radiative Transfer, 112(4),
+  // pp.714-726. Some modifications to be consistent with full Mie
+  // theory, which gives negative absorption for transparent particles
+  // in absorbing host medium - gives less total absorption when
+  // e.g. bubbles are added in water.
   {
     double Qa_{0};
     double n_ = real(m_sphere_ / m_host_);
     pl_function g0_ = read<pl_function>("mie/g_parameterized.txt");
     
     void update_efficiency() {
-      double n = n_;
-      if (n<1)
-      	n = 1/n;
+      stdcomplex n = m_sphere_ / m_host_;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-      double Qa0 = 8./3*imag(m_sphere_)*size_parameter_in_vacuum()*abs(arg);
-      Qa_ = 0.94 * (1 - exp(-Qa0 / 0.94));
+
+      //double Qa0 = 8./3*imag(m_sphere_-m_host_) * abs(arg);
+
+      double Qa0 = 8./3*imag(m_sphere_-m_host_) * real(size_parameter_in_host())
+      	* abs(arg);
+      //std::cout << abs(arg) << std::endl;
+      Qa_ = 0.94 * tanh(Qa0/0.94); //(1 - exp(-Qa0 / 0.94));
     }
     double geometrical_cross_section() const {
       return pi_ * pow(radius_,2);

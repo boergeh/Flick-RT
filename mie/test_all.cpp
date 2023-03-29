@@ -6,7 +6,8 @@
 int main() {
   using namespace flick;
   unit_test t("mie");
-  t.include<p_mono_mie_test>("parameterized_mono_mie");
+  t.include<p_mono_mie_test_A>("parameterized_mono_mie_A");
+  t.include<p_mono_mie_test_B>("parameterized_mono_mie_B");
   
   t.include<mono_mie_bessel_test_A>("mono_mie_bessel_test_A");
   t.include<mono_mie_bessel_test_B>("mono_mie_bessel_test_B");
