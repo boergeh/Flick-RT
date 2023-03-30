@@ -14,8 +14,8 @@ namespace flick {
   // of Quantitative Spectroscopy and Radiative Transfer, 112(4),
   // pp.714-726. Some modifications to be consistent with full Mie
   // theory, which gives negative absorption for transparent particles
-  // in absorbing host medium - gives less total absorption when
-  // e.g. bubbles are added in water.
+  // in an absorbing host medium - gives correctly less total
+  // absorption when e.g. bubbles are added in water.
   {
     double Qa_{0};
     double n_ = real(m_sphere_ / m_host_);
@@ -24,13 +24,9 @@ namespace flick {
     void update_efficiency() {
       stdcomplex n = m_sphere_ / m_host_;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
-
-      //double Qa0 = 8./3*imag(m_sphere_-m_host_) * abs(arg);
-
       double Qa0 = 8./3*imag(m_sphere_-m_host_) * real(size_parameter_in_host())
       	* abs(arg);
-      //std::cout << abs(arg) << std::endl;
-      Qa_ = 0.94 * tanh(Qa0/0.94); //(1 - exp(-Qa0 / 0.94));
+      Qa_ = 0.94 * tanh(Qa0/0.94);
     }
     double geometrical_cross_section() const {
       return pi_ * pow(radius_,2);

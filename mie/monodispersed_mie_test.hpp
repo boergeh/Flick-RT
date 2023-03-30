@@ -131,4 +131,21 @@ namespace flick {
     check_close(mie.scattering_matrix_element(3,3)[0]
 		/mie.scattering_cross_section(),0.119366,1e-3);
   } end_test_case()
+  
+    begin_test_case(mono_mie_test_G) {
+    stdcomplex m_host = 1.33 + 1e-5i;
+    stdcomplex m_sphere = 1;
+    double wl = 500e-9;
+    double r = 50e-6;
+    monodispersed_mie mie(m_host,m_sphere,wl);
+    mie.radius(r);
+    parameterized_monodispersed_mie pmie(m_host,m_sphere,wl);
+    pmie.radius(r);
+    check_close(pmie.absorption_cross_section(),
+    		mie.absorption_cross_section(),11,"abs");
+    check_close(pmie.scattering_cross_section(),
+    		mie.scattering_cross_section(),2,"scat");
+
+  } end_test_case()
+
 }

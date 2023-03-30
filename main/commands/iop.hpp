@@ -36,7 +36,7 @@ namespace flick {
 	}
 	else if (a(5)=="water_cloud") {
 	  double mu = log(std::stod(a(8)));
-	  double sigma = log(std::stod(a(9)));
+	  double sigma = std::stod(a(9));
 	  double volfrac = std::stod(a(7));
 	  if (a(6)=="full_mie") {
 	    material::water_cloud<monodispersed_mie> m(volfrac,mu,sigma);
@@ -58,7 +58,7 @@ namespace flick {
 	}
 	else if (a(5)=="bubbles_in_ice") {
 	  double mu = log(std::stod(a(8)));
-	  double sigma = log(std::stod(a(9)));
+	  double sigma = std::stod(a(9));
 	  double volfrac = std::stod(a(7));
 	  if (a(6)=="full_mie") {
 	    material::bubbles_in_ice<monodispersed_mie> m(volfrac,mu,sigma);
@@ -82,7 +82,7 @@ namespace flick {
 	}
 	else if (a(5)=="brines_in_ice") {
 	  double mu = log(std::stod(a(8)));
-	  double sigma = log(std::stod(a(9)));
+	  double sigma = std::stod(a(9));
 	  double volfrac = std::stod(a(7));
 	  double salinity = std::stod(a(10));
 	  if (a(6)=="full_mie") {
