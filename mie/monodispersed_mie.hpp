@@ -201,6 +201,7 @@ namespace flick
       bool F34 = (row==2 and col==3);
       bool F43 = (row==3 and col==2);
 
+      using namespace vec;
       if (F11 or F22)
 	return 0.5*((abs(S11_)^2)+(abs(S22_)^2));
       else if (F33 or F44)

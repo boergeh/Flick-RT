@@ -92,7 +92,7 @@ namespace flick {
       : basic_quantity(bm,sd) {
       double rc = sd_.center();
       bm_.radius(rc);
-      alpha_ = 3;
+      alpha_ = 2;
       center_quantity_ = {bm_.absorption_cross_section()/pow(rc,alpha_)};
       size_ = 1;
     }  
@@ -110,7 +110,7 @@ namespace flick {
 			const size_distribution& sd)
       : basic_quantity(bm,sd) {
       double rc = sd_.center();
-      alpha_ = 2;
+      alpha_ = 3;
       bm_.radius(rc);
       center_quantity_ = {bm_.scattering_cross_section()/pow(rc,alpha_)};
       size_ = 1;
@@ -132,7 +132,7 @@ namespace flick {
 		     size_t row, size_t col)
       : basic_quantity(bm,sd), row_{row}, col_{col} {
       double rc = sd_.center();
-      alpha_ = 0;
+      alpha_ = 1;
       bm_.radius(rc);
       center_quantity_ = bm_.scattering_matrix_element(row_,col_)
 	/ pow(rc,alpha_);
@@ -148,6 +148,7 @@ namespace flick {
  
   template<class Monodispersed_mie, class Size_distribution>
   class polydispersed_mie {
+    const double epsilon_ = std::numeric_limits<double>::epsilon()*10;
     std::shared_ptr<basic_quantity> bq_;
     Monodispersed_mie mm_;
     Size_distribution sd_;
@@ -158,7 +159,7 @@ namespace flick {
       return pow(10,-precision_+1);
     }
     double relative_rms_error(const stdvector& v1, const stdvector& v2) {
-      return rms(v1/(v2+std::numeric_limits<double>::epsilon()));
+      return vec::rms(v1/(v2+std::numeric_limits<double>::epsilon()));
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
@@ -189,22 +190,22 @@ namespace flick {
       size_t total_q_points = 0;
       size_t n_intervals = 0;
       double x0 = log(bq_->sd().center());
-      stdvector previous_a = bq_->center_quantity()
+      stdvector a = bq_->center_quantity()
 	* bq_->sd().weighted_integral(bq_->alpha());
-      stdvector a = previous_a;
+      stdvector previous_a = a;
       stdvector direction{-1, 1};
 
       //std::cout << "\nEstimated total area before loop "<<a << std::endl;
 
       for (size_t i=0; i<2; ++i) { // Both sides of max
-	double width_factor = 0.2;
+	double width_factor = 0.5;
 	double error = std::numeric_limits<double>::max();
 
 	//std::cout << "Direction " << direction[i] << std::endl;
 
 	double x1 = x0;
 	while (error > error_goal()) {
-	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	 
+	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	
 
 	  //std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
 
@@ -248,16 +249,31 @@ namespace flick {
       precision_ = n;
     }
     double absorption_cross_section() {
-      bq_ = std::make_shared<absorption_quantity>(mm_,sd_);
-      return integral()[0];
+      if (sd_.width() < epsilon_) {
+	mm_.radius(sd_.center());
+	return mm_.absorption_cross_section();
+      } else {
+	bq_ = std::make_shared<absorption_quantity>(mm_,sd_);
+	return integral()[0];
+      }
     }
     double scattering_cross_section() {
-      bq_ = std::make_shared<scattering_quantity>(mm_,sd_);
-      return integral()[0];
+      if (sd_.width() < epsilon_) {
+	mm_.radius(sd_.center());
+	return mm_.scattering_cross_section();
+      } else {
+	bq_ = std::make_shared<scattering_quantity>(mm_,sd_);
+	return integral()[0];
+      }
     }
     stdvector scattering_matrix_element(size_t row, size_t col) {
-      bq_ = std::make_shared<smatrix_quantity>(mm_,sd_,row,col);
-      return integral(); 
+      if (sd_.width() < epsilon_) {
+	mm_.radius(sd_.center());
+	return mm_.scattering_matrix_element(row,col);
+      } else {
+	bq_ = std::make_shared<smatrix_quantity>(mm_,sd_,row,col);
+	return integral(); 
+      }
     }
   };
 }

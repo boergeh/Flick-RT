@@ -90,63 +90,65 @@ namespace flick {
       v[i] /= k;
     return v;
   }
-  double sum(const stdvector& v) {
-    double s=0;
-    for (size_t i=0; i<v.size(); ++i)
-      s += v[i];
-    return s;
-  }
-  stdvector sin(stdvector v) {
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::sin(v[i]);
-    return v;
-  }
-  stdvector cos(stdvector v) {
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::cos(v[i]);
-    return v;
-  }
-  stdcomplex sum(const stdvectorc& v) {
-    stdcomplex s{0,0};
-    for (size_t i=0; i<v.size(); ++i)
-      s += v[i];
-    return s;
-  }
   stdvector operator^(stdvector v, double k) {
     for (size_t i=0; i<v.size(); ++i)
       v[i] = std::pow(v[i],k);
     return v;
   }
-  double rms(const stdvector& v) {
-    return sqrt(pow(sum(v^2),1./2));
-  }
-  stdvector abs(stdvector v) {
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::abs(v[i]);
-    return v;
-  }
-  stdvector abs(const stdvectorc& vc) {
-    stdvector v(vc.size());
-    for (size_t i=0; i<vc.size(); ++i)
-      v[i] = std::abs(vc[i]);
-    return v;
-  }
-  stdvectorc conj(stdvectorc v) {
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::conj(v[i]);
-    return v;
-  }
-  stdvector real(const stdvectorc& vc) {
-    stdvector v(vc.size());
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::real(vc[i]);
-    return v;
-  }
-  stdvector imag(const stdvectorc& vc) {
-    stdvector v(vc.size());
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] = std::imag(vc[i]);
-    return v;
+  namespace vec {
+    double sum(const stdvector& v) {
+      double s=0;
+      for (size_t i=0; i<v.size(); ++i)
+	s += v[i];
+      return s;
+    }
+    stdvector sin(stdvector v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::sin(v[i]);
+      return v;
+    }
+    stdvector cos(stdvector v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::cos(v[i]);
+      return v;
+    }
+    stdcomplex sum(const stdvectorc& v) {
+      stdcomplex s{0,0};
+      for (size_t i=0; i<v.size(); ++i)
+	s += v[i];
+      return s;
+    }
+    double rms(const stdvector& v) {
+      return sqrt(pow(sum(v^2),1./2));
+    }
+    stdvector abs(stdvector v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::abs(v[i]);
+      return v;
+    }
+    stdvector abs(const stdvectorc& vc) {
+      stdvector v(vc.size());
+      for (size_t i=0; i<vc.size(); ++i)
+	v[i] = std::abs(vc[i]);
+      return v;
+    }
+    stdvectorc conj(stdvectorc v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::conj(v[i]);
+      return v;
+    }
+    stdvector real(const stdvectorc& vc) {
+      stdvector v(vc.size());
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::real(vc[i]);
+      return v;
+    }
+    stdvector imag(const stdvectorc& vc) {
+      stdvector v(vc.size());
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::imag(vc[i]);
+      return v;
+    }
   }
   std::ostream& operator<<(std::ostream& out, const stdvector& v) {
     for (const auto& i: v)

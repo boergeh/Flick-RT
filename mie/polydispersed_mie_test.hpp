@@ -61,9 +61,9 @@ namespace flick {
     monodispersed_mie mono_mie(m_host,m_sphere,500e-9);
     mono_mie.angles({0,3,3.14});
 
-    log_normal_distribution sd{log(r),1.1};
+    log_normal_distribution sd{log(r),0.0};
     polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(2);
+    poly_mie.precision(4);
     //double Csca = poly_mie.scattering_cross_section();
     //std::cout << Csca << std::endl;
     //check_close(Csca,5.673e-9,10);

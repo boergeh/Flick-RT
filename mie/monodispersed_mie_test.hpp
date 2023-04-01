@@ -15,7 +15,7 @@ namespace flick {
     stdcomplex z_b{2*constants::pi+epsilon , 0};
     spherical_bessel j_a(z_a,2);
     spherical_bessel j_b(z_b,2);
-    check_close(abs(sum(j_a.terms())),abs(sum(j_b.terms())),1e-4);
+    check_close(abs(vec::sum(j_a.terms())),abs(vec::sum(j_b.terms())),1e-4);
   } end_test_case()
 
   begin_test_case(mono_mie_test_A) {
@@ -107,11 +107,11 @@ namespace flick {
     check_close(Cext,mie.scattering_cross_section()
 		+mie.absorption_cross_section(),1e-12);
     
-    stdvector f = mie.scattering_matrix_element(0,0)*sin(angles);
+    stdvector f = mie.scattering_matrix_element(0,0)*vec::sin(angles);
     double Cscat = 2*pi*pl_function(angles,f).integral();
     check_close(Cscat, mie.scattering_cross_section(),50);
 
-    f = pmie.scattering_matrix_element(0,0)*sin(angles);
+    f = pmie.scattering_matrix_element(0,0)*vec::sin(angles);
     Cscat = 2*pi*pl_function(angles,f).integral();
     check_close(Cscat, pmie.scattering_cross_section(),0.8);
   } end_test_case()

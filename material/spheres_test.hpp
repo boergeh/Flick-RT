@@ -7,8 +7,7 @@ namespace flick {
     material::pure_water pw;
     double r = 10e-6;
     log_normal_distribution sd(log(r),0.0001);
-    double f = 0.1;
-    
+    double f = 0.1;  
     material::spheres<log_normal_distribution,material::vacuum ,
     		material::pure_water,
     		parameterized_monodispersed_mie> s(f,sd,v,pw);
@@ -25,7 +24,6 @@ namespace flick {
     double theta = constants::pi/2;
     m1 = bi.mueller_matrix(unit_vector{theta,0});
     m2 = rayleigh_mueller(theta,0);
-    //std::cout << m1;
     check_close(m1.value(0,0),m2.value(0,0),1e-4);
     check_close(m1.value(0,1),m2.value(0,1),1e-4);
     check_close(m1.value(1,0),m2.value(1,0),1e-4);
@@ -40,6 +38,5 @@ namespace flick {
     m = br.mueller_matrix(unit_vector{1,0});
     material::water_cloud<parameterized_monodispersed_mie> cl(1,log(1e-6),0.0001);
     m = cl.mueller_matrix(unit_vector{1,0});
-    //std::cout << m;
   } end_test_case()
 }

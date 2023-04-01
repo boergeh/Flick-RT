@@ -65,7 +65,7 @@ namespace flick {
       }
       std::vector<double> v(n_out);
       for (size_t j = 0; j < v.size(); ++j) {
-	v[j] = sum(m[j])/2*range;
+	v[j] = vec::sum(m[j])/2*range;
       }
       return v;   
     }
