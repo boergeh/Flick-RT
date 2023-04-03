@@ -8,13 +8,6 @@
 #include "constants.hpp"
 
 namespace flick {
-  template<class T>
-  void write(const T& obj, const std::string& fname, size_t precision=4) {
-    std::ofstream os(fname);
-    os << std::setprecision(precision) << obj;
-    os.close();
-  }
-  
   class limits {
     double l;
     double u;

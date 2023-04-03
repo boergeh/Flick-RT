@@ -6,22 +6,6 @@
 #include <iomanip>
 #include <vector>
 
-/*
-std::ostream& operator<<(std::ostream& out, const std::vector<double>& v) {
-  for (const auto& i: v)
-    std::cout << i << " ";
-  std::cout << "\n";
-  return out;
-}
-*/
-/*
-std::vector<double> stdv_multiply(std::vector<double> v, double k) {
-  for (size_t i = 0; i < v.size(); ++i)
-    v[i] *= k;
-  return v;  
-}
-*/
-
 namespace flick {
   std::string path() {
     std::string path;
@@ -96,7 +80,7 @@ namespace flick {
   }  
 
   template<typename T>
-  void write(T& t, const std::string& file, size_t precision=5) {
+  void write(const T& t, const std::string& file, size_t precision=5) {
     std::ofstream ofs(path()+"/"+file);
     if (!ofs)
       throw std::invalid_argument(file+" could not be opened");
@@ -104,7 +88,6 @@ namespace flick {
     ofs.close();
   }
 }
-
 
 #endif
   

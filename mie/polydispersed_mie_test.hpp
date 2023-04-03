@@ -40,22 +40,7 @@ namespace flick {
 		1/(4./3*constants::pi*pow(r,3)),0.1);
   } end_test_case()
 
-   begin_test_case(poly_mie_test_B) {
-    double pi = constants::pi;
-    stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.5 + 1e-5i;
-    double wl = 500e-9;
-    double r = 1e-6;
-    monodispersed_mie mono_mie(m_host,m_sphere,wl);
-    log_normal_distribution sd{log(r),0.0001};
-    polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(3);
-    std::cout << poly_mie.scattering_cross_section();
-    //std::cout << std::setprecision(15) << poly_mie.xy_points() << std::endl;
-    //write<pl_function>(poly_mie.xy_points(),"xy_points.txt",9);
-  } end_test_case()
-
-   begin_test_case(poly_mie_test_C) {
+  begin_test_case(poly_mie_test_B) {
     stdcomplex m_host = {1,0};
     stdcomplex m_sphere = {1.3,0.0};
     double r = 100e-6;
@@ -66,4 +51,19 @@ namespace flick {
     check_small(poly_mie.absorption_efficiency(),1e-12);
     check_close(poly_mie.scattering_efficiency(),2,0.01);
   } end_test_case()
+
+   begin_test_case(poly_mie_test_C) {
+    double pi = constants::pi;
+    stdcomplex m_host = 1.0;
+    stdcomplex m_sphere = 1.5 + 1e-5i;
+    double wl = 500e-9;
+    double r = 1e-6;
+    monodispersed_mie mono_mie(m_host,m_sphere,wl);
+    log_normal_distribution sd{log(r),0.0001};
+    polydispersed_mie poly_mie(mono_mie,sd);
+    poly_mie.precision(3);
+    std::cout << poly_mie.scattering_cross_section();
+    write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
+  } end_test_case()
+
 }
