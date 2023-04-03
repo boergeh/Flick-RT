@@ -229,6 +229,14 @@ namespace flick {
       yv_.push_back(p.y());
       return *this;
     }
+    auto append(const std::vector<double>& xv, const std::vector<double>& yv) {
+      ensure(xv.size()==yv.size());
+      for (size_t i=0; i<xv.size(); ++i) {
+	//std::cout << xv[i] << " " << yv[i] << std::endl;
+	append(point{xv[i],yv[i]});
+      }
+      return *this;
+    }
     auto scale_x(double factor) {
       ensure(factor > 0);
       xv_.scale(factor);
@@ -364,6 +372,19 @@ namespace flick {
 	throw std::runtime_error("numeric function");
     }
   };
+
+  template<class Interpolation>
+  function<Interpolation> concatenate(function<Interpolation> fa,
+				      function<Interpolation> fb) {
+    if (fa.x().empty())
+      return fb;
+    if (fb.x().empty())
+      return fa;
+    if (fa.x().back() < fb.x().front())      
+      return fa.append(fb.x(),fb.y());
+    else
+      return fb.append(fa.x(),fa.y());
+  }
 
   template<class Interpolation>
   function<Interpolation> multiply(const function<Interpolation>& fa,

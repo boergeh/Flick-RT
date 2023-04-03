@@ -40,44 +40,42 @@ namespace flick {
   template<class Function>
   class gl_integral_vector {
   protected:
-    size_t n_points_;
     two_columns quadrature_;
     Function& f_;
   public:
     gl_integral_vector(Function& f, size_t n_points)
-      : f_{f}, n_points_{n_points} {
+      : f_{f} {
       quadrature_ = read_quadrature(n_points);
     }
-    std::vector<double> value(double from, double to) {
-      double range = to-from;
-      const std::vector<double>& x0 = quadrature_.column(0);
-      std::vector<double> x_shifted = from + (x0+1)/2*range;
-      const std::vector<double>& weights = quadrature_.column(1);
-
-      size_t n_out = f_.size();;
-      std::vector<std::vector<double>> m;
-      m.resize(n_out, std::vector<double>(n_points_));
-      for (size_t i = 0; i < n_points_; ++i) {
-	std::vector<double> y = f_.value(x_shifted[i]);
-	for (size_t j = 0; j < y.size(); ++j) {
-	   m[j][i] = weights[i] * y[j];
+    std::tuple<stdvector,std::vector<stdvector>>
+    xy_integration_points(double from, double to) {
+      stdvector x = from + (quadrature_.column(0)+1)/2*(to-from);
+      std::vector<stdvector> y(f_.size(),stdvector(x.size()));
+      for (size_t i = 0; i < x.size(); ++i) {
+	stdvector f = f_.value(x[i]);
+	for (size_t j = 0; j < f.size(); ++j) {
+	   y[j][i] = f[j];
 	}
       }
-      std::vector<double> v(n_out);
-      for (size_t j = 0; j < v.size(); ++j) {
-	v[j] = vec::sum(m[j])/2*range;
+      return {x,y};
+    }
+    stdvector value(double from, double to) {
+      auto [x,y] = xy_integration_points(from,to);
+      stdvector v(y.size());
+      for (size_t i = 0; i < v.size(); ++i) {
+	v[i] = vec::sum(quadrature_.column(1)*y[i])/2*(to-from);
       }
       return v;   
     }
   };
   
   class legendre {
-    std::vector<std::vector<double>> p_;
+    std::vector<stdvector> p_;
   public:
-    legendre(size_t n_terms, std::vector<double> x) {
+    legendre(size_t n_terms, stdvector x) {
       p_.resize(x.size());
       for (size_t i=0; i < x.size(); ++i) {
-	std::vector<double> P(n_terms);
+	stdvector P(n_terms);
 	P[0] = 1;
 	P[1] = x[i];
 	for (size_t l=1; l < n_terms-1; ++l)
@@ -91,11 +89,11 @@ namespace flick {
   };
 
   template<class Function>
-  std::vector<double> legendre_expansion(const Function& f,
+  stdvector legendre_expansion(const Function& f,
 					 size_t n_terms,
 					 size_t n_points = 64) {
-    std::vector<double> terms(n_terms);
-    std::vector<double> x = read_quadrature(n_points).column(0);
+    stdvector terms(n_terms);
+    stdvector x = read_quadrature(n_points).column(0);
     legendre legendre(n_terms, x);
     for (size_t i=0; i < terms.size(); ++i) {
       pl_function plf;
@@ -109,12 +107,12 @@ namespace flick {
   }
 
   class legendre_evaluation {
-    const std::vector<double>& coefficients_;
+    const stdvector& coefficients_;
   public:
-    legendre_evaluation(const std::vector<double>& coefficients)
+    legendre_evaluation(const stdvector& coefficients)
       : coefficients_{coefficients} {}
-    std::vector<double> values(const std::vector<double>& x) {
-      std::vector<double> values(x.size());
+    stdvector values(const stdvector& x) {
+      stdvector values(x.size());
       legendre legendre(coefficients_.size(), x);
       for (size_t i=0; i < x.size(); ++i) {
 	double v = 0;
@@ -126,26 +124,6 @@ namespace flick {
       return values;
     }
   };
-
-  /*
-  template<class Function>
-  std::vector<double> delta_log(const Function& f,
-				size_t n_terms,
-				size_t n_points = 64) {
-    std::vector<double> x = read_quadrature(n_points).column(0);
-    pl_function pef;
-    for (size_t i=0; i<x.size(); ++i) {
-      pef.append({x[i],log(f.value(x[i]))});
-    }
-    std::vector<double> terms = legendre_expansion(pef,n_terms,n_points);
-    std::vector<double> y = legendre_evaluation(terms).values(x);
-    pef.clear();
-    for (size_t i=0; i<x.size(); ++i) {
-      pef.append({x[i],exp(y[i])});
-    }
-    return legendre_expansion(pef,n_terms,n_points);
-  }
-  */
 }
 
 #endif

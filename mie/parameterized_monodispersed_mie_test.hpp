@@ -23,6 +23,6 @@ namespace flick {
     const double pi = constants::pi;
     double r = 1e-6;
     mono_mie.radius(r);
-    std::cout << "abscr "<< mono_mie.absorption_cross_section() << std::endl;
+    //std::cout << "abscr "<< mono_mie.absorption_cross_section() << std::endl;
   } end_test_case()
 }

@@ -1,6 +1,7 @@
 #include "polydispersed_mie.hpp"
 #include "parameterized_monodispersed_mie.hpp"
 #include "monodispersed_mie.hpp"
+#include "../environment/input_output.hpp"
 
 namespace flick {
   begin_test_case(poly_mie_test_A) {
@@ -42,33 +43,27 @@ namespace flick {
    begin_test_case(poly_mie_test_B) {
     double pi = constants::pi;
     stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.33 + 1e-5i;
+    stdcomplex m_sphere = 1.5 + 1e-5i;
     double wl = 500e-9;
-    double r = 10e-6;
-    stdvector angles = range(0,pi,100).linspace();
+    double r = 1e-6;
     monodispersed_mie mono_mie(m_host,m_sphere,wl);
-    mono_mie.angles(angles);
-    log_normal_distribution sd{log(r),0.01};
+    log_normal_distribution sd{log(r),0.0001};
     polydispersed_mie poly_mie(mono_mie,sd);
-    //std::cout << poly_mie.scattering_cross_section();
-    //std::cout << poly_mie.scattering_matrix_element(0,0);
+    poly_mie.precision(3);
+    std::cout << poly_mie.scattering_cross_section();
+    //std::cout << std::setprecision(15) << poly_mie.xy_points() << std::endl;
+    //write<pl_function>(poly_mie.xy_points(),"xy_points.txt",9);
   } end_test_case()
 
    begin_test_case(poly_mie_test_C) {
     stdcomplex m_host = {1,0};
-    stdcomplex m_sphere = {1.3,0.0001};
-    double r = 10e-6;
-    monodispersed_mie mono_mie(m_host,m_sphere,500e-9);
-    mono_mie.angles({0,3,3.14});
-
-    log_normal_distribution sd{log(r),0.0};
+    stdcomplex m_sphere = {1.3,0.0};
+    double r = 100e-6;
+    parameterized_monodispersed_mie mono_mie(m_host,m_sphere,500e-9);
+    log_normal_distribution sd{log(r),0.1};
     polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(4);
-    //double Csca = poly_mie.scattering_cross_section();
-    //std::cout << Csca << std::endl;
-    //check_close(Csca,5.673e-9,10);
-    //std::cout << poly_mie.absorption_cross_section();
-    //std::cout << poly_mie.scattering_matrix_element(0,0) << std::endl;
-
+    poly_mie.precision(3);
+    check_small(poly_mie.absorption_efficiency(),1e-12);
+    check_close(poly_mie.scattering_efficiency(),2,0.01);
   } end_test_case()
 }

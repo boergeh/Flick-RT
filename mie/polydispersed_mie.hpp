@@ -38,13 +38,16 @@ namespace flick {
       return 1/(x*b_*sqrt(2*pi_))*exp(-pow(log(x)-a_,2)/(2*pow(b_,2))); 
     }
     double center() const {
-      return exp(a_-pow(b_,2));
+      return exp(a_);//exp(a_-pow(b_,2));
     }
     double width() const {
       return b_;
     }
     double weighted_integral(double alpha) const {
       return exp(a_*alpha+0.5*pow(alpha*b_,2));
+    }
+    double average_area() {
+      return constants::pi*weighted_integral(2);
     }
     static std::tuple<double, double>
     from_volume_distribution(double mu, double sigma) {
@@ -82,7 +85,16 @@ namespace flick {
       return alpha_;
     }
     size_t size() const {
-      return size_;
+      return center_quantity_.size();
+    }
+    stdvector transformed_value(const stdvector& quantity) {
+      double r = bm_.radius();
+      return quantity * r * sd_.value(r);
+      //return (quantity - center_quantity_ * pow(r,alpha_)) * r * sd_.value(r);
+    }
+    stdvector transformed_center(const stdvector& quantity) {
+      return 0*quantity;
+      //return quantity/pow(bm_.radius(),alpha_);
     }
   };
  
@@ -90,18 +102,13 @@ namespace flick {
     absorption_quantity(basic_monodispersed_mie& bm,
 			     const size_distribution& sd)
       : basic_quantity(bm,sd) {
-      double rc = sd_.center();
-      bm_.radius(rc);
-      alpha_ = 2;
-      center_quantity_ = {bm_.absorption_cross_section()/pow(rc,alpha_)};
-      size_ = 1;
+      alpha_ = 3;
+      bm_.radius(sd_.center());
+      center_quantity_ = transformed_center({bm_.absorption_cross_section()});
     }  
     stdvector value(double x) {
-      double r = exp(x);
-      bm_.radius(r);
-      double v = (bm_.absorption_cross_section() - center_quantity_[0]
-		  * pow(r,alpha_)) * r * sd_.value(r);
-      return stdvector{v};
+      bm_.radius(exp(x));
+      return transformed_value({bm_.absorption_cross_section()});
     }
   };
 
@@ -109,18 +116,13 @@ namespace flick {
     scattering_quantity(basic_monodispersed_mie& bm,
 			const size_distribution& sd)
       : basic_quantity(bm,sd) {
-      double rc = sd_.center();
-      alpha_ = 3;
-      bm_.radius(rc);
-      center_quantity_ = {bm_.scattering_cross_section()/pow(rc,alpha_)};
-      size_ = 1;
+      alpha_ = 2;
+      bm_.radius(sd_.center());
+      center_quantity_ = transformed_center({bm_.scattering_cross_section()});
     }  
     stdvector value(double x) {
-      double r = exp(x);
-      bm_.radius(r);
-      double v = (bm_.scattering_cross_section() - center_quantity_[0]
-	* pow(r,alpha_)) * r * sd_.value(r);
-      return stdvector{v};
+      bm_.radius(exp(x));
+      return transformed_value({bm_.scattering_cross_section()});
     }
   };
 
@@ -131,18 +133,13 @@ namespace flick {
 		     const size_distribution& sd,
 		     size_t row, size_t col)
       : basic_quantity(bm,sd), row_{row}, col_{col} {
-      double rc = sd_.center();
-      alpha_ = 1;
-      bm_.radius(rc);
-      center_quantity_ = bm_.scattering_matrix_element(row_,col_)
-	/ pow(rc,alpha_);
-      size_ = center_quantity_.size();
+      alpha_ = 2;
+      bm_.radius(sd_.center());
+      center_quantity_ = transformed_center({bm_.scattering_matrix_element(row_,col_)});
     }  
     stdvector value(double x) {
-      double r = exp(x);
-      bm_.radius(r);
-      return (bm_.scattering_matrix_element(row_,col_)
-	      - center_quantity_*pow(r,alpha_)) * r * sd_.value(r);
+      bm_.radius(exp(x));
+      return transformed_value(bm_.scattering_matrix_element(row_,col_));
     }
   };
  
@@ -153,7 +150,11 @@ namespace flick {
     Monodispersed_mie mm_;
     Size_distribution sd_;
     int precision_{3};
+    
     size_t n_quadrature_points_;
+    pl_function xy_points_;
+    stdvector x_;
+    stdvector y_;
 
     double error_goal() {
       return pow(10,-precision_+1);
@@ -170,7 +171,8 @@ namespace flick {
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
       while (error > error_goal() && n < n_points.size()) {
-	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
+	gl_integral_vector gl(*bq_,n_points[n]);
+	a = gl.value(x1,x2);	
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_rms_error(a-previous_a, compare_a);
@@ -180,7 +182,7 @@ namespace flick {
 	  //std::cout << "  delta area "<<  a-previous_a << std::endl;
 	  //std::cout << "  current error "<< error << std::endl;
 	  //std::cout << "  using "<<n_points[n] << " quadrature points\n";	  
-	}
+	}	
 	previous_a = a;
 	n++;	
       }
@@ -191,12 +193,14 @@ namespace flick {
       size_t n_intervals = 0;
       double x0 = log(bq_->sd().center());
       stdvector a = bq_->center_quantity()
-	* bq_->sd().weighted_integral(bq_->alpha());
+      	* bq_->sd().weighted_integral(bq_->alpha());
+      //stdvector previous_a(a.size(),0);
+      //stdvector a = previous_a;
       stdvector previous_a = a;
       stdvector direction{-1, 1};
 
       //std::cout << "\nEstimated total area before loop "<<a << std::endl;
-
+      xy_points_.clear();
       for (size_t i=0; i<2; ++i) { // Both sides of max
 	double width_factor = 0.5;
 	double error = std::numeric_limits<double>::max();
@@ -206,38 +210,40 @@ namespace flick {
 	double x1 = x0;
 	while (error > error_goal()) {
 	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	
-
-	  //std::cout << "x1 and x2: "<<x1 <<" " << x2<< std::endl;
-
-	  stdvector da = integral(x1, x2, previous_a)*direction[i];
-	  total_q_points += n_quadrature_points_;	  
-	  if (n_quadrature_points_ > 90) {
+	  double from = x1;
+	  double to = x2;
+	  if (from > to) {
+	    from = x2;
+	    to = x1;
+	  }
+	  stdvector da = integral(from, to, previous_a);
+	  size_t n = n_quadrature_points_;
+	  total_q_points += n;
+	  
+	  if (n > 90) {
 	    width_factor /= 2;
 	  } else {
 	    a += da;
-
-	    //std::cout << "total area "<< a << std::endl;
-
+	    auto [x,y]=gl_integral_vector(*bq_,n).xy_integration_points(from,to);
+	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    error = relative_rms_error(a-previous_a,a);
 	    previous_a = a;
 	    x1 = x2;
-	    //std::cout << "Width factor: "<< width_factor << std::endl;
-
 	  }
 	  
 	  //std::cout << "error: "<<error <<", goal "
 	  //	    << error_goal_ << std::endl;
 	  
-	  if (n_quadrature_points_ < 8) {
+	  if (n < 8) {
 	    width_factor *= 2;
 	  }
 	  n_intervals++;
 	}
       }
       
-      //std::cout << "Used a total of " << total_q_points
-      //		<< " quadrature points and "<<n_intervals
-      //		<< " sub intervals." <<std::endl;
+      //      std::cout << "Used a total of " << total_q_points
+      //	<< " quadrature points and "<<n_intervals
+      //	<< " sub intervals." <<std::endl;
       
       return a;
     }
@@ -247,6 +253,9 @@ namespace flick {
     }
     void precision(size_t n) {
       precision_ = n;
+    }
+    pl_function xy_points() {
+      return xy_points_;
     }
     double absorption_cross_section() {
       if (sd_.width() < epsilon_) {
@@ -275,6 +284,13 @@ namespace flick {
 	return integral(); 
       }
     }
+    double scattering_efficiency() {
+      return scattering_cross_section()/sd_.average_area();
+    }
+    double absorption_efficiency() {
+      return absorption_cross_section()/sd_.average_area();
+    }
+
   };
 }
 
