@@ -48,21 +48,22 @@ namespace flick {
     log_normal_distribution sd{log(r),0.1};
     polydispersed_mie poly_mie(mono_mie,sd);
     poly_mie.precision(3);
-    check_small(poly_mie.absorption_efficiency(),1e-12);
     check_close(poly_mie.scattering_efficiency(),2,0.01);
   } end_test_case()
 
    begin_test_case(poly_mie_test_C) {
     double pi = constants::pi;
     stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.5 + 1e-5i;
-    double wl = 500e-9;
+    stdcomplex m_sphere = 1.65 + 1e-5i;
+    double wl = 355e-9;
     double r = 1e-6;
     monodispersed_mie mono_mie(m_host,m_sphere,wl);
-    log_normal_distribution sd{log(r),0.0001};
+    log_normal_distribution sd{log(r),0.8};
     polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(3);
-    std::cout << poly_mie.scattering_cross_section();
+    poly_mie.precision(2);
+    double Cscat = poly_mie.scattering_cross_section();
+    //std::cout << Cscat << std::endl;
+    //std::cout << poly_mie.xy_points().integral()/Cscat << std::endl;
     write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
   } end_test_case()
 

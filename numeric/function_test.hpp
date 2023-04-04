@@ -1,7 +1,7 @@
 #include "function.hpp"
 
 namespace flick {
-  begin_test_case(function_test) {
+  begin_test_case(function_test_A) {
     double epsilon = 1e-11;
     function<piecewise_exponential> fa{{-1,1},{1,1}};
     check_small(fa.derivative(-3), epsilon, "a1");
@@ -142,6 +142,14 @@ namespace flick {
     check(!std::isnan(pef.derivative(399e-9)),"pef_c");
     check(pef.integral_limit_b(399e-9,1).has_value(),"pef_d");
 
-
   } end_test_case()
+
+  begin_test_case(function_test_B) {
+    pl_function fa{{0,1,2},{0,1,0}};
+    check_close(fa.integral(),1,1e-12);
+    pl_function fb{{-2,-1,0},{0,-1,0}};
+    check_close(fb.integral(),-1,1e-12);
+    
+  } end_test_case()
+
 }

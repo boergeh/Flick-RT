@@ -312,7 +312,7 @@ namespace flick {
       while(true) {
 	p1 = previous_point(it.get());
 	p2 = next_point(it.get());
-	if(fabs(p2.x()) > fabs(limit_b) || it->is_in_end_bin())
+	if(p2.x() > limit_b || it->is_in_end_bin())
 	  return area + Interpolation{p1,p2}.integral(limit_a, limit_b);
 	area += Interpolation{p1,p2}.integral(limit_a, p2.x());
 	limit_a = p2.x();

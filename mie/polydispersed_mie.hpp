@@ -38,7 +38,7 @@ namespace flick {
       return 1/(x*b_*sqrt(2*pi_))*exp(-pow(log(x)-a_,2)/(2*pow(b_,2))); 
     }
     double center() const {
-      return exp(a_);//exp(a_-pow(b_,2));
+      return exp(a_); // median size
     }
     double width() const {
       return b_;
@@ -149,7 +149,7 @@ namespace flick {
     std::shared_ptr<basic_quantity> bq_;
     Monodispersed_mie mm_;
     Size_distribution sd_;
-    int precision_{3};
+    int precision_{2};
     
     size_t n_quadrature_points_;
     pl_function xy_points_;
@@ -160,7 +160,7 @@ namespace flick {
       return pow(10,-precision_+1);
     }
     double relative_rms_error(const stdvector& v1, const stdvector& v2) {
-      return vec::rms(v1/(v2+std::numeric_limits<double>::epsilon()));
+      return vec::rms(v1/v2);
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
@@ -171,11 +171,14 @@ namespace flick {
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
       while (error > error_goal() && n < n_points.size()) {
-	gl_integral_vector gl(*bq_,n_points[n]);
-	a = gl.value(x1,x2);	
+	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
-	  error = relative_rms_error(a-previous_a, compare_a);
+	  //error = relative_rms_error((a-previous_a)/(x2-x1), compare_a+a);
+	  //double dx = x2-x1;
+	  stdvector da = (a-previous_a);//dx;
+	  //std::cout << dx << " ";
+	  error = relative_rms_error(da, a);
 	  
 	  //std::cout << "  compare area "<< compare_a << std::endl;
 	  //std::cout << "  rest area "<< a << std::endl;
@@ -194,22 +197,19 @@ namespace flick {
       double x0 = log(bq_->sd().center());
       stdvector a = bq_->center_quantity()
       	* bq_->sd().weighted_integral(bq_->alpha());
-      //stdvector previous_a(a.size(),0);
-      //stdvector a = previous_a;
       stdvector previous_a = a;
       stdvector direction{-1, 1};
 
       //std::cout << "\nEstimated total area before loop "<<a << std::endl;
       xy_points_.clear();
+      double max_step_width = 0.3;
+      double total_width = 0;
+      double step_width = max_step_width;
       for (size_t i=0; i<2; ++i) { // Both sides of max
-	double width_factor = 0.5;
 	double error = std::numeric_limits<double>::max();
-
-	//std::cout << "Direction " << direction[i] << std::endl;
-
 	double x1 = x0;
 	while (error > error_goal()) {
-	  double x2 = x1 + width_factor * bq_->sd().width()*direction[i];	
+	  double x2 = x1 + step_width * bq_->sd().width()*direction[i];	
 	  double from = x1;
 	  double to = x2;
 	  if (from > to) {
@@ -221,22 +221,31 @@ namespace flick {
 	  total_q_points += n;
 	  
 	  if (n > 90) {
-	    width_factor /= 2;
+	    step_width /= 2;
 	  } else {
 	    a += da;
-	    auto [x,y]=gl_integral_vector(*bq_,n).xy_integration_points(from,to);
-	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
-	    error = relative_rms_error(a-previous_a,a);
+	    total_width += step_width;
+	    auto [x,y]=gl_integral_vector(*bq_,n).
+	      xy_integration_points(from,to);
+	    //if (x.size()>2)
+
+	    //xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
+	    
+	    //error = relative_rms_error((a-previous_a)/step_width,a);
+	    double dx = x2-x1;
+	    //std::cout << "a=" << a;
+	    //stdvector da = (a-previous_a)/dx*bq_->sd().width();
+	    //std::cout << da_dx << " ";
+	    //error = relative_rms_error(da/dx*bq_->sd().width(),a);
+	    error = relative_rms_error(da/dx*bq_->sd().width(),a);
 	    previous_a = a;
 	    x1 = x2;
-	  }
-	  
-	  //std::cout << "error: "<<error <<", goal "
-	  //	    << error_goal_ << std::endl;
-	  
+	  }	  
 	  if (n < 8) {
-	    width_factor *= 2;
+	    step_width *= 2;
 	  }
+	  if (step_width > max_step_width)
+	    step_width = max_step_width;
 	  n_intervals++;
 	}
       }
