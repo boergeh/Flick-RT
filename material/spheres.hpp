@@ -36,12 +36,11 @@ namespace material {
 	Monodispersed_mie mono_mie(m_host,m_sphere,wavelength());
 	mono_mie.angles(tabulated_angles_);
 	poly_mie_ = std::make_shared<pm>(mono_mie, size_distribution_);
-	
 	for (size_t i=0; i < row_.size(); ++i) {
 	  scattering_matrix_elements_[i] =
 	    pl_function(tabulated_angles_,poly_mie_->
 			scattering_matrix_element(row_[i],col_[i]));
-	}	
+	}
       }
       has_changed_ = false;
     }

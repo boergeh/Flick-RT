@@ -38,7 +38,7 @@ namespace flick {
       return 1/(x*b_*sqrt(2*pi_))*exp(-pow(log(x)-a_,2)/(2*pow(b_,2))); 
     }
     double center() const {
-      return exp(a_); // median size
+      return exp(a_+3*pow(b_,2)); // median size volume distribution
     }
     double width() const {
       return b_;
@@ -159,14 +159,14 @@ namespace flick {
     double error_goal() {
       return pow(10,-precision_+1);
     }
-    double relative_rms_error(const stdvector& v1, const stdvector& v2) {
-      return vec::rms(v1/v2);
+    double relative_area_change(const stdvector& da, const stdvector& a,
+				double dx) {
+      return vec::rms(da/dx*bq_->sd().width()/a);
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
       std::vector<size_t> n_points{2,4,8,16,32,64,100};
-      double error = std::numeric_limits<double>::max();
-      
+      double error = std::numeric_limits<double>::max();    
       stdvector a(bq_->size(),0);
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
@@ -174,17 +174,7 @@ namespace flick {
 	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
-	  //error = relative_rms_error((a-previous_a)/(x2-x1), compare_a+a);
-	  //double dx = x2-x1;
-	  stdvector da = (a-previous_a);//dx;
-	  //std::cout << dx << " ";
-	  error = relative_rms_error(da, a);
-	  
-	  //std::cout << "  compare area "<< compare_a << std::endl;
-	  //std::cout << "  rest area "<< a << std::endl;
-	  //std::cout << "  delta area "<<  a-previous_a << std::endl;
-	  //std::cout << "  current error "<< error << std::endl;
-	  //std::cout << "  using "<<n_points[n] << " quadrature points\n";	  
+	  error = relative_area_change(a-previous_a,compare_a+a,x2-x1);
 	}	
 	previous_a = a;
 	n++;	
@@ -197,51 +187,31 @@ namespace flick {
       double x0 = log(bq_->sd().center());
       stdvector a = bq_->center_quantity()
       	* bq_->sd().weighted_integral(bq_->alpha());
-      stdvector previous_a = a;
       stdvector direction{-1, 1};
-
-      //std::cout << "\nEstimated total area before loop "<<a << std::endl;
       xy_points_.clear();
-      double max_step_width = 0.3;
-      double total_width = 0;
+      double max_step_width = 0.4;
       double step_width = max_step_width;
       for (size_t i=0; i<2; ++i) { // Both sides of max
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
 	while (error > error_goal()) {
 	  double x2 = x1 + step_width * bq_->sd().width()*direction[i];	
-	  double from = x1;
-	  double to = x2;
-	  if (from > to) {
-	    from = x2;
-	    to = x1;
-	  }
-	  stdvector da = integral(from, to, previous_a);
-	  size_t n = n_quadrature_points_;
-	  total_q_points += n;
+	  stdvector da = integral(x1, x2, a)*direction[i];
+	  total_q_points += n_quadrature_points_;
 	  
-	  if (n > 90) {
+	  if ( n_quadrature_points_ > 90) {
 	    step_width /= 2;
 	  } else {
 	    a += da;
-	    total_width += step_width;
-	    auto [x,y]=gl_integral_vector(*bq_,n).
-	      xy_integration_points(from,to);
-	    //if (x.size()>2)
 
-	    //xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
+	    auto [x,y]=gl_integral_vector(*bq_, n_quadrature_points_).
+	      xy_integration_points(x1,x2);	    
+	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    
-	    //error = relative_rms_error((a-previous_a)/step_width,a);
-	    double dx = x2-x1;
-	    //std::cout << "a=" << a;
-	    //stdvector da = (a-previous_a)/dx*bq_->sd().width();
-	    //std::cout << da_dx << " ";
-	    //error = relative_rms_error(da/dx*bq_->sd().width(),a);
-	    error = relative_rms_error(da/dx*bq_->sd().width(),a);
-	    previous_a = a;
+	    error = relative_area_change(da,a+da,x2-x1);
 	    x1 = x2;
 	  }	  
-	  if (n < 8) {
+	  if (n_quadrature_points_ < 8) {
 	    step_width *= 2;
 	  }
 	  if (step_width > max_step_width)
@@ -249,11 +219,11 @@ namespace flick {
 	  n_intervals++;
 	}
       }
-      
-      //      std::cout << "Used a total of " << total_q_points
-      //	<< " quadrature points and "<<n_intervals
-      //	<< " sub intervals." <<std::endl;
-      
+      /*
+            std::cout << "Used a total of " << total_q_points
+      	<< " quadrature points and "<<n_intervals
+      	<< " sub intervals." <<std::endl;
+      */
       return a;
     }
   public:

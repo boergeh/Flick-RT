@@ -181,9 +181,20 @@ namespace flick {
     function() = default;
     function(double value) : xv_{{1}}, yv_{std::vector<double>{value}} {}
     function(const std::vector<double>& xv, const std::vector<double>& yv)
-      : xv_{xv}, yv_{yv} {
+    {
+      if (yv.size()>1 && xv.front() > xv.back()) {
+	std::vector<double> a = xv;
+	std::vector<double> b = yv;
+	std::reverse(a.begin(), a.end());
+	std::reverse(b.begin(), b.end());
+	xv_ = a;
+	yv_ = b;
+      } else {
+	xv_ = xv;
+	yv_ = yv;
+      }	
       if (yv.size()>1) {
-	ensure(xv.size()==yv.size() && xv.size() > 1);
+	ensure(xv.size()==yv.size());
 	xv_.set_step_type(Interpolation::get_step_type());
       }
     }
@@ -232,7 +243,6 @@ namespace flick {
     auto append(const std::vector<double>& xv, const std::vector<double>& yv) {
       ensure(xv.size()==yv.size());
       for (size_t i=0; i<xv.size(); ++i) {
-	//std::cout << xv[i] << " " << yv[i] << std::endl;
 	append(point{xv[i],yv[i]});
       }
       return *this;
