@@ -3,7 +3,7 @@ Command:
 
   flick mie <vacuum_wavelength> <host_refractive_index>
     <sphere_refractive_index> <median_radius>
-    <size_distribution_width> <significan_figures> <output_kind>
+    <size_distribution_width> <percentage_accuracy> <output_kind>
     [output_specific_parameters]...
 
   Lorenz-Mie C++ calculator. It is implemented based on (1)
@@ -16,9 +16,9 @@ Command:
   Spectroscopy and Radiative Transfer, 217, pp.274-277. In addition,
   an extension has been implemented which dynamically integrates over
   a log-normal size distribution, searching for integration limits and
-  number of integration points until a given number of significant
-  figures are obtained. When the distribution width approaches zero, a
-  full double precision output accuracy is always provided.
+  number of integration points until a given accuracy is
+  obtained. When the distribution width approaches zero, a full double
+  precision output accuracy is always provided.
 
 Parameters:
 	
@@ -33,11 +33,6 @@ Parameters:
     sigma, which is the standard deviation of the natural
     log-transformed radii,
     https://en.wikipedia.org/wiki/Log-normal_distribution.
-
-  <significan_figures>
-
-    an integer requesting a given number significant figures in the
-    output
     
   <output_kind> [output_specific_parameters]...
 
@@ -66,11 +61,11 @@ Parameters:
 
 Examples:
 
-  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 3 absorption_cross_section
+  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 5 absorption_cross_section
 
-  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 3 scattering_cross_section
+  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 5 scattering_cross_section
 
-  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 3 scattering_matrix_element 0 0 10
+  flick mie 500e-9 1.3+1e-5i 1.0 1e-6 0.01 5 scattering_matrix_element 0 0 10
 
 
 Remember: unless other units are explicitly given, Flick is always

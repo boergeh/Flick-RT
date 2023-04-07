@@ -31,22 +31,22 @@ namespace flick {
 	stdcomplex m_sphere = stoc(a(3));	
 	double median_r = std::stod(a(4));	
 	double sigma = std::stod(a(5));	
-	int precision = std::stoi(a(6));	
+	double paccuracy = std::stoi(a(6));	
 	std::string output_kind = a(7);
 	log_normal_distribution sd(log(median_r),sigma);
 	monodispersed_mie mono_mie(m_host,m_sphere,wl);
 	int n_out = 6;
-	if (precision > n_out)
-	  n_out = precision;
+	if (-log10(paccuracy) > n_out)
+	  n_out = -log10(paccuracy);
 	if (output_kind=="absorption_cross_section") {
 	  polydispersed_mie pm(mono_mie,sd);
-	  pm.precision(precision);
+	  pm.percentage_accuracy(paccuracy);
 	  std::cout << std::setprecision(n_out)
 		    << pm.absorption_cross_section() << std::endl;
 	}
 	else if (output_kind=="scattering_cross_section") {
 	  polydispersed_mie pm(mono_mie,sd);
-	  pm.precision(precision);
+	  pm.percentage_accuracy(paccuracy);
 	  std::cout << std::setprecision(n_out)
 		    << pm.scattering_cross_section() << std::endl;
 	}
@@ -57,7 +57,7 @@ namespace flick {
 	  stdvector angles = range(0, 2*pi, n_points).linspace();
 	  mono_mie.angles(angles);
 	  polydispersed_mie pm(mono_mie,sd);
-	  pm.precision(precision);
+	  pm.percentage_accuracy(paccuracy);
 	  stdvector F = pm.scattering_matrix_element(row,col); 
 	  std::cout << std::setprecision(n_out)
 		    << pl_function{angles,F};

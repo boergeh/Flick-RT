@@ -89,12 +89,12 @@ namespace flick {
     }
     stdvector transformed_value(const stdvector& quantity) {
       double r = bm_.radius();
-      return quantity * r * sd_.value(r);
-      //return (quantity - center_quantity_ * pow(r,alpha_)) * r * sd_.value(r);
+      //return quantity * r * sd_.value(r);
+      return (quantity - center_quantity_ * pow(r,alpha_)) * r * sd_.value(r);
     }
     stdvector transformed_center(const stdvector& quantity) {
-      return 0*quantity;
-      //return quantity/pow(bm_.radius(),alpha_);
+      //return 0*quantity;
+      return quantity/pow(bm_.radius(),alpha_);
     }
   };
  
@@ -149,19 +149,17 @@ namespace flick {
     std::shared_ptr<basic_quantity> bq_;
     Monodispersed_mie mm_;
     Size_distribution sd_;
-    int precision_{2};
+    double accuracy_{0.05};
     
     size_t n_quadrature_points_;
     pl_function xy_points_;
     stdvector x_;
     stdvector y_;
 
-    double error_goal() {
-      return pow(10,-precision_+1);
-    }
     double relative_area_change(const stdvector& da, const stdvector& a,
 				double dx) {
-      return vec::rms(da/dx*bq_->sd().width()/a);
+      double w = bq_->sd().width();
+      return vec::rms(sqrt(w/abs(dx))*da/dx*w/a);
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
@@ -170,8 +168,8 @@ namespace flick {
       stdvector a(bq_->size(),0);
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
-      while (error > error_goal() && n < n_points.size()) {
-	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);	
+      while (error > accuracy_ and n < n_points.size()) {
+	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_area_change(a-previous_a,compare_a+a,x2-x1);
@@ -189,33 +187,35 @@ namespace flick {
       	* bq_->sd().weighted_integral(bq_->alpha());
       stdvector direction{-1, 1};
       xy_points_.clear();
-      double max_step_width = 0.4;
-      double step_width = max_step_width;
+      double max_step_factor = 0.5;
+      double step_factor = max_step_factor;
       for (size_t i=0; i<2; ++i) { // Both sides of max
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
-	while (error > error_goal()) {
-	  double x2 = x1 + step_width * bq_->sd().width()*direction[i];	
+	double total_step_width = 0;
+	while (error > accuracy_ || total_step_width < sd_.width()) {
+	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];	
 	  stdvector da = integral(x1, x2, a)*direction[i];
 	  total_q_points += n_quadrature_points_;
 	  
 	  if ( n_quadrature_points_ > 90) {
-	    step_width /= 2;
+	    step_factor /= 2;
 	  } else {
 	    a += da;
 
 	    auto [x,y]=gl_integral_vector(*bq_, n_quadrature_points_).
 	      xy_integration_points(x1,x2);	    
 	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
-	    
-	    error = relative_area_change(da,a+da,x2-x1);
+	    double dx = x2-x1;
+	    error = relative_area_change(da,a,dx);
+	    total_step_width += abs(dx);
 	    x1 = x2;
 	  }	  
 	  if (n_quadrature_points_ < 8) {
-	    step_width *= 2;
+	    step_factor *= 2;
 	  }
-	  if (step_width > max_step_width)
-	    step_width = max_step_width;
+	  if (step_factor > max_step_factor)
+	    step_factor = max_step_factor;
 	  n_intervals++;
 	}
       }
@@ -230,8 +230,8 @@ namespace flick {
     polydispersed_mie(Monodispersed_mie mm, Size_distribution sd)
       : mm_{mm}, sd_{sd} {
     }
-    void precision(size_t n) {
-      precision_ = n;
+    void percentage_accuracy(double p) {
+      accuracy_ = p/100;
     }
     pl_function xy_points() {
       return xy_points_;

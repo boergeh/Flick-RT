@@ -28,13 +28,14 @@ namespace flick {
 	  mono_mie.scattering_matrix_element(0,0)[1],"b");
 
     polydispersed_mie poly_mie(mono_mie,distribution);
-    poly_mie.precision(3);
+    double p = 0.02;
+    poly_mie.percentage_accuracy(p);
     check_close(poly_mie.absorption_cross_section(),
-    		mono_mie.absorption_cross_section(),0.02,"c");
+    		mono_mie.absorption_cross_section(),p,"c");
     check_close(poly_mie.scattering_cross_section(),
-    		mono_mie.scattering_cross_section(),0.02,"d");
+    		mono_mie.scattering_cross_section(),p,"d");
     check_close(poly_mie.scattering_matrix_element(0,0)[0],
-    		mono_mie.scattering_matrix_element(0,0)[0],0.02,"e");
+    		mono_mie.scattering_matrix_element(0,0)[0],p,"e");
 
     check_close(distribution.particles_per_volume(1),
 		1/(4./3*constants::pi*pow(r,3)),0.1,"f");
@@ -47,8 +48,9 @@ namespace flick {
     parameterized_monodispersed_mie mono_mie(m_host,m_sphere,500e-9);
     log_normal_distribution sd{log(r),0.1};
     polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(3);
-    check_close(poly_mie.scattering_efficiency(),2,0.01);
+    double p = 0.01;
+    poly_mie.percentage_accuracy(p);
+    check_close(poly_mie.scattering_efficiency(),2,p);
   } end_test_case()
 
    begin_test_case(poly_mie_test_C) {
@@ -60,7 +62,7 @@ namespace flick {
     monodispersed_mie mono_mie(m_host,m_sphere,wl);
     log_normal_distribution sd{log(r),0.5};
     polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.precision(2);
+    poly_mie.percentage_accuracy(5);
     double Cscat = poly_mie.scattering_cross_section();
     //std::cout << Cscat << std::endl;
     //std::cout << poly_mie.xy_points().integral()/Cscat << std::endl;
