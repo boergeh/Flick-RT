@@ -31,7 +31,7 @@ namespace flick {
 	stdcomplex m_sphere = stoc(a(3));	
 	double median_r = std::stod(a(4));	
 	double sigma = std::stod(a(5));	
-	double paccuracy = std::stoi(a(6));	
+	double paccuracy = std::stod(a(6));	
 	std::string output_kind = a(7);
 	log_normal_distribution sd(log(median_r),sigma);
 	monodispersed_mie mono_mie(m_host,m_sphere,wl);

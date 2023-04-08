@@ -71,12 +71,13 @@ namespace flick {
 
   begin_test_case(poly_mie_test_D) {
     stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.65+1e-5i;
+    stdcomplex m_sphere = 1.03+1e-9i;
     double wl = 355e-9;
     monodispersed_mie mono_mie(m_host,m_sphere,wl);  
     mono_mie.angles({0,constants::pi});
-    log_normal_distribution sd{log(1e-6),0.0};
+    log_normal_distribution sd{log(1e-6),0.2};
     polydispersed_mie poly_mie(mono_mie,sd);
+     poly_mie.percentage_accuracy(0.1);
     stdvector F11 = poly_mie.scattering_matrix_element(0,0);
     check(F11[0]/F11[1] > 10);
     //std::cout << F11[0] << " " << F11[1];
