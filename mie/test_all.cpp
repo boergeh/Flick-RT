@@ -18,11 +18,11 @@ int main() {
   t.include<mono_mie_test_E>("mono_mie_test_E");
   t.include<mono_mie_test_F>("mono_mie_test_F");
   t.include<mono_mie_test_G>("mono_mie_test_G");
-  //t.include<mono_mie_test_H>("mono_mie_test_H");
 
   t.include<poly_mie_test_A>("poly_mie_test_A");
   t.include<poly_mie_test_B>("poly_mie_test_B");
   t.include<poly_mie_test_C>("poly_mie_test_C");
+  t.include<poly_mie_test_D>("poly_mie_test_D");
 
   t.run_test_cases();
   return 0;

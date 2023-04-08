@@ -38,7 +38,7 @@ namespace flick {
       return 1/(x*b_*sqrt(2*pi_))*exp(-pow(log(x)-a_,2)/(2*pow(b_,2))); 
     }
     double center() const {
-      return exp(a_+3*pow(b_,2)); // median size volume distribution
+      return exp(a_+3*pow(b_,2)); // median of size volume distribution
     }
     double width() const {
       return b_;
@@ -193,12 +193,12 @@ namespace flick {
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
 	double total_step_width = 0;
-	while (error > accuracy_ || total_step_width < sd_.width()) {
+	while (error > accuracy_ || total_step_width < 0.5*sd_.width()) {
 	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];	
 	  stdvector da = integral(x1, x2, a)*direction[i];
 	  total_q_points += n_quadrature_points_;
 	  
-	  if ( n_quadrature_points_ > 90) {
+	  if (n_quadrature_points_ > 90) {
 	    step_factor /= 2;
 	  } else {
 	    a += da;
@@ -269,7 +269,6 @@ namespace flick {
     double absorption_efficiency() {
       return absorption_cross_section()/sd_.average_area();
     }
-
   };
 }
 

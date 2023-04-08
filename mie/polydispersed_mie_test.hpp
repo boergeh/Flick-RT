@@ -69,4 +69,19 @@ namespace flick {
     write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
   } end_test_case()
 
+  begin_test_case(poly_mie_test_D) {
+    stdcomplex m_host = 1.0;
+    stdcomplex m_sphere = 1.65+1e-5i;
+    double wl = 355e-9;
+    monodispersed_mie mono_mie(m_host,m_sphere,wl);  
+    mono_mie.angles({0,constants::pi});
+    log_normal_distribution sd{log(1e-6),0.0};
+    polydispersed_mie poly_mie(mono_mie,sd);
+    stdvector F11 = poly_mie.scattering_matrix_element(0,0);
+    check(F11[0]/F11[1] > 10);
+    //std::cout << F11[0] << " " << F11[1];
+    
+  } end_test_case()
+
+
 }

@@ -145,23 +145,6 @@ namespace flick {
     		mie.absorption_cross_section(),11,"abs");
     check_close(pmie.scattering_cross_section(),
     		mie.scattering_cross_section(),2,"scat");
-  } end_test_case()
-
-    begin_test_case(mono_mie_test_H) {
-    stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.65+1e-5i;
-    double wl = 355e-9;
-    stdvector r = range(0.01e-6,1.4e-6,1e5).linspace();
-    monodispersed_mie mie(m_host,m_sphere,wl);
-    pl_function f;
-    for (size_t i=0; i<r.size(); ++i) {
-      mie.radius(r[i]);
-      double area = constants::pi * pow(r[i],2);
-      f.append({r[i],mie.absorption_cross_section()/area});
-    }
-    write(f,"mie/xy_points.txt",9);
-    
 
   } end_test_case()
-
 }
