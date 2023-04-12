@@ -118,8 +118,11 @@ namespace flick {
 	s += v[i];
       return s;
     }
+    double mean(const stdvector& v) {
+      return sum(v)/v.size();
+    }
     double rms(const stdvector& v) {
-      return sqrt(pow(sum(v^2),1./2));
+      return sqrt(mean(v^2));
     }
     stdvector abs(stdvector v) {
       for (size_t i=0; i<v.size(); ++i)

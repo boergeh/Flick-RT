@@ -158,8 +158,9 @@ namespace flick {
 
     double relative_area_change(const stdvector& da, const stdvector& a,
 				double dx) {
-      double w = bq_->sd().width();
-      return vec::rms(sqrt(w/abs(dx))*da/dx*w/a);
+      double w = 4*bq_->sd().width();
+      return vec::rms(sqrt(w/abs(dx))*da/a);
+      //return vec::rms(sqrt(w/abs(dx))*da/dx*w/a);
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
@@ -193,7 +194,7 @@ namespace flick {
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
 	double total_step_width = 0;
-	while (error > accuracy_ || total_step_width < 0.5*sd_.width()) {
+	while (error > accuracy_ || total_step_width < 1.0*sd_.width()) {
 	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];	
 	  stdvector da = integral(x1, x2, a)*direction[i];
 	  total_q_points += n_quadrature_points_;
@@ -202,9 +203,8 @@ namespace flick {
 	    step_factor /= 2;
 	  } else {
 	    a += da;
-
 	    auto [x,y]=gl_integral_vector(*bq_, n_quadrature_points_).
-	      xy_integration_points(x1,x2);	    
+	      xy_integration_points(x1,x2);
 	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    double dx = x2-x1;
 	    error = relative_area_change(da,a,dx);

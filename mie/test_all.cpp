@@ -23,6 +23,7 @@ int main() {
   t.include<poly_mie_test_B>("poly_mie_test_B");
   t.include<poly_mie_test_C>("poly_mie_test_C");
   t.include<poly_mie_test_D>("poly_mie_test_D");
+  t.include<poly_mie_test_E>("poly_mie_test_E");
 
   t.run_test_cases();
   return 0;
