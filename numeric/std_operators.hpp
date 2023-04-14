@@ -112,6 +112,11 @@ namespace flick {
 	v[i] = std::cos(v[i]);
       return v;
     }
+    stdvector acos(stdvector v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::acos(v[i]);
+      return v;
+    }
     stdcomplex sum(const stdvectorc& v) {
       stdcomplex s{0,0};
       for (size_t i=0; i<v.size(); ++i)

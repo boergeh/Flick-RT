@@ -150,33 +150,36 @@ namespace flick {
     Monodispersed_mie mm_;
     Size_distribution sd_;
     double accuracy_{0.05};
-    
+    stdvector integral_of_abs_integrand_;
+
     size_t n_quadrature_points_;
     pl_function xy_points_;
-    stdvector x_;
-    stdvector y_;
 
     double relative_area_change(const stdvector& da, const stdvector& a,
 				double dx) {
-      double w = 4*bq_->sd().width();
+      double w = 5*bq_->sd().width();
       return vec::rms(sqrt(w/abs(dx))*da/a);
       //return vec::rms(sqrt(w/abs(dx))*da/dx*w/a);
+      //return vec::rms(da/a*w/dx);
+      //return vec::rms(da/a);
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
-      std::vector<size_t> n_points{2,4,8,16,32,64,100};
+      std::vector<size_t> n_points{1,2,4,8,16,32,64,128,256,512,1024,2048};
       double error = std::numeric_limits<double>::max();    
       stdvector a(bq_->size(),0);
       stdvector previous_a(bq_->size(),0);
       size_t n = 0;
       while (error > accuracy_ and n < n_points.size()) {
-	a = gl_integral_vector(*bq_,n_points[n]).value(x1,x2);
+	gl_integral_vector gl(*bq_,n_points[n]);
+	a = gl.value(x1,x2);
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_area_change(a-previous_a,compare_a+a,x2-x1);
 	}	
 	previous_a = a;
-	n++;	
+	n++;
+	integral_of_abs_integrand_ = gl.of_abs_integrand(x1,x2);
       }
       return a;
     }  
@@ -188,18 +191,19 @@ namespace flick {
       	* bq_->sd().weighted_integral(bq_->alpha());
       stdvector direction{-1, 1};
       xy_points_.clear();
-      double max_step_factor = 0.5;
+      double max_step_factor = 0.25;
       double step_factor = max_step_factor;
       for (size_t i=0; i<2; ++i) { // Both sides of max
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
 	double total_step_width = 0;
-	while (error > accuracy_ || total_step_width < 1.0*sd_.width()) {
+	//while (error > accuracy_ || total_step_width < 1.0*sd_.width()) {
+	while (error > accuracy_) {
 	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];	
 	  stdvector da = integral(x1, x2, a)*direction[i];
 	  total_q_points += n_quadrature_points_;
 	  
-	  if (n_quadrature_points_ > 90) {
+	  if (n_quadrature_points_ >= 2048) {
 	    step_factor /= 2;
 	  } else {
 	    a += da;
@@ -207,7 +211,9 @@ namespace flick {
 	      xy_integration_points(x1,x2);
 	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    double dx = x2-x1;
-	    error = relative_area_change(da,a,dx);
+	    //error = relative_area_change(da,a,dx);
+	    stdvector da_conservative = integral_of_abs_integrand_;
+	    error = relative_area_change(da_conservative,a,dx);
 	    total_step_width += abs(dx);
 	    x1 = x2;
 	  }	  

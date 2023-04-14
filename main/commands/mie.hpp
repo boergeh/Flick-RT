@@ -54,7 +54,10 @@ namespace flick {
 	  int row = std::stoi(a(8));
 	  int col = std::stoi(a(9));
 	  int n_points = std::stoi(a(10));
-	  stdvector angles = range(0, pi, n_points).linspace();
+	  stdvector mu = read_quadrature(n_points).column(0);
+	  std::reverse(mu.begin(),mu.end());
+	  stdvector angles = vec::acos(mu);
+	  //stdvector angles = range(0, pi, n_points).linspace();
 	  mono_mie.angles(angles);
 	  polydispersed_mie pm(mono_mie,sd);
 	  pm.percentage_accuracy(paccuracy);

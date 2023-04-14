@@ -18,7 +18,7 @@ namespace flick {
       }
     };
     size_t n_terms = 12;
-    size_t quad_points = 100;
+    size_t quad_points = 128;
     check_close(gl_integral(f(),quad_points).value(-1,1),
     		1/(2*constants::pi),0.2);
     std::vector<double> terms = legendre_expansion(f(),n_terms,quad_points); 

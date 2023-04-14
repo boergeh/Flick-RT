@@ -24,8 +24,7 @@ namespace flick {
       arma::vec v = arma::ones(x.size());      
       arma::vec c = arma::solve(m,v);
       coefficients_ = arma::conv_to<std::vector<double>>::from(c);
-    }
-    
+    }    
     std::vector<double> coefficients() {
       return coefficients_;
     }

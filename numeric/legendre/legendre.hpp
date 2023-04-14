@@ -67,6 +67,14 @@ namespace flick {
       }
       return v;   
     }
+    stdvector of_abs_integrand(double from, double to) {
+      auto [x,y] = xy_integration_points(from,to);
+      stdvector v(y.size());
+      for (size_t i = 0; i < v.size(); ++i) {
+	v[i] = vec::sum(quadrature_.column(1)*vec::abs(y[i]))/2*(to-from);
+      }
+      return v;   
+    }
   };
   
   class legendre {

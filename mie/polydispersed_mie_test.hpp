@@ -95,8 +95,9 @@ namespace flick {
     double p = 5;
     poly_mie.percentage_accuracy(p);
     double F11 = poly_mie.scattering_matrix_element(0,0)[0];
-    double bench = 6.130e-13;
-    //write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
+    double bench = 6.131e-13;
+    //std::cout << F11 << std::endl;
+    // write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
     check_close(F11,bench,p);
     check_fast(1);
     
