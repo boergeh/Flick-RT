@@ -103,5 +103,22 @@ namespace flick {
     
   } end_test_case()
 
+   begin_test_case(poly_mie_test_t_matrix) {
+    stdcomplex m_host = 1.36;
+    stdcomplex m_sphere = 1.580+0.3915e-3i;
+    double wl = 368e-9;
+    monodispersed_mie mono_mie(m_host,m_sphere,wl);  
+    mono_mie.angles({0});
+    log_normal_distribution sd{log(182e-9),log(1.11)};
+    polydispersed_mie poly_mie(mono_mie,sd);
+    poly_mie.percentage_accuracy(0.1);
+    double t_matrix_C_scat = 0.9849e5*pow(1e-9,2); 
+    double t_matrix_C_abs = 0.9894e5*pow(1e-9,2)-t_matrix_C_scat;
+    double t_matrix_F11 = 20.77 * t_matrix_C_scat/(4*constants::pi);
+    check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.3);
+    check_close(poly_mie.absorption_cross_section(), t_matrix_C_abs,0.8);
+    check_close(poly_mie.scattering_matrix_element(0,0)[0],t_matrix_F11,0.8);
+    
+  } end_test_case()
 
 }

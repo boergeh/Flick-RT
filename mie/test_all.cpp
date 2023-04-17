@@ -24,6 +24,7 @@ int main() {
   t.include<poly_mie_test_C>("poly_mie_test_C");
   t.include<poly_mie_test_D>("poly_mie_test_D");
   t.include<poly_mie_test_E>("poly_mie_test_E");
+  t.include<poly_mie_test_t_matrix>("poly_mie_test_t_matrix");
 
   t.run_test_cases();
   return 0;

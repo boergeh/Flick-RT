@@ -5,6 +5,7 @@
 #include "../../environment/input_output.hpp"
 #include "../function.hpp"
 #include "../std_operators.hpp"
+#include "wigner_d.hpp"
 
 namespace flick {
   two_columns read_quadrature(size_t n_points) {
@@ -83,12 +84,7 @@ namespace flick {
     legendre(size_t n_terms, stdvector x) {
       p_.resize(x.size());
       for (size_t i=0; i < x.size(); ++i) {
-	stdvector P(n_terms);
-	P[0] = 1;
-	P[1] = x[i];
-	for (size_t l=1; l < n_terms-1; ++l)
-	  P[l+1] = ((2.*l+1)*x[i]*P[l]-l*P[l-1])/(l+1.);
-	p_[i] = P;
+	p_[i] = wigner_d(x[i],0,0,n_terms).terms();
       }
     }
     double value(size_t term_number, size_t x_number) {
