@@ -4,13 +4,6 @@
 #include "../numeric/constants.hpp"
 #include "../numeric/std_operators.hpp"
 #include "../numeric/function.hpp"
-#include "../numeric/std_operators.hpp"
-//#include "../numeric/physics_function.hpp"
-//#include "../numeric/legendre/legendre.hpp"
-//#include "../numeric/named_bounded_types.hpp"
-//#include "../environment/input_output.hpp"
-//#include <complex>
-//#include <tuple>
 
 namespace flick {
   class basic_monodispersed_mie {

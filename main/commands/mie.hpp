@@ -53,17 +53,13 @@ namespace flick {
 	else if (output_kind=="scattering_matrix_element") {
 	  int row = std::stoi(a(8));
 	  int col = std::stoi(a(9));
-	  int n_points = std::stoi(a(10));
-	  stdvector mu = read_quadrature(n_points).column(0);
-	  std::reverse(mu.begin(),mu.end());
-	  stdvector angles = vec::acos(mu);
-	  //stdvector angles = range(0, pi, n_points).linspace();
-	  mono_mie.angles(angles);
+	  int n_angs = std::stoi(a(10));
+	  mono_mie.quadrature_angles(n_angs);
 	  polydispersed_mie pm(mono_mie,sd);
 	  pm.percentage_accuracy(paccuracy);
 	  stdvector F = pm.scattering_matrix_element(row,col); 
 	  std::cout << std::setprecision(n_out)
-		    << pl_function{angles,F};
+		    << pl_function{mono_mie.angles(),F};
 	} else
 	  error();
       }

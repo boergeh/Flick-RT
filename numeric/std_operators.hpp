@@ -50,6 +50,11 @@ namespace flick {
       v1[i] -= v2;
     return v1;
   }
+   stdvector& operator*=(stdvector& v1, const stdvector& v2) {  
+    for (size_t i=0; i<v1.size(); ++i)
+      v1[i] *= v2[i];
+    return v1;
+  }
   stdvector operator*(stdvector v1, const stdvector& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
       v1[i] *= v2[i];

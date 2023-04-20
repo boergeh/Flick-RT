@@ -269,6 +269,31 @@ namespace flick {
 	return integral(); 
       }
     }
+    stdvector normalized_scattering_matrix_element(size_t row, size_t col)
+    /* Note that the normalization is such that the upper left corner
+       element of the normalized is normalized to 4*pi, not one, which
+       is the flick convention for the phase function */
+    {
+      double k = 4*constants::pi/scattering_cross_section();
+      return k*scattering_matrix_element(row,col);
+    }
+    std::tuple<std::vector<stdvector>, std::vector<stdvector>, stdvector> ab_functions() {
+      std::vector<stdvector> a(4);
+      a[0] = normalized_scattering_matrix_element(0,0);
+      a[1] = normalized_scattering_matrix_element(1,1);
+      a[2] = normalized_scattering_matrix_element(2,2);
+      a[3] = normalized_scattering_matrix_element(3,3);
+      std::vector<stdvector> b(2);
+      b[0] = normalized_scattering_matrix_element(0,1);
+      b[1] = normalized_scattering_matrix_element(2,3);
+      stdvector x = vec::cos(mm_.angles());
+      std::reverse(x.begin(),x.end());
+      for (size_t i=0; i<a.size(); ++i)
+	std::reverse(a[i].begin(),a[i].end());
+      for (size_t i=0; i<b.size(); ++i)
+	std::reverse(b[i].begin(),b[i].end());
+      return {a,b,x};
+    }    
     double scattering_efficiency() {
       return scattering_cross_section()/sd_.average_area();
     }

@@ -2,6 +2,7 @@
 #define flick_monodispersed_mie
 
 #include "basic_monodispersed_mie.hpp"
+#include "../numeric/legendre/legendre.hpp"
 
 namespace flick
   // Implementation based on the following two papers: (1) Mishchenko,
@@ -175,6 +176,14 @@ namespace flick
     void angles(const stdvector& angles) {
       angles_ = angles;
       changed_angles_ = true;
+    }
+    void quadrature_angles(size_t n) {
+      stdvector x = read_quadrature(n).column(0);
+      std::reverse(x.begin(),x.end());
+      angles(vec::acos(x));
+    }
+    stdvector angles() {
+      return angles_;
     }
     double absorption_cross_section() const {
       return C_ext_ - C_scat_;

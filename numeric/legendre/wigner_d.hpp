@@ -2,7 +2,7 @@
 #define flick_wigner_d
 
 #include <vector>
-#include "../std_operators.hpp"
+//#include "../std_operators.hpp"
 
 namespace flick {
   class wigner_d
@@ -18,9 +18,8 @@ namespace flick {
     int m_, n_;
   public:
     wigner_d(double x, int m, int n, int n_terms)
-      : x_{x}, m_{m}, n_{n}, t_(n_terms+1,0) {
-      
-      int s_min = std::max(abs(m_),abs(n_));
+      : x_{x}, m_{m}, n_{n}, t_(n_terms,0) {     
+      int s_min = wigner_d::leading_zeros(m_,n_); 
       t_[s_min] = at_start_term(s_min);
       for (size_t s=s_min; s < t_.size()-1; ++s) {
 	double r1 = sqrt(pow(s+1,2)-pow(m_,2));
@@ -38,6 +37,9 @@ namespace flick {
     }
     stdvector terms() {
       return t_;
+    }
+    static size_t leading_zeros(int m, int n) {
+      return std::max(abs(m),abs(n));
     }
   private:
     double at_start_term(int s) {

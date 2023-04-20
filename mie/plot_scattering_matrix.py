@@ -6,8 +6,8 @@ fig, ax = plt.subplots(2,2,sharex=False)
 fig.tight_layout(pad=3)
 fig.set_size_inches(7.5, 5)
 
-s1 = "flick mie 550e-9 1.0 1.33+0i 0.25e-6 0.0 0.1 scattering_matrix_element "
-s2 = " 200 > xy_tmp.txt"
+s1 = "flick mie 550e-9 1.0 1.33+0i 0.4e-6 0.0 0.1 scattering_matrix_element "
+s2 = " 128 > xy_tmp.txt"
 
 os.system(s1+"0 0"+s2)
 xy = np.loadtxt("xy_tmp.txt")

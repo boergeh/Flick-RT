@@ -21,7 +21,7 @@ namespace flick {
 	  m(i,j) = p.value(j,i)/f.value(x[i]); 
 	}
       }
-      arma::vec v = arma::ones(x.size());      
+      arma::vec v = arma::ones(x.size());
       arma::vec c = arma::solve(m,v);
       coefficients_ = arma::conv_to<std::vector<double>>::from(c);
     }    
