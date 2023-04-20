@@ -39,10 +39,10 @@ namespace flick {
 	b_[i] *= s; 
       
       alpha_[0] = c;// / scattering_scaling_factor_;
-      stdvector a2p3 = a_[1] + a_[2]; 
-      stdvector a2m3 = a_[1] - a_[2]; 
-      stdvector alpha2p3 = wigner_fit(pl_function{x_,a2p3},2,2,n_terms,fit::absolute).coefficients();
-      stdvector alpha2m3 = wigner_fit(pl_function{x_,a2p3},2,-2,n_terms,fit::absolute).coefficients();
+      //stdvector a2p3 = a_[1] + a_[2]; 
+      //stdvector a2m3 = a_[1] - a_[2]; 
+      stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::absolute).coefficients();
+      stdvector alpha2m3 = wigner_fit(pl_function{x_, a_[1]-a_[2]},2,-2,n_terms,fit::absolute).coefficients();
       alpha_[1] = 0.5*(alpha2p3+alpha2m3);
       alpha_[2] = 0.5*(alpha2p3-alpha2m3);
       alpha_[3] = wigner_fit(pl_function{x_,a_[3]},0,0,n_terms,fit::absolute).coefficients();  

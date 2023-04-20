@@ -13,7 +13,7 @@ namespace flick {
     log_normal_distribution sd{log(r),0.0};
     polydispersed_mie poly_mie(mono_mie,sd);
     auto [a, b, x] = poly_mie.ab_functions();
-    normalized_scattering_matrix_fit m_fit(a,b,x,16);
+    normalized_scattering_matrix_fit m_fit(a,b,x,8);
     double p = 1;
     for (size_t i=0; i<4; ++i) {
       write(pl_function{x,a[i]},"mie/ab_functions/a"+std::to_string(i)+".txt",15);
