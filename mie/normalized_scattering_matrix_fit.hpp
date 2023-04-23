@@ -1,7 +1,7 @@
 #ifndef flick_normalized_scattering_matrix_fit
 #define flick_normalized_scattering_matrix_fit
 
-#include "../numeric/legendre/wigner_fit.hpp"
+#include "../numeric/wigner/wigner_fit.hpp"
 #include <armadillo>
  
 namespace flick {
@@ -19,7 +19,7 @@ namespace flick {
     stdvector x_;
     std::vector<stdvector> alpha_;
     std::vector<stdvector> beta_;
-    double scattering_scaling_factor_;
+    double scaling_factor_;
   public:
     normalized_scattering_matrix_fit(const std::vector<stdvector>& a,
 				     const std::vector<stdvector>& b,
@@ -30,24 +30,44 @@ namespace flick {
       pe_function a0(x_,a_[0]);
       wigner_fit wf_a0(a0,0,0,n_terms,fit::relative);
       stdvector c = wf_a0.coefficients();
-      scattering_scaling_factor_ = c[0];
+      scaling_factor_ = c[0];
 
       stdvector s = wigner_evaluate(c,x_,0,0) / a_[0];
       for (size_t i=0; i<a_.size(); ++i)
-	a_[i] *= s;
+	a_[i] *= s/scaling_factor_;
       for (size_t i=0; i<b_.size(); ++i)
-	b_[i] *= s; 
+	b_[i] *= s/scaling_factor_; 
+
+      alpha_[0] = c / scaling_factor_;
+      pe_function scaling_function{x_,1/a_[0]};
       
-      alpha_[0] = c;// / scattering_scaling_factor_;
-      //stdvector a2p3 = a_[1] + a_[2]; 
-      //stdvector a2m3 = a_[1] - a_[2]; 
-      stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::absolute).coefficients();
-      stdvector alpha2m3 = wigner_fit(pl_function{x_, a_[1]-a_[2]},2,-2,n_terms,fit::absolute).coefficients();
+      stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::scaling,
+				      scaling_function).coefficients();
+      stdvector alpha2m3 = wigner_fit(pl_function{x_,a_[1]-a_[2]},2,-2,n_terms,fit::scaling,
+				      scaling_function).coefficients();
+      /*
+      stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::absolute
+				      ).coefficients();
+      stdvector alpha2m3 = wigner_fit(pl_function{x_,a_[1]-a_[2]},2,-2,n_terms,fit::absolute
+				      ).coefficients();
+      */
       alpha_[1] = 0.5*(alpha2p3+alpha2m3);
       alpha_[2] = 0.5*(alpha2p3-alpha2m3);
-      alpha_[3] = wigner_fit(pl_function{x_,a_[3]},0,0,n_terms,fit::absolute).coefficients();  
-      beta_[0] = -1*wigner_fit(pl_function{x_,b_[0]},0,2,n_terms,fit::absolute).coefficients();
-      beta_[1] = -1*wigner_fit(pl_function{x_,b_[1]},0,2,n_terms,fit::absolute).coefficients();
+      /*
+      alpha_[3] = wigner_fit(pl_function{x_,a_[3]},0,0,n_terms,fit::absolute
+				      ).coefficients();  
+      beta_[0] = -1*wigner_fit(pl_function{x_,b_[0]},0,2,n_terms,fit::absolute
+				      ).coefficients();
+      beta_[1] = -1*wigner_fit(pl_function{x_,b_[1]},0,2,n_terms,fit::absolute
+				      ).coefficients();
+      */
+      alpha_[3] = wigner_fit(pl_function{x_,a_[3]},0,0,n_terms,fit::scaling,
+				      scaling_function).coefficients();  
+      beta_[0] = -1*wigner_fit(pl_function{x_,b_[0]},0,2,n_terms,fit::scaling,
+				      scaling_function).coefficients();
+      beta_[1] = -1*wigner_fit(pl_function{x_,b_[1]},0,2,n_terms,fit::scaling,
+				      scaling_function).coefficients();
+      
     }
     stdvector alpha_coefficients(size_t i) {
       return alpha_.at(i);
@@ -62,21 +82,25 @@ namespace flick {
       return b_.at(i);
     }
     stdvector fitted_scaled_a(size_t i) {
-      if (i==0 or i==3)
-	return wigner_evaluate(alpha_.at(i),x_,0,0);      
-      stdvector a2p3 = wigner_evaluate(alpha_[1]+alpha_[2],x_,2,2);
-      stdvector a2m3 = wigner_evaluate(alpha_[1]-alpha_[2],x_,2,-2);
-      if (i==1)
-	return 0.5*(a2p3+a2m3);
-      if (i==2)
+      if (i==0 or i==1)
+	return wigner_evaluate(alpha_.at(0),x_,0,0);
+      else if (i==3)
+	return wigner_evaluate(alpha_.at(i),x_,0,0);
+      else if (i==2) {
+	stdvector a2p3 = wigner_evaluate(alpha_[1]+alpha_[2],x_,2,2);
+	stdvector a2m3 = wigner_evaluate(alpha_[1]-alpha_[2],x_,2,-2);
+	//if (i==1)
+	//return 0.5*(a2p3+a2m3);
+	//if (i==2)
 	return 0.5*(a2p3-a2m3);
-      return {0};
+      } else
+	return {0}; 
     }
     stdvector fitted_scaled_b(size_t i) {
       return wigner_evaluate(-1*beta_.at(i),x_,0,2);
     }
     double scattering_scaling_factor() {
-      return scattering_scaling_factor_;
+      return scaling_factor_;
     }
   };
 }

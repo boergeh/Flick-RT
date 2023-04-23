@@ -8,28 +8,39 @@
 namespace flick {
   enum class fit {
     absolute,
-    relative
+    relative,
+    ratio_function
   };
   template<class Function>
   class wigner_fit {
     stdvector coefficients_;
     int m_, n_;
+    pe_function ratio_function_;//{{-1,1},{1,1}};
   public:
-    wigner_fit(const Function& f, int m, int n, int n_terms, fit fit)
+    wigner_fit(const Function& f, int m, int n, int n_terms, fit fit,
+	       const pe_function& rf = pe_function{{-1,1},{1,1}})
       : m_{m}, n_{n}, coefficients_(n_terms) {
+      ratio_function_ = rf;
       size_t n_points = wigner_fit::n_sample_points(n_terms);
       stdvector x = range(-1,1,n_points).linspace();   
       arma::mat matrix(x.size(), n_terms);
-      arma::vec v = arma::ones(x.size());
+      arma::vec v(x.size());
       for (size_t i=0; i<x.size(); ++i) {
 	stdvector d = wigner_d(x[i], m_, n_, n_terms).terms();
 	if (fit == fit::absolute)
 	  v(i) = f.value(x[i]);
+	else if (fit == fit::relative)
+	  v(i) = 1;
+	else if (fit == fit::ratio_function)
+	  v(i) = f.value(x[i])/ratio_function_.value(x[i]);
+	  
 	for (size_t j=0; j<n_terms; ++j) {
-	  if (fit == fit::relative)
-	    matrix(i,j) = d[j]/f.value(x[i]);
-	  else
+	  if (fit == fit::absolute)
 	    matrix(i,j) = d[j];
+	  else if (fit == fit::relative)
+	    matrix(i,j) = d[j]/f.value(x[i]);
+	  else if (fit == fit::ratio_function)
+	    matrix(i,j) = d[j]/ratio_function_.value(x[i]);
 	}
       }
       size_t n_zeros = wigner_d::leading_zeros(m_,n_);
@@ -39,6 +50,9 @@ namespace flick {
       if (n_zeros > 0)
 	c.insert_rows(0,arma::vec(n_zeros,arma::fill::zeros));
       coefficients_ = arma::conv_to<std::vector<double>>::from(c);
+    }
+    void ratio_function(const pe_function& rf) {
+      ratio_function_ = rf;
     }
     stdvector coefficients() {
       return coefficients_;

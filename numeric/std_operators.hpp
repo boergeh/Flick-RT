@@ -95,6 +95,11 @@ namespace flick {
       v[i] /= k;
     return v;
   }
+  stdvector operator/(double k, stdvector v) {  
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = k/v[i];
+    return v;
+  }
   stdvector operator^(stdvector v, double k) {
     for (size_t i=0; i<v.size(); ++i)
       v[i] = std::pow(v[i],k);
