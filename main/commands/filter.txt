@@ -1,0 +1,41 @@
+
+Command:
+
+  flick filter <irradiance_file_name> <filter_name> [filter_specific_parameters]...
+
+  Filter and integrate an irradiance spectrum.
+
+Parameters:
+
+  <irradiance_file_name>
+
+    Name of acii text file containing two columns, one with
+    wavelengths and one with spectral irradiance values.
+    
+  <filter_name> [filter_specific_parameters]...
+
+    Select among the following filters with corresponding paramters:
+
+    'uv_index' 
+
+    'uva_index'
+
+    'uvb_index'
+
+    'gaussian_mean' <center_wavelength> <full_width_half_maximum>
+
+    'weighted_integral' <file_name_of_tabulated_filter_transmittance> 
+
+Examples:
+
+  flick filter ./toa_solar.txt uv_index
+
+  flick filter ./toa_solar.txt gaussian_mean 500e-9 10e-9
+  
+  flick filter ./toa_solar.txt weighted_integral ./my_transmittance.txt
+
+
+Remember: unless other units are explicitly stated, Flick is always
+using SI units (m, kg, s) for input and output of physical values, see
+https://en.wikipedia.org/wiki/International_System_of_Units.
+

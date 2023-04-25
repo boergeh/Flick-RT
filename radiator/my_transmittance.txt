@@ -1,0 +1,6 @@
+/* Tabulated transmittance spectrum. Could also be action spectrum. */
+
+300e-9 1
+400e-9 0.5
+700e-9 0.1
+900e-9 0.01

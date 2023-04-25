@@ -10,18 +10,8 @@
 namespace flick {
   namespace filter {     
     class filter {
-      //protected:
-      //pp_function spectrum_;
     public:
       virtual double transmittance(double wavelength) const = 0;
-      //{
-      //return spectrum_.value(wavelength);
-      //}
-      /*
-      pp_function spectrum(size_t n_points) const {
-	return importance_sampled(spectrum_,n_points);
-      }
-      */
     };
     
     class gaussian : public filter {
@@ -31,15 +21,6 @@ namespace flick {
       gaussian(double center_wavelength, double fwhm) {
 	wl0_ = center_wavelength;
 	sigma_ = fwhm/(2*sqrt(2*log(2)));
-	//double dwl = 4 * sigma;
-	//std::vector<double> wl = range(wl0-dwl,wl0+dwl,n_points).logspace();
-	//std::vector<double> tr(n_points);
-	//using namespace constants;
-	//for (size_t i=0; i < n_points; ++i) {
-	//  tr[i] = 1/(sigma*sqrt(2*pi))*exp(-0.5*pow((wl[i]-wl0)/sigma,2));
-	//}
-	//spectrum_ = pp_function{wl,tr};
-
       }
       double transmittance(double wavelength) const {
 	using namespace constants;
@@ -78,28 +59,15 @@ namespace flick {
     };
     
     class tabulated : public filter {
-      pl_function spectrum_;
+      pl_function t_;
     public:
-      tabulated(const std::string& file_name) {
-	std::ifstream ifs(file_name);
-	ifs >> spectrum_;
+      tabulated(const pl_function& filter_transmittance)
+	: t_{filter_transmittance} {
       }
       double transmittance(double wavelength) const {
-	return spectrum_.value(wavelength);
+	return t_.value(wavelength);
       }
     };
-
-    /*
-    class stack : public filter {
-      std::vector<std::shared_ptr<filter>> filters_;
-    public:
-      void add(const filter& f) {
-      }
-      double transmittance(double wavelength) const {
-	return spectrum_.value(wavelength);
-      }
-    };
-    */
   }
   
   pl_function transmit(const pl_function& radiation_spectrum, const filter::filter &f) {
@@ -120,13 +88,13 @@ namespace flick {
   double uvb_index(const pl_function& radiation_spectrum) {
     return 40*transmit(radiation_spectrum, filter::erythema()).integral(280e-9,315e-9);
   }
-
-  /*
-  pp_function transmit(const radiator::radiator& r, const filter::filter &f,
-		       size_t n_points) {
-    return transmit(r.spectrum(),f,n_points);
+  double gaussian_mean(const pl_function& radiation_spectrum, double wl0, double fwhm) {
+    return transmit(radiation_spectrum, filter::gaussian(wl0,fwhm)).integral();
   }
-  */
+  double weighted_integral(const pl_function& radiation_spectrum,
+			  const pl_function& filter_transmittance) {
+    return transmit(radiation_spectrum, filter::tabulated(filter_transmittance)).integral();
+  }
 }
 
 #endif
