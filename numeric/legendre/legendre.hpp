@@ -5,7 +5,7 @@
 #include "../../environment/input_output.hpp"
 #include "../function.hpp"
 #include "../std_operators.hpp"
-#include "wigner_d.hpp"
+#include "../wigner/wigner_d.hpp"
 
 namespace flick {
   two_columns read_quadrature(size_t n_points) {

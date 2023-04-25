@@ -6,6 +6,7 @@ all:	check-env build test
 build:	
 	cd numeric; make obj link
 	cd numeric/legendre; make obj link
+	cd numeric/wigner; make obj link
 	cd mie; make obj link
 	cd geometry; make obj link
 	cd polarization; make obj link
@@ -23,6 +24,7 @@ build:
 test:	
 	@cd numeric; make test
 	@cd numeric/legendre; make test
+	@cd numeric/wigner; make test
 	@cd mie; make test
 	@cd geometry; make test
 	@cd polarization; make test
@@ -39,6 +41,7 @@ test:
 clean:	
 	cd numeric; make clean
 	cd numeric/legendre; make clean
+	cd numeric/wigner; make clean
 	cd mie; make clean
 	cd geometry; make clean
 	cd polarization; make clean
