@@ -42,10 +42,10 @@ namespace flick {
     };
 
     class erythema : public filter
-    //  CIE-standard McKinlay–Diffey erythemal action
-    //  spectrum. McKinlay, A. F. & Diffey, B. L. (1987). "A reference
-    //  action spectrum for ultraviolet induced erythema in human
-    //  skin". CIE Journal. 6 (1): 17–22.
+    //  CIE/ISO-standard erythemal action spectrum. Schmalwieser,
+    //  A.W., Wallisch, S. and Diffey, B., 2002. A library of action
+    //  spectra for erythema and pigmentation. Photochemical &
+    //  Photobiological Sciences, 1, pp.251-268.
     {
     public:
       double transmittance(double wavelength) const {
@@ -54,7 +54,7 @@ namespace flick {
 	else if (wavelength < 328e-9)
 	  return pow(10, 0.094*(298-wavelength*1e9));
 	else
-	  return pow(10, 0.015*(139-wavelength*1e9));
+	  return pow(10, 0.015*(140-wavelength*1e9));
       }
     };
     
