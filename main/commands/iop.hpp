@@ -141,6 +141,29 @@ namespace flick {
 	  size_t layer_n = std::stoi(p.substr(i1+1,i2-i1-1));
 	  size_t n_terms = std::stoi(p.substr(i2+1,p.size()));
 	  stream_AccuRT(m,layer_n, n_terms);
+	} else if (p.substr(0,7)=="mueller") {
+	  size_t i1 = p.find("_");
+	  size_t i2 = p.find("_",i1+1);
+	  size_t i3 = p.rfind("_");
+	  size_t row = std::stoi(p.substr(i1+1,i2-i1-1));
+	  size_t col = std::stoi(p.substr(i2+1,i3-i2-1));
+	  size_t n = std::stoi(p.substr(i3+1,p.size()));
+	  std::vector<double> angles = range(0,constants::pi,n).linspace(); 
+	  std::cout << std::setprecision(6);
+	  std::cout << wls_.size() << " " << angles.size() << "\n";
+	  for (auto wl:wls_)
+	    std::cout << wl << " ";
+	  std::cout << '\n';
+	  for (auto a:angles)
+	    std::cout << a << " ";
+	  std::cout << "\n";
+	  for (auto wl:wls_) {
+	    m.set(wavelength(wl));
+	    for (auto a:angles) {
+	      std::cout << m.mueller_matrix(unit_vector{a,0}).value(row,col) << " ";
+	    }
+	    std::cout << "\n";
+	  }
 	} else {
 	  double value = 0;
 	  for (auto wl:wls_) {
@@ -155,7 +178,7 @@ namespace flick {
 	      error();
 	      break;
 	    }
-	    std::cout << std::setprecision(5) << wl << " " << value << '\n';
+	    std::cout << std::setprecision(6) << wl << " " << value << '\n';
 	  }
 	}
       }

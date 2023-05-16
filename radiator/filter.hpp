@@ -91,6 +91,9 @@ namespace flick {
   double gaussian_mean(const pl_function& radiation_spectrum, double wl0, double fwhm) {
     return transmit(radiation_spectrum, filter::gaussian(wl0,fwhm)).integral();
   }
+  double square_mean(const pl_function& radiation_spectrum, double wl0, double full_width) {
+    return transmit(radiation_spectrum, filter::cut_ends(wl0-full_width/2,wl0+full_width/2)).integral()/full_width;
+  }
   double weighted_integral(const pl_function& radiation_spectrum,
 			  const pl_function& filter_transmittance) {
     return transmit(radiation_spectrum, filter::tabulated(filter_transmittance)).integral();

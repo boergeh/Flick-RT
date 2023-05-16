@@ -16,7 +16,8 @@ namespace flick {
     double radius_{1e-6};
     stdvector angles_{0};
     stdcomplex wavenumber_in_host_{2*pi_*m_host_/vacuum_wl_};
-
+    stdcomplex m_sphere_at_r0_;
+    
     stdcomplex size_parameter_in_host() {
       return wavenumber_in_host_ * radius_;
     }
@@ -27,7 +28,8 @@ namespace flick {
     basic_monodispersed_mie(const stdcomplex& m_host,
 			     const stdcomplex& m_sphere,
 			     double vacuum_wl)
-      : m_host_{m_host}, m_sphere_{m_sphere}, vacuum_wl_{vacuum_wl} {
+      : m_host_{m_host}, m_sphere_{m_sphere}, vacuum_wl_{vacuum_wl},
+	m_sphere_at_r0_{m_sphere} {
     }
     virtual void radius(double r) = 0;
     virtual void angles(const stdvector& angles) = 0;

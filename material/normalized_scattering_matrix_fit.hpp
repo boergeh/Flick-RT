@@ -82,18 +82,19 @@ namespace flick {
       return b_.at(i);
     }
     stdvector fitted_scaled_a(size_t i) {
-      if (i==0 or i==1)
+      if (i==0)
 	return wigner_evaluate(alpha_.at(0),x_,0,0);
-      else if (i==3)
-	return wigner_evaluate(alpha_.at(i),x_,0,0);
-      else if (i==2) {
+      if (i==1 or i==2) {
 	stdvector a2p3 = wigner_evaluate(alpha_[1]+alpha_[2],x_,2,2);
 	stdvector a2m3 = wigner_evaluate(alpha_[1]-alpha_[2],x_,2,-2);
-	//if (i==1)
-	//return 0.5*(a2p3+a2m3);
-	//if (i==2)
-	return 0.5*(a2p3-a2m3);
-      } else
+	if (i==1)
+	  return 0.5*(a2p3+a2m3);
+	if (i==2)
+	  return 0.5*(a2p3-a2m3);
+      }
+      if (i==3)
+	return wigner_evaluate(alpha_.at(i),x_,0,0);
+      else
 	return {0}; 
     }
     stdvector fitted_scaled_b(size_t i) {

@@ -11,12 +11,17 @@ Parameters:
   <property>
 
     Select 'absorption_length', 'scattering_length',
-    'refractive_index', or 'AccuRT_1_8'
+    'refractive_index', 'mueller_0_0_10', or 'AccuRT_1_8'
 
+    The 'mueller_0_0_10' property will list - for each wavelength -
+    mueller matrix element 0,0 at 10 angles, where the three changeable
+    sub-numbers '_0','_0', and '_10' designate row, column, and number
+    of angles, respectively.
+    
     The 'AccuRT_1_8' property will list user specified material to be
     used as input for the AccuRT radiative transfer code. The two
-    sub-numbers '_1' and '_8' (which may be changed) give input for
-    layer 1 with 8 phase function expansion terms.
+    changeable sub-numbers '_1' and '_8' give input for layer 1 with 8
+    phase function expansion terms.
     
   <material_name> [material_specific_parameters]...
 
@@ -53,6 +58,8 @@ Examples:
   flick iop refractive_index 400e-9 700e-9 10 pure_ice
 
   flick iop scattering_length 400e-9 700e-9 10 water_cloud full_mie 1e-7 5e-6 0.001
+
+  flick iop mueller_0_0_5 400e-9 700e-9 3 water_cloud full_mie 1e-7 5e-6 0
   
   flick iop AccuRT_1_8 400e-9 700e-9 10 brines_in_ice fast_mie 0.1 100e-6 0.001 100 
 

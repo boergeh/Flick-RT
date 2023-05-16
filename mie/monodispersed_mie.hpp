@@ -95,6 +95,7 @@ namespace flick
     mutable stdvectorc S22_;
     mutable bool changed_radius_ = true;
     mutable bool changed_angles_ = true;
+    double refractive_index_slope_{0.0};
     
     std::tuple<stdvector,stdvector> pi_tau_polynomials(double angle) const {
       stdvector pi(n_terms_+1);
@@ -111,6 +112,10 @@ namespace flick
       }
       pi.pop_back();
       return {pi, tau};      
+    }
+    void set_n_terms() {
+      stdcomplex x = size_parameter_in_host();
+      n_terms_ = 8. + std::abs(x) + 4.05*std::pow(std::abs(x),1./3);
     }
   public:
     using basic_monodispersed_mie::basic_monodispersed_mie;
@@ -165,10 +170,22 @@ namespace flick
       double C_scat = 2*pi_/norm(k)*scat; 
       return {C_ext, C_scat};
     }
+    /*
+    void refractive_index(const stdcomplex& m_host, const stdcomplex& m_sphere) {
+      m_host_ = m_host;
+      m_sphere_ = m_sphere;
+      set_n_terms();
+      std::tie(a_, b_) = ab_coefficients();
+    }
+    */
+    void refractive_index_slope(double s) {
+      refractive_index_slope_ = s;
+    }
     void radius(double r) {
       radius_ = r;
-      stdcomplex x = size_parameter_in_host();
-      n_terms_ = 8. + std::abs(x) + 4.05*std::pow(std::abs(x),1./3);
+      double r0_ = 1e-6;
+      m_sphere_.real(m_sphere_at_r0_.real()*pow(radius_/r0_,refractive_index_slope_));
+      set_n_terms();
       std::tie(a_, b_) = ab_coefficients();
       std::tie(C_ext_, C_scat_) = es_coefficients();
       changed_radius_ = true;

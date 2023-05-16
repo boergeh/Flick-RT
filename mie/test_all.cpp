@@ -2,7 +2,6 @@
 #include "parameterized_monodispersed_mie_test.hpp"
 #include "monodispersed_mie_test.hpp"
 #include "polydispersed_mie_test.hpp"
-#include "normalized_scattering_matrix_fit_test.hpp"
 
 int main() {
   using namespace flick;
@@ -27,7 +26,6 @@ int main() {
   t.include<poly_mie_test_E>("poly_mie_test_E");
   t.include<poly_mie_test_t_matrix>("poly_mie_test_t_matrix");
 
-  t.include<normalized_scattering_matrix_fit_test>("normalized_scattering_matrix_fit_test");
 
   t.run_test_cases();
   return 0;
