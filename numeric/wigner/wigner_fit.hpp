@@ -17,6 +17,9 @@ namespace flick {
       return 1;
     }
   };
+    size_t wigner_sample_points(size_t n_terms) {
+    return pow(n_terms,1.6);
+  }
   template<class Function>
   class wigner_fit {
     stdvector coefficients_;
@@ -25,7 +28,7 @@ namespace flick {
     wigner_fit(const Function& f, int m, int n, int n_terms, fit fit,
 	       const pe_function& scaling_function = pe_function{{-1,1},{1,1}})
       : m_{m}, n_{n}, coefficients_(n_terms) {
-      stdvector x = range(-1,1, wigner_fit::sample_points(n_terms)).linspace();   
+      stdvector x = range(-1,1, wigner_sample_points(n_terms)).linspace();   
       arma::mat matrix(x.size(), n_terms);
       arma::vec v(x.size());
       for (size_t i=0; i<x.size(); ++i) {
@@ -60,9 +63,6 @@ namespace flick {
     double value(double x) {
       stdvector d = wigner_d(x, m_, n_, coefficients_.size()).terms();
       return vec::sum(d*coefficients_);
-    }
-    static size_t sample_points(size_t n_terms) {
-      return pow(n_terms,1.6);
     }
   };
 

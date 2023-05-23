@@ -69,6 +69,12 @@ namespace flick {
 				      scaling_function).coefficients();
       
     }
+    std::vector<stdvector> alpha_coefficients() {
+      return alpha_;
+    }
+    std::vector<stdvector> beta_coefficients() {
+      return beta_;
+    }
     stdvector alpha_coefficients(size_t i) {
       return alpha_.at(i);
     }

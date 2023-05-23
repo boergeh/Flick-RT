@@ -10,9 +10,9 @@ namespace flick {
   public:
     distribution(double target_accuracy)
       : target_accuracy_{target_accuracy} {
-      n_packages_ = 0.5*1/pow(target_accuracy,2);
+      n_packages_ = 0.5/pow(target_accuracy,2);
     }
-    size_t n_packages() {
+    size_t n_packages() const {
       return n_packages_;
     }
     void add(double value) {
@@ -20,22 +20,29 @@ namespace flick {
       values_.push_back(value);
       n_packages_ *= 2;
     }
-    bool bad_accuracy() {
-      if (values_.size() < 3)
+    bool bad_accuracy() const {
+      if (values_.size() < 3 or !(mean() > std::numeric_limits<double>::epsilon()))
 	return true;
-      else if (mean() < std::numeric_limits<double>::epsilon())
-	return false;
-      return target_accuracy_ < std()/mean(); 
+      return target_accuracy_ < accuracy(); 
     }
-    double mean() {
+    double accuracy() const {
+      return std()/mean();
+    }
+    double mean() const {
       double m=0;
       for (size_t i=0; i<values_.size(); ++i) {
 	m += weights_[i]*values_[i];
       }
       return m/total_weight();
     }
+    friend std::ostream& operator<<(std::ostream &os, const distribution& d) {
+      os << std::setprecision(5) << d.mean() << " \u00b1 "
+	 << std::setprecision(2) << d.std() 
+	 << ", n = " << d.total_weight();
+      return os;
+    }    
   protected:
-    double std() {
+    double std() const {
       double m = mean();
       double s = 0;
       for (size_t i=0; i<values_.size(); ++i) {
@@ -43,7 +50,7 @@ namespace flick {
       }
       return sqrt(s/total_weight());
     }
-    double total_weight() {
+    double total_weight() const {
       double w = 0;
       for (size_t i=0; i<weights_.size(); ++i) {
 	w += weights_[i];

@@ -5,7 +5,7 @@
 #include "aerosols/aerosols.hpp"
 
 namespace flick {
-  begin_test_case(material_test) {
+  begin_test_case(material_test_A) {
     using namespace constants;
     using namespace flick;
     double g = 0.5;
@@ -15,13 +15,14 @@ namespace flick {
     material::phase_function pf(hg);
     tabulated_phase_function hgpf{hg_phase_function(g,100)};
     check_close(pf.value(0),hgpf.value(constants::pi/2), 1e-13);
-
+    auto [a, b, x] = hg.mueller_ab_functions(100);
+    check_close(a[0][0],hgpf.value(constants::pi),1e-12);
+    
     double pi = constants::pi;
     g = 0.9;
     tabulated_phase_function p{hg_phase_function(g,100)};
     check_close(2*pi*p.integral(),1,0.03,"a");
     check_close(p.asymmetry_factor(),g,0.03,"b");
-
     
     material::tabulated tab(absorption_coefficient{1},
     			    scattering_coefficient{1},
@@ -30,7 +31,9 @@ namespace flick {
     const std::string path_{"/material"};
     tabulated_phase_function p2 = read<pe_function>(path_+"/tabulated.txt"); 
     check_close(2*pi*p2.integral(),1,0.3,"c");
-
+  } end_test_case()
+  
+  begin_test_case(material_test_B) {
     material::rural_aerosols ra;
     material::aggregate_z_profile ag({0,1.5e3,100e3},{0,1,3.14});
     ag.set(pose{{0,0,0},unit_vector{0,0,1}});

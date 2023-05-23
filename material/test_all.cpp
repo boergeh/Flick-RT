@@ -7,7 +7,8 @@
 int main() {
   using namespace flick;
   unit_test t("material");
-  t.include<material_test>("material_test");
+  t.include<material_test_A>("material_test_A");
+  t.include<material_test_B>("material_test_B");
   t.include<iop_profile_test>("iop_profile_test");
   t.include<spheres_test_A>("spheres_test_A");
   t.include<spheres_test_B>("spheres_test_B");

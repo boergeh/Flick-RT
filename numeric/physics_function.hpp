@@ -10,14 +10,17 @@ namespace flick {
     double asymmetry_factor_{0};
   public:
     henyey_greenstein(double g) : asymmetry_factor_{g} {}
-    double phase_function(double theta)
+    double phase_function(double theta) const
     // Note that integral over 4*pi equals one 
     {
       double g = asymmetry_factor_;
       double arg = 1+pow(g,2)-2*g*std::cos(theta);
       return 1/(4*constants::pi)*(1-pow(g,2))/pow(arg,3./2);
     }
-    double inverted_accumulated_angle(double fraction)
+    double value(double mu) const {
+      return phase_function(acos(mu));
+    }
+    double inverted_accumulated_angle(double fraction) const 
     // Note that fraction has range [0 1], and range value zero
     // corresponds to angle zero
     {

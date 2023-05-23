@@ -11,12 +11,23 @@ Parameters:
   <property>
 
     Select 'absorption_length', 'scattering_length',
-    'refractive_index', 'mueller_0_0_10', or 'AccuRT_1_8'
+    'refractive_index', 'scattering_ab_10', 'wigner_alpha_beta_10',
+    or 'AccuRT_1_8'
 
-    The 'mueller_0_0_10' property will list - for each wavelength -
-    mueller matrix element 0,0 at 10 angles, where the three changeable
-    sub-numbers '_0','_0', and '_10' designate row, column, and number
-    of angles, respectively.
+    The 'scattering_ab_10' property will list, for each wavelength,
+    the a and b elements of the Mueller matrix times scattering
+    coefficient for 10 angular points. First column gives cosine of
+    scattering angle, next 4 columns give a-functions and the two last
+    columns give b-functions. 4*pi steradian integral over the
+    zeroth a-function gives the scattering coefficient.
+
+    The 'wigner_alpha_beta_10' property will list, for each
+    wavelength, 10 alpha and beta Wigner-d expansion terms for the
+    Mueller matrix times the scattering coefficient. First 4 columns
+    give alpha terms and the two last columns give beta
+    terms. alpha[0][0] divided by the scattering coefficient gives the
+    scaling factor. alpha[0][1] divided by the scattering coefficient
+    give the asymmetry factor.
     
     The 'AccuRT_1_8' property will list user specified material to be
     used as input for the AccuRT radiative transfer code. The two
@@ -59,8 +70,10 @@ Examples:
 
   flick iop scattering_length 400e-9 700e-9 10 water_cloud full_mie 1e-7 5e-6 0.001
 
-  flick iop mueller_0_0_5 400e-9 700e-9 3 water_cloud full_mie 1e-7 5e-6 0
-  
+  flick iop scattering_ab_10 400e-9 400e-9 1 water_cloud full_mie 1 5e-6 0
+
+  #to be implemented flick iop wigner_alpha_beta_10 400e-9 400e-9 1 water_cloud full_mie 1 5e-6 0
+
   flick iop AccuRT_1_8 400e-9 700e-9 10 brines_in_ice fast_mie 0.1 100e-6 0.001 100 
 
   flick iop AccuRT_1_8 400e-9 700e-9 10 bubbles_in_ice fast_mie 0.01 100e-6 0.001 

@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-#os.system('make_and_test')
-# run ./make_and_test before running this python script
+# ./make_and_test before running this python script
 
 h = np.loadtxt("histogram_view.txt")
 x_center = h[1:,0]

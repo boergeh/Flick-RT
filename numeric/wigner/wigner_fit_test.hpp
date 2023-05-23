@@ -4,18 +4,12 @@
 
 namespace flick {
   begin_test_case(wigner_fit_test_A) {
-    struct f {
-      double g = 0.6;
-      double value(double mu) const {
-	double theta = acos(mu);
-	return henyey_greenstein(g).phase_function(theta);
-      }
-    };
     double x = -1;
     size_t n_terms = 16;
-    wigner_fit wf(f(),0,0,n_terms,fit::relative);
+    auto f = henyey_greenstein(0.6);
+    wigner_fit wf(f,0,0,n_terms,fit::relative);
     check_close(2*wf.coefficients().at(0),1/(2*constants::pi),0.1,"a");
-    check_close(wf.value(x),f().value(x),0.1,"b");
+    check_close(wf.value(x),f.value(x),0.1,"b");
  
     auto p = flick::read<flick::pl_function>("./petzold_phase_function.txt");
     n_terms = 49;

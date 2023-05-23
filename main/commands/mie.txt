@@ -52,10 +52,7 @@ Parameters:
      integers ranging from zero to three. Note that the scattering
      matrix is given such that the integral over 4*pi steradians of
      element (0,0) equals the scattering cross
-     section. <number_of_angles> should be one of the integers
-     1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192, which are the
-     number of output angles at Gauss-Legendre quadrature points,
-     mu_j = cos(theta_j).
+     section.
 
      Note also that the absorption cross section should be negative
      when the imaginary part of the refractive index is larger for the

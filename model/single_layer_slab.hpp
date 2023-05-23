@@ -66,6 +66,7 @@ namespace model {
 	double L_r = reflected_->radiance(direction, acceptance_angle());
 	double L_t = transmitted_->radiance(direction, acceptance_angle());
 	d.add((L_r + L_t) / d.n_packages());
+	//std::cout << d << std::endl;
       }
       return d.mean();
     }

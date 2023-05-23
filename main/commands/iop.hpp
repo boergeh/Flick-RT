@@ -132,37 +132,55 @@ namespace flick {
 	  error();
       }
     private:
+      std::vector<size_t> sub_script_numbers(const std::string& s) const {
+	std::vector<size_t> numbers;
+	size_t i1 = s.find("_",0);
+	size_t i2 = s.find("_",i1+1);
+	while(i2 != std::string::npos) {
+	  numbers.push_back(std::stoi(s.substr(i1+1,i2-i1-1)));
+	  i1 = s.find("_",i1+1);
+	  i2 = s.find("_",i2+1);
+	}
+	numbers.push_back(std::stoi(s.substr(i1+1,s.size()-1)));
+	return numbers;
+      }
       template<class Material>
       void stream_iops(Material& m, const std::string& property) const {
 	const std::string& p = property;
 	if (p.substr(0,6)=="AccuRT") {
-	  size_t i1 = p.find("_");
-	  size_t i2 = p.rfind("_");
-	  size_t layer_n = std::stoi(p.substr(i1+1,i2-i1-1));
-	  size_t n_terms = std::stoi(p.substr(i2+1,p.size()));
-	  stream_AccuRT(m,layer_n, n_terms);
-	} else if (p.substr(0,7)=="mueller") {
-	  size_t i1 = p.find("_");
-	  size_t i2 = p.find("_",i1+1);
-	  size_t i3 = p.rfind("_");
-	  size_t row = std::stoi(p.substr(i1+1,i2-i1-1));
-	  size_t col = std::stoi(p.substr(i2+1,i3-i2-1));
-	  size_t n = std::stoi(p.substr(i3+1,p.size()));
-	  std::vector<double> angles = range(0,constants::pi,n).linspace(); 
+	  auto n = sub_script_numbers(p);
+	  stream_AccuRT(m, n.at(0), n.at(1));
+	} else if (p.substr(0,13)=="scattering_ab") {
+	  auto n = sub_script_numbers(p.substr(13));
+	  size_t n_angles = n.at(0);
+	  auto [a,b,x] = m.mueller_ab_functions(n_angles);
 	  std::cout << std::setprecision(6);
-	  std::cout << wls_.size() << " " << angles.size() << "\n";
-	  for (auto wl:wls_)
-	    std::cout << wl << " ";
-	  std::cout << '\n';
-	  for (auto a:angles)
-	    std::cout << a << " ";
-	  std::cout << "\n";
-	  for (auto wl:wls_) {
-	    m.set(wavelength(wl));
-	    for (auto a:angles) {
-	      std::cout << m.mueller_matrix(unit_vector{a,0}).value(row,col) << " ";
+	  for (size_t i = 0; i < wls_.size(); ++i) {
+	    m.set(wavelength(wls_[i]));
+	    double k = m.scattering_coefficient();
+	    for (size_t j = 0; j < x.size(); ++j) {
+	      std::cout << x[j] << " " << a[0][j]*k << " " << a[1][j]*k
+			<< " " << a[2][j]*k
+			<< " " << a[3][j]*k
+			<< " " << b[0][j]*k
+			<< " " << b[1][j]*k << "\n";
 	    }
-	    std::cout << "\n";
+	  }
+	} else if (p.substr(0,17)=="wigner_alpha_beta") {
+	  auto n = sub_script_numbers(p.substr(17));
+	  size_t n_terms = n.at(0);
+	  auto [alpha,beta] = m.wigner_ab_fit(n_terms);
+	  std::cout << std::setprecision(6);
+	  for (size_t i = 0; i < wls_.size(); ++i) {
+	    m.set(wavelength(wls_[i]));
+	    double k = m.scattering_coefficient();
+	    for (size_t j = 0; j < n_terms; ++j) {
+	      std::cout << alpha[0][j]*k << " " << alpha[1][j]*k
+			<< " " << alpha[2][j]*k
+			<< " " << alpha[3][j]*k
+			<< " " << beta[0][j]*k
+			<< " " << beta[1][j]*k << "\n";
+	    }
 	  }
 	} else {
 	  double value = 0;

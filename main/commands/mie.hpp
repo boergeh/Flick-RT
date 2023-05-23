@@ -54,7 +54,8 @@ namespace flick {
 	  int row = std::stoi(a(8));
 	  int col = std::stoi(a(9));
 	  int n_angs = std::stoi(a(10));
-	  mono_mie.quadrature_angles(n_angs);
+	  auto angs = range(0,constants::pi,n_angs).linspace();
+	  mono_mie.angles(angs);
 	  polydispersed_mie pm(mono_mie,sd);
 	  pm.percentage_accuracy(paccuracy);
 	  stdvector F = pm.scattering_matrix_element(row,col); 

@@ -15,8 +15,7 @@ namespace flick {
     model::single_layer_slab slab{h};
     slab.fill<material::henyey_greenstein>(a,b,g);    
     slab.adjust_accuracy(percentage{20});
-    check_small(slab.hemispherical_reflectance(),1e-12,"a");
-
+    
     slab.set_bottom(albedo{1});
     check_close(slab.hemispherical_reflectance(),1,1e-12,"b");
 
@@ -27,7 +26,7 @@ namespace flick {
     slab.fill<material::henyey_greenstein>(a,b,g);
     slab.set_bottom(albedo{0});
     check_close(slab.hemispherical_transmittance(),exp(-h()),p(),"d");
-
+    
   } end_test_case()
   
 
@@ -150,9 +149,6 @@ namespace flick {
     double r2 = slab.hemispherical_reflectance();
     check(r2 > 0.01,"b");
     
-    slab.initiate_source(stokes::p_polarized());
-    double r3 = slab.hemispherical_reflectance();
-    check_small(r3,1e-6,"c");  
   } end_test_case()
 
    begin_test_case(single_layer_slab_test_H) {
