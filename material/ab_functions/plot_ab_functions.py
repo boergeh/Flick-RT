@@ -10,21 +10,17 @@ fig.subplots_adjust(hspace=0.1)
 scaling_factor = np.loadtxt("scaling_factor.txt")
 n_terms = int(np.loadtxt("n_terms.txt"))
 p = np.loadtxt("a0.txt")
-ps = np.loadtxt("a_scaled0.txt")
-psf = np.loadtxt("a_scaled_fitted0.txt")
+pf = np.loadtxt("a_fitted0.txt")
 p = p[:,1];
-ps = ps[:,1];
-psf = psf[:,1];
+pf = pf[:,1];
 
 n = 0
 for i in range(2):
     for j in range(2):
         if n==0:
             xy = np.loadtxt("a"+str(n)+".txt")
-            ax[i,j].semilogy(xy[:,0], xy[:,1]/scaling_factor,'b-')
-            #xy = np.loadtxt("a_scaled"+str(n)+".txt")
-            #ax[i,j].semilogy(xy[:,0], xy[:,1],'r-')
-            xy = np.loadtxt("a_scaled_fitted"+str(n)+".txt")
+            ax[i,j].semilogy(xy[:,0], xy[:,1],'b-')
+            xy = np.loadtxt("a_fitted"+str(n)+".txt")
             ax[i,j].semilogy(xy[:,0], xy[:,1],'r-')
             ax[i,j].set_ylabel("$a_"+str(n+1)+"$",math_fontfamily='dejavuserif')
             ax[i,j].legend(['original','fitted Wigner d-functions'])
@@ -35,10 +31,8 @@ for i in range(2):
         else:
             xy = np.loadtxt("a"+str(n)+".txt")
             ax[i,j].plot(xy[:,0], xy[:,1]/p,'b-')
-            #xy = np.loadtxt("a_scaled"+str(n)+".txt")
-            #ax[i,j].plot(xy[:,0], xy[:,1]/ps,'r-')
-            xy = np.loadtxt("a_scaled_fitted"+str(n)+".txt")
-            ax[i,j].plot(xy[:,0], xy[:,1]/psf,'r-')
+            xy = np.loadtxt("a_fitted"+str(n)+".txt")
+            ax[i,j].plot(xy[:,0], xy[:,1]/pf,'r-')
             ax[i,j].set_ylabel("$a_"+str(n+1)+"\, /\, a_1$",math_fontfamily='dejavuserif')    
             
         ax[i,j].grid()    
@@ -49,18 +43,13 @@ for i in [2]:
     for j in range(2):
         xy = np.loadtxt("b"+str(n)+".txt")
         ax[i,j].plot(xy[:,0], xy[:,1]/p,'b-')
-        #xy = np.loadtxt("b_scaled"+str(n)+".txt")
-        #ax[i,j].plot(xy[:,0], xy[:,1]/ps,'r-')
-        xy = np.loadtxt("b_scaled_fitted"+str(n)+".txt")
-        ax[i,j].plot(xy[:,0], xy[:,1]/psf,'r-')
+        xy = np.loadtxt("b_fitted"+str(n)+".txt")
+        ax[i,j].plot(xy[:,0], xy[:,1]/pf,'r-')
         
         ax[i,j].grid()
         ax[i,j].set_ylabel("$b_"+str(n+1)+"\, /\, a_1$",math_fontfamily='dejavuserif')
         ax[i,j].set_xlabel("$\cos(\Theta)$")    
         n += 1
-
-#plt.rcParams['text.usetex'] = True
-#plt.rcParams['font.family'] = 'dejavuserif'
 
 plt.show()
 fig.savefig("plot_ab_functions.pdf", bbox_inches='tight')

@@ -101,7 +101,7 @@ namespace material {
     }
     std::tuple<std::vector<std::vector<double>>,
 	       std::vector<std::vector<double>>> wigner_ab_fit(size_t n_terms)
-    // Wigner d-function fits to the Mueller matrix a and b
+    // Wigner d-function fits to the non-zero Mueller matrix a and b
     // functions. Returned coefficients are normalized such the 4*pi
     // solid angle integral over a[0] (phase function) equals one as
     // is common practice in Flick.
@@ -109,7 +109,7 @@ namespace material {
       size_t n_points = wigner_sample_points(n_terms);
       auto [a,b,x] = mueller_ab_functions(n_points);
       normalized_scattering_matrix_fit fit(a,b,x,n_terms);
-      return {fit.alpha_coefficients(), fit.beta_coefficients()};
+      return {fit.alpha(), fit.beta()};
     }
     
   };

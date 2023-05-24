@@ -19,7 +19,7 @@ namespace flick {
     stdvector x_;
     std::vector<stdvector> alpha_;
     std::vector<stdvector> beta_;
-    double scaling_factor_;
+    //double scaling_factor_;
   public:
     normalized_scattering_matrix_fit(const std::vector<stdvector>& a,
 				     const std::vector<stdvector>& b,
@@ -29,18 +29,20 @@ namespace flick {
       assert(a_.size()==4 && b_.size()==2);
       pe_function a0(x_,a_[0]);
       wigner_fit wf_a0(a0,0,0,n_terms,fit::relative);
-      stdvector c = wf_a0.coefficients();
-      scaling_factor_ = c[0];
+      //stdvector c = wf_a0.coefficients();
+      //scaling_factor_ = c[0];
 
+      /*
       stdvector s = wigner_evaluate(c,x_,0,0) / a_[0];
       for (size_t i=0; i<a_.size(); ++i)
 	a_[i] *= s/scaling_factor_;
       for (size_t i=0; i<b_.size(); ++i)
 	b_[i] *= s/scaling_factor_; 
-
-      alpha_[0] = c / scaling_factor_;
+      */
+      //alpha_[0] = c / scaling_factor_;
+      alpha_[0] = wf_a0.coefficients();// / scaling_factor_;
+      //scaling_factor_ = alpha_[0][0];
       pe_function scaling_function{x_,1/a_[0]};
-      
       stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::scaling,
 				      scaling_function).coefficients();
       stdvector alpha2m3 = wigner_fit(pl_function{x_,a_[1]-a_[2]},2,-2,n_terms,fit::scaling,
@@ -67,27 +69,27 @@ namespace flick {
 				      scaling_function).coefficients();
       beta_[1] = -1*wigner_fit(pl_function{x_,b_[1]},0,2,n_terms,fit::scaling,
 				      scaling_function).coefficients();
-      
     }
-    std::vector<stdvector> alpha_coefficients() {
+    const std::vector<stdvector>& alpha() const {
       return alpha_;
     }
-    std::vector<stdvector> beta_coefficients() {
+    const std::vector<stdvector>& beta() const {
       return beta_;
-    }
-    stdvector alpha_coefficients(size_t i) {
+    }    
+    const stdvector& alpha(size_t i) const {
       return alpha_.at(i);
     }
-    stdvector beta_coefficients(size_t i) {
+    const stdvector& beta(size_t i) const {
       return beta_.at(i);
     }
-    stdvector scaled_a(size_t i) {
-      return a_.at(i);
-    }
-    stdvector scaled_b(size_t i) {
-      return b_.at(i);
-    }
-    stdvector fitted_scaled_a(size_t i) {
+ 
+    //stdvector scaled_a(size_t i) {
+    //  return a_.at(i);
+    //}
+    //stdvector scaled_b(size_t i) {
+    //  return b_.at(i);
+    //}
+    stdvector fitted_a(size_t i) const {
       if (i==0)
 	return wigner_evaluate(alpha_.at(0),x_,0,0);
       if (i==1 or i==2) {
@@ -103,11 +105,11 @@ namespace flick {
       else
 	return {0}; 
     }
-    stdvector fitted_scaled_b(size_t i) {
+    stdvector fitted_b(size_t i) const {
       return wigner_evaluate(-1*beta_.at(i),x_,0,2);
     }
-    double scattering_scaling_factor() {
-      return scaling_factor_;
+    double scattering_scaling_factor() const {
+      return alpha_[0][0];
     }
   };
 }

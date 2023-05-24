@@ -14,20 +14,23 @@ Parameters:
     'refractive_index', 'scattering_ab_10', 'wigner_alpha_beta_10',
     or 'AccuRT_1_8'
 
-    The 'scattering_ab_10' property will list, for each wavelength,
-    the a and b elements of the Mueller matrix times scattering
-    coefficient for 10 angular points. First column gives cosine of
-    scattering angle, next 4 columns give a-functions and the two last
-    columns give b-functions. 4*pi steradian integral over the
-    zeroth a-function gives the scattering coefficient.
+    The 'scattering_ab_10' property will for each wavelength list the
+    a and b elements of the Mueller matrix times the scattering
+    coefficient for 10 angles, where number of angles may be
+    changed. First column lists cosine of scattering angle, next 4
+    columns list a-functions, and the two last columns list
+    b-functions. 4*pi steradian integral over a[0] gives the
+    scattering coefficient.
 
-    The 'wigner_alpha_beta_10' property will list, for each
-    wavelength, 10 alpha and beta Wigner-d expansion terms for the
-    Mueller matrix times the scattering coefficient. First 4 columns
-    give alpha terms and the two last columns give beta
-    terms. alpha[0][0] divided by the scattering coefficient gives the
-    scaling factor. alpha[0][1] divided by the scattering coefficient
-    give the asymmetry factor.
+    The 'wigner_alpha_beta_10' property will for each wavelength list
+    10 Wigner-d fitted alpha and beta expansion terms for the Mueller
+    matrix times the scattering coefficient. First 4 columns give
+    alpha terms and the two last columns give beta
+    terms. 4*pi*alpha[0][0] is the new scattering coefficient,
+    normally smaller than the original one for a low number of
+    expansion terms. This reduction has the effect of removing some of
+    the forward scattered light and put back into the beam. g =
+    alpha[0][1]/alpha[0][0]/3 is the new asymmetry factor.
     
     The 'AccuRT_1_8' property will list user specified material to be
     used as input for the AccuRT radiative transfer code. The two
@@ -70,9 +73,9 @@ Examples:
 
   flick iop scattering_length 400e-9 700e-9 10 water_cloud full_mie 1e-7 5e-6 0.001
 
-  flick iop scattering_ab_10 400e-9 400e-9 1 water_cloud full_mie 1 5e-6 0
+  flick iop scattering_ab_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 
-  #to be implemented flick iop wigner_alpha_beta_10 400e-9 400e-9 1 water_cloud full_mie 1 5e-6 0
+  flick iop wigner_alpha_beta_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 
   flick iop AccuRT_1_8 400e-9 700e-9 10 brines_in_ice fast_mie 0.1 100e-6 0.001 100 
 
