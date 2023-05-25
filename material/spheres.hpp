@@ -142,6 +142,21 @@ namespace material {
 				 material::pure_water()) {}
   };
   
+  template<class Monodispersed_mie>
+  struct ice_cloud : public spheres<log_normal_distribution,
+				      material::vacuum,
+				      material::pure_ice,
+				      Monodispersed_mie> {
+    ice_cloud(double volume_fraction, double mu, double sigma) :
+      spheres<log_normal_distribution,
+	      material::vacuum,
+	      material::pure_ice,
+	      Monodispersed_mie>(volume_fraction,
+				 log_normal_distribution(mu,sigma),
+				 material::vacuum(),
+				 material::pure_ice()) {}
+  };
+  
 }
 }
 

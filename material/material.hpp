@@ -97,10 +97,11 @@ namespace material {
 	b[0][i] = m.value(0,1);
 	b[1][i] = m.value(2,3);
       }
+      
       return {a,b,x};
     }
     std::tuple<std::vector<std::vector<double>>,
-	       std::vector<std::vector<double>>> wigner_ab_fit(size_t n_terms)
+	       std::vector<std::vector<double>>> fitted_mueller_alpha_beta(size_t n_terms)
     // Wigner d-function fits to the non-zero Mueller matrix a and b
     // functions. Returned coefficients are normalized such the 4*pi
     // solid angle integral over a[0] (phase function) equals one as
@@ -111,7 +112,22 @@ namespace material {
       normalized_scattering_matrix_fit fit(a,b,x,n_terms);
       return {fit.alpha(), fit.beta()};
     }
-    
+    std::tuple<std::vector<std::vector<double>>,
+	       std::vector<std::vector<double>>,
+	       std::vector<double>> fitted_mueller_ab_functions(size_t n_angles, size_t n_terms)
+    {
+      size_t n_points = wigner_sample_points(n_terms);
+      auto [a,b,x] = mueller_ab_functions(n_points);
+      normalized_scattering_matrix_fit m(a,b,x,n_terms);
+      std::vector<std::vector<double>> a_fitted(4);
+      for (size_t i = 0; i < a_fitted.size(); ++i) {
+      	a_fitted[i] = m.fitted_a(i);
+      }
+      std::vector<std::vector<double>> b_fitted(2);
+      for (size_t i = 0; i < b_fitted.size(); ++i)
+      	b_fitted[i] = m.fitted_b(i);
+      return {a_fitted, b_fitted, x};
+    }
   };
 
   class phase_function
@@ -127,16 +143,6 @@ namespace material {
       return m.value(0,0);
     }
   };
-
-  /*
-  std::vector<double> phase_function_expansion(Material& m, size_t n_terms) {
-    m.set(pose{{0,0,0},{0,0}});
-    auto angle = range(0,2*constants::pi,n_terms*3).linspace();
-    for (auto a:angles) {
-
-    }
-  }
-  */
   
   class vacuum : public base {
   public:

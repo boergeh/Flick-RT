@@ -46,15 +46,19 @@ namespace flick {
 	      m(volfrac,mu,sigma);
 	    stream_iops(m, a(1));
 	  }
-	  /*
-	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9))); 
-	  material::spheres<log_normal_distribution,
-			    material::vacuum,
-			    material::pure_water,
-			    parameterized_monodispersed_mie>
-	    m(std::stod(a(7)), sd, material::vacuum(), material::pure_water());
-	  */
-	  //stream_iops(m, a(1));
+	}
+	else if (a(5)=="ice_cloud" or a(5)=="snow") {
+	  double mu = log(std::stod(a(8)));
+	  double sigma = std::stod(a(9));
+	  double volfrac = std::stod(a(7));
+	  if (a(6)=="full_mie") {
+	    material::ice_cloud<monodispersed_mie> m(volfrac,mu,sigma);
+	   stream_iops(m, a(1));
+	  } else {
+	    material::ice_cloud<parameterized_monodispersed_mie>
+	      m(volfrac,mu,sigma);
+	    stream_iops(m, a(1));
+	  }
 	}
 	else if (a(5)=="bubbles_in_ice") {
 	  double mu = log(std::stod(a(8)));
@@ -68,17 +72,6 @@ namespace flick {
 	      m(volfrac,mu,sigma);
 	    stream_iops(m, a(1));
 	  }
-	  
-	  //material::bubbles_in_ice<parameterized_monodispersed_mie> m(volfrac,r_mean,width);
-	  /*
-	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
-	  material::spheres<log_normal_distribution,
-			    material::pure_ice,
-			    material::vacuum,
-			    monodispersed_mie>
-	    m(std::stod(a(7)), sd, material::pure_ice(), material::vacuum());
-	  */
-	  //stream_iops(m, a(1));
 	}
 	else if (a(5)=="brines_in_ice") {
 	  double mu = log(std::stod(a(8)));
@@ -94,22 +87,6 @@ namespace flick {
 	      m(volfrac,mu, sigma,salinity);
 	    stream_iops(m, a(1));
 	  }
-	  
-	  /*
-	  log_normal_distribution sd(log(std::stod(a(8))),std::stod(a(9)));
-	  double T = 273.15;
-	  double S = std::stod(a(10));	
-	  material::pure_water w;
-	  w.temperature(T);
-	  w.salinity(S);
-	  material::spheres<log_normal_distribution,
-			    material::pure_ice,
-			    material::pure_water,
-			    parameterized_monodispersed_mie>
-	    m(std::stod(a(7)), sd, material::pure_ice(), w);
-	  */
-	  
-	  //stream_iops(m, a(1));
 	}
 	else if (a(5)=="henyey_greenstein") {
 	  absorption_coefficient abs{std::stod(a(6))};
@@ -151,10 +128,15 @@ namespace flick {
 	  auto n = sub_script_numbers(p);
 	  stream_AccuRT(m, n.at(0), n.at(1));
 	} else if (p.substr(0,13)=="scattering_ab") {
-	  auto n = sub_script_numbers(p.substr(13));
+	  auto n = sub_script_numbers(p.substr(13));	  
 	  size_t n_angles = n.at(0);
+	  size_t n_terms = 0;
 	  auto [a,b,x] = m.mueller_ab_functions(n_angles);
-	  std::cout << std::setprecision(6);
+	  if (n.size()==2) {
+	    n_terms = n.at(1);
+	    std::tie(a,b,x) = m.fitted_mueller_ab_functions(n_angles,n_terms);
+	  }
+	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set(wavelength(wls_[i]));
 	    double k = m.scattering_coefficient();
@@ -169,8 +151,8 @@ namespace flick {
 	} else if (p.substr(0,17)=="wigner_alpha_beta") {
 	  auto n = sub_script_numbers(p.substr(17));
 	  size_t n_terms = n.at(0);
-	  auto [alpha,beta] = m.wigner_ab_fit(n_terms);
-	  std::cout << std::setprecision(6);
+	  auto [alpha,beta] = m.fitted_mueller_alpha_beta(n_terms);
+	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set(wavelength(wls_[i]));
 	    double k = m.scattering_coefficient();
