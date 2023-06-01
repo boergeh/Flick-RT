@@ -34,7 +34,7 @@ Parameters:
     terms. 4*pi*alpha[0][0] is the new scattering coefficient,
     normally smaller than the original one for a low number of
     expansion terms. This reduction has the effect of removing some of
-    the forward scattered radiation and put it back into the icident
+    the forward scattered radiation and put it back into the incident
     radiation. g = alpha[0][1]/alpha[0][0]/3 is the new asymmetry
     factor.
     

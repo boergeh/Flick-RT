@@ -7,6 +7,7 @@
 #include "../../material/spheres.hpp"
 #include "../../material/henyey_greenstein.hpp"
 #include "../../material/tabulated.hpp"
+#include "../../material/ab_functions.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
 #include "../../environment/input_output.hpp"
 
@@ -131,10 +132,10 @@ namespace flick {
 	  auto n = sub_script_numbers(p.substr(13));	  
 	  size_t n_angles = n.at(0);
 	  size_t n_terms = 0;
-	  auto [a,b,x] = m.mueller_ab_functions(n_angles);
+	  auto [a,b,x] = material::mueller_ab_functions(m,n_angles);
 	  if (n.size()==2) {
 	    n_terms = n.at(1);
-	    std::tie(a,b,x) = m.fitted_mueller_ab_functions(n_angles,n_terms);
+	    std::tie(a,b,x) = material::fitted_mueller_ab_functions(m, n_angles,n_terms);
 	  }
 	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
@@ -151,7 +152,7 @@ namespace flick {
 	} else if (p.substr(0,17)=="wigner_alpha_beta") {
 	  auto n = sub_script_numbers(p.substr(17));
 	  size_t n_terms = n.at(0);
-	  auto [alpha,beta] = m.fitted_mueller_alpha_beta(n_terms);
+	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms);
 	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set(wavelength(wls_[i]));

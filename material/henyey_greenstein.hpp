@@ -15,6 +15,12 @@ namespace material {
       return m;
     }
   };
+  class white_isotropic : public henyey_greenstein {
+  public:
+    white_isotropic() : henyey_greenstein(flick::absorption_coefficient{0},
+					  flick::scattering_coefficient{1},
+					  flick::asymmetry_factor{0}) {}
+  };
 }
 }
 

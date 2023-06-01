@@ -3,6 +3,7 @@
 #include "iop_profile_test.hpp"
 #include "spheres_test.hpp"
 #include "normalized_scattering_matrix_fit_test.hpp"
+#include "ab_functions_test.hpp"
 
 int main() {
   using namespace flick;
@@ -13,6 +14,8 @@ int main() {
   t.include<spheres_test_A>("spheres_test_A");
   t.include<spheres_test_B>("spheres_test_B");
   t.include<normalized_scattering_matrix_fit_test>("normalized_scattering_matrix_fit_test");
+  t.include<ab_functions_test_A>("ab_functions_test_A");
+  t.include<ab_functions_test_B>("ab_functions_test_B");
   t.run_test_cases();
   return 0;
 }

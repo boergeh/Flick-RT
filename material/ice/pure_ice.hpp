@@ -3,6 +3,7 @@
 
 #include "../material.hpp"
 #include "../../polarization/rayleigh_mueller.hpp"
+#include "../../environment/input_output.hpp"
 
 namespace flick {
 namespace material {

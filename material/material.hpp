@@ -1,14 +1,8 @@
 #ifndef flick_material
 #define flick_material
 
-#include "../environment/input_output.hpp"
-#include "../numeric/constants.hpp"
-#include "../numeric/function.hpp"
-#include "../numeric/physics_function.hpp"
 #include "../numeric/named_bounded_types.hpp"
 #include "../numeric/pose.hpp"
-#include "../numeric/wigner/wigner_fit.hpp"
-#include "normalized_scattering_matrix_fit.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
 #include <complex>
 
@@ -77,56 +71,6 @@ namespace material {
       double n = real_refractive_index();
       double k = absorption_coefficient() * wavelength() / (4*constants::pi); 
       return std::complex<double>{n,k};
-    }
-    std::tuple<std::vector<std::vector<double>>,
-	       std::vector<std::vector<double>>,
-	       std::vector<double>> mueller_ab_functions(size_t n_angles)
-    // a and b mueller matrix elements, where scattering angle is
-    // taken relative to current traveling direction, keeping azimuth
-    // angle equal to zero
-    {
-      std::vector<double> x = range(-1,1,n_angles).linspace();
-      std::vector<std::vector<double>> a(4,std::vector<double>(x.size()));
-      std::vector<std::vector<double>> b(2,std::vector<double>(x.size()));
-      for (size_t i=0; i<n_angles; ++i) {
-	mueller m = mueller_matrix(unit_vector{acos(x[i]),0});
-	a[0][i] = m.value(0,0);
-	a[1][i] = m.value(1,1);
-	a[2][i] = m.value(2,2);
-	a[3][i] = m.value(3,3);
-	b[0][i] = m.value(0,1);
-	b[1][i] = m.value(2,3);
-      }
-      
-      return {a,b,x};
-    }
-    std::tuple<std::vector<std::vector<double>>,
-	       std::vector<std::vector<double>>> fitted_mueller_alpha_beta(size_t n_terms)
-    // Wigner d-function fits to the non-zero Mueller matrix a and b
-    // functions. Returned coefficients are normalized such the 4*pi
-    // solid angle integral over a[0] (phase function) equals one as
-    // is common practice in Flick.
-    {
-      size_t n_points = wigner_sample_points(n_terms);
-      auto [a,b,x] = mueller_ab_functions(n_points);
-      normalized_scattering_matrix_fit fit(a,b,x,n_terms);
-      return {fit.alpha(), fit.beta()};
-    }
-    std::tuple<std::vector<std::vector<double>>,
-	       std::vector<std::vector<double>>,
-	       std::vector<double>> fitted_mueller_ab_functions(size_t n_angles, size_t n_terms)
-    {
-      size_t n_points = wigner_sample_points(n_terms);
-      auto [a,b,x] = mueller_ab_functions(n_points);
-      normalized_scattering_matrix_fit m(a,b,x,n_terms);
-      std::vector<std::vector<double>> a_fitted(4);
-      for (size_t i = 0; i < a_fitted.size(); ++i) {
-      	a_fitted[i] = m.fitted_a(i);
-      }
-      std::vector<std::vector<double>> b_fitted(2);
-      for (size_t i = 0; i < b_fitted.size(); ++i)
-      	b_fitted[i] = m.fitted_b(i);
-      return {a_fitted, b_fitted, x};
     }
   };
 
