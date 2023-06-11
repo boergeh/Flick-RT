@@ -4,6 +4,7 @@
 all:	check-env build test
 
 build:	
+	cd numeric/linalg; make obj link
 	cd numeric; make obj link
 	cd numeric/legendre; make obj link
 	cd numeric/wigner; make obj link
@@ -22,6 +23,7 @@ build:
 	cd model; make obj link
 	cd main; make obj link
 test:	
+	@cd numeric/linalg; make test
 	@cd numeric; make test
 	@cd numeric/legendre; make test
 	@cd numeric/wigner; make test
@@ -39,6 +41,7 @@ test:
 	@cd model; make test
 	@cd radiator; make test
 clean:	
+	cd numeric/linalg; make clean
 	cd numeric; make clean
 	cd numeric/legendre; make clean
 	cd numeric/wigner; make clean
