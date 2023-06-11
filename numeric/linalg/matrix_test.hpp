@@ -4,7 +4,7 @@ namespace flick {
   begin_test_case(matrix_test) {
     using namespace linalg;
     matrix m1 = {{1,2},{3,4}};
-    check_close(det(m1),-2,1e-12);
+    check_close(det(m1),-2,1e-12,"m1");
 
     matrix m2 = {{4,3},{1,5}};
     m2 = cofactor(m2);
@@ -38,6 +38,15 @@ namespace flick {
     check_close(m7[0][1],64,1e-12);
     check_close(m7[1][0],139,1e-12);
     check_close(m7[1][1],154,1e-12);
+
+    matrix m8 = {{0,1},{1,1},{2,1}};
+    std::vector<double> v = {1,2,3};
+    std::vector<double> c = solve(m8,v);
+    std::cout << c.size() << std::endl;
+    check_close(c.at(0),1,1e-12);
+    check_close(c.at(1),1,1e-12);
+    
+      
     
   } end_test_case()  
 }

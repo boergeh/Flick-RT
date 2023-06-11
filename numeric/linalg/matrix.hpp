@@ -6,10 +6,10 @@
 
 namespace flick {
   namespace linalg
-  // Most of these methods are made with help from ChatGPT-2023
   {
     using matrix = std::vector<std::vector<double>>;
-
+    using vector = std::vector<double>;
+    
     std::ostream& operator<<(std::ostream& os, const matrix& m) {
       os << "\n";
       for (size_t i=0; i < m.size(); i++) {
@@ -57,31 +57,35 @@ namespace flick {
       }
       return result;
     }
-
-    double det(const matrix& m)
-    // Determinant
-    {
-      size_t n = m.size();
-      if (n == 1) {
-	return m[0][0];
-      }
-      double d = 0.0;
-      int sign = 1;
-      for (size_t col = 0; col < n; col++) {
-	matrix submatrix(n - 1, std::vector<double>(n - 1));
-	size_t sub_i = 0;
-	for (size_t row = 1; row < n; row++) {
-	  size_t sub_j = 0;
-	  for (size_t subcol = 0; subcol < n; subcol++) {
-	    if (subcol == col) continue;
-	    submatrix[sub_i][sub_j] = m[row][subcol];
-	    sub_j++;
+ 
+    double det(matrix m) {
+      int N = static_cast<int>(m.size());
+      double d = 1;
+      
+      for (int i = 0; i < N; ++i) {
+	
+        double pivotElement = m[i][i];
+        int pivotRow = i;
+        for (int row = i + 1; row < N; ++row) {
+	  if (std::abs(m[row][i]) > std::abs(pivotElement)) {
+	    pivotElement = m[row][i];
+	    pivotRow = row;
 	  }
-	  sub_i++;
-	}
-	double subDet = det(submatrix);
-	d += sign * m[0][col] * subDet;
-	sign *= -1;
+        }
+        if (pivotElement == 0.0) {
+	  return 0.0;
+        }
+        if (pivotRow != i) {
+	  m[i].swap(m[pivotRow]);
+	  d *= -1.0;
+        }
+        d *= pivotElement;
+	
+        for (int row = i + 1; row < N; ++row) {
+	  for (int col = i + 1; col < N; ++col) {
+	    m[row][col] -= m[row][i] * m[i][col] / pivotElement;
+	  }
+        }
       }
       return d;
     }
@@ -130,6 +134,26 @@ namespace flick {
     // Matrix inversion
     {
       return 1/det(m)*T(cofactor(m));
+    }
+
+    std::vector<double> column(size_t n, const matrix& m) {
+      std::vector<double> c(m.size());
+      for (size_t i=0; i<m.size(); i++)
+	c[i] = m[i][n];
+      return c;
+    }
+
+    matrix remove_column(size_t n, matrix m) {
+      for (size_t i=0; i<m.size(); i++) {
+	m[i].erase(m[i].begin() + n);
+      }
+      return m;
+    }
+    
+    std::vector<double> solve(const matrix& m, const std::vector<double>& v)
+    // Solves set of linear equations
+    {
+      return column(0, inv(T(m)*m) * (T(m)*T(matrix{v})));
     }
   }
 }

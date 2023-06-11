@@ -3,8 +3,8 @@
 
 #include "../std_operators.hpp"
 #include "../function.hpp"
+#include "../linalg/matrix.hpp"
 #include "wigner_d.hpp"
-#include <armadillo>
  
 namespace flick {
   enum class fit {
@@ -29,33 +29,37 @@ namespace flick {
 	       const pe_function& scaling_function = pe_function{{-1,1},{1,1}})
       : m_{m}, n_{n}, coefficients_(n_terms) {
       stdvector x = range(-1,1, wigner_sample_points(n_terms)).linspace();   
-      arma::mat matrix(x.size(), n_terms);
-      arma::vec v(x.size());
+      linalg::matrix mat(x.size(), std::vector<double>(n_terms));
+      linalg::vector v(x.size());
       for (size_t i=0; i<x.size(); ++i) {
 	stdvector d = wigner_d(x[i], m_, n_, n_terms).terms();
 	if (fit == fit::absolute)
-	  v(i) = f.value(x[i]);
+	  v[i] = f.value(x[i]);
 	else if (fit == fit::relative)
-	  v(i) = 1;
+	  v[i] = 1;
 	else if (fit == fit::scaling)
-	  v(i) = f.value(x[i])*scaling_function.value(x[i]);
+	  v[i] = f.value(x[i])*scaling_function.value(x[i]);
 	  
 	for (size_t j=0; j<n_terms; ++j) {
 	  if (fit == fit::absolute)
-	    matrix(i,j) = d[j];
+	    mat[i][j] = d[j];
 	  else if (fit == fit::relative)
-	    matrix(i,j) = d[j]/f.value(x[i]);
+	    mat[i][j] = d[j]/f.value(x[i]);
 	  else if (fit == fit::scaling)
-	    matrix(i,j) = d[j]*scaling_function.value(x[i]);
+	    mat[i][j] = d[j]*scaling_function.value(x[i]);
 	}
       }
       size_t n_zeros = wigner_d::leading_zeros(m_,n_);
-      if (n_zeros > 0)
-	matrix.shed_cols(0,n_zeros-1);
-      arma::vec c = arma::solve(matrix,v);
-      if (n_zeros > 0)
-	c.insert_rows(0,arma::vec(n_zeros,arma::fill::zeros));
-      coefficients_ = arma::conv_to<std::vector<double>>::from(c);
+      if (n_zeros > 0) {
+	for (size_t i=0; i<n_zeros; i++) {
+	  mat = linalg::remove_column(0, mat);
+	}
+      }
+      coefficients_ = linalg::solve(mat,v);
+      if (n_zeros > 0) {
+	std::vector<double> zeros(n_zeros,0.0);
+	coefficients_.insert(coefficients_.begin(),zeros.begin(),zeros.end());
+      }
     }
     stdvector coefficients() {
       return coefficients_;

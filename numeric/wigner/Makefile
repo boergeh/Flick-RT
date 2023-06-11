@@ -8,7 +8,7 @@ all:	obj link test
 clean:
 	@rm -f $(OBJ) $(DEP) ./$(NAME) ./*~ ./obj ./#*#
 link:
-	$(FLICK_COMPILER) -o $(NAME) $(OBJ) -larmadillo
+	$(FLICK_COMPILER) -o $(NAME) $(OBJ)
 
 obj:	$(OBJ)
 

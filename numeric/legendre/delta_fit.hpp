@@ -2,8 +2,8 @@
 #define flick_delta_fit
 
 #include "../constants.hpp"
+#include "../linalg/matrix.hpp"
 #include "legendre.hpp"
-#include <armadillo>
  
 namespace flick {
   template<class Function>
@@ -13,18 +13,19 @@ namespace flick {
     delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
       int n_points = pow(n_terms,1.6);
-      std::vector<double> x = range(-1,1,n_points).linspace();      
-      arma::mat m(x.size(), n_terms);
+      std::vector<double> x = range(-1,1,n_points).linspace();
+
+      linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);
       for (size_t i=0; i<x.size(); ++i) {
 	for (size_t j=0; j<n_terms; ++j) {
-	  m(i,j) = p.value(j,i)/f.value(x[i]); 
+	  m[i][j] = p.value(j,i)/f.value(x[i]); 
 	}
       }
-      arma::vec v = arma::ones(x.size());
-      arma::vec c = arma::solve(m,v);
-      coefficients_ = arma::conv_to<std::vector<double>>::from(c);
-    }    
+      auto v = std::vector<double>(x.size(),1);
+      coefficients_ = linalg::solve(m,v);
+    }
+
     std::vector<double> coefficients() {
       return coefficients_;
     }

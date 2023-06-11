@@ -12,7 +12,7 @@ For macOS and Linux:
 
  flick help -- for further documentation and usage examples  
 
-You will need to have a c++ compiler (e.g. clang++ or g++) and the Armadillo linear algebra library https://arma.sourceforge.net already installed.  
+You will need to have a c++ compiler (e.g. clang++ or g++) already installed.  
 
 Flick is distributed under the MIT license.  
 https://docs.openmc.org/en/stable/license.html

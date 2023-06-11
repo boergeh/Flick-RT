@@ -2,7 +2,6 @@
 #define flick_normalized_scattering_matrix_fit
 
 #include "../numeric/wigner/wigner_fit.hpp"
-#include <armadillo>
  
 namespace flick {
   class normalized_scattering_matrix_fit
