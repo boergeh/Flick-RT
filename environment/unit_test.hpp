@@ -10,6 +10,10 @@
 #include <iomanip>
 
 namespace flick {
+  constexpr long double operator""_pct(long double p)
+  {
+    return p;
+  }
   std::chrono::time_point<std::chrono::system_clock> time_1, time_2;
   void start_time() {
      time_1 = std::chrono::system_clock::now();
@@ -21,8 +25,11 @@ namespace flick {
   }
   
   class test_case {
-    void write_begin() {
-      std::cout << std::endl << " " << name_ << ": ";
+    void write_begin(const std::string& s) {
+      std::cout << std::endl << " " << name_ << ", check number " + std::to_string(checks_);
+      if (not s.empty())
+	std::cout << ", with message \""<<s<<"\"";
+      std::cout << ": ";
     }
     void write_end() {
       std::cout << std::endl;
@@ -31,34 +38,41 @@ namespace flick {
     std::string name_;
     bool do_printing_{true};
     int errors_{0};
+    int checks_{0};
     virtual ~test_case(){}
   public:
     test_case(const std::string& name) : name_{name}{}
     virtual void test() = 0;
-    int errors(){return errors_;}
+    int errors() {return errors_;}
     void do_printing(bool b) {do_printing_ = b;}
     template<class T>
     void print(std::string s, T t) {
       if (do_printing_)
 	std::cout << s << t << ",";
     }
-    void print_progress() {
+    void print_progress_begin() {
       if (do_printing_)
-	std::cout << "[" << name_ << "]";
+	std::cout << "[" << name_;
+    }
+    void print_progress_end() {
+       if (do_printing_)
+	 std::cout << ", " << checks_ <<" checks" "]";
     }
     void check(bool b, const std::string& s="") {
+      checks_++;
       if (!b) {
-	write_begin();
-	std::cout << "\""<< s << "\" boolean test failed ";
+	write_begin(s);
+	std::cout << "Boolean test failed ";
 	write_end();
 	errors_++;
       }
     }
-    void check_close(double value1, double value2, double percent, const std::string& s="") {
+    void check_close(double value1, double value2, double percent=1e-12, const std::string& s="") {
+      checks_++;
       double diff = fabs(value1/value2-1)*100;
       if (!std::isfinite(diff) | (diff > percent)) {
-	write_begin();
-	std::cout <<  "\""<< s << "\" " << " the difference between "
+	write_begin(s);
+	std::cout << "The difference between "
 		  << value1 << " and benchmark " << value2 << " is " << diff
 		  << " %, which is larger than the accepted "
 		  << percent << " %";
@@ -66,23 +80,26 @@ namespace flick {
 	errors_++;
       }
     }
-    void check_small(double value, double accepted_distance, const std::string& s="") {
+    
+    void check_small(double value, double accepted_distance=1e-14, const std::string& s="") {
+      checks_++;
       if (!std::isfinite(value) | (fabs(value) > accepted_distance)) {
-	write_begin();
-	std::cout << "\""<< s << "\" " << value
-		  << " is further from zero than the accepted distance "
+	write_begin(s);
+	std::cout << value
+		  << "is further from zero than the accepted distance "
 		  << accepted_distance;
 	write_end();
 	errors_++;
       }
     }
-    void check_fast(double max_time,const std::string& s="") {
+    void check_fast(double max_time, const std::string& s="") {
+      checks_++;
       std::chrono::time_point<std::chrono::system_clock> time;
       time = std::chrono::system_clock::now();
       std::chrono::duration<double> duration = time - time_1;
       if (duration > std::chrono::duration<double>(max_time)) {
-	write_begin();
-	std::cout << "\""<< s << "\" " << "runtime of "
+	write_begin(s);
+	std::cout << "Runtime of "
 		  << std::setprecision(2) << duration.count()
 		  << " s is slower than the accepted " << max_time
 		  << " s";
@@ -91,7 +108,7 @@ namespace flick {
       }
     }
     void report_throw_failure() {
-      write_begin();
+      write_begin("");
       std::cout << "did not throw as expected";
       write_end();
     }
@@ -112,11 +129,12 @@ namespace flick {
       if (test_cases_.size() > 1)
 	s = "s";
       std::cout << "Running " << test_cases_.size() << " test case"
-		<< s << " in " << name_ << " unit test:";
+		<< s << " in " << name_ << " unit test: ";
       int errors = 0;
       for (auto& current_case: test_cases_) {
-	current_case->print_progress();
+	current_case->print_progress_begin();
 	current_case->test();
+	current_case->print_progress_end();
 	errors += current_case->errors();
       }
       std::cout << std::endl;

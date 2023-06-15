@@ -58,12 +58,12 @@ namespace flick {
       return result;
     }
  
-    double det(matrix m) {
+    double det(matrix m)
+    // Determinant
+    {
       int N = static_cast<int>(m.size());
-      double d = 1;
-      
-      for (int i = 0; i < N; ++i) {
-	
+      double d = 1;     
+      for (int i = 0; i < N; ++i) {	
         double pivotElement = m[i][i];
         int pivotRow = i;
         for (int row = i + 1; row < N; ++row) {
@@ -93,7 +93,6 @@ namespace flick {
     matrix cofactor(const matrix& m) {
       size_t n = m.size();
       matrix cofactorMatrix(n, std::vector<double>(n));
-
       for (size_t i = 0; i < n; i++) {
 	for (size_t j = 0; j < n; j++) {
 	  matrix submatrix(n - 1, std::vector<double>(n - 1));
@@ -116,24 +115,24 @@ namespace flick {
       return cofactorMatrix;
     }
 
-    matrix T(const matrix& m)
+    matrix t(const matrix& m)
     // Transpose
     {
       size_t rows = m.size();
       size_t cols = m[0].size();
-      matrix t(cols, std::vector<double>(rows));
+      matrix tm(cols, std::vector<double>(rows));
       for (size_t i = 0; i < rows; i++) {
 	for (size_t j = 0; j < cols; j++) {
-	  t[j][i] = m[i][j];
+	  tm[j][i] = m[i][j];
 	}
       }
-      return t;
+      return tm;
     }
 
     matrix inv(const matrix& m)
     // Matrix inversion
     {
-      return 1/det(m)*T(cofactor(m));
+      return 1/det(m)*t(cofactor(m));
     }
 
     std::vector<double> column(size_t n, const matrix& m) {
@@ -153,7 +152,8 @@ namespace flick {
     std::vector<double> solve(const matrix& m, const std::vector<double>& v)
     // Solves set of linear equations
     {
-      return column(0, inv(T(m)*m) * (T(m)*T(matrix{v})));
+      auto col = t(matrix{v});
+      return column(0, inv(t(m)*m) * (t(m)*col));
     }
   }
 }
