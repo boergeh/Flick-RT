@@ -5,6 +5,8 @@
 #include "../numeric/pose.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
 #include <complex>
+#include <algorithm>
+
 
 namespace flick {
 namespace material {
@@ -26,10 +28,7 @@ namespace material {
     }
     double angle(const unit_vector& scattering_direction) const {
       double d = dot(pose_.z_direction(),scattering_direction);
-      if (d < -1)
-	d = -1;
-      else if (d > 1)
-	d = 1;
+      d = std::clamp<double>(d,-1,1);
       return acos(d);
     }
     virtual double absorption_coefficient() const = 0;
@@ -82,6 +81,7 @@ namespace material {
   public:
     phase_function(material::base& mat) : mat_{mat} {}
     double value(double mu) const {
+      mu = std::clamp<double>(mu, -1, 1);
       double theta = acos(mu);
       mueller m = mat_.mueller_matrix(unit_vector{theta,0});
       return m.value(0,0);
