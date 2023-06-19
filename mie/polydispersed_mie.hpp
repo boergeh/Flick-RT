@@ -158,8 +158,8 @@ namespace flick {
     double relative_area_change(const stdvector& da, const stdvector& a,
 				double dx) {
       double w = 5*bq_->sd().width();
-      return vec::rms(sqrt(w/abs(dx))*da/a);
-      //return vec::rms(sqrt(w/abs(dx))*da/dx*w/a);
+      return vec::rms(sqrt(w/std::fabs(dx))*da/a);
+      //return vec::rms(sqrt(w/std::fabs(dx))*da/dx*w/a);
       //return vec::rms(da/a*w/dx);
       //return vec::rms(da/a);
     }
@@ -176,7 +176,7 @@ namespace flick {
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
 	  error = relative_area_change(a-previous_a,compare_a+a,x2-x1);
-	}	
+	}
 	previous_a = a;
 	n++;
 	integral_of_abs_integrand_ = gl.of_abs_integrand(x1,x2);
@@ -199,7 +199,7 @@ namespace flick {
 	double total_step_width = 0;
 	//while (error > accuracy_ || total_step_width < 1.0*sd_.width()) {
 	while (error > accuracy_) {
-	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];	
+	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];
 	  stdvector da = integral(x1, x2, a)*direction[i];
 	  total_q_points += n_quadrature_points_;
 	  
@@ -211,10 +211,9 @@ namespace flick {
 	      xy_integration_points(x1,x2);
 	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    double dx = x2-x1;
-	    //error = relative_area_change(da,a,dx);
 	    stdvector da_conservative = integral_of_abs_integrand_;
 	    error = relative_area_change(da_conservative,a,dx);
-	    total_step_width += abs(dx);
+	    total_step_width += std::fabs(dx);
 	    x1 = x2;
 	  }	  
 	  if (n_quadrature_points_ < 8) {
