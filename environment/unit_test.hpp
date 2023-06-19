@@ -26,9 +26,10 @@ namespace flick {
   
   class test_case {
     void write_begin(const std::string& s) {
-      std::cout << std::endl << " " << name_ << ", check number " + std::to_string(checks_);
+      std::cout << std::endl << " " << name_ << ", check number "
+		<< std::to_string(checks_);
       if (not s.empty())
-	std::cout << ", with message \""<<s<<"\"";
+	std::cout << ", with message \"" << s << "\"";
       std::cout << ": ";
     }
     void write_end() {
@@ -48,15 +49,15 @@ namespace flick {
     template<class T>
     void print(std::string s, T t) {
       if (do_printing_)
-	std::cout << s << t << ",";
+	std::cout << s << t << "," << std::flush;
     }
     void print_progress_begin() {
       if (do_printing_)
-	std::cout << "[" << name_;
+	std::cout << "[" << name_ << ", "<< std::flush;
     }
     void print_progress_end() {
        if (do_printing_)
-	 std::cout << ", " << checks_ <<" checks" "]";
+	 std::cout << checks_ <<" checks" "]" << std::flush;
     }
     void check(bool b, const std::string& s="") {
       checks_++;
@@ -67,7 +68,8 @@ namespace flick {
 	errors_++;
       }
     }
-    void check_close(double value1, double value2, double percent=1e-12, const std::string& s="") {
+    void check_close(double value1, double value2, double percent=1e-12,
+		     const std::string& s="") {
       checks_++;
       double diff = fabs(value1/value2-1)*100;
       if (!std::isfinite(diff) | (diff > percent)) {
@@ -81,7 +83,8 @@ namespace flick {
       }
     }
     
-    void check_small(double value, double accepted_distance=1e-14, const std::string& s="") {
+    void check_small(double value, double accepted_distance=1e-14,
+		     const std::string& s="") {
       checks_++;
       if (!std::isfinite(value) | (fabs(value) > accepted_distance)) {
 	write_begin(s);
