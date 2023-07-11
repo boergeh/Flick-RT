@@ -14,22 +14,17 @@ namespace flick {
       mueller rm = rayleigh_mueller(ang[i],0.2);
       f.append({ang[i], rm(0).value * sin(ang[i])});
     }
-    check_close(2*pi*f.integral(), 1, 0.01,"b");
+    check_close(2*pi*f.integral(), 1, 0.01_pct);
     
     angular_mueller am(hg_phase_function(0.9,100));
-    check_close(am.value(0,0,0),15.12,1);
-    check_small(am.value(1,0,0),1e-12);
+    check_close(am.value(0,0,0),15.12,1.0_pct);
+    check_small(am.value(1,0,0));
 
     angular_mueller am2(hg_phase_function(0.0,100));
     am2.add(3,3,pl_function{{0,3.14159},{1,1}});
-    check_close(am2.value(3,3,0),1,1e-9);
+    check_close(am2.value(3,3,0),1,1e-9_pct);
     am.add(am2,0.5);
-    check_close(am.value(3,3,0),0.5,1e-9);
-
-    //phase_function hgp = hg_phase_function(0.0,100);
-    //check_close(hgp.legendre_fit(32).coefficients()[0],1/(4*constants::pi),1e-3);
-    //check_small(hgp.legendre_fit(32).coefficients()[1],1e-15);
-
+    check_close(am.value(3,3,0),0.5,1e-9_pct);
   } end_test_case()
 }
 

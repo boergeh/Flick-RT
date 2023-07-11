@@ -6,9 +6,9 @@
 int main() {
   using namespace flick;
   unit_test t("component");
-  t.include<emitter_test>("emitter_test");
-  t.include<receiver_test>("receiver_test");
-  t.include<content_test>("content_test");
+  t.include<emitter_test>();
+  t.include<receiver_test>();
+  t.include<content_test>();
   t.run_test_cases();
   return 0;
 }

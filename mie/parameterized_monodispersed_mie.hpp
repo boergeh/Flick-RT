@@ -25,7 +25,7 @@ namespace flick {
       stdcomplex n = m_sphere_ / m_host_;
       stdcomplex arg = 1./n * (pow(n,3) - pow(pow(n,2)-1., 3./2));
       double Qa0 = 8./3*imag(m_sphere_-m_host_) * real(size_parameter_in_host())
-      	* abs(arg);
+      	* std::abs(arg);
       Qa_ = 0.94 * tanh(Qa0/0.94);
     }
     double geometrical_cross_section() const {

@@ -1,4 +1,5 @@
 #include "volume.hpp"
+
 namespace flick {
 namespace geometry {
   begin_test_case(volume_test_A) {
@@ -34,12 +35,12 @@ namespace geometry {
     pose observer{{0,0,-10},{0,0}};
     observer.move_to({0,0,-2.99});
     vector pos = (*nav.next_intersection(observer)).position();
-    check_small(rms(pos,{0,0,-2}),1e-9);
+    check_small(rms(pos,{0,0,-2}));
     check(nav.next_volume(observer).name()=="sphere");
     nav.go_inward();
     observer.move_to({0,0,-1.99});
     pos = (*nav.next_intersection(observer)).position();
-    check_small(rms(pos,{0,0,-0.5}),1e-9);
+    check_small(rms(pos,{0,0,-0.5}));
     check(nav.next_volume(observer).name()=="cube");
     nav.go_inward();
     check_throw(nav.go_inward());
@@ -54,12 +55,12 @@ namespace geometry {
     nav2.go_inward();
     nav2.go_inward();
     vector sph_pos = nav2.go_outward().placement().position();
-    check_small(rms(sph_pos,new_pos),1e-9);
+    check_small(rms(sph_pos,new_pos));
 
     cube<content> c3{0.1};
     c3.move_by({1,0,0});
     c3.rotate_by(rotation_about_z(constants::pi/2),{-1,0,0});
-    check_small(rms(c3.placement().position(),{-1,2,0}),1e-9);
+    check_small(rms(c3.placement().position(),{-1,2,0}));
     
   } end_test_case()
 

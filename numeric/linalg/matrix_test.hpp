@@ -1,3 +1,4 @@
+#include "../../environment/unit_test.hpp"
 #include "matrix.hpp"
 
 namespace flick {
@@ -44,8 +45,6 @@ namespace flick {
     std::vector<double> c = solve(m8,v);
     check_close(c.at(0),1);
     check_close(c.at(1),1);
-    
-      
     
   } end_test_case()  
 }

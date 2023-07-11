@@ -6,8 +6,7 @@ namespace flick {
     using namespace constants;
     using namespace flick;
     auto [a,b,x] = material::mueller_ab_functions(material::white_isotropic(),3);
-    check_close(a[0][0],1/(4*constants::pi),1e-12);
-    
+    check_close(a[0][0],1/(4*constants::pi));
   } end_test_case()
   
   begin_test_case(ab_functions_test_B) {
@@ -19,10 +18,8 @@ namespace flick {
 				   asymmetry_factor{g});    
     material::phase_function pf(hg);
     tabulated_phase_function hgpf{hg_phase_function(g,100)};
-    check_close(pf.value(0),hgpf.value(constants::pi/2), 1e-13);
+    check_close(pf.value(0),hgpf.value(constants::pi/2));
     auto [a, b, x] = material::mueller_ab_functions(hg,100);
-    check_close(a[0][0],hgpf.value(constants::pi),1e-12);
-
-  } end_test_case()
-  
+    check_close(a[0][0],hgpf.value(constants::pi));
+  } end_test_case() 
 }

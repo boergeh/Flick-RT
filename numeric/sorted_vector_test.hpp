@@ -10,9 +10,9 @@ namespace flick {
     }
     
     sorted_vector sv2{{-1,1,2}};
-    check(sv2.find(0)==0,"1a");
-    check(sv2.find(-2)==0,"1b");
-    check(sv2.find(3)==1,"1c");
+    check(sv2.find(0)==0);
+    check(sv2.find(-2)==0);
+    check(sv2.find(3)==1);
 
     sorted_vector sv3;
     for (size_t n=1; n<1e6; ++n)
@@ -23,7 +23,6 @@ namespace flick {
     sv3.find(90);
     auto end1 = time::now();
     std::chrono::duration<double> t1 = end1-start1;
-    //std::cout << "find() linear: " << t1.count()/1e-6 << "us\n";
 
     auto start1b = time::now();
     sv3.set_step_type(step_type::exponential);
@@ -31,7 +30,6 @@ namespace flick {
     auto end1b = time::now();
     std::chrono::duration<double> t1b = end1b-start1b;
     check(t1b < t1);
-    //std::cout << "find() logarithmic: " << t1b.count()/1e-6 << "us\n";
      
     sorted_vector sv4 = sv3;
     sv4.find(2e-4);
@@ -40,13 +38,10 @@ namespace flick {
     sv4.find(log(90));
     auto end2 = time::now();
     std::chrono::duration<double> t2 = end2-start2;
-    //std::cout << "find() on lin-data: " << t2.count()/1e-6 << "us\n";
-
     check(t1 > t2);
 
     sorted_vector sv5 = sv4;
     sv5.exp_transform();
     check(sv5[100]==sv3[100]);
- 
   } end_test_case()
 }

@@ -8,14 +8,14 @@
 int main() {
   using namespace flick;
   unit_test t("material");
-  t.include<material_test_A>("material_test_A");
-  t.include<material_test_B>("material_test_B");
-  t.include<iop_profile_test>("iop_profile_test");
-  t.include<spheres_test_A>("spheres_test_A");
-  t.include<spheres_test_B>("spheres_test_B");
-  t.include<normalized_scattering_matrix_fit_test>("normalized_scattering_matrix_fit_test");
-  t.include<ab_functions_test_A>("ab_functions_test_A");
-  t.include<ab_functions_test_B>("ab_functions_test_B");
+  t.include<material_test_A>();
+  t.include<material_test_B>();
+  t.include<iop_profile_test>();
+  t.include<spheres_test_A>();
+  t.include<spheres_test_B>();
+  t.include<normalized_scattering_matrix_fit_test>();
+  t.include<ab_functions_test_A>();
+  t.include<ab_functions_test_B>();
   t.run_test_cases();
   return 0;
 }

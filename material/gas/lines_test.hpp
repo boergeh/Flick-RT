@@ -2,8 +2,7 @@
 #include "../../numeric/range.hpp"
 
 namespace flick {
-  begin_test_case(lines_test) {
-    
+  begin_test_case(lines_test) {  
     // Test against Bohren and Clothiaux, chapter 2, figure 2.19, with
     // continuum
     auto h = lines("h2o.txt");
@@ -25,6 +24,5 @@ namespace flick {
       double ratio = cross_section_mu2/bench_mu2.at(i); 
       check(ratio > 0.1 && ratio < 3);
     }
-    
   } end_test_case()
 }

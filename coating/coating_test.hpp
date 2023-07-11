@@ -5,7 +5,7 @@ namespace flick {
   begin_test_case(coating_test_A) {
     const double pi = constants::pi;
     coating::white_lambert l;
-    check_close(l.unpolarized_reflectance(),1,1e-12);
+    check_close(l.unpolarized_reflectance(),1);
     coating::fresnel f;
     double n = 1.33;
     double k = 0;
@@ -13,8 +13,8 @@ namespace flick {
     f.set_incidence(rotation_about_y(pi));
     rotation r = f.reflection_rotation();
     rotation t = f.transmission_rotation();
-    check_small(rms(r.z_direction(),{0,0,1}),1e-12);
-    check_small(rms(t.z_direction(),{0,0,-1}),1e-12);
+    check_small(rms(r.z_direction(),{0,0,1}));
+    check_small(rms(t.z_direction(),{0,0,-1}));
 
     double theta0 = 3*pi/4;
     r = rotation{rotation_about_x(-theta0)};
@@ -23,8 +23,7 @@ namespace flick {
     t = f.transmission_rotation();
     double theta_t = pi-t.z_direction().theta(); 
     double theta_t_bench = asin(sin(pi-theta0)/n);
-    check_close(theta_t,theta_t_bench,1e-12);
-
+    check_close(theta_t,theta_t_bench);
   } end_test_case()
 
   begin_test_case(coating_test_B) {
@@ -35,8 +34,7 @@ namespace flick {
     f.set_incidence(rotation_about_y(pi));
     rotation r = f.reflection_rotation();
     rotation t = f.transmission_rotation();
-    check_small(rms(r.z_direction(),{0,0,1}),1e-12);
-    check_small(rms(t.z_direction(),{0,0,-1}),1e-12);
-    
+    check_small(rms(r.z_direction(),{0,0,1}));
+    check_small(rms(t.z_direction(),{0,0,-1}));
   } end_test_case()
 }

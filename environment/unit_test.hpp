@@ -26,23 +26,23 @@ namespace flick {
   
   class test_case {
     void write_begin(const std::string& s) {
-      std::cout << std::endl << " " << name_ << ", check number "
+      std::cout << "\n\n" << " " << name_ << ", check number "
 		<< std::to_string(checks_);
       if (not s.empty())
 	std::cout << ", with message \"" << s << "\"";
       std::cout << ": ";
     }
     void write_end() {
-      std::cout << std::endl;
+      std::cout << std::endl << std::endl;
     }
   protected:
     std::string name_;
     bool do_printing_{true};
     int errors_{0};
     int checks_{0};
-    virtual ~test_case(){}
+    virtual ~test_case() = default;
   public:
-    test_case(const std::string& name) : name_{name}{}
+    test_case(const std::string& name="") : name_{name}{}
     virtual void test() = 0;
     int errors() {return errors_;}
     void do_printing(bool b) {do_printing_ = b;}
@@ -89,7 +89,7 @@ namespace flick {
       if (!std::isfinite(value) | (fabs(value) > accepted_distance)) {
 	write_begin(s);
 	std::cout << value
-		  << "is further from zero than the accepted distance "
+		  << " is further from zero than the accepted distance "
 		  << accepted_distance;
 	write_end();
 	errors_++;
@@ -121,9 +121,12 @@ namespace flick {
     std::string name_;
     std::vector<std::shared_ptr<test_case>> test_cases_;
   public:
-    unit_test(const std::string& name) : name_{name} {}
+    unit_test(const std::string& name="") : name_{name} {}
     template<class T>
-    void include(const std::string& name) {
+    void include(std::string name="") {
+      if (name.empty()) {
+	name = T().class_name;
+      }
       test_cases_.push_back(std::make_shared<T>(name));
     }
     void run_test_cases() {
@@ -173,9 +176,10 @@ namespace flick {
   } 
 
 #define begin_test_case(testname)  			\
-  class testname : public test_case {			\
+  struct testname : public test_case {			\
     using test_case::test_case;				\
+    const std::string class_name=#testname;	        \
     void test() {					\
-      
-#define end_test_case()				\
+    
+#define end_test_case()		            		\
   }};						

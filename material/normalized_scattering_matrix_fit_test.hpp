@@ -9,7 +9,6 @@ namespace flick {
     double wl = 500e-9;
     double r = 0.2e-6;
     monodispersed_mie mono_mie(m_host,m_sphere,wl);
-    //mono_mie.quadrature_angles(256);
     mono_mie.angles(range(0,constants::pi,256).linspace());
     log_normal_distribution sd{log(r),0.2};
     polydispersed_mie poly_mie(mono_mie,sd);

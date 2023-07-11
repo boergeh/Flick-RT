@@ -1,8 +1,8 @@
 #include "pure_water.hpp"
 
 namespace flick {
+  using namespace flick;
   begin_test_case(pure_water_test) {
-    using namespace flick;
     material::pure_water pw;
     pw.set(wavelength{500e-9});
     check_close(pw.absorption_coefficient(),0.02,5);
@@ -24,6 +24,5 @@ namespace flick {
     check_close(pw.real_refractive_index(),1.326,0.2);
     pw.set(wavelength{2000e-9});
     check_close(pw.real_refractive_index(),1.31,0.2);
-  
   } end_test_case()
 }

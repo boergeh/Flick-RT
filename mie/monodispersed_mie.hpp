@@ -71,7 +71,7 @@ namespace flick
       stdcomplex r_previous = r_asymptotic(z,n_terms);
       while(log10(error) > -(std::numeric_limits<double>::digits10)) {
 	stdcomplex r_high = r(z,n_terms+n_extra,n_terms-1)[n_terms-1];
-	error = abs(r_high/r_previous-1.0);
+	error = std::abs(r_high/r_previous-1.0);
 	n_extra *= 2;
 	r_previous = r_high;
       }
@@ -171,14 +171,6 @@ namespace flick
       double C_scat = 2*pi_/norm(k)*scat; 
       return {C_ext, C_scat};
     }
-    /*
-    void refractive_index(const stdcomplex& m_host, const stdcomplex& m_sphere) {
-      m_host_ = m_host;
-      m_sphere_ = m_sphere;
-      set_n_terms();
-      std::tie(a_, b_) = ab_coefficients();
-    }
-    */
     void refractive_index_slope(double s) {
       refractive_index_slope_ = s;
     }
@@ -230,11 +222,11 @@ namespace flick
 
       using namespace vec;
       if (F11 or F22)
-	return 0.5*((abs(S11_)^2)+(abs(S22_)^2));
+	return 0.5*((vec::abs(S11_)^2)+(vec::abs(S22_)^2));
       else if (F33 or F44)
 	return real(S11_*conj(S22_));
       else if (F12 or F21)
-	return 0.5*((abs(S11_)^2)-(abs(S22_)^2));
+	return 0.5*((vec::abs(S11_)^2)-(vec::abs(S22_)^2));
       else if (F34)
 	return imag(S11_*conj(S22_));
       else if (F43)

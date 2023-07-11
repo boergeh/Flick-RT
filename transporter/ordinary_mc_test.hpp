@@ -12,7 +12,7 @@ namespace flick {
     emitter.set_direction<unidirectional>(unit_vector{0,0,1});
     transporter::ordinary_mc omc(box);
     omc.transport_radiation(emitter,"box");
-    check_close(omc.outward_receiver("box").radiant_flux(),2,1);
+    check_close(omc.outward_receiver("box").radiant_flux(),2,1.0_pct);
   } end_test_case()
 
   begin_test_case(ordinary_mc_test_B) {
@@ -26,7 +26,7 @@ namespace flick {
     emitter.set_direction<unidirectional>(unit_vector{0,0,1});
     transporter::ordinary_mc omc{box};
     omc.transport_radiation(emitter,"box");
-    check_close(omc.outward_receiver("box").radiant_flux(),np,1);
+    check_close(omc.outward_receiver("box").radiant_flux(),np,1.0_pct);
   } end_test_case()
  
   begin_test_case(ordinary_mc_test_C) {
@@ -43,7 +43,7 @@ namespace flick {
     emitter.set_direction<unidirectional>(unit_vector{0,0,-1});
     transporter::ordinary_mc omc{layer};
     omc.transport_radiation(emitter,"layer");
-    check_close(omc.outward_receiver("layer").radiant_flux(),np,1);
+    check_close(omc.outward_receiver("layer").radiant_flux(),np,1.0_pct);
   } end_test_case()
 
   begin_test_case(ordinary_mc_test_D) {
@@ -62,14 +62,14 @@ namespace flick {
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_a{s};
     omc_a.transport_radiation(emitter,"s");
-    check_close(omc_a.outward_receiver("s").radiant_flux(),n,1,"a");
-    check_close(omc_a.outward_receiver("s").mean_traveling_length(),r,1,"b");
+    check_close(omc_a.outward_receiver("s").radiant_flux(),n,1.0_pct);
+    check_close(omc_a.outward_receiver("s").mean_traveling_length(),r,1.0_pct);
 
     a = 1;
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_b{s};
     omc_b.transport_radiation(emitter,"s");
-    check_close(omc_b.outward_receiver("s").radiant_flux(),n*exp(-r),0.1,"c");
+    check_close(omc_b.outward_receiver("s").radiant_flux(),n*exp(-r),0.1_pct);
     
     a = 0;
     b = 1;
@@ -77,12 +77,11 @@ namespace flick {
     s().fill<material::henyey_greenstein>(a,b,g);
     transporter::ordinary_mc omc_c{s};
     omc_c.transport_radiation(emitter,"s",g());
-    check_close(omc_c.outward_receiver("s").radiant_flux(),n,9,"d");
+    check_close(omc_c.outward_receiver("s").radiant_flux(),n,9.0_pct);
 
     transporter::ordinary_mc omc_d{s};
     omc_d.transport_radiation(emitter,"s",g()-0.1);
-    check_close(omc_d.outward_receiver("s").radiant_flux(),n,9,"e");
-    
+    check_close(omc_d.outward_receiver("s").radiant_flux(),n,9.0_pct);
   } end_test_case()
   
   begin_test_case(ordinary_mc_test_E) {
@@ -112,8 +111,7 @@ namespace flick {
     double transmittance = omc.inward_receiver("inner_box").radiant_flux() / n;
     double r_benchmark = pow((1-real_n)/(1+real_n),2);
     double t_benchmark = 1-r_benchmark;
-    check_close(reflectance,r_benchmark,5,"r");
-    check_close(transmittance,t_benchmark,5,"t");
-
+    check_close(reflectance,r_benchmark,5.0_pct);
+    check_close(transmittance,t_benchmark,5.0_pct);
   } end_test_case()
 }

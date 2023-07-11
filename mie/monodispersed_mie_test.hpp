@@ -5,8 +5,7 @@ namespace flick {
   begin_test_case(mono_mie_bessel_test_A) {
     stdcomplex z{1 , 0};
     spherical_bessel j(z,3);
-    check_close(norm(j.terms()[2]),norm(stdcomplex{0.06203505201137386,
-						     0}),1e-13);
+    check_close(norm(j.terms()[2]),norm(stdcomplex{0.06203505201137386,0}));
   } end_test_case()
   
   begin_test_case(mono_mie_bessel_test_B) {
@@ -15,7 +14,7 @@ namespace flick {
     stdcomplex z_b{2*constants::pi+epsilon , 0};
     spherical_bessel j_a(z_a,2);
     spherical_bessel j_b(z_b,2);
-    check_close(abs(vec::sum(j_a.terms())),abs(vec::sum(j_b.terms())),1e-4);
+    check_close(abs(vec::sum(j_a.terms())),abs(vec::sum(j_b.terms())),1e-4_pct);
   } end_test_case()
 
   begin_test_case(mono_mie_test_A) {
@@ -27,8 +26,8 @@ namespace flick {
     const double pi = constants::pi;
     double r = 0.001;
     mono_mie.radius(r);
-    check_close(mono_mie.scattering_cross_section(),2*pi*pow(r,2),0.1);
-    check_small(mono_mie.absorption_cross_section(),1e-12);
+    check_close(mono_mie.scattering_cross_section(),2*pi*pow(r,2),0.1_pct);
+    check_small(mono_mie.absorption_cross_section());
   } end_test_case()
 
   begin_test_case(mono_mie_test_B) {
@@ -40,17 +39,17 @@ namespace flick {
     mie.radius(r);
     auto [a, b] = mie.ab_coefficients();
     double percent = 1e-10; 
-    check_close(a[1].real(),0.82786371508743,percent,"a");
-    check_close(b[1].imag(),0.91474090929954,percent,"b");
-    check_close(a[10].imag(),0.28299838641514,percent,"c");
-    check_close(b[10].real(),-0.04440119340674,percent,"d");
+    check_close(a[1].real(),0.82786371508743,percent);
+    check_close(b[1].imag(),0.91474090929954,percent);
+    check_close(a[10].imag(),0.28299838641514,percent);
+    check_close(b[10].real(),-0.04440119340674,percent);
     m1 = 1.33 + 0.1i;
     m2 = 1.0;
     r = 2500;
     monodispersed_mie mie2(m1,m2,wl);
     mie2.radius(r);
     auto [a2, b2] = mie2.ab_coefficients();
-    check_close(a2[1].real(),4.3914709187499176e216,percent,"e");
+    check_close(a2[1].real(),4.3914709187499176e216,percent);
   } end_test_case()
 
    begin_test_case(mono_mie_test_C) {
@@ -65,7 +64,7 @@ namespace flick {
     double area = constants::pi*pow(r,2);
     double Q_ext = (mie.absorption_cross_section()
 		    +mie.scattering_cross_section())/area;
-    check_close(Q_ext,-1.99948,1e-3);
+    check_close(Q_ext,-1.99948,1e-3_pct);
   } end_test_case()
   
   begin_test_case(mono_mie_test_D) {
@@ -97,23 +96,23 @@ namespace flick {
     pmie.radius(r);
     pmie.angles(angles);
     check_close(pmie.absorption_cross_section(),
-    		mie.absorption_cross_section(),2.1,"abs");
+    		mie.absorption_cross_section(),2.1_pct);
     check_close(pmie.scattering_cross_section(),
-    		mie.scattering_cross_section(),1,"scat");
+    		mie.scattering_cross_section(),1.0_pct);
 
     auto [S11, S22] = mie.s_functions();
     double k1 = 2*pi*m_host.real()/wl;
     double Cext = 4*pi/k1*imag(S11[0]);
     check_close(Cext,mie.scattering_cross_section()
-		+mie.absorption_cross_section(),1e-12);
+		+mie.absorption_cross_section());
     
     stdvector f = mie.scattering_matrix_element(0,0)*vec::sin(angles);
     double Cscat = 2*pi*pl_function(angles,f).integral();
-    check_close(Cscat, mie.scattering_cross_section(),50);
+    check_close(Cscat, mie.scattering_cross_section(),50.0_pct);
 
     f = pmie.scattering_matrix_element(0,0)*vec::sin(angles);
     Cscat = 2*pi*pl_function(angles,f).integral();
-    check_close(Cscat, pmie.scattering_cross_section(),0.8);
+    check_close(Cscat, pmie.scattering_cross_section(),0.8_pct);
   } end_test_case()
   
     begin_test_case(mono_mie_test_F) {
@@ -127,9 +126,9 @@ namespace flick {
     mie.radius(r);
     mie.angles(angles);
     check_close(mie.scattering_matrix_element(0,0)[0]
-		/mie.scattering_cross_section(),0.119366,1e-3);
+		/mie.scattering_cross_section(),0.119366,1e-3_pct);
     check_close(mie.scattering_matrix_element(3,3)[0]
-		/mie.scattering_cross_section(),0.119366,1e-3);
+		/mie.scattering_cross_section(),0.119366,1e-3_pct);
   } end_test_case()
   
     begin_test_case(mono_mie_test_G) {
@@ -142,9 +141,8 @@ namespace flick {
     parameterized_monodispersed_mie pmie(m_host,m_sphere,wl);
     pmie.radius(r);
     check_close(pmie.absorption_cross_section(),
-    		mie.absorption_cross_section(),11,"abs");
+    		mie.absorption_cross_section(),11.0_pct);
     check_close(pmie.scattering_cross_section(),
-    		mie.scattering_cross_section(),2,"scat");
-
+    		mie.scattering_cross_section(),2.0_pct);
   } end_test_case()
 }

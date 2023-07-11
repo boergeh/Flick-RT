@@ -6,7 +6,7 @@ NAME     = $(SRC:.cpp=)
 all:	obj link test
 
 clean:
-	@rm -f $(OBJ) $(DEP) ./$(NAME) ./*~ ./obj ./*.d
+	@rm -f $(OBJ) $(DEP) ./$(NAME) ./*~ ./obj ./*.d ./#*#
 link:
 	$(FLICK_COMPILER) -o $(NAME) $(OBJ)
 

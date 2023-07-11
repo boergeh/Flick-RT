@@ -1,4 +1,5 @@
 #include "receiver.hpp"
+
 namespace flick {
   begin_test_case(receiver_test) {
     receiver re;
@@ -9,7 +10,5 @@ namespace flick {
       rp.rotate_to(rotation_to(dg.isotropic()));
       re.receive(rp);
     }
-    //std::cout << re;
-				    
   } end_test_case()
 }

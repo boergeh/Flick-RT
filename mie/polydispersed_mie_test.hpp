@@ -22,23 +22,23 @@ namespace flick {
 
     check_close(mono_mie.scattering_cross_section()
 		+mono_mie.absorption_cross_section(),
-		2*3.14159*pow(r,2),0.1,"a");
+		2*3.14159*pow(r,2),0.1_pct);
 
     check(mono_mie.scattering_matrix_element(0,0)[0] >
-	  mono_mie.scattering_matrix_element(0,0)[1],"b");
+	  mono_mie.scattering_matrix_element(0,0)[1]);
 
     polydispersed_mie poly_mie(mono_mie,distribution);
     double p = 0.02;
     poly_mie.percentage_accuracy(p);
     check_close(poly_mie.absorption_cross_section(),
-    		mono_mie.absorption_cross_section(),p,"c");
+    		mono_mie.absorption_cross_section(),p);
     check_close(poly_mie.scattering_cross_section(),
-    		mono_mie.scattering_cross_section(),p,"d");
+    		mono_mie.scattering_cross_section(),p);
     check_close(poly_mie.scattering_matrix_element(0,0)[0],
-    		mono_mie.scattering_matrix_element(0,0)[0],p,"e");
+    		mono_mie.scattering_matrix_element(0,0)[0],p);
 
     check_close(distribution.particles_per_volume(1),
-		1/(4./3*constants::pi*pow(r,3)),0.1,"f");
+		1/(4./3*constants::pi*pow(r,3)),0.1_pct);
   } end_test_case()
 
   begin_test_case(poly_mie_test_B) {
@@ -64,9 +64,6 @@ namespace flick {
     polydispersed_mie poly_mie(mono_mie,sd);
     poly_mie.percentage_accuracy(5);
     double Cscat = poly_mie.scattering_cross_section();
-    //std::cout << Cscat << std::endl;
-    //std::cout << poly_mie.xy_points().integral()/Cscat << std::endl;
-    //write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
   } end_test_case()
 
   begin_test_case(poly_mie_test_D) {
@@ -80,8 +77,6 @@ namespace flick {
      poly_mie.percentage_accuracy(0.1);
     stdvector F11 = poly_mie.scattering_matrix_element(0,0);
     check(F11[0]/F11[1] > 10);
-    //std::cout << F11[0] << " " << F11[1];
-    
   } end_test_case()
 
    begin_test_case(poly_mie_test_E) {
@@ -96,11 +91,8 @@ namespace flick {
     poly_mie.percentage_accuracy(p);
     double F11 = poly_mie.scattering_matrix_element(0,0)[0];
     double bench = 6.131e-13;
-    //std::cout << F11 << std::endl;
-    // write<pl_function>(poly_mie.xy_points(),"mie/xy_points.txt",9);
     check_close(F11,bench,p);
     check_fast(1);
-    
   } end_test_case()
 
    begin_test_case(poly_mie_test_t_matrix) {
@@ -118,7 +110,5 @@ namespace flick {
     check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.3);
     check_close(poly_mie.absorption_cross_section(), t_matrix_C_abs,0.8);
     check_close(poly_mie.scattering_matrix_element(0,0)[0],t_matrix_F11,0.8);
-    
   } end_test_case()
-
 }

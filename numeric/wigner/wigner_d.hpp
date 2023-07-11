@@ -13,15 +13,18 @@ namespace flick {
      https://www.giss.nasa.gov/staff/mmishchenko/publications/Book3.pdf
    */
   {
-    stdvector t_;
+    std::vector<double> t_;
     double x_;
     int m_, n_;
   public:
     wigner_d(double x, int m, int n, int n_terms)
       : x_{x}, m_{m}, n_{n}, t_(n_terms,0) {     
-      int s_min = wigner_d::leading_zeros(m_,n_); 
+      int s_min = wigner_d::leading_zeros(m_,n_);
+      if (t_.size() <= s_min)
+	t_.resize(s_min+1,0);
+      assert(s_min<t_.size());
       t_[s_min] = at_start_term(s_min);
-      for (size_t s=s_min; s < t_.size()-1; ++s) {
+      for (size_t s=s_min; s < t_.size()-1; s++) {
 	double r1 = sqrt(pow(s+1,2)-pow(m_,2));
 	double r2 = sqrt(pow(s+1,2)-pow(n_,2));
 	double r3 = sqrt(pow(s,2)-pow(m_,2));
@@ -35,7 +38,7 @@ namespace flick {
 	  t_[s+1] = k1*(k2*t_[s] - k3*t_[s-1]);
       }
     }
-    stdvector terms() {
+    std::vector<double> terms() {
       return t_;
     }
     static size_t leading_zeros(int m, int n) {
