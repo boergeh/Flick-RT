@@ -17,16 +17,15 @@ namespace flick {
     slab.adjust_accuracy(percentage{20});
     
     slab.set_bottom(albedo{1});
-    check_close(slab.hemispherical_reflectance(),1,1e-12,"b");
+    check_close(slab.hemispherical_reflectance(),1.0_pct);
 
     slab.set_bottom(albedo{0.5});
-    check_close(slab.hemispherical_reflectance(),0.5,20,"c");
+    check_close(slab.hemispherical_reflectance(),0.5,20.0_pct);
     
     a = 1;
     slab.fill<material::henyey_greenstein>(a,b,g);
     slab.set_bottom(albedo{0});
-    check_close(slab.hemispherical_transmittance(),exp(-h()),p(),"d");
-    
+    check_close(slab.hemispherical_transmittance(),exp(-h()),p());
   } end_test_case()
   
 
@@ -43,10 +42,10 @@ namespace flick {
     slab.adjust_accuracy(p);
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
-    check_close(slab.hemispherical_reflectance(),0.34133, 1.5*p(),"a");
+    check_close(slab.hemispherical_reflectance(),0.34133, 1.5*p());
 
     // van de Hulst 1980, vol 1, chapter 9, table 12, p259, FLUX
-    check_close(slab.hemispherical_transmittance(),0.65867, p(),"b");
+    check_close(slab.hemispherical_transmittance(),0.65867, p());
   } end_test_case()
 
   begin_test_case(single_layer_slab_test_C) {
@@ -63,7 +62,6 @@ namespace flick {
 
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
     check_close(slab.hemispherical_transmittance(),0.82389, p());
-
   } end_test_case()
   
   begin_test_case(single_layer_slab_test_D) {
@@ -84,7 +82,6 @@ namespace flick {
     
     // van de Hulst 1980, vol 2, chapter 13, table 35, p419, FLUX
     check_close(slab.hemispherical_transmittance(),0.73909,p());
-
   } end_test_case()
   
   begin_test_case(single_layer_slab_test_E) {
@@ -148,7 +145,6 @@ namespace flick {
     slab.initiate_source(stokes::s_polarized());
     double r2 = slab.hemispherical_reflectance();
     check(r2 > 0.01,"b");
-    
   } end_test_case()
 
    begin_test_case(single_layer_slab_test_H) {

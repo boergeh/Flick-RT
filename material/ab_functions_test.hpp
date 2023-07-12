@@ -5,7 +5,7 @@ namespace flick {
   begin_test_case(ab_functions_test_A) {
     using namespace constants;
     using namespace flick;
-    auto [a,b,x] = material::mueller_ab_functions(material::white_isotropic(),3);
+    auto [a,b,x] = material::mueller_ab_functions(material::white_isotropic(1),3);
     check_close(a[0][0],1/(4*constants::pi));
   } end_test_case()
   

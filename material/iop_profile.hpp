@@ -83,7 +83,7 @@ namespace flick {
     
   class iop_z_profile : public basic_iop_profile {
     unit_vector z_direction_{0,0,1};
-    public:
+  public:
     using basic_iop_profile::basic_iop_profile;
     double optical_depth(const pose& start, double distance) const {
       double mu = zk(start);

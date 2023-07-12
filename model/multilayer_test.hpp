@@ -22,14 +22,10 @@ namespace flick {
     l.name("hg2");
     l.fill<material::henyey_greenstein>(a,b,g);
     s.add_on_top(l);
-    
-    //std::cout << s; 
 
     emitter em{{0,0,0},100};
     em.set_direction<unidirectional>(unit_vector{0,0,1});
     s.transport_radiation(em,"hg1");
     check(s.outward_receiver("hg2").radiant_flux()>0);
-    //receiver& r = s.outward_receiver("hg2");
-    //std::cout <<"\n" <<r.polar_angle_distribution(10,10);
   } end_test_case()
 }

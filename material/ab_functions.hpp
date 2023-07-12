@@ -7,7 +7,6 @@
 
 namespace flick {
 namespace material {
-
   template<class Material>
   std::tuple<std::vector<std::vector<double>>,
 	     std::vector<std::vector<double>>,
@@ -21,6 +20,7 @@ namespace material {
     std::vector<std::vector<double>> a(4,std::vector<double>(x.size()));
     std::vector<std::vector<double>> b(2,std::vector<double>(x.size()));
     for (size_t i=0; i<n_angles; ++i) {
+      x[i] = std::clamp<double>(x[i],-1,1);
       mueller m = mat.mueller_matrix(unit_vector{acos(x[i]),0});
       a[0][i] = m.value(0,0);
       a[1][i] = m.value(1,1);

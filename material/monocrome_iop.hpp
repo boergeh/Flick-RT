@@ -29,8 +29,7 @@ namespace material {
     double real_refractive_index() const {
       return real_refractive_index_;
     }
-  };
-  
+  }; 
 }
 }
 

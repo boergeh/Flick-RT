@@ -2,6 +2,7 @@
 #define flick_material
 
 #include "../numeric/named_bounded_types.hpp"
+#include "../numeric/std_operators.hpp"
 #include "../numeric/pose.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
 #include <complex>
@@ -14,6 +15,18 @@ namespace material {
     flick::wavelength wavelength_{500e-9};
     flick::pose pose_;
   public:
+    void position(const vector& p) {
+      pose_.move_to(p);
+    }
+    vector position() {
+      return pose_.position();
+    }
+    void direction(const unit_vector& d) {
+      pose_.rotate_to(d);
+    }
+    unit_vector direction() {
+      return pose_.direction();
+    }
     virtual void set(const pose& p) {
       pose_ = p;
     }
@@ -87,6 +100,8 @@ namespace material {
       return m.value(0,0);
     }
   };
+
+ 
   
   class vacuum : public base {
   public:
