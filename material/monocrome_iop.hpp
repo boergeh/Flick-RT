@@ -2,6 +2,7 @@
 #define flick_material_monocrome_iop
 
 #include "material.hpp"
+#include "../numeric/named_bounded_types.hpp"
 
 namespace flick {
 namespace material {

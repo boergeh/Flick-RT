@@ -13,43 +13,58 @@ namespace material {
   class atmosphere : public z_profile {
     std::vector<lines> l_;
     o3_cross_section o3_;
+    const atmosphere_state& atm_;
   public:
-    atmosphere(const atmosphere_state& atm) {
-      auto gas_names = atm.gas_names();
+    atmosphere(const atmosphere_state& atm)
+      : atm_{atm} {
+      const auto& h = atm_.height_grid();
+      const auto& gas_names = atm_.gas_names();
       for (size_t i=0; i<gas_names.size(); ++i) {
 	l_.push_back(lines(gas_names.at(i)));
       }
-      std::vector<double> h = atm.height_grid();
+      for (size_t i=0; i<h.size(); ++i) {
+	for (size_t j=0; j<gas_names.size(); ++j) {
+	  double partial_pressure =
+	    atm_.gas_concentration(gas_names.at(j),h[i]) /
+	    atm_.air_concentration(h[i]);
+	  l_[j].wing_cutoff(200);
+	  l_[j].temperature(atm.temperature(h[i]));
+	  l_[j].total_pressure(atm.pressure(h[i]));
+	  l_[j].partial_pressure(partial_pressure);
+	}
+      }
+      set_iop_profiles();
+    }
+    mueller mueller_matrix(const unit_vector& scattering_direction) const override {
+      return rayleigh_mueller(angle(scattering_direction),0.0279);
+    }
+    double real_refractive_index() const override {
+      return 1;
+    }
+    void set_wavelength(double wl) override {
+      base::set_wavelength(wl);
+      set_iop_profiles();
+    }
+  private:
+    void set_iop_profiles() {
+      const auto& h = atm_.height_grid();
+      const auto& gas_names = atm_.gas_names();
       std::vector<double> a(h.size(),0.0);
       std::vector<double> s(h.size(),0.0);
       for (size_t i=0; i<h.size(); ++i) {
-	for (size_t j=0; j<atm.gas_names().size(); ++j) {
+	for (size_t j=0; j<gas_names.size(); ++j) {
 	  if (gas_names.at(j)=="o3" && wavelength() < o3_.longest())
-	    a[i] += o3_.value(wavelength(),atm.temperature(h[i]));
+	    a[i] += o3_.value(wavelength(),atm_.temperature(h[i]));
 	  else {
-	    double partial_pressure =
-	      atm.gas_concentration(gas_names.at(j),h[i]) /
-	      atm.air_concentration(h[i]);
-	    l_[j].wing_cutoff(200);
-	    l_[j].temperature(atm.temperature(h[i]));
-	    l_[j].total_pressure(atm.pressure(h[i]));
-	    l_[j].partial_pressure(partial_pressure);
 	    a[i] += l_[j].absorption_coefficient(wavelength());
 	  }
 	}
 	s[i] = scattering_cross_section(wavelength()) *
-	  atm.air_concentration(h[i]);
+	  atm_.air_concentration(h[i]);
       }
       a_profile_ = iop_z_profile(pe_function(h,a));
       s_profile_ = iop_z_profile(pe_function(h,s));
     }
-    mueller mueller_matrix(const unit_vector& scattering_direction) {
-      return rayleigh_mueller(angle(scattering_direction),0.0279);
-    }
-    double real_refractive_index() {
-      return 1;
-    }
-  private:
     double scattering_cross_section(double wavelength) const
     /* Thomas, G.E. and Stamnes, K., 2002. Radiative transfer in the
        atmosphere and ocean. Cambridge University Press. */

@@ -6,7 +6,6 @@
 #include "../numeric/pose.hpp"
 
 namespace flick {
-
   class constant_iop {
     double value_;
     const double epsilon_ = std::numeric_limits<double>::epsilon()*10;

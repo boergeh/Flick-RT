@@ -8,7 +8,7 @@
 namespace flick {
   class atmosphere_state {
     size_t n_points_;
-    std::set<std::string> gases_{"co2","h2o","no2","o2","o3"};
+    std::set<std::string> gases_{"co2","h2o","o2","o3"};
     std::map<std::string, concentration_profile> gas_concentrations_;
     std::map<std::string, double> gas_scaling_factors_;
     double temperature_scaling_factor_;
@@ -71,7 +71,7 @@ namespace flick {
     double air_concentration(double height) const {
       return air_concentration_.value(height) * air_scaling_factor_;
     }
-    double gas_concentration(std::string& gas_name, double height) const {
+    double gas_concentration(const std::string& gas_name, double height) const {
       return gas_concentrations_.at(gas_name).value(height) *
 	gas_scaling_factors_.at(gas_name);
     }

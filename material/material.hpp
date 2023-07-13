@@ -1,40 +1,26 @@
 #ifndef flick_material
 #define flick_material
 
-#include "../numeric/named_bounded_types.hpp"
 #include "../numeric/std_operators.hpp"
 #include "../numeric/pose.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
 #include <complex>
 #include <algorithm>
 
-
 namespace flick {
 namespace material {
   class base {
-    flick::wavelength wavelength_{500e-9};
+    double wavelength_{500e-9};
     flick::pose pose_;
   public:
-    void position(const vector& p) {
-      pose_.move_to(p);
-    }
-    vector position() {
-      return pose_.position();
-    }
-    void direction(const unit_vector& d) {
-      pose_.rotate_to(d);
-    }
-    unit_vector direction() {
-      return pose_.direction();
-    }
     virtual void set(const pose& p) {
       pose_ = p;
     }
-    virtual void set(const wavelength& wl) {
+    virtual void set_wavelength(double wl) {
       wavelength_ = wl;
     }
     double wavelength() const {
-      return wavelength_();
+      return wavelength_;
     }
     flick::pose pose() const {
       return pose_;
@@ -101,8 +87,6 @@ namespace material {
     }
   };
 
- 
-  
   class vacuum : public base {
   public:
     double absorption_coefficient() const {
@@ -120,25 +104,6 @@ namespace material {
       return 1;
     }
   };
-  
-  /*
-  void stream_basic_material(std::ostream &os, basic_material& bm) {
-    os << "absorption coefficient " << bm.absorption_coefficient()
-       << ", scattering coefficient " << bm.scattering_coefficient();
-    //return os;
-  }
-  */
-  /*
-  class gas : public material {
-    std::vector<double> wavelengths_{500e-9};
-  public:
-    gas(const pe_function& total_pressure, const pe_function& partial_pressure) {
-    }
-    //virtual iops iops(wl,sdf) {
-    //}
-  };
-    */  
-
   
   /*  
   class basic_profile {

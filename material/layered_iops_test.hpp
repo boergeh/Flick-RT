@@ -7,8 +7,7 @@ namespace flick {
 
   begin_test_case(layered_iops_test) {   
     material::white_isotropic m(1.0);
-    m.position({0,1,1.5});
-    m.direction({pi,0});
+    m.set(pose{{0,1,1.5},{pi,0}});
     layered_iops l(m,{1,2,10},4);
     check_close(l.scattering_optical_depth()[0],1);
     check_close(l.scattering_optical_depth()[1],1);

@@ -53,10 +53,10 @@ namespace material {
 	host_material_{hm}, sphere_material_{sm} {
       scattering_matrix_elements_.resize(row_.size());
     }
-    void set(const flick::wavelength& wl) {
-      base::set(wl);
-      host_material_.set(wl);
-      sphere_material_.set(wl);
+    void set_wavelength(double wl) {
+      base::set_wavelength(wl);
+      host_material_.set_wavelength(wl);
+      sphere_material_.set_wavelength(wl);
       has_changed_ = true;
     }
     void precision(int n) {

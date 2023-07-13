@@ -19,7 +19,7 @@ namespace material {
     const iop_z_profile& s_profile() const {
       return s_profile_;
     }
-    double real_refractive_index() const {
+    virtual double real_refractive_index() const {
       return real_refractive_index_;
     } 
     double absorption_coefficient() const {
@@ -42,10 +42,10 @@ namespace material {
     }
     friend std::ostream& operator<<(std::ostream &os,
 				    const z_profile& p) {
-      os << std::endl;
-      os << "Absorption coefficient profile" << std::endl;
+      os << "\n";
+      os << "Absorption coefficient profile" << "\n";
       os << p.a_profile_;
-      os << "Scattering coefficient profile" << std::endl;
+      os << "Scattering coefficient profile" << "\n";
       os << p.s_profile_;
       return os;
     }

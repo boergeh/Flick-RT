@@ -33,8 +33,8 @@ namespace flick {
 	move(layer_thickness(i));
       }
     }
-    void wavelength(double wl) {
-      m_.set(flick::wavelength{wl});
+    void set_wavelength(double wl) {
+      m_.set_wavelength(wl);
     }
     size_t n_layers() {
       return bottoms_.size();
@@ -82,7 +82,9 @@ namespace flick {
       return bottoms_[0];
     }
     void move(double distance) const {
-      m_.position(m_.position() + m_.direction()*distance);
+      vector new_position = m_.pose().position() +
+	m_.pose().direction()*distance;
+      m_.set(m_.pose().move_to(new_position));
     }
     stdvector layer_thicknesses() const {
       stdvector t(bottoms_.size());
@@ -103,7 +105,7 @@ namespace flick {
       os << "# AccuRT configuration file for the user_specified material #\n"
 	 << "PROFILE_LABEL = layer_numbering #\n"
 	 << "MATERIAL_PROFILE = 1 #\n"
-	 << "TURN_OFF_DELTA_FIT = false #\n\n"
+	 << "TURN_OFF_DELTA_FIT = true #\n\n"
 	 << "WAVELENGTHS = ";
       for (auto& wl:u.wls_)
 	os << wl*1e9 << " ";
@@ -114,7 +116,7 @@ namespace flick {
       std::vector<stdvector> s;
       std::vector<std::vector<stdvector>> p;
       for (auto& wl:u.wls_) {
-	u.iops_.wavelength(wl);
+	u.iops_.set_wavelength(wl);
 	for (size_t j=0; j<u.iops_.n_layers(); j++) {
 	  n.push_back(u.iops_.refractive_index());
 	  a.push_back(u.iops_.absorption_coefficient());
@@ -136,7 +138,7 @@ namespace flick {
 	  os << "P_" << std::to_string(i+1) << "_" << std::to_string(j+1)
 	     << " = ";
 	  for (size_t k=0; k<p[i][j].size(); k++) {
-	    os << p[i][j][k] << " ";
+	    os << p[i][j][k]*4*constants::pi << " ";
 	  }
 	  os << " #\n";
 	  os << "\n";

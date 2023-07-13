@@ -5,7 +5,7 @@ namespace flick {
   begin_test_case(lines_test) {  
     // Test against Bohren and Clothiaux, chapter 2, figure 2.19, with
     // continuum
-    auto h = lines("h2o.txt");
+    auto h = lines("h2o");
     h.wing_cutoff(200);
     double mb = 1e2;
     std::vector<double> pressure = {1013*mb, 10*mb, 1013*mb, 10*mb};

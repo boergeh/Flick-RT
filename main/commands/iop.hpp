@@ -139,7 +139,7 @@ namespace flick {
 	  }
 	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
-	    m.set(wavelength(wls_[i]));
+	    m.set_wavelength(wls_[i]);
 	    double k = m.scattering_coefficient();
 	    for (size_t j = 0; j < x.size(); ++j) {
 	      std::cout << x[j] << " " << a[0][j]*k << " " << a[1][j]*k
@@ -155,7 +155,7 @@ namespace flick {
 	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms);
 	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
-	    m.set(wavelength(wls_[i]));
+	    m.set_wavelength(wls_[i]);
 	    double k = m.scattering_coefficient();
 	    for (size_t j = 0; j < n_terms; ++j) {
 	      std::cout << alpha[0][j]*k << " " << alpha[1][j]*k
@@ -168,7 +168,7 @@ namespace flick {
 	} else {
 	  double value = 0;
 	  for (auto wl:wls_) {
-	    m.set(wavelength(wl));
+	    m.set_wavelength(wl);
 	    if (p=="absorption_length")
 	      value = 1/m.absorption_coefficient();
 	    else if (p=="scattering_length")
@@ -197,7 +197,7 @@ namespace flick {
 	auto normalized_scaled_coef = df.coefficients()/df.scaling_factor()
 	  * 4 * constants::pi;
 	for (size_t i=0; i<wls_.size(); ++i) {
-	  m.set(wavelength(wls_[i]));
+	  m.set_wavelength(wls_[i]);
 	  std::cout << "A_"<<layer_n<<"_" << std::to_string(i+1) << " = "
 		    << m.absorption_coefficient() << " #\n"
 		    << "S_"<<layer_n<<"_" << std::to_string(i+1) << " = "
@@ -210,7 +210,7 @@ namespace flick {
 	}
 	std::cout << "REFRACTIVE_INDICES = ";
 	for (size_t i=0; i<wls_.size(); ++i) {
-	  m.set(wavelength(wls_[i]));
+	  m.set_wavelength(wls_[i]);
 	  std::cout << m.real_refractive_index() << " ";
 	}
 	std::cout << "#\n";

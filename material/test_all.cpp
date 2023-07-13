@@ -9,7 +9,6 @@
 int main() {
   using namespace flick;
   unit_test t("material");
-  /*
   t.include<material_test_A>();
   t.include<material_test_B>();
   t.include<iop_profile_test>();
@@ -18,7 +17,6 @@ int main() {
   t.include<normalized_scattering_matrix_fit_test>();
   t.include<ab_functions_test_A>();
   t.include<ab_functions_test_B>();
-  */
   t.include<layered_iops_test>();
   t.include<accurt_user_specified_test>();
   t.run_test_cases();

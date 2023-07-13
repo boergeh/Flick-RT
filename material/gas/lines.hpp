@@ -18,7 +18,7 @@ namespace flick {
     lines(const std::string& gas_file_name) {
       std::string p = "/material/gas/lines_input/";
       const std::string &f = gas_file_name; 
-      read_lines_input(path()+p+f);
+      read_lines_input(path()+p+f+".txt");
       total_internal_partition_sum_ =
       	read<pl_function>(p+f.substr(0,f.size()-4)+"_q.txt");
     }
