@@ -65,38 +65,37 @@ namespace material {
   };
   
   class aggregate : public z_profile {
-    std::vector<angular_mueller> mueller_;
-    stdvector heights_;
     stdvector angles_;
+    stdvector heights_;
+    std::vector<angular_mueller> mueller_;
   public:
-    aggregate(const stdvector& heights, const stdvector& angles)
-      : heights_{heights}, angles_{angles} {
+    aggregate(const stdvector& angles, const stdvector& heights={1,2})
+      : angles_{angles}, heights_{heights} {
       mueller_.resize(heights.size());
     }
-    aggregate(const stdvector& angles)
-      : aggregate(stdvector{1,2},angles) {}
     void add(base& material, double z_low, double z_high) {
-      stdvector zs = z_low + heights_ / (heights_-heights_[0])
+      flick::pose initial_pose = material.pose();
+      stdvector zs = z_low + heights_ / (heights_.back()-heights_[0])
 	* (z_high - z_low);
       zs = insert_extra_points_for_extrapolation(zs);
-      
       pe_function a;
       pe_function s;
-      for (auto z:zs) {
+      for (auto& z:zs) {
 	material.set_position({0,0,z});
 	a.append({z,material.absorption_coefficient()});
 	s.append({z,material.scattering_coefficient()});
       }
       a = add_small_extrapolation_points(a);
       s = add_small_extrapolation_points(s);
-
+      material.set(initial_pose);
+      a.scale_y(material.absorption_optical_depth(heights_.back())/a.integral());
+      s.scale_y(material.scattering_optical_depth(heights_.back())/s.integral());
       a_profile_.add(iop_z_profile(a), heights_);
       s_profile_.add(iop_z_profile(s), heights_);
-      
+
       if (material.real_refractive_index() > real_refractive_index_) {
 	real_refractive_index_ = material.real_refractive_index();
       }
-      
       for (size_t i=0; i<heights_.size(); ++i) {
 	double z = heights_[i];
 	double s1 = s_profile_.value(z);
@@ -106,10 +105,12 @@ namespace material {
 	angular_mueller am = fill_angular_mueller(material);
 	mueller_[i].add(am, weight);
       }
+      material.set(initial_pose);
     }
     void add(base& material) {
       add(material, heights_[0], heights_.back());
     }
+    /*
     void add(const z_profile& p)
     // to be deleted
     {
@@ -126,7 +127,8 @@ namespace material {
 	angular_mueller am = fill_angular_mueller(p);
 	mueller_[i].add(am,weight);
       }
-    }    
+    } 
+    */
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       mueller m;
       double theta = angle(scattering_direction);
@@ -144,11 +146,11 @@ namespace material {
     }
   private:
     stdvector insert_extra_points_for_extrapolation(stdvector& z) const {
-      double epsilon = 1e-3;
+      double epsilon = 1e-4;
       double dz_begin = z[1]-z[0];
-      double dz_end = z.end()[-2]-z.end()[-1];
-      z.insert(z.begin(),z[0]+dz_begin*epsilon);
-      z.insert(z.end()-1,z.end()[-1]-dz_end*epsilon);
+      double dz_end = z.end()[-1]-z.end()[-2];
+      z.insert(z.begin()+1,z[0]+dz_begin*epsilon);
+      z.insert(z.end()-1,z.back()-dz_end*epsilon);
       return z;
     }
     pe_function add_small_extrapolation_points(pe_function& f) const {

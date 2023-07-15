@@ -31,7 +31,7 @@ namespace flick {
 
      stdvector h{0,1,2,10};
      stdvector ang{1,2,3.14};
-     material::aggregate a(h,ang);
+     material::aggregate a(ang);
      //material::generated_z_profile mz(m,h,ang);
      //material::z_profile mz(m,h);
      //material::aggregate_z_profile ma(mz, h,ang);
