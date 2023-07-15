@@ -12,6 +12,8 @@
 #include "range.hpp"
 
 namespace flick {
+  using stdvec = std::vector<double>;
+  
   std::string read_header(std::istream& is) {
     std::string h;
     std::string s;
@@ -35,7 +37,7 @@ namespace flick {
     double y_;
   public:
     point() = default;
-    point(double x, double y) : x_(x), y_(y){}
+    point(double x, double y) : x_(x), y_(y) {}
     double x() const {return x_;}
     double y() const {return y_;}
   };
@@ -171,20 +173,20 @@ namespace flick {
     }    
   };
  
-  template<class Interpolation>
+  template<class I>
   class function
   {
     std::string header_;
-    std::vector<double> yv_;
+    stdvec yv_;
     sorted_vector xv_;
   public:
     function() = default;
-    function(double value) : xv_{{1}}, yv_{std::vector<double>{value}} {}
-    function(const std::vector<double>& xv, const std::vector<double>& yv)
+    function(double value) : xv_{{1}}, yv_{stdvec{value}} {}
+    function(const stdvec& xv, const stdvec& yv)
     {
       if (yv.size()>1 && xv.front() > xv.back()) {
-	std::vector<double> a = xv;
-	std::vector<double> b = yv;
+	stdvec a = xv;
+	stdvec b = yv;
 	std::reverse(a.begin(), a.end());
 	std::reverse(b.begin(), b.end());
 	xv_ = a;
@@ -195,7 +197,7 @@ namespace flick {
       }	
       if (yv.size()>1) {
 	ensure(xv.size()==yv.size());
-	xv_.set_step_type(Interpolation::get_step_type());
+	xv_.set_step_type(I::get_step_type());
       }
     }
     auto clear() {
@@ -205,12 +207,12 @@ namespace flick {
     }
     auto add_extrapolation_points(double weight=1) {
       ensure(xv_.size() > 1);
-      if (Interpolation::get_step_type()!=step_type::linear)
+      if (I::get_step_type()!=step_type::linear)
 	ensure(weight > 0);
-      std::vector<double> xv = xv_.all_values();
+      stdvec xv = xv_.all_values();
       double dx_front = xv[1]-xv[0];
       double dx_back = xv[xv.size()-1]-xv[xv.size()-2];
-      if (Interpolation::get_step_type()!=step_type::linear) {
+      if (I::get_step_type()!=step_type::linear) {
 	dx_front = xv[0]*dx_front/xv[1];
 	dx_back = xv.back()*dx_back/xv.back();
       }
@@ -240,7 +242,7 @@ namespace flick {
       yv_.push_back(p.y());
       return *this;
     }
-    auto append(const std::vector<double>& xv, const std::vector<double>& yv) {
+    auto append(const stdvec& xv, const stdvec& yv) {
       ensure(xv.size()==yv.size());
       for (size_t i=0; i<xv.size(); ++i) {
 	append(point{xv[i],yv[i]});
@@ -262,10 +264,10 @@ namespace flick {
       scale_y(1/integral());
       return *this;
     }
-    const std::vector<double>& x() const {
+    const stdvec& x() const {
       return xv_.all_values();
     }
-    const std::vector<double>& y() const {
+    const stdvec& y() const {
       return yv_;
     }
     double value(double x=1) const {
@@ -273,7 +275,7 @@ namespace flick {
 	return yv_[0];
       ensure(yv_.size() > 1);
       auto [p1, p2] = points_at(x);
-      return Interpolation{p1,p2}.y(x);      
+      return I{p1,p2}.y(x);      
     }
     size_t low_index_near(double x) const {
       return xv_.find(x);
@@ -281,10 +283,9 @@ namespace flick {
     double derivative(double x) const {
       ensure(yv_.size() > 1);
       auto [p1, p2] = points_at(x);
-      return Interpolation{p1,p2}.derivative(x);
+      return I{p1,p2}.derivative(x);
     }
-    std::optional<double> integral_limit_b(double limit_a,
-					   double integral_value) const {
+    std::optional<double> integral_limit_b(double limit_a, double integral_value) const {
       ensure(yv_.size() > 1);
       std::shared_ptr<sorted_vector::iterator> it;
       if (integral_value > 0)
@@ -298,17 +299,19 @@ namespace flick {
       while(true) {
 	p1 = previous_point(it.get());
 	p2 = next_point(it.get());
-	double next_area = Interpolation{p1,p2}.integral(limit_a, p2.x());
+	double next_area = I{p1,p2}.integral(limit_a, p2.x());
 	if(fabs(area + next_area) > fabs(integral_value) || it->is_in_end_bin())
-	  return Interpolation{p1,p2}.integral_limit_b(limit_a,
-						       integral_value-area);
+	  return I{p1,p2}.integral_limit_b(limit_a, integral_value-area);
 	area += next_area;
 	limit_a = p2.x();
 	it->move_to_next_bin();
       }      
     }
-    double integral(double limit_a, double limit_b) const {      
-      ensure(yv_.size() > 1);
+    double integral(double limit_a, double limit_b) const {
+      if (xv_.size()==0)
+	return 0;
+      if (xv_.size()==1)
+	return yv_[0]*(limit_b-limit_a);
       std::shared_ptr<sorted_vector::iterator> it;
       if (limit_a < limit_b) {
 	it = std::make_shared<sorted_vector::ascending_iterator>(xv_);
@@ -323,26 +326,24 @@ namespace flick {
 	p1 = previous_point(it.get());
 	p2 = next_point(it.get());
 	if(p2.x() > limit_b || it->is_in_end_bin())
-	  return area + Interpolation{p1,p2}.integral(limit_a, limit_b);
-	area += Interpolation{p1,p2}.integral(limit_a, p2.x());
+	  return area + I{p1,p2}.integral(limit_a, limit_b);
+	area += I{p1,p2}.integral(limit_a, p2.x());
 	limit_a = p2.x();
 	it->move_to_next_bin();
       }      
     }
     double integral() const {
-      if (xv_.size() == 0)
-	return 0;
-      return integral(xv_[0],xv_[xv_.size()-1]);
+      return integral(xv_[0], xv_[xv_.size()-1]);
     }
-    std::vector<double> accumulation() const {
+    stdvec accumulation() const {
       ensure(xv_.size()>1);
-      std::vector<double> a(xv_.size());
+      stdvec a(xv_.size());
       a[0] = 0;
       double area = 0;
       for (size_t i=0; i < xv_.size()-1; ++i) {
 	point p1 = {xv_[i], yv_[i]};
 	point p2 = {xv_[i+1], yv_[i+1]};
-	double da = Interpolation{p1,p2}.integral(p1.x(), p2.x());
+	double da = I{p1,p2}.integral(p1.x(), p2.x());
 	ensure(da > 0);
 	area += da;
 	a[i+1] = area;
@@ -350,14 +351,14 @@ namespace flick {
       return a;
     }
     friend std::ostream& operator<<(std::ostream &os,
-				    const function<Interpolation>& f) {
+				    const function<I>& f) {
       os << f.header();
       for (size_t i = 0; i<f.yv_.size(); ++i)
 	os << f.xv_[i] << " " << f.yv_[i] << '\n';
       return os;
     }
     friend std::istream& operator>>(std::istream &is,
-				    function<Interpolation>& f) {
+				    function<I>& f) {
       f.header(read_header(is));
       double x, y;
       while(is >> x >> y)
@@ -383,9 +384,8 @@ namespace flick {
     }
   };
 
-  template<class Interpolation>
-  function<Interpolation> concatenate(function<Interpolation> fa,
-				      function<Interpolation> fb) {
+  template<class I>
+  function<I> concatenate(function<I> fa, function<I> fb) {
     if (fa.x().empty())
       return fb;
     if (fb.x().empty())
@@ -396,56 +396,66 @@ namespace flick {
       return fb.append(fa.x(),fa.y());
   }
 
-  template<class Interpolation>
-  function<Interpolation> multiply(const function<Interpolation>& fa,
-				   const function<Interpolation>& fb,
-				   const std::vector<double>& xv) {
-    std::vector<double> yv(xv.size());
+  template<class I>
+  function<I> add(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+    stdvec yv(xv.size());
+    for (size_t i=0; i < xv.size(); ++i)
+      yv[i] = fa.value(xv[i])+fb.value(xv[i]);
+    return function<I>{xv,yv};
+  }
+  
+  template<class I>
+  function<I> integral_conservation_add(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+    function<I> f = add(fa,fb,xv);
+    return f.scale_y((fa.integral()+fb.integral())/f.integral());
+  }
+
+  template<class I>
+  function<I> multiply(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+    stdvec yv(xv.size());
     for (size_t i=0; i < xv.size(); ++i)
       yv[i] = fa.value(xv[i])*fb.value(xv[i]);
-    return function<Interpolation>{xv,yv};
+    return function<I>{xv,yv};
   }
 
-  template<class Interpolation>
-  function<Interpolation> divide(const function<Interpolation>& fa,
-				 const function<Interpolation>& fb,
-				 const std::vector<double>& xv) {
-    std::vector<double> yv(xv.size());
+  template<class I>
+  function<I> divide(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+    stdvec yv(xv.size());
     for (size_t i=0; i < xv.size(); ++i)
-      yv[i] = fa.value(xv[i]) / fb.value(xv[i]);
-    return function<Interpolation>{xv,yv};
+      yv[i] = fa.value(xv[i])/fb.value(xv[i]);
+    return function<I>{xv,yv};
   }
 
-  template<class Interpolation>
-  function<piecewise_linear> inverted_cumulative_distribution(function<Interpolation> f) {
+  template<class I>
+  function<piecewise_linear> inverted_cumulative_distribution(function<I> f) {
     f.normalize();
     return function<piecewise_linear>{f.accumulation(),f.x()};
   }
   
-  template<class Interpolation>
-  function<Interpolation> importance_sampled(const function<Interpolation>& f,
-					     size_t n_points) {
-    function<piecewise_linear> inv_cum = inverted_cumulative_distribution(f);      
-    std::vector<double> unit_interval = range(0,1,n_points).linspace();
-    std::vector<double> x(n_points);
-    std::vector<double> y(n_points);
+  template<class I>
+  function<I> importance_sampled(const function<I>& f, size_t n_points) {
+    function<piecewise_linear> inv_cum = inverted_cumulative_distribution(f);
+    stdvec unit_interval = range(0,1,n_points).linspace();
+    stdvec x(n_points);
+    stdvec y(n_points);
     for (size_t i=0; i < n_points; ++i) {
       x[i] = inv_cum.value(unit_interval[i]);
       y[i] = f.value(x[i]);
     }
-    return function<Interpolation>{x,y};
+    return function<I>{x,y};
   }
+  
   double significant_digits(double x, size_t n) {
     std::stringstream ss;
     ss << std::setprecision(n) << x;
     return std::stod(ss.str());
   }
-  template<class Interpolation>
-  function<Interpolation> significant_digits(function<Interpolation>& f,
-					     size_t nx, size_t ny) {
-    std::vector<double> x = f.x();
-    std::vector<double> y = f.y();
-    function<Interpolation> g;
+  
+  template<class I>
+  function<I> significant_digits(function<I>& f, size_t nx, size_t ny) {
+    stdvec x = f.x();
+    stdvec y = f.y();
+    function<I> g;
     g.header(f.header());
     for (size_t i = 0; i < x.size(); ++i) {
       double xi = significant_digits(x[i],nx);
@@ -454,10 +464,10 @@ namespace flick {
     }
     return g;
   }
+  
   using pl_function = function<piecewise_linear>;
   using pp_function = function<piecewise_power>;
   using pe_function = function<piecewise_exponential>;
-
 }
 
 #endif

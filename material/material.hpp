@@ -25,6 +25,12 @@ namespace material {
     flick::pose pose() const {
       return pose_;
     }
+    void set_position(const vector& r) {
+      set(pose().move_to(r));
+    }
+    void set_direction(const unit_vector& d) {
+      set(pose().rotate_to(d));
+    }
     double angle(const unit_vector& scattering_direction) const {
       double d = dot(pose_.z_direction(),scattering_direction);
       d = std::clamp<double>(d,-1,1);

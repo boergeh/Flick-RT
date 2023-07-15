@@ -17,6 +17,7 @@ int main() {
   t.include<sorted_vector_test>();
   t.include<function_test_A>();
   t.include<function_test_B>();
+  t.include<function_test_C>();
   t.include<direction_generator_test>();
   t.include<vector_test>();
   t.include<histogram_test>();

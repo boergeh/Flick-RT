@@ -10,7 +10,7 @@ namespace flick {
     double value_;
     const double epsilon_ = std::numeric_limits<double>::epsilon()*10;
   public:
-    constant_iop(double value) : value_{value}{}
+    constant_iop(double value) : value_{value} {}
     double optical_depth(double distance) const {
       return value_ * distance;
     }
@@ -46,35 +46,17 @@ namespace flick {
     double integral() const {
       return profile_.integral();
     }
-    basic_iop_profile& add(const basic_iop_profile& p,
-	     const std::vector<double>& heights)
-    // Add profiles while maintaining sum of height integrals
-    {
+    basic_iop_profile& add(const basic_iop_profile& p, const std::vector<double>& heights) {
       if (profile_.size() == 0) {
-	double intg = p.profile_.integral();
-	for (size_t i=0; i<heights.size(); ++i) {
-	  double x = heights[i];
-	  double y = p.profile_.value(x);
-	  profile_.append({x,y});
-	}
-	profile_.scale_y(intg/profile_.integral());
-	return *this;
+	profile_ = integral_conservation_add(p.profile_, p.profile_, heights);
+	profile_.scale_y(0.5);	
+      } else {
+	profile_ = integral_conservation_add(profile_, p.profile_, heights);
       }
-      double i1 = profile_.integral();
-      double i2 = p.profile_.integral();
-      pe_function new_profile;
-      for (size_t i=0; i<heights.size(); ++i) {
-	double x = heights[i];
-	double y = profile_.value(x) + p.profile_.value(x);
-	new_profile.append({x,y});
-      }
-      double new_i = new_profile.integral();
-      new_profile.scale_y((i1+i2)/new_i);
-      profile_ = new_profile;
       return *this;
     }
-    friend std::ostream& operator<<(std::ostream &os,
-				    const basic_iop_profile& p) {
+  private:
+    friend std::ostream& operator<<(std::ostream &os, const basic_iop_profile& p) {
       os << p.profile_;
       return os;
     }

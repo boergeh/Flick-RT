@@ -25,16 +25,6 @@ namespace flick {
   }
   
   class test_case {
-    void write_begin(const std::string& s) {
-      std::cout << "\n\n" << " " << name_ << ", check number "
-		<< std::to_string(checks_);
-      if (not s.empty())
-	std::cout << ", with message \"" << s << "\"";
-      std::cout << ": ";
-    }
-    void write_end() {
-      std::cout << std::endl << std::endl;
-    }
   protected:
     std::string name_;
     bool do_printing_{true};
@@ -42,6 +32,16 @@ namespace flick {
     int checks_{0};
     virtual ~test_case() = default;
   public:
+    void write_begin(const std::string& s) {
+      std::cout << "\n\n" << " " << name_ << ", check number "
+		<< std::to_string(checks_);
+      if (not s.empty())
+	std::cout << ", with message \"" << s << "\"";
+      std::cout << " ";
+    }
+    void write_end() {
+      std::cout << std::endl << std::endl;
+    }
     test_case(const std::string& name="") : name_{name}{}
     virtual void test() = 0;
     int errors() {return errors_;}
@@ -139,7 +139,15 @@ namespace flick {
       int errors = 0;
       for (auto& current_case: test_cases_) {
 	current_case->print_progress_begin();
-	current_case->test();
+	try {
+	  current_case->test();
+	} catch (const std::exception& e) {
+	  std::stringstream ss;
+	  ss << "Standard exception: " << e.what();
+	  current_case->write_begin(ss.str());
+	  current_case->write_end();
+	  errors++;
+	}
 	current_case->print_progress_end();
 	errors += current_case->errors();
       }
@@ -151,9 +159,7 @@ namespace flick {
 	ss << errors;
       else
 	ss << "no";
-      ss << " error" << s << " in "
-	 << name_ << " unit test";
-
+      ss << " error" << s << " in " << name_ << " unit test";
       std::string color_end = "\033[0m";
       std::string red_start = "\033[1;31m";
       std::string green_start = "\033[1;32m";

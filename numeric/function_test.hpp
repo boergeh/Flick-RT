@@ -140,12 +140,24 @@ namespace flick {
     check(!std::isnan(pef.integral(399e-9,401e-9)));
     check(!std::isnan(pef.derivative(399e-9)));
     check(pef.integral_limit_b(399e-9,1).has_value());
+
+    pe_function peg{{1},{1}};
+    check_small(peg.integral());
+    check_close(peg.integral(-1,1),2);
   } end_test_case()
 
   begin_test_case(function_test_B) {
     pl_function fa{{0,1,2},{0,1,0}};
-    check_close(fa.integral(),1,1e-12);
+    check_close(fa.integral(),1);
     pl_function fb{{-2,-1,0},{0,-1,0}};
-    check_close(fb.integral(),-1,1e-12);   
+    check_close(fb.integral(),-1);   
+  } end_test_case()
+
+  begin_test_case(function_test_C) {
+    pl_function fa{{-1,0,2},{-1,1,2}};
+    pl_function fb{{0,2},{1,2}};
+    std::vector<double> x = {-1.1, 0, 0.8};
+    pl_function fc = integral_conservation_add(fa,fb,x);
+    check_close(fa.integral()+fb.integral(),fc.integral());   
   } end_test_case()
 }
