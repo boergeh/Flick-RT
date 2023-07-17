@@ -6,11 +6,12 @@
 #include "ab_functions_test.hpp"
 #include "layered_iops_test.hpp"
 #include "z_profile_test.hpp"
+#include "aggregate_test.hpp"
 
 int main() {
   using namespace flick;
   unit_test t("material");
-  /*
+  
   t.include<material_test_A>();
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();
@@ -18,11 +19,12 @@ int main() {
   t.include<normalized_scattering_matrix_fit_test>();
   t.include<ab_functions_test_A>();
   t.include<ab_functions_test_B>();
-  */
-  t.include<layered_iops_test>();
-  t.include<aggregate_test>();
-  t.include<z_profile_aggregate_test>();
-  t.include<accurt_user_specified_test>();
+  t.include<layered_iops_test_A>();
+  t.include<layered_iops_test_B>();
+  t.include<aggregate_test_hg>();
+  t.include<aggregate_test_aerosols>();
+  t.include<aggregate_test_aerosols_hg>();
+  t.include<z_profile_test>();
   t.run_test_cases();
   return 0;
 }

@@ -43,7 +43,7 @@ namespace material {
       m.add(0,0,flick::henyey_greenstein(g).phase_function(theta));
       return m;
     }
-    double optical_depth() const {
+    double toa_optical_depth() const {
       size_t i = 0;
       if (wavelength() > 550e-9)
 	i = 1;

@@ -1,12 +1,12 @@
 #include "layered_iops.hpp"
 #include "henyey_greenstein.hpp"
-#include "z_profile.hpp"
+#include "aggregate.hpp"
 
 namespace flick {
   using namespace constants;
   using namespace flick;
 
-  begin_test_case(layered_iops_test) {   
+  begin_test_case(layered_iops_test_A) {   
     material::white_isotropic m(1.0);
     m.set(pose{{0,1,1.5},{pi,0}});
     layered_iops l(m,{1,2,10},4);
@@ -20,7 +20,7 @@ namespace flick {
     check_close(l.refractive_index()[2],1);   
   } end_test_case()
 
-   begin_test_case(accurt_user_specified_test) {
+   begin_test_case(layered_iops_test_B) {
      material::white_isotropic m(1.0);
      stdvector ang{1,2,3.14};
      stdvector h{0,1,2,10};

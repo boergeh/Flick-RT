@@ -48,6 +48,9 @@ namespace material {
     virtual double scattering_optical_depth(double distance) const {
       return scattering_coefficient()*distance;
     }
+    double optical_depth(double distance) const {
+      return absorption_optical_depth(distance) + scattering_optical_depth(distance);
+    }
     virtual double absorption_distance(double absorption_optical_depth) const {
       double ac = absorption_coefficient();
       if (ac > 0)
