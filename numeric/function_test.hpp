@@ -157,7 +157,24 @@ namespace flick {
     pl_function fa{{-1,0,2},{-1,1,2}};
     pl_function fb{{0,2},{1,2}};
     std::vector<double> x = {-1.1, 0, 0.8};
-    pl_function fc = integral_conservation_add(fa,fb,x);
+    pl_function fc = integral_conservative_add(fa,fb,x);
     check_close(fa.integral()+fb.integral(),fc.integral());   
+  } end_test_case()
+  
+  begin_test_case(function_test_D) {
+    pe_function fa{{-2,-1,0,1,2},{0,0,1,1,0}};
+    check_small(fa.value(-3));   
+    check_small(fa.value(-2.5));   
+    check_small(fa.value(-0.9));   
+    check_close(fa.value(1),1);   
+    check_close(fa.value(1),1);   
+    check_small(fa.value(1.1));
+    check_close(fa.integral(),1);
+    pp_function fb{{0.1,1,2,2.5,3,4},{0,0,1,1,1,0}};
+    check_small(fb.value(1));   
+    check_close(fb.value(3),1);   
+    check_close(fb.value(2),1);   
+    check_small(fb.value(3.5));
+    check_close(fb.integral(),1);
   } end_test_case()
 }

@@ -4,7 +4,30 @@
 namespace flick {
   using namespace constants;
   using namespace flick;
- 
+  
+  begin_test_case(aggregate_test) {
+    material::white_isotropic m1{1.0};
+    stdvector ang{1,2,3.14};
+    material::aggregate ma{ang};
+    ma.add(m1);
+    check_close(ma.scattering_coefficient(),1);
+    material::white_isotropic m2{2.0};
+    ma.add(m2);
+    ma.add(m2);
+    //std::cout << ma;
+    check_close(ma.scattering_coefficient(),5);
+    check_small(ma.absorption_coefficient());
+    check_small(ma.absorption_optical_depth(100));
+
+    stdvector h{0,1,2,10};
+    material::aggregate ma2(ang,h);
+    ma2.add(m1);
+    check_close(ma2.scattering_coefficient(),1);
+    ma2.add(m1,1,2);
+    check_close(ma2.scattering_optical_depth(10),11);
+    check_small(ma2.absorption_optical_depth(100));
+  } end_test_case()
+  
   begin_test_case(z_profile_aggregate_test) {
     material::rural_aerosols ra;
     material::aggregate ag({0,1,3.14}, {0,1e3,100e3});

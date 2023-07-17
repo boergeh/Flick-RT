@@ -48,10 +48,10 @@ namespace flick {
     }
     basic_iop_profile& add(const basic_iop_profile& p, const std::vector<double>& heights) {
       if (profile_.size() == 0) {
-	profile_ = integral_conservation_add(p.profile_, p.profile_, heights);
+	profile_ = integral_conservative_add(p.profile_, p.profile_, heights);
 	profile_.scale_y(0.5);	
       } else {
-	profile_ = integral_conservation_add(profile_, p.profile_, heights);
+	profile_ = integral_conservative_add(profile_, p.profile_, heights);
       }
       return *this;
     }

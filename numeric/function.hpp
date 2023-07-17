@@ -45,6 +45,7 @@ namespace flick {
   class basic_interpolation {
   protected:
     double x1, x2, y1, y2;
+    const double epsilon = std::numeric_limits<double>::epsilon();
   public:
     basic_interpolation(const point& low, const point& high)
       : x1{low.x()}, x2{high.x()}, y1{low.y()}, y2{high.y()} {
@@ -74,8 +75,8 @@ namespace flick {
     }
     std::optional<double> integral_limit_b(double limit_a,
 					   double integral_value) {
-      if (fabs(a) < std::numeric_limits<double>::epsilon()) {
-	if (fabs(b) < std::numeric_limits<double>::epsilon())
+      if (fabs(a) < epsilon) {
+	if (fabs(b) < epsilon)
 	  return std::nullopt;
 	return limit_a + integral_value/b;
       }
@@ -98,23 +99,29 @@ namespace flick {
     }
     piecewise_exponential(const point& low, const point& high)
       : basic_interpolation(low, high) {
-      ensure(low.y() > 0 && high.y() > 0);
       k = log(y2/y1) / (x2-x1);
     }
     double y(double x) {
+      if (y1 <= 0)
+	return 0;
       return y1*pow(y2/y1,(x-x1)/(x2-x1));
     }
     double derivative(double x) {
+      ensure(y1>0);
       return y(x)*k;
     }
     double integral(double limit_a, double limit_b) {
-      if (fabs(k) < std::numeric_limits<double>::epsilon())
+      if (y1 <= 0) 
+	return 0;
+      if (fabs(k) < epsilon)
 	return y1*(limit_b-limit_a);
       return (y(limit_b)-y(limit_a))/k;
     }
     std::optional<double> integral_limit_b(double limit_a,
 					   double integral_value) {
-      if (fabs(k) < std::numeric_limits<double>::epsilon())
+      if (y1 <= 0)
+	return std::nullopt;
+      if (fabs(k) < epsilon)
 	return limit_a + integral_value / y1;
       double a = y1*exp(-k*x1);
       double arg = integral_value*k/a + exp(k*limit_a);
@@ -138,27 +145,31 @@ namespace flick {
     }
     piecewise_power(const point& low, const point& high)
       : basic_interpolation(low, high) {
-      ensure(low.x() > 0 && high.x() > 0);
-      ensure(low.y() > 0 && high.y() > 0);
       k = log(y2/y1) / log(x2/x1);
     }
     double y(double x) {
+      if (y1 <= 0)
+	return 0;
       return y1*pow(x/x1,k);
     }
     double derivative(double x) {
-      if (fabs(k) < std::numeric_limits<double>::epsilon())
+      ensure(y1>0);
+      if (fabs(k) < epsilon)
 	return 0;
       return y1*k*pow(x/x1,k-1)/x1;
     }
     double integral(double limit_a, double limit_b) {
-      ensure(limit_a > 0 && limit_b > 0);
-      if (fabs(k+1) < std::numeric_limits<double>::epsilon())
+      if (y1 <=0 or limit_a <= 0 or limit_b <= 0)
+	return 0;
+      if (fabs(k+1) < epsilon)
 	return y1*x1*log(limit_b/limit_a);
       return y1/(k+1)*x1*(pow(limit_b/x1,k+1)-pow(limit_a/x1,k+1));
     }
     std::optional<double> integral_limit_b(double limit_a,
 					   double integral_value) {
-      if (fabs(k+1) < std::numeric_limits<double>::epsilon())
+      if (y1 <=0 or limit_a <= 0)
+	return std::nullopt;
+      if (fabs(k+1) < epsilon)
 	return limit_a * exp(integral_value/(y1*x1));
       double arg = integral_value*(k+1)/(x1*y1) + pow(limit_a/x1,k+1);
       if (arg <= 0)
@@ -174,8 +185,7 @@ namespace flick {
   };
  
   template<class I>
-  class function
-  {
+  class function {
     std::string header_;
     stdvec yv_;
     sorted_vector xv_;
@@ -222,9 +232,9 @@ namespace flick {
       xv.emplace_back(xv.back()+dx_back);
       xv_ = sorted_vector{xv};
       yv_.insert(yv_.begin(),yv_[0]*weight);
-      yv_.insert(yv_.begin(),yv_[0]*weight);
+      yv_.insert(yv_.begin(),yv_[1]*weight);
       yv_.emplace_back(yv_.back()*weight);
-      yv_.emplace_back(yv_.back()*weight);
+      yv_.emplace_back((yv_.end()[-2])*weight);
       return *this;
     }
     size_t size() const {
@@ -336,7 +346,7 @@ namespace flick {
       return integral(xv_[0], xv_[xv_.size()-1]);
     }
     stdvec accumulation() const {
-      ensure(xv_.size()>1);
+      ensure(xv_.size() > 1);
       stdvec a(xv_.size());
       a[0] = 0;
       double area = 0;
@@ -344,7 +354,7 @@ namespace flick {
 	point p1 = {xv_[i], yv_[i]};
 	point p2 = {xv_[i+1], yv_[i+1]};
 	double da = I{p1,p2}.integral(p1.x(), p2.x());
-	ensure(da > 0);
+	ensure(da >= 0);
 	area += da;
 	a[i+1] = area;
       }
@@ -403,11 +413,19 @@ namespace flick {
       yv[i] = fa.value(xv[i])+fb.value(xv[i]);
     return function<I>{xv,yv};
   }
-  
+
   template<class I>
-  function<I> integral_conservation_add(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+  function<I> scale_to_integral(function<I> f, double integral_value) {
+    double fi = f.integral();
+    if (fabs(fi-integral_value) > std::numeric_limits<double>::epsilon())
+      return f.scale_y(integral_value/fi);
+    return f;
+  }
+
+  template<class I>
+  function<I> integral_conservative_add(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
     function<I> f = add(fa,fb,xv);
-    return f.scale_y((fa.integral()+fb.integral())/f.integral());
+    return scale_to_integral(f, fa.integral()+fb.integral());
   }
 
   template<class I>
