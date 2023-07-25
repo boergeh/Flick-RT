@@ -71,7 +71,6 @@ namespace flick {
   using pl_table = table<piecewise_linear>;
   using pp_table = table<piecewise_power>;
   using pe_table = table<piecewise_exponential>;
-
 }
 
 #endif

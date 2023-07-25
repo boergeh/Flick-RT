@@ -7,7 +7,7 @@
 
 namespace flick {
   class atmosphere_state {
-    size_t n_points_;
+    size_t n_points_{50};
     std::set<std::string> gases_{"co2","h2o","o2","o3"};
     std::map<std::string, concentration_profile> gas_concentrations_;
     std::map<std::string, double> gas_scaling_factors_;
@@ -77,7 +77,6 @@ namespace flick {
     }
   private:
     void load_gases() {
-      //air_concentration_ = concentration_profile("air.txt",n_points_);
       for(auto g : gases_) {
 	gas_concentrations_[g] = concentration_profile(g+".txt",n_points_);
       }

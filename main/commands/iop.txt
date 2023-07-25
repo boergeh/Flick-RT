@@ -62,10 +62,10 @@ Parameters:
     
     'bubbles_in_ice' <mie_code> <volume_fraction> <median_radius> <size_width>
     
-    'henyey_greenstein' <absorption_length> <scattering_length>
+    'henyey_greenstein' <absorption_coefficient> <scattering_coefficient>
       <asymmetry_factor> <refractive_index>
     
-    'tabulated' <absorption_length> <scattering_length>
+    'tabulated' <absorption_coefficient> <scattering_coefficient>
       <phase_function_file_name> <refractive_index>
 
      where <mie_code> should be 'full_mie' for full Mie code

@@ -4,7 +4,6 @@
 #include "../../numeric/function.hpp"
 #include "../../numeric/table.hpp"
 #include "../../environment/input_output.hpp"
-//#include "../material.hpp"
 #include "../iop_profile.hpp"
 #include "../z_profile.hpp"
 

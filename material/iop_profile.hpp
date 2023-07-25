@@ -37,6 +37,9 @@ namespace flick {
     const std::vector<double>& heights() const {
       return profile_.x();
     }
+    void clear() {
+      profile_ = pe_function();
+    }
     size_t low_index_near(double height) const {
       return profile_.low_index_near(height);
     }

@@ -1,11 +1,12 @@
-#ifndef flick_material_atmosphere
-#define flick_material_atmosphere
+#ifndef flick_material_gas_atmosphere
+#define flick_material_gas_atmosphere
 
 #include "../material.hpp"
 #include "../iop_profile.hpp"
 #include "../../polarization/rayleigh_mueller.hpp"
 #include "atmosphere_state.hpp"
 #include "cross_section.hpp"
+#include "lines.hpp"
 #include "../z_profile.hpp"
 
 namespace flick {
