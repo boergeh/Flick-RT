@@ -14,8 +14,7 @@ namespace material {
     stdvector heights_;
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
-    std::map<std::string, pe_function> scaling_factors_;
-    
+    std::map<std::string, pe_function> scaling_factors_;   
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
@@ -48,9 +47,10 @@ namespace material {
       for (auto const& [key, material] : materials_) {
 	add(*material, scaling_factors_[key]);
       }
+      //std::cout << s_profile_;
     }
     void add(base& material, double z_low, double z_high) {
-      add(material,pe_function{{z_low,z_high},{1,1}});
+      add(material, pe_function{{z_low,z_high},{1,1}});
     }
     void add(base& material, pe_function scaling_profile) {
       double z_low = scaling_profile.x()[0];

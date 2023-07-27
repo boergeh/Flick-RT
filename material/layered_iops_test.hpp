@@ -1,6 +1,6 @@
 #include "layered_iops.hpp"
 #include "henyey_greenstein.hpp"
-#include "aggregate.hpp"
+#include "mixture.hpp"
 
 namespace flick {
   using namespace constants;
@@ -24,7 +24,7 @@ namespace flick {
      material::white_isotropic m(1.0);
      stdvector ang{1,2,3.14};
      stdvector h{0,1,2,10};
-     material::aggregate a(ang,h);
+     material::mixture a(ang,h);
      
      m.set_position({0,0,10});
      m.set_direction({0,0,-1});

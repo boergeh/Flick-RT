@@ -1,13 +1,13 @@
-#ifndef flick_atmosphere_state
-#define flick_atmosphere_state
+#ifndef flick_atmospheric_state
+#define flick_atmospheric_state
 
 #include <set>
 #include <map>
 #include "profile.hpp"
 
 namespace flick {
-  class atmosphere_state {
-    size_t n_points_{50};
+  class atmospheric_state {
+    size_t n_points_;
     std::set<std::string> gases_{"co2","h2o","o2","o3"};
     std::map<std::string, concentration_profile> gas_concentrations_;
     std::map<std::string, double> gas_scaling_factors_;
@@ -18,9 +18,9 @@ namespace flick {
     temperature_profile temperature_{"temperature.txt", n_points_};
     pressure_profile pressure_{"pressure.txt", n_points_};
   public:
-    atmosphere_state()
-      : atmosphere_state(constants::T_stp, constants::P_stp) {};
-    atmosphere_state(double surface_temperature, double surface_pressure,
+    atmospheric_state()
+      : atmospheric_state(constants::T_stp, constants::P_stp, 50) {};
+    atmospheric_state(double surface_temperature, double surface_pressure,
 		     size_t n_points=50)
       : n_points_{n_points} {
       load_gases();

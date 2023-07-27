@@ -1,7 +1,7 @@
 #include "mixture.hpp"
 #include "aerosols/aerosols.hpp"
-#include "gas/atmosphere.hpp"
-#include "gas/atmosphere_state.hpp"
+#include "gas/air.hpp"
+#include "gas/atmospheric_state.hpp"
 
 namespace flick {
   using namespace constants;

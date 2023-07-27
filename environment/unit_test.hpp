@@ -14,6 +14,10 @@ namespace flick {
   {
     return p;
   }
+  constexpr long double operator""_pct(unsigned long long p)
+  {
+    return p;
+  }
   std::chrono::time_point<std::chrono::system_clock> time_1, time_2;
   void start_time() {
      time_1 = std::chrono::system_clock::now();

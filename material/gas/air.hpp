@@ -1,22 +1,22 @@
-#ifndef flick_material_gas_atmosphere
-#define flick_material_gas_atmosphere
+#ifndef flick_material_air
+#define flick_material_air
 
 #include "../material.hpp"
 #include "../iop_profile.hpp"
 #include "../../polarization/rayleigh_mueller.hpp"
-#include "atmosphere_state.hpp"
+#include "atmospheric_state.hpp"
 #include "cross_section.hpp"
 #include "lines.hpp"
 #include "../z_profile.hpp"
 
 namespace flick {
 namespace material {  
-  class atmosphere : public z_profile {
+  class air : public z_profile {
     std::vector<lines> l_;
     o3_cross_section o3_;
-    atmosphere_state atm_;
+    atmospheric_state atm_;
   public:
-    atmosphere(const atmosphere_state& atm)
+    air(const atmospheric_state& atm)
       : atm_{atm} {
       const auto& h = atm_.height_grid();
       const auto& gas_names = atm_.gas_names();
@@ -36,9 +36,6 @@ namespace material {
       }
       set_iop_profiles();
     }
-    //atmosphere_state& atmosphere_state() {
-    //  return *atm_;
-    //}
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       return rayleigh_mueller(angle(scattering_direction),0.0279);
     }
