@@ -54,9 +54,10 @@ namespace material {
       std::vector<double> s(h.size(),0.0);
       for (size_t i=0; i<h.size(); ++i) {
 	for (size_t j=0; j<gas_names.size(); ++j) {
-	  if (gas_names.at(j)=="o3" && wavelength() < o3_.longest())
-	    a[i] += o3_.value(wavelength(),atm_.temperature(h[i]));
-	  else {
+	  if (gas_names.at(j)=="o3" && wavelength() < o3_.longest()) {
+	    a[i] += o3_.value(wavelength(),atm_.temperature(h[i]))
+	       *  atm_.gas_concentration("o3",h[i]);
+	  } else {
 	    a[i] += l_[j].absorption_coefficient(wavelength());
 	  }
 	}
@@ -67,8 +68,8 @@ namespace material {
       s_profile_ = iop_z_profile(pe_function(h,s));
     }
     double scattering_cross_section(double wavelength) const
-    /* Thomas, G.E. and Stamnes, K., 2002. Radiative transfer in the
-       atmosphere and ocean. Cambridge University Press. */
+    /* See Thomas, G.E. and Stamnes, K., 2002, radiative transfer in
+       the atmosphere and ocean, Cambridge University Press. */
     {
       double to_m2 = 1e-32;
       double wl_mu = wavelength * 1e6;

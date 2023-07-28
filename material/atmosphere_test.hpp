@@ -3,7 +3,6 @@
 
 namespace flick {
   begin_test_case(atmosphere_test) {
-    using namespace flick;
     using namespace units;
     atmospheric_state state(290_K, 1000_hPa, 5);
     state.remove_gas("co2");

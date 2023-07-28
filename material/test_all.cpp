@@ -12,7 +12,7 @@
 int main() {
   using namespace flick;
   unit_test t("material");
-  /*
+
   t.include<material_test_A>();
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();
@@ -26,7 +26,6 @@ int main() {
   t.include<mixture_test_aerosols>();
   t.include<mixture_test_hg>();
   t.include<mixture_test_aerosols_hg>();
-  */
   t.include<atmosphere_test>();
   t.run_test_cases();
   return 0;

@@ -1,11 +1,24 @@
 #include "air.hpp"
+#include "../../numeric/units.hpp"
 
 namespace flick {
   begin_test_case(air_test) {
-    atmospheric_state state(300,1000e2);
-    material::air a(state);
-    //std::cout << a.scattering_optical_depth(100e3);
-    a.set_wavelength(800e-9);
-    //std::cout << a.scattering_optical_depth(100e3);
+    using namespace units;
+    atmospheric_state state(290_K, 1019_hPa, 50);
+    state.remove_gas("co2");
+    state.remove_gas("h2o");
+    state.remove_gas("o2");
+    state.scale_to_stp_thickness("o3", 2.95_mm);
+
+    material::air air(state);
+    air.set_wavelength(310_nm);
+    air.set_position({0,0,17_m});
+    air.set_direction({0,0,1});
+
+    // Van Weele M, et al., Journal of Geophysical Research:
+    // Atmospheres, 105(D4), pp.4915-4925, Table 5.
+    check_close(air.scattering_optical_depth(120_km), 1.059, 0.2_pct);
+    check_close(air.absorption_optical_depth(120_km), 0.687, 0.2_pct);
+
   } end_test_case()
 }

@@ -10,17 +10,14 @@ namespace flick {
   public:
     o3_cross_section() {
       for (size_t i=0; i<temperatures_.size(); ++i) {
-	std::string fname = "cross_section_o3_"+
-	  std::to_string(temperatures_[i])+"K.txt";
-	cross_sections_.emplace_back(read<pp_function>
-				     ("material/gas/cross_section_input/"+fname));
+	std::string fname = "cross_section_o3_"+ std::to_string(temperatures_[i])+"K.txt";
+	cross_sections_.emplace_back(read<pp_function>("material/gas/cross_section_input/"+fname));
       }
     }
     double value(double wavelength, double temperature) {
       pp_function f;
       for (size_t i=0; i<cross_sections_.size(); ++i) {
-	f.append({static_cast<double>(temperatures_[i]),
-	    cross_sections_[i].value(wavelength)});
+	f.append({static_cast<double>(temperatures_[i]), cross_sections_[i].value(wavelength)});
       }
       return f.value(temperature); 
     }

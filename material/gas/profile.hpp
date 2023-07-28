@@ -19,7 +19,7 @@ namespace flick {
       : n_points_{n_points} {
       f_ = read<pe_function>
 	("material/gas/profile_input/"+file_name);
-      column_integral_ = f_.integral(0,120e3);
+      column_integral_ = f_.integral(0, 120e3);
       f_ = sparse_profile_distribution();
     }
     double value(double height_above_surface) const {
@@ -29,6 +29,11 @@ namespace flick {
       return f_.x();
     }   
   private:
+    friend std::ostream& operator<<(std::ostream &os,
+				    const profile& p) {
+      os << p.f_;
+      return os;
+    }
      pe_function sparse_profile_distribution() const {
       std::set<size_t> sg = sparse_grid();
       pe_function f;
