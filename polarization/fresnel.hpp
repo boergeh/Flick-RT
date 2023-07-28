@@ -4,7 +4,6 @@
 #include "../numeric/vector.hpp"
 #include "mueller.hpp"
 #include <complex>
-#include <cassert>
 #include <algorithm>
 
 // See Wikipedia Fresnel equations. See also the fresnel_curves
@@ -26,7 +25,8 @@ namespace flick {
       cos_theta_i_ = std::clamp<double>(cos_theta_i_,-1,1);
       double x = 1-pow(cos_theta_i_,2);
       double sin_theta_i = sqrt(x);
-      assert(sin_theta_i >= -1 && sin_theta_i <= 1);
+      if (not (sin_theta_i >= -1 && sin_theta_i <= 1))
+	throw std::runtime_error("fresnel");
       complex c = complex{sin_theta_i,0}/m_;
       cos_theta_t_ = sqrt(1.-c*c);
     }
@@ -78,7 +78,6 @@ namespace flick {
       return acos(cos_theta_i_);
     }
     complex transmission_angle() const {
-      //assert(1-cos_theta_t_ > 0);
       return acos(cos_theta_t_);
     }
   };

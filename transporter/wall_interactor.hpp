@@ -28,7 +28,8 @@ namespace flick {
 		    uniform_random& ur)
       : nav_{nav}, rp_{rp}, rnd_{ur} {   
       next_wall_intersection_ = nav_.next_intersection(rp_.pose());
-      assert(next_wall_intersection_.has_value());
+      if (not next_wall_intersection_.has_value())
+	 throw std::runtime_error("wall_interactor");
       current_volume_ = &nav_.current_volume();
       next_volume_ = &nav_.next_volume(rp_.pose());
       is_moving_inward_ = is_moving_inward();

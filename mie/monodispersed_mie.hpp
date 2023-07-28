@@ -3,7 +3,6 @@
 
 #include "basic_monodispersed_mie.hpp"
 #include "../numeric/legendre/legendre.hpp"
-#include <cassert>
 
 namespace flick
   // Implementation based on the following two papers: (1) Mishchenko,
@@ -23,7 +22,8 @@ namespace flick
   public:
     special_function(const stdcomplex& z, int n_terms)
       : z_{z}, f_(n_terms) {
-      assert(f_.size()>1);
+      if (f_.size()<=1)
+	throw std::runtime_error("monodispersed_mie");
     }
     stdvectorc terms() {
       return f_;

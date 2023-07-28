@@ -59,7 +59,8 @@ namespace transporter {
 	    mi.deposite_energy_to_heat(dw);
 	    wi.interact_with_wall();
 	    scattering_optical_depth -= material.scattering_optical_depth(dw);
-	    assert(scattering_optical_depth >= 0);
+	    if(scattering_optical_depth <= 0)
+	      throw std::runtime_error("ordinary_mc");
 	  }
 	  else {
 	    exit_semi_infinite_volume();

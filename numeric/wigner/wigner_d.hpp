@@ -2,7 +2,6 @@
 #define flick_wigner_d
 
 #include <vector>
-//#include "../std_operators.hpp"
 
 namespace flick {
   class wigner_d
@@ -22,7 +21,8 @@ namespace flick {
       int s_min = wigner_d::leading_zeros(m_,n_);
       if (t_.size() <= s_min)
 	t_.resize(s_min+1,0);
-      assert(s_min<t_.size());
+      if (s_min >= t_.size())
+	throw std::runtime_error("wigner_d");
       t_[s_min] = at_start_term(s_min);
       for (size_t s=s_min; s < t_.size()-1; s++) {
 	double r1 = sqrt(pow(s+1,2)-pow(m_,2));

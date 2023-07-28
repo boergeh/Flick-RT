@@ -22,7 +22,8 @@ namespace flick {
 				     const stdvector& x,
 				     size_t n_terms)
       : a_{a}, b_{b}, x_{x}, alpha_(4), beta_(2) { 
-      assert(a_.size()==4 && b_.size()==2);
+      if (not (a_.size()==4 && b_.size()==2))
+	throw std::runtime_error("normalized_scattering_matrix");
       pe_function a0(x_,a_[0]);
       wigner_fit wf_a0(a0,0,0,n_terms,fit::relative);
       alpha_[0] = wf_a0.coefficients();

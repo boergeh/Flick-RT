@@ -23,7 +23,8 @@ namespace flick {
 	beta_(2, std::vector<stdvector>(bottoms.size(), stdvector(n_terms))),
 	refidx_(bottoms.size())
     {
-      assert(n_terms > 2);
+      if (n_terms <= 2)
+	throw std::runtime_error("layered_iops");
       for (size_t i=0; i < bottoms_.size(); i++) {
 	move(layer_thickness(i)/2);
 	set_alpha_beta(i);

@@ -12,7 +12,6 @@
 int main() {
   using namespace flick;
   unit_test t("material");
-
   t.include<material_test_A>();
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();

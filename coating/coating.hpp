@@ -10,10 +10,9 @@
 #include "../polarization/fresnel.hpp"
 
 namespace flick {
-namespace coating {
-  /*
-    A coating may be added to the outside of a volume surface.
-  */
+namespace coating
+// A coating may be added to the outside of a volume surface.
+{
   class base {
   protected:
     wavelength wavelength_{500e-9};
@@ -130,7 +129,8 @@ namespace coating {
     rotation transmission_rotation() {
       update_fresnel();
       rotation r{-facing_surface_normal_};
-      assert(fabs(dot(r.x_direction(),facing_surface_normal_))<1e-6);
+      if(fabs(dot(r.x_direction(),facing_surface_normal_)) > 1e-6)
+	throw std::runtime_error("coating");
       r.rotate_about_local_x(real(f_.transmission_angle()));
       return r;
     }
