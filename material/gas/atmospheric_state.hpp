@@ -27,9 +27,10 @@ namespace flick {
       pressure_scaling_factor_ = surface_pressure / pressure_.value(0);
       air_scaling_factor_ = pressure_scaling_factor_;
       for(auto g : gases_) {
-	gas_concentrations_[g] = concentration_profile(g+".txt",n_points_);
+	gas_concentrations_[g] = concentration_profile(g+".txt", n_points_);
 	gas_scaling_factors_[g] = 1;
       }
+      //std::cout << air_concentration_;
     }
     std::vector<double> height_grid() const {
       return air_concentration_.grid();

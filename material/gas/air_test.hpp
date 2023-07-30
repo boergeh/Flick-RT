@@ -4,7 +4,8 @@
 namespace flick {
   begin_test_case(air_test) {
     using namespace units;
-    atmospheric_state state(290_K, 1019_hPa, 50);
+    atmospheric_state state(290_K, 1019_hPa, 14);
+ 
     state.remove_gas("co2");
     state.remove_gas("h2o");
     state.remove_gas("o2");

@@ -23,7 +23,7 @@ namespace flick {
       f_ = sparse_profile_distribution();
     }
     double value(double height_above_surface) const {
-      return f_.value(height_above_surface)*column_integral_;
+      return f_.value(height_above_surface) * column_integral_;
     }    
     std::vector<double> grid() const {
       return f_.x();
@@ -37,8 +37,8 @@ namespace flick {
      pe_function sparse_profile_distribution() const {
       std::set<size_t> sg = sparse_grid();
       pe_function f;
-      auto x = f_.x();
-      auto y = f_.y();
+      const auto& x = f_.x();
+      const auto& y = f_.y();
       for (auto i : sg) {
 	f.append({x[i],y[i]});
       }

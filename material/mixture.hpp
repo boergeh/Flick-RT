@@ -28,9 +28,13 @@ namespace material {
 	scaling_factors_[key]=pe_function{{heights_[0],heights_.back()},{1,1}};
       update_iops();
     }
+    //template <class Material>
+    //material::base& get_material() {
     template <class Material>
-    material::base& get_material() {
-      return *materials_[typeid(Material).name()];
+    Material& get_material() {
+      auto ptr = materials_[typeid(Material).name()].get();
+      return *static_cast<Material*>(ptr);
+      //return *materials_[typeid(Material).name()];
     }
     template <class Material>
     void set_scaling_factor(const pe_function& f) {
