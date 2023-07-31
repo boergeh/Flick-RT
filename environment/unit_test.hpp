@@ -38,9 +38,9 @@ namespace flick {
   public:
     void write_begin(const std::string& s) {
       std::cout << "\n\n" << " " << name_ << ", check number "
-		<< std::to_string(checks_);
+		<< std::to_string(checks_) <<":";
       if (not s.empty())
-	std::cout << ", with message \"" << s << "\"";
+	std::cout << " with message \"" << s << "\"";
       std::cout << " ";
     }
     void write_end() {

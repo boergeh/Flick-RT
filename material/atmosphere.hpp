@@ -13,7 +13,7 @@ namespace material {
       : mixture(range(0,constants::pi,n_angles).linspace(), heights) {     
       set_material<air>(atmospheric_state());
       set_material<rural_aerosols>(0.1, 0.5);
-      //std::cout << s_profile_;
+      update_iops();
     }    
   };
 }

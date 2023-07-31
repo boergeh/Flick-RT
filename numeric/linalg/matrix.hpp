@@ -57,12 +57,13 @@ namespace flick {
       }
       return result;
     }
- 
+
+    
     double det(matrix m)
     // Determinant
     {
       int N = static_cast<int>(m.size());
-      double d = 1;     
+      double d = 1;
       for (int i = 0; i < N; ++i) {	
         double pivotElement = m[i][i];
         int pivotRow = i;
@@ -72,15 +73,11 @@ namespace flick {
 	    pivotRow = row;
 	  }
         }
-        if (pivotElement == 0.0) {
-	  return 0.0;
-        }
         if (pivotRow != i) {
 	  m[i].swap(m[pivotRow]);
 	  d *= -1.0;
         }
         d *= pivotElement;
-	
         for (int row = i + 1; row < N; ++row) {
 	  for (int col = i + 1; col < N; ++col) {
 	    m[row][col] -= m[row][i] * m[i][col] / pivotElement;

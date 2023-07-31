@@ -11,9 +11,9 @@ namespace material {
   protected:
     iop_z_profile a_profile_;
     iop_z_profile s_profile_;
+    bool has_changed_ = true;
     double real_refractive_index_{1};
     double height_{0};
-    //bool has_changed_ = true;
   public:
     z_profile() = default;
     z_profile(base& mat, const stdvector& z) {
@@ -29,9 +29,6 @@ namespace material {
       a_profile_ = iop_z_profile(pe_function(z,a));
       s_profile_ = iop_z_profile(pe_function(z,s));
     }
-    //virtual void update_iops() {
-    //  std::cout << "z_profile update";
-    // }
     const iop_z_profile& a_profile() const {
       return a_profile_;
     }

@@ -18,7 +18,7 @@ namespace flick {
     }
   };
     size_t wigner_sample_points(size_t n_terms) {
-    return pow(n_terms,1.6);
+      return pow(n_terms,1.6);
   }
   template<class Function>
   class wigner_fit {

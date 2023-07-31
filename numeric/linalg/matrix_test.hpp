@@ -18,7 +18,6 @@ namespace flick {
     check_close(m3[0][0],5);
     check_close(m3[1][0],-1);
 
-    
     matrix m4 = t(m3);
     check_close(m4[1][0],-3);
 

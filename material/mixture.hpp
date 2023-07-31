@@ -26,24 +26,47 @@ namespace material {
       materials_[key] = std::make_shared<Material>(a...);
       if (scaling_factors_.find(key) == scaling_factors_.end())
 	scaling_factors_[key]=pe_function{{heights_[0],heights_.back()},{1,1}};
-      update_iops();
+      //update_iops();
     }
-    //template <class Material>
-    //material::base& get_material() {
     template <class Material>
     Material& get_material() {
       auto ptr = materials_[typeid(Material).name()].get();
       return *static_cast<Material*>(ptr);
-      //return *materials_[typeid(Material).name()];
     }
     template <class Material>
     void set_scaling_factor(const pe_function& f) {
       scaling_factors_[typeid(Material).name()] = f;
-      update_iops();
+      //update_iops();
     }
     template <class Material>
     void set_scaling_factor(double factor) {
-      set_scaling_factor<Material>(pe_function{{heights_[0], heights_.back()},{factor,factor}});
+      set_scaling_factor<Material>(pe_function{{heights_[0], heights_.back()},
+					       {factor,factor}});
+    }
+    mueller mueller_matrix(const unit_vector& scattering_direction) const override {
+      mueller m;
+      double theta = angle(scattering_direction);
+      size_t n = s_profile_.low_index_near(pose().position().z());
+      for (size_t i=0; i<mueller_[n].size(); ++i) {
+	size_t row = mueller_[n](i).row;
+	size_t col = mueller_[n](i).col;
+	stdvector x{heights_[n],heights_[n+1]};
+	stdvector y{mueller_[n].value(row,col,theta),
+	  mueller_[n+1].value(row,col,theta)};
+	pe_function f{x,y};
+	m.add(row,col,f.value(pose().position().z()));
+      }
+      return m;
+    }
+    void set_wavelength(double wl) override {
+      for (auto const& [key, material] : materials_) {
+	material->set_wavelength(wl);
+      }
+    }
+    void set(const flick::pose& p) override {
+      for (auto const& [key, material] : materials_) {
+	material->set(p);
+      }
     }
     void update_iops() {
       a_profile_.clear();
@@ -51,8 +74,8 @@ namespace material {
       for (auto const& [key, material] : materials_) {
 	add(*material, scaling_factors_[key]);
       }
-      //std::cout << s_profile_;
     }
+  private:
     void add(base& material, double z_low, double z_high) {
       add(material, pe_function{{z_low,z_high},{1,1}});
     }
@@ -62,7 +85,6 @@ namespace material {
       flick::pose initial_pose = material.pose();
       stdvector zs = z_low + (heights_ - heights_[0])
 	/ (heights_.back()-heights_[0])*(z_high - z_low);
-      //zs = insert_extra_points_for_extrapolation(zs);
       pe_function a;
       pe_function s;
       for (auto& z:zs) {
@@ -99,30 +121,6 @@ namespace material {
     }
     void add(base& material) {
       add(material, heights_[0], heights_.back());
-    }
-    mueller mueller_matrix(const unit_vector& scattering_direction) const override {
-      mueller m;
-      double theta = angle(scattering_direction);
-      size_t n = s_profile_.low_index_near(pose().position().z());
-      for (size_t i=0; i<mueller_[n].size(); ++i) {
-	size_t row = mueller_[n](i).row;
-	size_t col = mueller_[n](i).col;
-	stdvector x{heights_[n],heights_[n+1]};
-	stdvector y{mueller_[n].value(row,col,theta),
-	  mueller_[n+1].value(row,col,theta)};
-	pe_function f{x,y};
-	m.add(row,col,f.value(pose().position().z()));
-      }
-      return m;
-    }
-  private:
-    stdvector insert_extra_points_for_extrapolation(stdvector& z) const {
-      double epsilon = 1e-4;
-      double dz_begin = z[1]-z[0];
-      double dz_end = z.end()[-1]-z.end()[-2];
-      z.insert(z.begin()+1,z[0]+dz_begin*epsilon);
-      z.insert(z.end()-1,z.back()-dz_end*epsilon);
-      return z;
     }
     pe_function add_extrapolation_points(pe_function& f) const {
       double i0 = f.integral();
