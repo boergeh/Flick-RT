@@ -53,20 +53,7 @@ namespace flick {
     check_close(poly_mie.scattering_efficiency(),2,p);
   } end_test_case()
 
-   begin_test_case(poly_mie_test_C) {
-    double pi = constants::pi;
-    stdcomplex m_host = 1.0;
-    stdcomplex m_sphere = 1.65 + 1e-5i;
-    double wl = 355e-9;
-    double r = 1e-6;
-    monodispersed_mie mono_mie(m_host,m_sphere,wl);
-    log_normal_distribution sd{log(r),0.5};
-    polydispersed_mie poly_mie(mono_mie,sd);
-    poly_mie.percentage_accuracy(5);
-    double Cscat = poly_mie.scattering_cross_section();
-  } end_test_case()
-
-  begin_test_case(poly_mie_test_D) {
+  begin_test_case(poly_mie_test_C) {
     stdcomplex m_host = 1.0;
     stdcomplex m_sphere = 1.03+1e-9i;
     double wl = 355e-9;
@@ -79,7 +66,7 @@ namespace flick {
     check(F11[0]/F11[1] > 10);
   } end_test_case()
 
-   begin_test_case(poly_mie_test_E) {
+   begin_test_case(poly_mie_test_D) {
     stdcomplex m_host = 1.33;
     stdcomplex m_sphere = 1.5+1e-10i;
     double wl = 500e-9;
@@ -92,7 +79,7 @@ namespace flick {
     double F11 = poly_mie.scattering_matrix_element(0,0)[0];
     double bench = 6.131e-13;
     check_close(F11,bench,p);
-    check_fast(1);
+    check_fast(2000 * cpu_duration());
   } end_test_case()
 
    begin_test_case(poly_mie_test_t_matrix) {
@@ -107,8 +94,22 @@ namespace flick {
     double t_matrix_C_scat = 0.9849e5*pow(1e-9,2); 
     double t_matrix_C_abs = 0.9894e5*pow(1e-9,2)-t_matrix_C_scat;
     double t_matrix_F11 = 20.77 * t_matrix_C_scat/(4*constants::pi);
-    check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.3);
-    check_close(poly_mie.absorption_cross_section(), t_matrix_C_abs,0.8);
-    check_close(poly_mie.scattering_matrix_element(0,0)[0],t_matrix_F11,0.8);
+    check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.3_pct);
+    check_close(poly_mie.absorption_cross_section(), t_matrix_C_abs,0.8_pct);
+    check_close(poly_mie.scattering_matrix_element(0,0)[0],t_matrix_F11,0.8_pct);
+  } end_test_case()
+
+   begin_test_case(poly_mie_test_no_absorption) {
+    stdcomplex m_host = {1,0};
+    stdcomplex m_sphere = {1.3,0};
+    double r = 1e-6;
+    parameterized_monodispersed_mie mono_mie(m_host,m_sphere,500e-9);
+    log_normal_distribution sd{log(r),0.1};
+    polydispersed_mie poly_mie(mono_mie,sd);
+    double p = 0.01;
+    poly_mie.percentage_accuracy(p);
+    check_small(poly_mie.absorption_cross_section());
+    check_fast(10 * cpu_duration());
+
   } end_test_case()
 }

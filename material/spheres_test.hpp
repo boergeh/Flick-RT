@@ -9,11 +9,12 @@ namespace flick {
     double r = 10e-6;
     log_normal_distribution sd(log(r),0.0001);
     double f = 0.1;  
-    material::spheres<log_normal_distribution,material::vacuum ,
+    material::spheres<log_normal_distribution, material::vacuum,
     		material::pure_water,
     		parameterized_monodispersed_mie> s(f,sd,v,pw);
+    s.percentage_accuracy(0.2);
     s.set_wavelength(400e-9);
-    check_close(s.scattering_coefficient(),3./2*f/r,0.2_pct);
+    check_close(s.scattering_coefficient(),3./2*f/r,0.1_pct);
     
     material::bubbles_in_ice<monodispersed_mie> bi(1,log(1e-10),0.0001);
     auto m1 = bi.mueller_matrix(unit_vector{0,0});

@@ -9,20 +9,20 @@
 
 namespace flick {
   namespace command {
+    stdcomplex stoc(std::string s) {
+      if(s.back()=='i')
+	s.pop_back();
+      double re = 0;
+      double im = 0;
+      stdcomplex m;
+      std::stringstream ss(s);
+      ss >> re  >> im;
+      m = stdcomplex{re,im};
+      return m;
+    }
     class mie : public basic_command {
       const double pi = constants::pi;
       std::vector<double> wls_;
-      stdcomplex stoc(std::string s) {
-	if(s.back()=='i')
-	  s.pop_back();
-	double re = 0;
-	double im = 0;
-	stdcomplex m;
-	std::stringstream ss(s);
-	ss >> re  >> im;
-	m = stdcomplex{re,im};
-	return m;
-      }
     public:
       mie():basic_command("mie"){};
       void run() {

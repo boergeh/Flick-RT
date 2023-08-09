@@ -30,10 +30,8 @@ namespace flick {
       v[i] += k;
     return v;
   }
-  stdvector operator+(double k, stdvector v) {  
-    for (size_t i=0; i<v.size(); ++i)
-      v[i] += k;
-    return v;
+  stdvector operator+(double k, stdvector v) {
+    return v+k;
   }
   stdvector operator-(stdvector v1, const stdvector& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
@@ -45,10 +43,15 @@ namespace flick {
       v1[i] -= v2[i];
     return v1;
   }
-  stdvector operator-(stdvector v1, double v2) {  
-    for (size_t i=0; i<v1.size(); ++i)
-      v1[i] -= v2;
-    return v1;
+  stdvector operator-(stdvector v, double k) {  
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] -= k;
+    return v;
+  }
+  stdvector operator-(double k, stdvector v) {
+    for (size_t i=0; i<v.size(); ++i)
+      v[i] = k-v[i];
+    return v;
   }
    stdvector& operator*=(stdvector& v1, const stdvector& v2) {  
     for (size_t i=0; i<v1.size(); ++i)
@@ -127,6 +130,11 @@ namespace flick {
 	v[i] = std::acos(v[i]);
       return v;
     }
+    stdvector exp(stdvector v) {
+      for (size_t i=0; i<v.size(); ++i)
+	v[i] = std::exp(v[i]);
+      return v;
+    }
     stdcomplex sum(const stdvectorc& v) {
       stdcomplex s{0,0};
       for (size_t i=0; i<v.size(); ++i)
@@ -170,14 +178,12 @@ namespace flick {
   }
   std::ostream& operator<<(std::ostream& out, const stdvector& v) {
     for (const auto& i: v)
-      std::cout << i << " ";
-    std::cout << "\n";
+      out << i << " ";
     return out;
   }
   std::ostream& operator<<(std::ostream& out, const stdvectorc& v) {
     for (const auto& i: v)
-      std::cout << i << " ";
-    std::cout << "\n";
+      out << i << " ";
     return out;
   }
 }

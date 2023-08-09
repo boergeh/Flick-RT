@@ -4,63 +4,11 @@
 #include "basic_monodispersed_mie.hpp"
 #include "../numeric/legendre/legendre.hpp"
 #include "../numeric/std_operators.hpp"
+#include "../numeric/physics_function.hpp"
 #include "../environment/input_output.hpp"
 #include <tuple>
 
 namespace flick {
-  class size_distribution
-  // Size number distribution. Integral over all sizes equals one.
-  {
-  protected:
-    const double pi_{constants::pi};
-    double a_;
-    double b_;
-  public:
-    size_distribution(double a, double b)
-      : a_{a}, b_{b} {} 
-    virtual double center() const = 0;
-    virtual double width() const = 0;
-    virtual double value(double x) const = 0;
-    virtual double weighted_integral(double alpha) const = 0;
-    double particles_per_volume(double volume_fraction) const {
-      return volume_fraction * 1/(4./3*pi_*weighted_integral(3));
-    }
-  };
-  
-  class log_normal_distribution : public size_distribution
-  // https://en.wikipedia.org/wiki/Log-normal_distribution
-  {
-  public:
-    log_normal_distribution(double mu, double sigma)
-      : size_distribution(mu,sigma) {
-    }
-    double value(double x) const {
-      return 1/(x*b_*sqrt(2*pi_))*exp(-pow(log(x)-a_,2)/(2*pow(b_,2))); 
-    }
-    double center() const {
-      return exp(a_+3*pow(b_,2)); // median of size volume distribution
-    }
-    double width() const {
-      return b_;
-    }
-    double weighted_integral(double alpha) const {
-      return exp(a_*alpha+0.5*pow(alpha*b_,2));
-    }
-    double average_area() {
-      return constants::pi*weighted_integral(2);
-    }
-    static std::tuple<double, double>
-    from_volume_distribution(double mu, double sigma) {
-      return {mu-3*pow(sigma,2), sigma};
-    }
-  };
-  
-  //class geometric_distribution : public size_distribution {
-  //};
-
-  //class gamma_distribution : public size_distribution {
-  //};
-  
   class basic_quantity {
   protected:
     basic_monodispersed_mie& bm_;
@@ -68,6 +16,7 @@ namespace flick {
     stdvector center_quantity_;
     double alpha_{0};
     size_t size_{1};
+    bool do_center_subtraction_ = true;
   public:
     basic_quantity(basic_monodispersed_mie& bm,
 		   const size_distribution& sd)
@@ -89,12 +38,14 @@ namespace flick {
     }
     stdvector transformed_value(const stdvector& quantity) {
       double r = bm_.radius();
-      //return quantity * r * sd_.value(r);
-      return (quantity - center_quantity_ * pow(r,alpha_)) * r * sd_.value(r);
+      if (do_center_subtraction_)
+	return (quantity - center_quantity_ * pow(r,alpha_)) * r * sd_.value(r);
+      return quantity * r * sd_.value(r);
     }
     stdvector transformed_center(const stdvector& quantity) {
-      //return 0*quantity;
-      return quantity/pow(bm_.radius(),alpha_);
+      if (do_center_subtraction_)
+	return quantity/pow(bm_.radius(),alpha_);
+      return 0*quantity;
     }
   };
  
@@ -145,23 +96,23 @@ namespace flick {
  
   template<class Monodispersed_mie, class Size_distribution>
   class polydispersed_mie {
-    const double epsilon_ = std::numeric_limits<double>::epsilon()*10;
+    const double epsilon_ = std::numeric_limits<double>::epsilon();
     std::shared_ptr<basic_quantity> bq_;
     Monodispersed_mie mm_;
     Size_distribution sd_;
     double accuracy_{0.05};
     stdvector integral_of_abs_integrand_;
-
     size_t n_quadrature_points_;
+    size_t last_quadrature_element_ = 0;
     pl_function xy_points_;
 
     double relative_area_change(const stdvector& da, const stdvector& a,
 				double dx) {
       double w = 5*bq_->sd().width();
-      return vec::rms(sqrt(w/std::fabs(dx))*da/a);
-      //return vec::rms(sqrt(w/std::fabs(dx))*da/dx*w/a);
-      //return vec::rms(da/a*w/dx);
-      //return vec::rms(da/a);
+      double change = vec::rms(sqrt(w/std::fabs(dx))*da/a);
+      if (not isfinite(change))
+      	return 0;           
+      return change;
     }
     stdvector integral(double x1, double x2,
 		       const stdvector& compare_a) {
@@ -169,9 +120,12 @@ namespace flick {
       double error = std::numeric_limits<double>::max();    
       stdvector a(bq_->size(),0);
       stdvector previous_a(bq_->size(),0);
-      size_t n = 0;
+      if (last_quadrature_element_ > 1)
+	last_quadrature_element_--;
+      size_t n = last_quadrature_element_;
       while (error > accuracy_ and n < n_points.size()) {
-	gl_integral_vector gl(*bq_,n_points[n]);
+	size_t log2_n_points = log(n_points[n])/log(2);
+	gl_integral_vector gl(bq_,log2_n_points);
 	a = gl.value(x1,x2);
 	n_quadrature_points_ = n_points[n];
 	if (n > 0) {
@@ -184,8 +138,6 @@ namespace flick {
       return a;
     }  
     stdvector integral() {
-      size_t total_q_points = 0;
-      size_t n_intervals = 0;
       double x0 = log(bq_->sd().center());
       stdvector a = bq_->center_quantity()
       	* bq_->sd().weighted_integral(bq_->alpha());
@@ -196,39 +148,29 @@ namespace flick {
       for (size_t i=0; i<2; ++i) { // Both sides of max
 	double error = std::numeric_limits<double>::max();
 	double x1 = x0;
-	double total_step_width = 0;
-	//while (error > accuracy_ || total_step_width < 1.0*sd_.width()) {
 	while (error > accuracy_) {
 	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];
 	  stdvector da = integral(x1, x2, a)*direction[i];
-	  total_q_points += n_quadrature_points_;
-	  
 	  if (n_quadrature_points_ >= 2048) {
 	    step_factor /= 2;
 	  } else {
 	    a += da;
-	    auto [x,y]=gl_integral_vector(*bq_, n_quadrature_points_).
+	    size_t log2_n_points = log(n_quadrature_points_)/log(2);
+	    auto [x,y]=gl_integral_vector(bq_, log2_n_points).
 	      xy_integration_points(x1,x2);
 	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
 	    double dx = x2-x1;
 	    stdvector da_conservative = integral_of_abs_integrand_;
 	    error = relative_area_change(da_conservative,a,dx);
-	    total_step_width += std::fabs(dx);
 	    x1 = x2;
-	  }	  
+	  }
 	  if (n_quadrature_points_ < 8) {
 	    step_factor *= 2;
 	  }
 	  if (step_factor > max_step_factor)
 	    step_factor = max_step_factor;
-	  n_intervals++;
 	}
       }
-      /*
-            std::cout << "Used a total of " << total_q_points
-      	<< " quadrature points and "<<n_intervals
-      	<< " sub intervals." <<std::endl;
-      */
       return a;
     }
   public:
@@ -270,8 +212,8 @@ namespace flick {
     }
     stdvector normalized_scattering_matrix_element(size_t row, size_t col)
     /* Note that the normalization is such that the upper left corner
-       element of the normalized is normalized to 4*pi, not one, which
-       is the flick convention for the phase function */
+       element is normalized to 4*pi, not one, which is normally the
+       flick convention for the phase function */
     {
       double k = 4*constants::pi/scattering_cross_section();
       return k*scattering_matrix_element(row,col);

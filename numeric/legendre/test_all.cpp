@@ -8,6 +8,7 @@ int main() {
   t.include<legendre_test_A>();
   t.include<legendre_test_B>();
   t.include<delta_fit_test>();
+  t.include<legendre_test_accumulated_integral>();
   t.run_test_cases();
   return 0;
 } 

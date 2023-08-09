@@ -22,6 +22,9 @@ namespace flick {
     columns(size_t n_cols) : n_cols_{n_cols} {
       cols_.resize(n_cols_);
     }
+    size_t size() const {
+      return cols_.at(0).size();
+    }
     const std::vector<double>& column(size_t n) const {
       return cols_.at(n);
     }
@@ -80,10 +83,12 @@ namespace flick {
   }  
 
   template<typename T>
-  void write(const T& t, const std::string& file, size_t precision=5) {
-    std::ofstream ofs(path()+"/"+file);
+  void write(const T& t, std::string file_name, size_t precision=5) {
+    if (file_name.substr(0,2)!="./")
+      file_name = path()+"/"+file_name;  
+    std::ofstream ofs(file_name);
     if (!ofs)
-      throw std::invalid_argument(file+" could not be opened");
+      throw std::invalid_argument(file_name+" could not be opened");
     ofs << std::setprecision(precision) << t;
     ofs.close();
   }

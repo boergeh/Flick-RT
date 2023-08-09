@@ -415,6 +415,14 @@ namespace flick {
   }
 
   template<class I>
+  function<I> subtract(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
+    stdvec yv(xv.size());
+    for (size_t i=0; i < xv.size(); ++i)
+      yv[i] = fa.value(xv[i])-fb.value(xv[i]);
+    return function<I>{xv,yv};
+  }
+
+  template<class I>
   function<I> scale_to_integral(function<I> f, double integral_value) {
     double fi = f.integral();
     if (fabs(fi-integral_value) > std::numeric_limits<double>::epsilon())

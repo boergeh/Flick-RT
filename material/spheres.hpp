@@ -18,24 +18,23 @@ namespace material {
     Size_distribution size_distribution_;
     Host_material host_material_;
     Sphere_material sphere_material_;
-
     const std::vector<int> row_{0,0,1,1,2,2,3,3};
     const std::vector<int> col_{0,1,0,1,2,3,2,3};
-    int precision_{3};
     using pm = polydispersed_mie<Monodispersed_mie,Size_distribution>;
 
     mutable stdvector tabulated_angles_{0};
     mutable std::shared_ptr<pm> poly_mie_;
     mutable bool has_changed_{true};
     mutable std::vector<pl_function> scattering_matrix_elements_;
+    mutable std::shared_ptr<Monodispersed_mie> mono_mie_;
     
     void update_mie() const {
       if (has_changed_) {
 	stdcomplex m_host = host_material_.refractive_index();
 	stdcomplex m_sphere = sphere_material_.refractive_index();	
-	Monodispersed_mie mono_mie(m_host,m_sphere,wavelength());
-	mono_mie.angles(tabulated_angles_);
-	poly_mie_ = std::make_shared<pm>(mono_mie, size_distribution_);
+	mono_mie_ = std::make_shared<Monodispersed_mie>(m_host,m_sphere,wavelength());
+	mono_mie_->angles(tabulated_angles_);
+	poly_mie_ = std::make_shared<pm>(*mono_mie_, size_distribution_);
 	for (size_t i=0; i < row_.size(); ++i) {
 	  scattering_matrix_elements_[i] =
 	    pl_function(tabulated_angles_,poly_mie_->
@@ -52,6 +51,7 @@ namespace material {
       : volume_fraction_{volume_fraction}, size_distribution_{sd},
 	host_material_{hm}, sphere_material_{sm} {
       scattering_matrix_elements_.resize(row_.size());
+      update_mie();
     }
     void set_wavelength(double wl) {
       base::set_wavelength(wl);
@@ -59,8 +59,8 @@ namespace material {
       sphere_material_.set_wavelength(wl);
       has_changed_ = true;
     }
-    void precision(int n) {
-      precision_ = n;
+    void percentage_accuracy(double p) {
+      poly_mie_->percentage_accuracy(p);
       has_changed_ = true;
     }
     void tabulated_angles(const stdvector& angles) {
@@ -94,7 +94,6 @@ namespace material {
       return 1;
     }   
   };
-
 
   template<class Monodispersed_mie>
   struct bubbles_in_ice : public spheres<log_normal_distribution,
@@ -155,8 +154,7 @@ namespace material {
 				 log_normal_distribution(mu,sigma),
 				 material::vacuum(),
 				 material::pure_ice()) {}
-  };
-  
+  }; 
 }
 }
 

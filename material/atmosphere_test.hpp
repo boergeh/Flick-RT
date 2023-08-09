@@ -18,7 +18,7 @@ namespace flick {
     //auto& m = atm.get_material<rural_aerosols>();
     //m.set_wavelength(350_nm);
     atm.update_iops();
-    std::cout << atm.get_material<rural_aerosols>().scattering_optical_depth(100e3);
+    //std::cout << atm.get_material<rural_aerosols>().scattering_optical_depth(100e3);
     
   } end_test_case()
 }

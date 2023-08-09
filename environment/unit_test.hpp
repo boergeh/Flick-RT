@@ -19,13 +19,28 @@ namespace flick {
     return p;
   }
   std::chrono::time_point<std::chrono::system_clock> time_1, time_2;
-  void start_time() {
+  void start_time_1() {
      time_1 = std::chrono::system_clock::now();
   }
-  void show_time() {
-    time_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> duration = time_2 - time_1;
+  void start_time_2() {
+     time_2 = std::chrono::system_clock::now();
+  }
+  void show_time_1() {
+    auto time = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = time - time_1;
     std::cout <<" - "<< std::setprecision(2) << duration.count() << " s\n";
+  }
+  void show_time_2() {
+    auto time = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = time - time_2;
+    std::cout << std::setprecision(1) << 1000*duration.count() << " ms";
+  }
+  double cpu_duration() {
+    auto t0 = std::chrono::system_clock::now();
+    for (size_t i=0; i<10000; i++)
+      ;
+    auto d = std::chrono::system_clock::now() - t0; 
+    return 1e2*std::chrono::duration<double>(d).count();
   }
   
   class test_case {
@@ -41,7 +56,7 @@ namespace flick {
 		<< std::to_string(checks_) <<":";
       if (not s.empty())
 	std::cout << " with message \"" << s << "\"";
-      std::cout << " ";
+      std::cout << std::setprecision(3) << " ";
     }
     void write_end() {
       std::cout << std::endl << std::endl;
@@ -60,8 +75,11 @@ namespace flick {
 	std::cout << "[" << name_ << ", "<< std::flush;
     }
     void print_progress_end() {
-       if (do_printing_)
-	 std::cout << checks_ <<" checks" "]" << std::flush;
+      if (do_printing_) {
+	std::cout << checks_ << " checks, ";
+	show_time_2();
+	std::cout << "]" << std::flush;
+      }
     }
     void check(bool b, const std::string& s="") {
       checks_++;
@@ -101,9 +119,9 @@ namespace flick {
     }
     void check_fast(double max_time, const std::string& s="") {
       checks_++;
-      std::chrono::time_point<std::chrono::system_clock> time;
-      time = std::chrono::system_clock::now();
-      std::chrono::duration<double> duration = time - time_1;
+      //std::chrono::time_point<std::chrono::system_clock> time;
+      auto time = std::chrono::system_clock::now();
+      std::chrono::duration<double> duration = time - time_2;
       if (duration > std::chrono::duration<double>(max_time)) {
 	write_begin(s);
 	std::cout << "Runtime of "
@@ -134,7 +152,7 @@ namespace flick {
       test_cases_.push_back(std::make_shared<T>(name));
     }
     void run_test_cases() {
-      start_time();
+      start_time_1();
       std::string s;
       if (test_cases_.size() > 1)
 	s = "s";
@@ -142,6 +160,7 @@ namespace flick {
 		<< s << " in " << name_ << " unit test: ";
       int errors = 0;
       for (auto& current_case: test_cases_) {
+	start_time_2();
 	current_case->print_progress_begin();
 	try {
 	  current_case->test();
@@ -171,7 +190,7 @@ namespace flick {
 	std::cout << red_start << ss.str() << color_end;
       else
 	std::cout << green_start << ss.str() << color_end;
-      show_time();
+      show_time_1();
     }
   };
 }

@@ -51,12 +51,12 @@ namespace flick {
     return os;
   }
 
-  /*
-  std::ostream& operator<<(std::ostream& os, const std::vector<double>& v) {
-    for (size_t i = 0; i < v.size(); ++i)
-      os << v[i] << " ";
-    return os;
+  std::vector<double> minus_to_plus_one_range(size_t n) {
+    std::vector<double> r = range(-1,1,n).linspace();
+    r.front() = -1;
+    r.back() = 1;
+    return r;
   }
-  */
 }
+
 #endif
