@@ -35,8 +35,7 @@ namespace flick {
     double p = 1e-12;
     accumulated_integral ai(std::make_shared<f>(),p);
     ai.keep_integration_points(true);
-    check_close(ai.add_and_get_total(-1,1),1/(2*constants::pi),p);
-    //std::cout << std::setprecision(7)<<ai.integration_points();
+    check_close(ai.total(-1,1),1/(2*constants::pi),p);
 
     p = 0.1;
     double x0 = 1e-6;
@@ -47,7 +46,7 @@ namespace flick {
       double x1 = x0;
       double x2 = x0;
       ai2.reset_convergence();
-      while(not ai2.has_converged_in_one_iteration()) {
+      while(ai2.significant_added_value()) {
 	if (i==0) {
 	  x2 = x1*0.5;
 	  ai2.add_value(x2,x1);
@@ -58,7 +57,6 @@ namespace flick {
 	x1 = x2;
       }
     }
-    check_close(ai2.get_total(),1,p);
-    //std::cout << std::setprecision(7)<<ai2.integration_points();
+    check_close(ai2.total(),1,p);
   } end_test_case()
 }

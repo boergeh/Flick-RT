@@ -88,53 +88,68 @@ namespace flick {
     std::shared_ptr<Function> f_;
     double percent_accuracy_;
     size_t log2_n_points_{0};
-    stdvector accumulated_;
+    stdvector total_;
+    stdvector previous_total_;
     const size_t log2_max_{11};
     bool has_converged_{false};
     bool has_converged_in_one_iteration_{false};
-    pl_function integration_points_;
     bool keep_integration_points_{false};
+    pl_function integration_points_;
   public:
     accumulated_integral_vector(const std::shared_ptr<Function>& f, double percent_accuracy)
-      : f_{f}, percent_accuracy_{percent_accuracy}, accumulated_(f->size(),0) {
+      : f_{f}, percent_accuracy_{percent_accuracy}, total_(f->size(),0), previous_total_(f->size(),0) {
     }
-    bool has_converged() {
+    void set_total(const stdvector& value) {
+      total_ = value;
+      previous_total_ = value;
+    }
+    stdvector previous_total() const {
+      return previous_total_;
+    }
+    bool has_converged() const {
       return has_converged_;
     }
-    bool has_converged_in_one_iteration() {
-      return has_converged_in_one_iteration_;
+    bool significant_added_value() const {
+      return !has_converged_in_one_iteration_;
     }
     void keep_integration_points(bool b) {
       keep_integration_points_ = b;
     }
-    pl_function integration_points() {
+    pl_function integration_points() const {
       return integration_points_;
     }
-    void add_value(double x1, double x2) {
+    void add_value(double x1, double x2, double estimated_total_width=0) {
       double error = std::numeric_limits<double>::max();
       stdvector previous_a = stdvector(f_->size(),0);
+      stdvector a = stdvector(f_->size(),0);
       size_t n = log2_n_points_;
+      double f = 1;
+      if (estimated_total_width > 0)
+      	f = sqrt(estimated_total_width/fabs(x2-x1));
       while (error > percent_accuracy_ and n <= log2_max_) {
-	stdvector a = gl_integral_vector(f_, n).value(x1, x2);
-	error = 100 * vec::rms(2*(a-previous_a)/(a+accumulated_));
+	a = gl_integral_vector(f_, n).value(x1, x2);
+	stdvector abs_a = gl_integral_vector(f_, n).of_abs_integrand(x1, x2);
+	error = 100 * f * vec::rms(2*(abs_a-previous_a)/(abs_a+previous_a+total_));
 	if (not isfinite(error))
 	  error = 0;
-	previous_a = a;
+	previous_a = abs_a;
 	n++; 
       }
       n--;
       update_integration_points(x1,x2,n);
       update_convergence(error, n);
       update_likely_needed_points(n);
-      if (has_converged_)
-	accumulated_ += previous_a;
+      if (has_converged_) {
+	previous_total_ = total_;
+      }
+      total_ += a;
     }
-    stdvector get_total() {
-      return accumulated_;
+    stdvector total() const {
+      return total_;
     }
-    stdvector add_and_get_total(double x1, double x2) {
+    stdvector total(double x1, double x2) {
       add_value(x1,x2);
-      return get_total();
+      return total();
     }
     void reset_convergence() {
       has_converged_ = false;
@@ -157,7 +172,7 @@ namespace flick {
 	log2_n_points_ = n-2;
     }
     void update_integration_points(double x1, double x2, size_t n) {
-      if (keep_integration_points_) {
+      if (keep_integration_points_ && has_converged_) {
 	auto [x,y]=gl_integral_vector(f_, n).xy_integration_points(x1,x2);
 	integration_points_ = concatenate(pl_function(x,y[0]),integration_points_);
       }
@@ -183,11 +198,13 @@ namespace flick {
     accumulated_integral(const std::shared_ptr<Function>& f, double percent_accuracy) :
       accumulated_integral_vector<vector_function<Function>>(std::make_shared<vector_function<Function>>(f),percent_accuracy) {
     }
-    double get_total() {
-      return accumulated_integral_vector<vector_function<Function>>::get_total()[0];
+    //void set_total(double value) {
+    //  accumulated_integral_vector<vector_function<Function>>::set_total(stdvector{value});
+    double total() const {
+      return accumulated_integral_vector<vector_function<Function>>::total()[0];
     }
-    double add_and_get_total(double x1, double x2) {
-      return accumulated_integral_vector<vector_function<Function>>::add_and_get_total(x1,x2)[0];
+    double total(double x1, double x2) {
+      return accumulated_integral_vector<vector_function<Function>>::total(x1,x2)[0];
     }
   };
   

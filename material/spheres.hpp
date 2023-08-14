@@ -18,6 +18,7 @@ namespace material {
     Size_distribution size_distribution_;
     Host_material host_material_;
     Sphere_material sphere_material_;
+    double percent_accuracy_{5};
     const std::vector<int> row_{0,0,1,1,2,2,3,3};
     const std::vector<int> col_{0,1,0,1,2,3,2,3};
     using pm = polydispersed_mie<Monodispersed_mie,Size_distribution>;
@@ -35,6 +36,7 @@ namespace material {
 	mono_mie_ = std::make_shared<Monodispersed_mie>(m_host,m_sphere,wavelength());
 	mono_mie_->angles(tabulated_angles_);
 	poly_mie_ = std::make_shared<pm>(*mono_mie_, size_distribution_);
+	poly_mie_->percentage_accuracy(percent_accuracy_);
 	for (size_t i=0; i < row_.size(); ++i) {
 	  scattering_matrix_elements_[i] =
 	    pl_function(tabulated_angles_,poly_mie_->
@@ -60,7 +62,7 @@ namespace material {
       has_changed_ = true;
     }
     void percentage_accuracy(double p) {
-      poly_mie_->percentage_accuracy(p);
+      percent_accuracy_ = p;
       has_changed_ = true;
     }
     void tabulated_angles(const stdvector& angles) {

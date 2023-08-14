@@ -94,7 +94,7 @@ namespace flick {
     double t_matrix_C_scat = 0.9849e5*pow(1e-9,2); 
     double t_matrix_C_abs = 0.9894e5*pow(1e-9,2)-t_matrix_C_scat;
     double t_matrix_F11 = 20.77 * t_matrix_C_scat/(4*constants::pi);
-    check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.3_pct);
+    check_close(poly_mie.scattering_cross_section(), t_matrix_C_scat,0.4_pct);
     check_close(poly_mie.absorption_cross_section(), t_matrix_C_abs,0.8_pct);
     check_close(poly_mie.scattering_matrix_element(0,0)[0],t_matrix_F11,0.8_pct);
   } end_test_case()

@@ -16,7 +16,7 @@ namespace flick {
     stdvector center_quantity_;
     double alpha_{0};
     size_t size_{1};
-    bool do_center_subtraction_ = true;
+    bool do_center_subtraction_ = false;
   public:
     basic_quantity(basic_monodispersed_mie& bm,
 		   const size_distribution& sd)
@@ -101,77 +101,43 @@ namespace flick {
     Monodispersed_mie mm_;
     Size_distribution sd_;
     double accuracy_{0.05};
-    stdvector integral_of_abs_integrand_;
-    size_t n_quadrature_points_;
-    size_t last_quadrature_element_ = 0;
+    bool keep_integration_points_ = true;
     pl_function xy_points_;
 
-    double relative_area_change(const stdvector& da, const stdvector& a,
-				double dx) {
-      double w = 5*bq_->sd().width();
-      double change = vec::rms(sqrt(w/std::fabs(dx))*da/a);
-      if (not isfinite(change))
-      	return 0;           
-      return change;
-    }
-    stdvector integral(double x1, double x2,
-		       const stdvector& compare_a) {
-      std::vector<size_t> n_points{1,2,4,8,16,32,64,128,256,512,1024,2048};
-      double error = std::numeric_limits<double>::max();    
-      stdvector a(bq_->size(),0);
-      stdvector previous_a(bq_->size(),0);
-      if (last_quadrature_element_ > 1)
-	last_quadrature_element_--;
-      size_t n = last_quadrature_element_;
-      while (error > accuracy_ and n < n_points.size()) {
-	size_t log2_n_points = log(n_points[n])/log(2);
-	gl_integral_vector gl(bq_,log2_n_points);
-	a = gl.value(x1,x2);
-	n_quadrature_points_ = n_points[n];
-	if (n > 0) {
-	  error = relative_area_change(a-previous_a,compare_a+a,x2-x1);
-	}
-	previous_a = a;
-	n++;
-	integral_of_abs_integrand_ = gl.of_abs_integrand(x1,x2);
-      }
-      return a;
-    }  
     stdvector integral() {
-      double x0 = log(bq_->sd().center());
-      stdvector a = bq_->center_quantity()
-      	* bq_->sd().weighted_integral(bq_->alpha());
-      stdvector direction{-1, 1};
-      xy_points_.clear();
       double max_step_factor = 0.25;
       double step_factor = max_step_factor;
-      for (size_t i=0; i<2; ++i) { // Both sides of max
-	double error = std::numeric_limits<double>::max();
-	double x1 = x0;
-	while (error > accuracy_) {
-	  double x2 = x1 + step_factor * bq_->sd().width()*direction[i];
-	  stdvector da = integral(x1, x2, a)*direction[i];
-	  if (n_quadrature_points_ >= 2048) {
-	    step_factor /= 2;
+      double x0 = log(bq_->sd().center());
+      accumulated_integral_vector ai(bq_, 100*accuracy_);
+      stdvector a0 = bq_->center_quantity()
+	* bq_->sd().weighted_integral(bq_->alpha());
+      ai.set_total(a0);
+      ai.keep_integration_points(keep_integration_points_);
+      double width = 1.2*bq_->sd().width();
+      double x1, x2;
+      double dx = step_factor * width;
+      for (size_t i=0; i<2; i++) {
+	x1 = x0;
+	ai.reset_convergence();
+	while(ai.significant_added_value()) {
+	  if (i==0) {
+	    x2 = x1 - dx;
+	    ai.add_value(x2,x1,width);
 	  } else {
-	    a += da;
-	    size_t log2_n_points = log(n_quadrature_points_)/log(2);
-	    auto [x,y]=gl_integral_vector(bq_, log2_n_points).
-	      xy_integration_points(x1,x2);
-	    xy_points_ = concatenate(pl_function(x,y[0]),xy_points_);
-	    double dx = x2-x1;
-	    stdvector da_conservative = integral_of_abs_integrand_;
-	    error = relative_area_change(da_conservative,a,dx);
+	    x2 = x1 + dx;
+	    ai.add_value(x1,x2,width);
+	  }
+	  if (not ai.has_converged()) {
+	    step_factor /= 2;
+	    ai.set_total(ai.previous_total());
+	  } else {
 	    x1 = x2;
 	  }
-	  if (n_quadrature_points_ < 8) {
-	    step_factor *= 2;
-	  }
-	  if (step_factor > max_step_factor)
-	    step_factor = max_step_factor;
-	}
+	}	
       }
-      return a;
+      if (keep_integration_points_)
+	xy_points_ = ai.integration_points();
+      return ai.total();
     }
   public:
     polydispersed_mie(Monodispersed_mie mm, Size_distribution sd)
