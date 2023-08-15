@@ -12,18 +12,6 @@ namespace flick {
     stokes() = default;
     stokes(double s0, double s1, double s2, double s3)
       : s_{s0,s1,s2,s3} {};
-    /*
-    stokes(double intensity, double rotation_angle,
-	   double eccentricity_angle, double degree_of_polarization) {
-      double psi = rotation_angle;
-      double xsi = eccentricity_angle;
-      double p = degree_of_polarization;
-      s_[0] = intensity;
-      s_[1] = intensity*p*cos(2*psi)*cos(2*xsi);
-      s_[2] = intensity*sin(2*psi)*cos(2*xsi);
-      s_[3] = intensity*p*sin(2*xsi);
-    }
-    */
     stokes(const std::vector<double>& s) : s_{s} {
       ensure(s.size()==4);
     }

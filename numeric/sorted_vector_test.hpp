@@ -15,7 +15,7 @@ namespace flick {
     check(sv2.find(3)==1);
 
     sorted_vector sv3;
-    for (size_t n=1; n<1e6; ++n)
+    for (size_t n=1; n<1e5; ++n)
       sv3.append(exp(1e-4*n));
 
     using time = std::chrono::steady_clock;

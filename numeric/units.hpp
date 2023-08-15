@@ -25,6 +25,10 @@ namespace flick {
     constexpr ld operator""_Pa(ll x) {return x;}
     constexpr ld operator""_hPa(ld x) {return 100*x;}
     constexpr ld operator""_hPa(ll x) {return 100*x;}
+
+    // other
+    constexpr ld operator""_psu(ld x) {return x;}
+    constexpr ld operator""_psu(ll x) {return x;}
   }
 }
 

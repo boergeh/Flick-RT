@@ -21,11 +21,11 @@ namespace material {
      absorption_coefficient_ = read<pp_function>
        (path_+"/absorption_coefficient.txt"); 
      segelstein_real_refractive_index_ = read<pp_function>
-       (path_+"/refractive_index.txt"); 
+       (path_+"/refractive_index.txt");
      temperature_correction_ = read<pl_function>
        (path_+"/temperature_correction.txt"); 
      salinity_correction_ = read<pl_function>
-       (path_+"/salinity_correction.txt"); 
+       (path_+"/salinity_correction.txt");
      absorption_coefficient_.add_extrapolation_points(1);
      segelstein_real_refractive_index_.add_extrapolation_points(1);
      temperature_correction_.add_extrapolation_points(0);

@@ -187,9 +187,10 @@ namespace flick {
   template<class I>
   class function {
     std::string header_;
-    stdvec yv_;
     sorted_vector xv_;
+    stdvec yv_;
   public:
+    sorted_vector xv2_;
     function() = default;
     function(double value) : xv_{{1}}, yv_{stdvec{value}} {}
     function(const stdvec& xv, const stdvec& yv)
@@ -210,12 +211,12 @@ namespace flick {
 	xv_.set_step_type(I::get_step_type());
       }
     }
-    auto clear() {
+    auto& clear() {
       xv_.clear();
       yv_.clear();
       return *this;
     }
-    auto add_extrapolation_points(double weight=1) {
+    auto& add_extrapolation_points(double weight=1) {
       ensure(xv_.size() > 1);
       if (I::get_step_type()!=step_type::linear)
 	ensure(weight > 0);
@@ -240,37 +241,37 @@ namespace flick {
     size_t size() const {
       return yv_.size();
     }
-    auto header(const std::string& h) {
+    auto& header(const std::string& h) {
       header_ = h;
       return *this;
     }
     std::string header() const {
       return header_;
     }
-    auto append(const point& p) {
+    auto& append(const point& p) {
       xv_.append(p.x());
-      yv_.push_back(p.y());
+      yv_.emplace_back(p.y());
       return *this;
     }
-    auto append(const stdvec& xv, const stdvec& yv) {
+    auto& append(const stdvec& xv, const stdvec& yv) {
       ensure(xv.size()==yv.size());
       for (size_t i=0; i<xv.size(); ++i) {
 	append(point{xv[i],yv[i]});
       }
       return *this;
     }
-    auto scale_x(double factor) {
+    auto& scale_x(double factor) {
       ensure(factor > 0);
       xv_.scale(factor);
       return *this;
     }   
-    auto scale_y(double factor) {
+    auto& scale_y(double factor) {
       ensure(factor > 0);
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
       return *this;
     }
-    auto normalize() {
+    auto& normalize() {
       scale_y(1/integral());
       return *this;
     }
@@ -360,6 +361,7 @@ namespace flick {
       }
       return a;
     }
+  private:
     friend std::ostream& operator<<(std::ostream &os,
 				    const function<I>& f) {
       os << f.header();
@@ -371,11 +373,11 @@ namespace flick {
 				    function<I>& f) {
       f.header(read_header(is));
       double x, y;
-      while(is >> x >> y)
-	f.append({x,y});
+      while(is >> x >> y) {
+	f.append(point{x,y});
+      }
       return is;
     }
-  private:
     point next_point(sorted_vector::iterator *it) const {
       return point{xv_[it->next_index()],yv_[it->next_index()]};
     }
