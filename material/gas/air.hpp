@@ -23,18 +23,19 @@ namespace material {
       for (size_t i=0; i<gas_names.size(); ++i) {
 	l_.push_back(lines(gas_names.at(i)));
       }
-      for (size_t i=0; i<h.size(); ++i) {
+      /*
+	for (size_t i=0; i<h.size(); ++i) {
 	for (size_t j=0; j<gas_names.size(); ++j) {
-	  double partial_pressure =
-	    atm_.gas_concentration(gas_names.at(j),h[i]) /
-	    atm_.air_concentration(h[i]);
+	  double partial_pressure = atm_.gas_concentration(gas_names.at(j),h[i]) /
+	    atm_.air_concentration(h[i]) * atm_.pressure(h[i]);
 	  l_[j].wing_cutoff(200);
 	  l_[j].temperature(atm_.temperature(h[i]));
 	  l_[j].total_pressure(atm_.pressure(h[i]));
 	  l_[j].partial_pressure(partial_pressure);
 	}
-      }
-      set_iop_profiles();
+	}
+      */
+      make_iop_profiles();
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       return rayleigh_mueller(angle(scattering_direction),0.0279);
@@ -44,20 +45,26 @@ namespace material {
     }
     void set_wavelength(double wl) override {
       base::set_wavelength(wl);
-      set_iop_profiles();
+      make_iop_profiles();
     }
   private:
-    void set_iop_profiles() {
+    void make_iop_profiles() {
       const auto& h = atm_.height_grid();
       const auto& gas_names = atm_.gas_names();
       std::vector<double> a(h.size(),0.0);
       std::vector<double> s(h.size(),0.0);
       for (size_t i=0; i<h.size(); ++i) {
-	for (size_t j=0; j<gas_names.size(); ++j) {
+	for (size_t j=0; j<gas_names.size(); ++j) {	  
 	  if (gas_names.at(j)=="o3" && wavelength() < o3_.longest()) {
 	    a[i] += o3_.value(wavelength(),atm_.temperature(h[i]))
 	       *  atm_.gas_concentration("o3",h[i]);
 	  } else {
+	    double partial_pressure = atm_.gas_concentration(gas_names.at(j),h[i]) /
+	      atm_.air_concentration(h[i]) * atm_.pressure(h[i]);
+	    l_[j].wing_cutoff(200);
+	    l_[j].temperature(atm_.temperature(h[i]));
+	    l_[j].total_pressure(atm_.pressure(h[i]));
+	    l_[j].partial_pressure(partial_pressure);
 	    a[i] += l_[j].absorption_coefficient(wavelength());
 	  }
 	}

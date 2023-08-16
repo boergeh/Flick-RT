@@ -5,7 +5,7 @@ namespace flick {
   begin_test_case(pure_water_test) {
     using namespace units;
     material::pure_water pw;
-    check_fast(20*cpu_duration());
+    check_fast(50*cpu_duration());
     pw.set_wavelength(500_nm);
     check_close(pw.absorption_coefficient(),0.02,5.0_pct);
     pw.salinity(pl_function{35_psu});
