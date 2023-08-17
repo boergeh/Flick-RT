@@ -23,18 +23,6 @@ namespace material {
       for (size_t i=0; i<gas_names.size(); ++i) {
 	l_.push_back(lines(gas_names.at(i)));
       }
-      /*
-	for (size_t i=0; i<h.size(); ++i) {
-	for (size_t j=0; j<gas_names.size(); ++j) {
-	  double partial_pressure = atm_.gas_concentration(gas_names.at(j),h[i]) /
-	    atm_.air_concentration(h[i]) * atm_.pressure(h[i]);
-	  l_[j].wing_cutoff(200);
-	  l_[j].temperature(atm_.temperature(h[i]));
-	  l_[j].total_pressure(atm_.pressure(h[i]));
-	  l_[j].partial_pressure(partial_pressure);
-	}
-	}
-      */
       make_iop_profiles();
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {

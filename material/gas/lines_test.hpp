@@ -1,5 +1,4 @@
 #include "lines.hpp"
-#include "../../numeric/range.hpp"
 
 namespace flick {
   begin_test_case(lines_test) {  
@@ -7,8 +6,8 @@ namespace flick {
     // continuum
     auto h = lines("h2o");
     h.wing_cutoff(200);
-    double mb = 1e2;
-    std::vector<double> pressure = {1013*mb, 10*mb, 1013*mb, 10*mb};
+    double hPa = 1e2;
+    std::vector<double> pressure = {1013*hPa, 10*hPa, 1013*hPa, 10*hPa};
     std::vector<double> wn = {1085.7, 1085.7, 1084.7, 1084.7};
     std::vector<double> bench_mu2 = {2e-16, 4e-19, 1.8e-16, 1e-19};
     for (size_t i=0; i<wn.size(); ++i) {

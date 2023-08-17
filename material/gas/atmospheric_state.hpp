@@ -28,13 +28,19 @@ namespace flick {
       air_scaling_factor_ = pressure_scaling_factor_;
       for(auto g : gases_) {
 	gas_concentrations_[g] = concentration_profile(g+".txt", n_points_);
-	gas_scaling_factors_[g] = 1;
+	gas_scaling_factors_[g] = air_scaling_factor_;
       }
     }
     std::vector<double> height_grid() const {
       return air_concentration_.grid();
     }
-    void remove_gas(std::string gas_name) {
+    void add_gas(const std::string& gas_name) {
+      gases_.insert(gas_name);
+    }
+    void remove_all_gases() {
+      gases_.clear();
+    }
+    void remove_gas(const std::string& gas_name) {
       gases_.erase(gas_name);
     }
     void scale_concentration(const std::string& gas_name, double factor)
@@ -42,9 +48,13 @@ namespace flick {
     {
       gas_scaling_factors_.at(gas_name) *= factor; 
     }
-    void scale_to_stp_thickness(const std::string& gas_name, double thickness)
+    void scale_to_stp_thickness(const std::string& gas_name, double new_thickness)
     {
-      scale_concentration(gas_name, thickness/stp_thickness(gas_name));
+      scale_concentration(gas_name, new_thickness / stp_thickness(gas_name));
+    }
+    void scale_to_fraction(const std::string& gas_name, double new_fraction)
+    {
+      scale_concentration(gas_name, new_fraction / fraction(gas_name));
     }
     void list_gases() const {
       for(auto g : gases_) {
@@ -61,6 +71,9 @@ namespace flick {
     double stp_thickness(const std::string& gas_name) const {
       return gas_concentrations_.at(gas_name).stp_thickness() *
 	gas_scaling_factors_.at(gas_name);
+    }    
+    double fraction(const std::string& gas_name) const {
+      return per_area(gas_name) / (air_concentration_.per_area() * air_scaling_factor_);
     }
     double per_area(const std::string& gas_name) const {
       return gas_concentrations_.at(gas_name).per_area() *

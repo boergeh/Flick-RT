@@ -11,6 +11,8 @@ namespace flick {
     constexpr ld operator""_nm(ll x) {return x*1e-9;}
     constexpr ld operator""_mm(ld x) {return x*1e-3;}
     constexpr ld operator""_mm(ll x) {return x*1e-3;}
+    constexpr ld operator""_cm(ld x) {return x*1e-2;}
+    constexpr ld operator""_cm(ll x) {return x*1e-2;}
     constexpr ld operator""_m(ld x) {return x;}
     constexpr ld operator""_m(ll x) {return x;}
     constexpr ld operator""_km(ld x) {return x*1e3;}
