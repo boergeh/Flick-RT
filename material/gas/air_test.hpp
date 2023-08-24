@@ -50,4 +50,34 @@ namespace flick {
       of.close();
     }
   } end_test_case()
+  
+  begin_test_case(air_test_h2o)
+    // Earth Sci Inform (2017) 10:395–404
+    // DOI 10.1007/s12145-017-0288-4
+  {
+    /*
+    using namespace units;
+    bool plot_spectrum = true;
+    atmospheric_state state(300_K, 1000_hPa, 8);
+    state.remove_all_gases();
+    state.add_gas("h2o");
+
+    material::air air(state);
+    air.set_wavelength(588.5e-9);
+    check_close(exp(-air.absorption_optical_depth(100_km)), 0.925, 1_pct);
+
+    if (plot_spectrum) {
+      std::ofstream of("./tmp.txt");
+      double wl1 = 588.3e-9;
+      double wl2 = 589.9e-9;
+      for (auto& wl:range(wl1,wl2,500).logspace()) {
+	air.set_wavelength(wl);
+	of << std::setprecision(7);
+	double T = exp(-air.absorption_optical_depth(100_km));
+	of << wl << " " << T << std::endl;
+      }
+      of.close();
+    }
+    */
+  } end_test_case()
 }

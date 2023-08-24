@@ -10,6 +10,7 @@ int main() {
   t.include<atmospheric_state_test>();
   t.include<air_test_o2>();
   t.include<air_test_o3>();
+  //t.include<air_test_h2o>();
   t.include<profile_test>();
   t.include<lines_test>();
   t.run_test_cases();

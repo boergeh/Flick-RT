@@ -2,9 +2,9 @@
 #define flick_radiator
 
 #include "../environment/input_output.hpp"
+#include "../environment/exception.hpp"
 #include "../numeric/function.hpp"
 #include "../numeric/range.hpp"
-#include "../environment/exception.hpp"
 #include "../numeric/constants.hpp"
 
 namespace flick {

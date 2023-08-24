@@ -33,7 +33,7 @@ namespace flick {
       return acos(mu); 
     }
   };
-  
+
   class size_distribution
   // Size number distribution. Integral over all sizes equals one.
   {

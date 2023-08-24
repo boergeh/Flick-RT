@@ -2,7 +2,7 @@
 #define flick_emitter
 
 #include "radiation_package.hpp"
-#include <initializer_list>
+//#include <initializer_list>
 
 namespace flick {
   class wavelength_distribution {
