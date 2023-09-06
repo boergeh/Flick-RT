@@ -83,10 +83,10 @@ namespace distribution {
     normal(double mu, double sigma)
       : mu_{mu}, sigma_{sigma} {}
     double pdf(double x) const {
-      return 1/(sigma_*sqrt(2*pi_))*exp(-0.5*pow((x-mu_)/sigma,2));
+      return 1/(sigma_*sqrt(2*pi_))*exp(-0.5*pow((x-mu_)/sigma_,2));
     }
     double cdf(double x) const {
-      return 0.5*(1+std::erf((x-mu_)/(sigma*sqrt(2))));
+      return 0.5*(1+std::erf((x-mu_)/(sigma_*sqrt(2))));
     }
     double quantile(double p) const {
       return mu_+sigma_*sqrt(2)*erf_inv_(2*p-1);
@@ -112,13 +112,16 @@ namespace distribution {
       return exp(mu_+sqrt(2*pow(sigma_,2))*erf_inv_(2*p-1));
     }
   };
+
+  // henyey_greenstein etc here with mu as input x?
+  // rieman zeta function for planck. or just planck. yes.
   
-  stdvec quantiles(const basic_distribution& b, size_t n_points) {
-    double dx = 1.0/(n_points+2);
+  stdvec quantiles(const basic_distribution& d, size_t n_points) {
+    double dx = 0.1/(n_points+2);
     stdvec p = range(dx,1-dx,n_points).linspace();
     stdvec x(n_points);
     for (size_t i=0; i < n_points; ++i) {
-      x[i] = b.quantile(p[i]);
+      x[i] = d.quantile(p[i]);
     }
     return x;
   }

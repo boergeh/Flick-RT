@@ -5,7 +5,7 @@ namespace flick {
   class distribution {
     std::vector<double> weights_;
     std::vector<double> values_;
-    double target_accuracy_{0.1};
+    double target_accuracy_;
     size_t n_packages_{100};
   public:
     distribution(double target_accuracy)
