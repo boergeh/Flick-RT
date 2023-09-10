@@ -8,7 +8,7 @@
 namespace flick {
   class atmospheric_state {
     size_t n_points_;
-    std::set<std::string> gases_{"co2","h2o","o2","o3"};
+    std::set<std::string> gases_{"co2","h2o","o2","o3","no2"};
     std::map<std::string, concentration_profile> gas_concentrations_;
     std::map<std::string, double> gas_scaling_factors_;
     concentration_profile air_concentration_{"air.txt", n_points_};

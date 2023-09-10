@@ -14,15 +14,15 @@ namespace flick {
     const double atmosphere_thickness_ = 100e3;
     std::string gas_;
     Source_spectrum source_spectrum_;
-    std::shared_ptr<material::air> air_all_;
-    std::shared_ptr<material::air> air_rest_;
+    std::shared_ptr<material::hitran_air> air_all_;
+    std::shared_ptr<material::hitran_air> air_rest_;
     bool print_progress_ = false;
   public:
     absorption_smoother(Source_spectrum s, atmospheric_state a, const std::string& gas)
       : source_spectrum_{s}, atm_{a}, gas_{gas} {
-      air_all_ = std::make_shared<material::air>(atm_);
+      air_all_ = std::make_shared<material::hitran_air>(atm_);
       atm_.remove_gas(gas_);
-      air_rest_ = std::make_shared<material::air>(atm_);
+      air_rest_ = std::make_shared<material::hitran_air>(atm_);
       unit_vector d{0,0};
       vector p{0,0,0};
       air_all_->set_direction(d);
@@ -35,6 +35,8 @@ namespace flick {
     }
     double cross_section(const distribution::basic_distribution& d, double accuracy=0.01) {
       value_collection collection(accuracy);
+      collection.noise_floor(1e-31);
+      collection.initial_set(8);
       size_t n = 2;
       double max_duration = 15;
       double duration = 0;
@@ -60,7 +62,7 @@ namespace flick {
       return collection.mean();
     }
   private:
-    double transmittance(const stdvector& wls, const distribution::basic_distribution& d, material::air& a) {
+    double transmittance(const stdvector& wls, const distribution::basic_distribution& d, material::hitran_air& a) {
       pl_function f;
       for (const auto& wl:wls) {
 	double R = d.pdf(wl);

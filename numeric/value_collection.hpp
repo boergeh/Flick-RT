@@ -7,7 +7,8 @@ namespace flick {
     std::vector<double> values_;
     double target_accuracy_;
     size_t total_points_ = 0;
-    const size_t initial_set_ = 5;
+    size_t initial_set_ = 4;
+    double noise_floor_ = 0;
   public:
     value_collection(double accuracy)
       : target_accuracy_{accuracy} {
@@ -17,6 +18,12 @@ namespace flick {
       values_.push_back(value);
       total_points_ += points;
     }
+    void initial_set(size_t n) {
+      initial_set_ = n;
+    }
+    void noise_floor(double value) {
+      noise_floor_ = value;
+    }
     bool accurate() const {      
       if (values_.size() > initial_set_ and isfinite(mean()) and isfinite(std()) and not isfinite(accuracy()))
 	return true;
@@ -25,7 +32,7 @@ namespace flick {
       return  accuracy() < target_accuracy_; 
     }
     double accuracy() const {
-      return std()/mean();
+      return std()/(mean()+noise_floor_);
     }
     double mean() const {
       double m = 0;
