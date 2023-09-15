@@ -129,7 +129,12 @@ namespace material {
 
   class uv_air : public smooth_air {
   public:
-    uv_air(const atmospheric_state& atm) : smooth_air(atm,"uv_air") {}
+    uv_air(const atmospheric_state& atm) : smooth_air(atm,"uv") {}
+  };
+  
+  class uv_vis_air : public smooth_air {
+  public:
+    uv_vis_air(const atmospheric_state& atm) : smooth_air(atm,"uv_vis") {}
   };
 }
 }

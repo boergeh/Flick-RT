@@ -10,6 +10,7 @@
 #include "table_test.hpp"
 #include "distribution_test.hpp"
 #include "value_collection_test.hpp"
+//#include "configuration_test.hpp"
 //#include "mks_units_test.hpp"
 
 int main() {
@@ -30,6 +31,7 @@ int main() {
   t.include<table_test>();
   t.include<distribution_test>();
   t.include<value_collection_test>();
+  //  t.include<configuration_test>();
   t.run_test_cases();
   return 0;
 } 

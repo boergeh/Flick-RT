@@ -3,7 +3,8 @@
 
 all:	check-env build test
 
-build:	
+build:
+	cd environment; make obj link
 	cd numeric/linalg; make obj link
 	cd numeric; make obj link
 	cd numeric/legendre; make obj link
@@ -22,7 +23,8 @@ build:
 	cd radiator; make obj link
 	cd model; make obj link
 	cd main; make obj link
-test:	
+test:
+	@cd environment; make test
 	@cd numeric/linalg; make test
 	@cd numeric; make test
 	@cd numeric/legendre; make test
@@ -40,7 +42,8 @@ test:
 	@cd transporter; make test
 	@cd model; make test
 	@cd radiator; make test
-clean:	
+clean:
+	cd environment; make clean
 	cd numeric/linalg; make clean
 	cd numeric; make clean
 	cd numeric/legendre; make clean

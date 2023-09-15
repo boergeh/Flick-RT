@@ -20,6 +20,8 @@ namespace flick {
   public:
     atmospheric_state()
       : atmospheric_state(constants::T_stp, constants::P_stp, 50) {};
+    atmospheric_state(size_t n_points)      
+      : atmospheric_state(constants::T_stp, constants::P_stp, n_points) {};
     atmospheric_state(double surface_temperature, double surface_pressure,
 		     size_t n_points=50)
       : n_points_{n_points} {

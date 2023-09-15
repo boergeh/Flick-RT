@@ -3,6 +3,7 @@
 
 #include "../numeric/std_operators.hpp"
 #include "../numeric/pose.hpp"
+#include "../numeric/range.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
 #include <complex>
 #include <algorithm>
@@ -93,6 +94,34 @@ namespace material {
       double theta = acos(mu);
       mueller m = mat_.mueller_matrix(unit_vector{theta,0});
       return m.value(0,0);
+    }
+  };
+
+  class optical_depth
+  // Optical depth spectrum at a given distance from current position
+  // and direction
+  {    
+    material::base& mat_;
+    double distance_;
+    const stdvector& wavelengths_;
+  public:
+    optical_depth(material::base& mat, double distance, const stdvector& wavelengths)
+      : mat_{mat}, distance_{distance}, wavelengths_{wavelengths} {}
+    stdvector absorption() {
+      stdvector tau;
+      for (auto wl:wavelengths_) {
+	mat_.set_wavelength(wl);
+	tau.push_back(mat_.absorption_optical_depth(distance_));
+      }
+      return tau;
+    }
+    stdvector scattering() {
+      stdvector tau;
+      for (auto wl:wavelengths_) {
+	mat_.set_wavelength(wl);
+	tau.push_back(mat_.scattering_optical_depth(distance_));
+      }
+      return tau;
     }
   };
 

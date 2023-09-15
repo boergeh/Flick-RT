@@ -25,6 +25,10 @@ namespace flick {
     air_uv.set_direction({0,0,1});
     check_close(air_uv.scattering_optical_depth(120_km), 1.059, 1_pct);
     check_close(air_uv.absorption_optical_depth(120_km), 0.687, 1_pct);
+
+    air_uv.set_wavelength(3000_nm);
+    check(air_uv.scattering_optical_depth(120_km)<0.001);
+    
   } end_test_case()
 
   begin_test_case(air_test_o2)

@@ -10,6 +10,7 @@ namespace material {
     return pe_function{{z_low,z_high},{1,1}};
   }
   class mixture : public z_profile {
+    bool should_update_iops_ = true;
     stdvector angles_;
     stdvector heights_;
     std::vector<angular_mueller> mueller_;
@@ -26,7 +27,7 @@ namespace material {
       materials_[key] = std::make_shared<Material>(a...);
       if (scaling_factors_.find(key) == scaling_factors_.end())
 	scaling_factors_[key]=pe_function{{heights_[0],heights_.back()},{1,1}};
-      //update_iops();
+      update_iops();
     }
     template <class Material>
     Material& get_material() {
@@ -36,12 +37,16 @@ namespace material {
     template <class Material>
     void set_scaling_factor(const pe_function& f) {
       scaling_factors_[typeid(Material).name()] = f;
-      //update_iops();
+      update_iops();
     }
     template <class Material>
     void set_scaling_factor(double factor) {
       set_scaling_factor<Material>(pe_function{{heights_[0], heights_.back()},
 					       {factor,factor}});
+      update_iops();
+    }
+    void should_update_iops(bool tf) {
+      should_update_iops_ = tf;
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       mueller m;
@@ -62,17 +67,21 @@ namespace material {
       for (auto const& [key, material] : materials_) {
 	material->set_wavelength(wl);
       }
+      update_iops();
     }
     void set(const flick::pose& p) override {
       for (auto const& [key, material] : materials_) {
 	material->set(p);
       }
+      update_iops();
     }
     void update_iops() {
-      a_profile_.clear();
-      s_profile_.clear();
-      for (auto const& [key, material] : materials_) {
-	add(*material, scaling_factors_[key]);
+      if (should_update_iops_) {
+	a_profile_.clear();
+	s_profile_.clear();
+	for (auto const& [key, material] : materials_) {
+	  add(*material, scaling_factors_[key]);
+	}
       }
     }
   private:

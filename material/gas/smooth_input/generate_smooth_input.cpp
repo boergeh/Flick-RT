@@ -31,7 +31,7 @@ int main() {
   meta_data m;
 
   m.short_name = "uv";
-  m.gas_names = {"no2"};//atmospheric_state().gas_names();
+  m.gas_names = atmospheric_state().gas_names();
   m.surface_T0 = constants::T_ntp;
   m.surface_P0 = constants::P_ntp;
   m.relative_TP_step = -0.1;
@@ -40,11 +40,11 @@ int main() {
   m.band_width_sigma = log((300+0.1)/(300-0.1));
   //m.band_width_sigma = log((300+3)/(300-3));
   m.accuracy = 0.005;
-  meta_data_vector.push_back(m);
+  //meta_data_vector.push_back(m);
 
   m.short_name = "uv_vis";
   m.to_wl = 950e-9;
-  //meta_data_vector.push_back(m);
+  meta_data_vector.push_back(m);
 
   m.short_name = "solar";
   m.to_wl = 2500e-9;
