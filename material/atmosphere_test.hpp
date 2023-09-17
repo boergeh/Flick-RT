@@ -8,11 +8,12 @@ namespace flick {
     using namespace material;
    
     atmosphere::config c;
+    std::cout << "heights: "<< c.get<size_t>(atmosphere::heights);
     atmosphere atm{c};
     auto wls = range(280e-9,950e-9,20).logspace();
     auto pw = pure_water();
-    std::cout << std::setprecision(5)
-	      << optical_depth(atm,100e3,wls).scattering() << std::endl;
+    //std::cout << std::setprecision(5)
+    //	      << optical_depth(atm,100e3,wls).scattering() << std::endl;
 
 
   } end_test_case()

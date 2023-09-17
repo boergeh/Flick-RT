@@ -22,6 +22,9 @@ namespace flick {
     T p(size_t n) const {
       return p_.at(n);
     }
+    size_t size() const {
+      return p_.size();
+    }
     const std::string& description() {
       return description_;
     }
@@ -64,6 +67,11 @@ namespace flick {
     T get(int n, size_t element=0) const {
       parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(n));
       return p->p(element);
+    }
+    template<class T>
+    size_t size(int n) const {
+      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(n));
+      return p->size();
     }
   private:
     friend std::ostream& operator<<(std::ostream &os,
