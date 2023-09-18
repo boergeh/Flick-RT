@@ -2,6 +2,7 @@
 #define flick_configuration
 
 #include "input_output.hpp"
+#include <map>
 
 namespace flick {
   class basic_parameter {
@@ -49,47 +50,48 @@ namespace flick {
     }
   };
   
-  class configuration {    
-    std::vector<std::shared_ptr<basic_parameter>> parameters_;
+  class basic_configuration {    
+    std::unordered_map<std::string, std::shared_ptr<basic_parameter>> parameters_;
   public:
     template<class T>
-    void set(int n, const std::vector<T>& p, std::string description="") {
-      ensure_size(n);
+    void add(const std::string& name, const std::vector<T>& p, std::string description="") {
       if (empty(description))
-	description = parameters_[n]->description();
-      parameters_[n] = std::make_shared<parameter<T>>(p,description);    
-    }    
+	description = parameters_.at(name)->description();
+      parameters_[name] = std::make_shared<parameter<T>>(p,description);
+    }
     template<class T>
-    void set(int n, const T& p, const std::string& description="") {
-      set(n, std::vector<T>{p}, description);  
-    }    
+    void add(const std::string& name, const T& p, const std::string& description="") {
+      add(name, std::vector<T>{p}, description);  
+    }
     template<class T>
-    T get(int n, size_t element=0) const {
-      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(n));
+    T get(const std::string& name, size_t element=0) const {
+      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->p(element);
     }
     template<class T>
-    size_t size(int n) const {
-      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(n));
+    size_t size(const std::string& name) const {
+      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->size();
+    }
+    void add_configuration(const basic_configuration& c) {
+      for (auto& [name, val] : c.parameters_) {
+	std::cout << "adding..";
+	parameters_[name] = c.parameters_.at(name);
+      }
     }
   private:
     friend std::ostream& operator<<(std::ostream &os,
-				    const configuration& c) {
-      for (size_t i = 0; i<c.parameters_.size(); ++i) {
-	c.parameters_[i]->print(os);
+				    const basic_configuration& c) {
+      for (auto& [name, val] : c.parameters_) {
+	c.parameters_.at(name)->print(os);
 	os << "\n\n";
       }
       return os;
-    }
-    void ensure_size(size_t n) {
-      if (parameters_.size() <= n)
-	parameters_.resize(n+1); 
-    }
+    }   
     friend std::istream& operator>>(std::istream &is,
-				    const configuration& c) {
-      for (size_t i = 0; i<c.parameters_.size(); ++i) {
-	c.parameters_[i]->read(is);
+				    const basic_configuration& c) {
+      for (auto& [name, val] : c.parameters_) {
+	c.parameters_.at(name)->read(is);
       }
       return is;
     }

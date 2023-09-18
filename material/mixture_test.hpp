@@ -16,7 +16,7 @@ namespace flick {
     mixture sky{angles, heights};
     using simple_cloud = white_isotropic;
 
-    sky.set_material<simple_cloud>(cloud_scat_coef);
+    sky.add_material<simple_cloud>(cloud_scat_coef);
     sky.set_scaling_factor<simple_cloud>(layer_only(zc_low,zc_high));
     sky.update_iops();
     
@@ -24,7 +24,7 @@ namespace flick {
     double od_cl_bench = cloud_scat_coef*(zc_high-zc_low);
     check_close(od_cl,od_cl_bench);
 
-    sky.set_material<rural_aerosols>();
+    sky.add_material<rural_aerosols>();
     sky.update_iops();
     double od_ae = sky.get_material<rural_aerosols>().optical_depth(toa);
     check_close(sky.optical_depth(toa),od_ae+od_cl_bench);  

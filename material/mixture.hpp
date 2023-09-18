@@ -22,7 +22,7 @@ namespace material {
       mueller_.resize(heights.size());
     }
     template <class Material, class... Args>
-    void set_material(Args... a) {
+    void add_material(Args... a) {
       std::string key = typeid(Material).name();
       materials_[key] = std::make_shared<Material>(a...);
       if (scaling_factors_.find(key) == scaling_factors_.end())
