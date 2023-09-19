@@ -102,7 +102,7 @@ namespace flick {
     accurt_user_specified(layered_iops& iops, const stdvector& wavelengths)
       : iops_{iops}, wls_{wavelengths} {}
   private:
-    friend std::ostream& operator<<(std::ostream &os, accurt_user_specified& u) {
+    friend std::ostream& operator<<(std::ostream &os, const accurt_user_specified& u) {
       os << "# AccuRT configuration file for the user_specified material #\n"
 	 << "PROFILE_LABEL = layer_numbering #\n"
 	 << "MATERIAL_PROFILE = 1 #\n"

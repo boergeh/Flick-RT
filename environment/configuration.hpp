@@ -31,6 +31,9 @@ namespace flick {
     T p(size_t n) const {
       return p_.at(n);
     }
+    std::vector<T> p() const {
+      return p_;
+    }
     size_t size() const {
       return p_.size();
     }
@@ -77,6 +80,11 @@ namespace flick {
     T get(const std::string& name, size_t element=0) const {
       parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->p(element);
+    }
+    template<class T>
+    std::vector<T> get_vector(const std::string& name) const {
+      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
+      return p->p();
     }
     template<class T>
     size_t size(const std::string& name) const {

@@ -16,6 +16,16 @@ namespace flick {
     std::string header() const {
       return header_;
     }
+    function<Interpolation> row(size_t n) {
+      function<Interpolation> f;
+      for (size_t i=0; i < row_values_.size(); ++i)
+	f.append({row_values_[i],column_functions_[i].y().at(n)});
+      return f;
+    }
+    function<Interpolation> column(size_t n) {
+      return function<Interpolation>{column_functions_.at(n).x(),
+	column_functions_.at(n).y()};
+    }
     double value(double row_value, double column_value) const {
       function<Interpolation> f;
       for (size_t i=0; i < col_values_.size(); ++i)

@@ -11,7 +11,7 @@
 namespace flick {
 namespace material {
   struct atmosphere : public mixture {
-    struct config : basic_configuration {
+    struct config : configuration {
       config() {
 	add<size_t>("angles", 0,
 		    "Number of computed phase function angles");
