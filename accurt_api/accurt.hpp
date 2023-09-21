@@ -16,14 +16,49 @@ namespace flick {
       add<std::string>("DETECTOR_ORIENTATION","up");
       add<double>("REFERENC_DETECTOR_HEIGHT",100e3);
       add<std::string>("REFERENCE_DETECTOR_ORIENTATION","up");
+      add<std::string>("SOURCE_TYPE","constant_one");
+      add<double>("SOURCE_SCALING_FACTOR",1);
       add<double>("SOURCE_ZENITH_ANGLE",0);
       add<std::string>("BOTTOM_BOUNDARY_SURFACE","loamy_sand");
+      add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1);
+      add<size_t>("STREAM_UPPER_SLAB_SIZE",16);
+      add<double>("STREAM_LOWER_SLAB_PARAMETERS",{1,2});
       add<double>("LAYER_DEPTHS_UPPER_SLAB",{30.0e3, 50.0e3, 60.0e3, 70.0e3, 
 					     76.0e3, 80.0e3, 84.0e3, 88.0e3, 
 					     90.0e3, 92.0e3, 94.0e3, 96.0e3, 
 					     98.0e3, 100.0e3});
-      add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9});
-      
+      add<double>("LAYER_DEPTHS_LOWER_SLAB",{1});
+      add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_atmosphere");
+      add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","vacuum");
+      add<double>("DETECTOR_DEPTHS_UPPER_SLAB",{0,50e3});
+      add<double>("DETECTOR_DEPTHS_LOWER_SLAB",{0.5});
+      add<std::string>("DETECTOR_AZIMUTH_ANGLES","0:20:180");
+      add<std::string>("DETECTOR_POLAR_ANGLES","0:2:180");
+      add<double>("DETECTOR_WAVELENGTHS",{400,500});
+      add<double>("DETECTOR_WAVELENGTH_BAND_WIDTHS",{270,0.01,4000,0.01});
+      add<std::string>("SAVE_COSINE_IRRADIANCE","true");
+      add<std::string>("SAVE_SINE_IRRADIANCE","false");
+      add<std::string>("SAVE_SCALAR_IRRADIANCE","false");
+      add<std::string>("SAVE_RADIANCE","false");
+      add<std::string>("SAVE_IOPS","false");
+      add<std::string>("SAVE_BOTTOM_BOUNDARY_SURFACE","false");
+      add<std::string>("SAVE_MATERIAL_PROFILE","false");
+      add<double>("PROFILE_OUTPUT_WAVELENGTH",500);
+      add<std::string>("PRINT_PROGRESS_TO_SCREEN","true");
+      add<size_t>("REPEATED_RUN_SIZE",1);
+      add<std::string>("USE_POLARIZATION","false");
+      add<std::string>("DO_OCEAN_PHASEMATRIX","false");
+      add<double>("ACCURACY",0.0);
+      add<double>("MIE_CALCULATOR",2);
+      add<std::string>("DO_DELTA_FIT","false");
+      add<double>("DELTA_FIT_TRUNCATION",3.0);
+      add<double>("RESPONSE_FUNCTION_TYPE",1);
+      add<std::string>("DO_SPHERICAL_CORRECTION","true");
+      add<std::string>("DO_2D_ROUGH_SEA_SURFACE","false");
+      add<double>("SURFACE_WIND_SPEED",6);
+      add<double>("RELATIVE_WIND_DIRECTION",0);
+      add<std::string>("USRANG","true");
+      add<double>("LPICK",0);
     }
   };
 
@@ -37,9 +72,8 @@ namespace flick {
   public:
     accurt(const configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
-      c_.add<std::string>("SOURCE_SCALING_FACTOR","constant_one");
       c_.set_text_qualifiers("#","#");
-      wavelengths_ = c_.get_vector<double>("WAVELENGTHS");
+      wavelengths_ = c_.get_vector<double>("DETECTOR_WAVELENGTHS")*1e-9;
     }
     /*
     void set_vertical_radiance() {
@@ -55,11 +89,11 @@ namespace flick {
     // }
     void make_material_files() {
       stdvector d = c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB");
-      stdvector layer_bottoms = {0, 10e3};//100e3+(-1.0)*std::reverse(d.begin(),d.end());
+      stdvector layer_boundaries = {0, 10e3, 100e3};//100e3+(-1.0)*std::reverse(d.begin(),d.end());
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
-      layered_iops layered_atmosphere(*material_,layer_bottoms,n_terms);
+      layered_iops layered_atmosphere(*material_,layer_boundaries,n_terms);
       write(accurt_user_specified(layered_atmosphere,wavelengths_),
-	    "./tmpMaterial/user_specified_atmosphere");
+      	    "./tmpMaterials/user_specified_atmosphere");
       
       //bottoms = {-1, -10, -100};
       //layered_iops layered_ocean(m,bottoms,n_terms); // more terms needed
@@ -85,8 +119,8 @@ namespace flick {
   private:
     void run() {
       write(c_,"./tmp");
-      system("mkdir ./tmpMaterials");
-      system("mkdir ./tmpOutput");
+      system("mkdir -p ./tmpMaterials");
+      system("mkdir -p ./tmpOutput");
       make_material_files();
       system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT tmp");
     }
@@ -98,7 +132,6 @@ namespace flick {
       ifs >> n_runs >> n_streams;
       pe_table t;
       ifs >> t;
-      std::cout << t;
       return t;
     }
   };

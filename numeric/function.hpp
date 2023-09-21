@@ -216,13 +216,13 @@ namespace flick {
       yv_.clear();
       return *this;
     }
-    auto& add_extrapolation_points(double weight=1) {
+    auto& add_extrapolation_points(double weight=1,double dx_scaling_factor=1) {
       ensure(xv_.size() > 1);
       if (I::get_step_type()!=step_type::linear)
 	ensure(weight > 0);
       stdvec xv = xv_.all_values();
-      double dx_front = xv[1]-xv[0];
-      double dx_back = xv[xv.size()-1]-xv[xv.size()-2];
+      double dx_front = (xv[1]-xv[0])*dx_scaling_factor;
+      double dx_back = (xv[xv.size()-1]-xv[xv.size()-2])*dx_scaling_factor;
       if (I::get_step_type()!=step_type::linear) {
 	dx_front = xv[0]*dx_front/xv[1];
 	dx_back = xv.back()*dx_back/xv.back();

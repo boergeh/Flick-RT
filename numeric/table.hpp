@@ -18,8 +18,8 @@ namespace flick {
     }
     function<Interpolation> row(size_t n) {
       function<Interpolation> f;
-      for (size_t i=0; i < row_values_.size(); ++i)
-	f.append({row_values_[i],column_functions_[i].y().at(n)});
+      for (size_t i=0; i < column_functions_.size(); ++i)
+	f.append({col_values_[i],column_functions_[i].y().at(n)});
       return f;
     }
     function<Interpolation> column(size_t n) {

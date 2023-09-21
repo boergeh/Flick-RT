@@ -27,10 +27,10 @@ namespace material {
       return pose_;
     }
     void set_position(const vector& r) {
-      set(pose().move_to(r));
+      set(pose_.move_to(r));
     }
     void set_direction(const unit_vector& d) {
-      set(pose().rotate_to(d));
+      set(pose_.rotate_to(d));
     }
     double angle(const unit_vector& scattering_direction) const {
       double d = dot(pose_.z_direction(),scattering_direction);
@@ -86,12 +86,15 @@ namespace material {
   // Phase function relative to current traveling direction, keeping
   // azimuth angle equal to zero
   {    
+    //  std::shared_ptr<material::base> mat_;
     material::base& mat_;
   public:
+    //    phase_function(std::shared_ptr<material::base> mat) : mat_{mat} {}
     phase_function(material::base& mat) : mat_{mat} {}
     double value(double mu) const {
       mu = std::clamp<double>(mu, -1, 1);
       double theta = acos(mu);
+      //  mueller m = mat_->mueller_matrix(unit_vector{theta,0});
       mueller m = mat_.mueller_matrix(unit_vector{theta,0});
       return m.value(0,0);
     }
@@ -101,7 +104,7 @@ namespace material {
   // Optical depth spectrum at a given distance from current position
   // and direction
   {    
-    material::base& mat_;
+    material::base& mat_; //should be pointer
     double distance_;
     const stdvector& wavelengths_;
   public:

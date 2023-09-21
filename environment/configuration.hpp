@@ -77,6 +77,10 @@ namespace flick {
       add(name, std::vector<T>{p}, description);  
     }
     template<class T>
+    void set(const std::string& name, const T& p, const std::string& description="") {
+      add(name, std::vector<T>{p}, description);  
+    }
+    template<class T>
     T get(const std::string& name, size_t element=0) const {
       parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->p(element);

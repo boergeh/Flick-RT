@@ -13,9 +13,14 @@ namespace flick {
     using namespace constants;
     using namespace flick;
     double g = 0.5;
-    material::henyey_greenstein hg(absorption_coefficient{1},
+    auto hg = material::henyey_greenstein(absorption_coefficient{1},
 				   scattering_coefficient{1},
 				   asymmetry_factor{g});    
+    /*
+    auto hg = std::make_shared<material::henyey_greenstein>(absorption_coefficient{1},
+				   scattering_coefficient{1},
+				   asymmetry_factor{g});    
+    */
     material::phase_function pf(hg);
     tabulated_phase_function hgpf{hg_phase_function(g,100)};
     check_close(pf.value(0),hgpf.value(constants::pi/2));

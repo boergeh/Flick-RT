@@ -15,7 +15,7 @@ namespace material {
     stdvector heights_;
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
-    std::map<std::string, pe_function> scaling_factors_;   
+    std::map<std::string, std::vector<double>> range_;   
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
@@ -25,24 +25,18 @@ namespace material {
     void add_material(Args... a) {
       std::string key = typeid(Material).name();
       materials_[key] = std::make_shared<Material>(a...);
-      if (scaling_factors_.find(key) == scaling_factors_.end())
-	scaling_factors_[key]=pe_function{{heights_[0],heights_.back()},{1,1}};
+      if (range_.find(key) == range_.end())
+	range_[key]={heights_[0], heights_.back()};
       update_iops();
     }
     template <class Material>
-    Material& get_material() {
-      auto ptr = materials_[typeid(Material).name()].get();
+    const Material& get_material() const {
+      auto ptr = materials_.at(typeid(Material).name()).get();
       return *static_cast<Material*>(ptr);
     }
     template <class Material>
-    void set_scaling_factor(const pe_function& f) {
-      scaling_factors_[typeid(Material).name()] = f;
-      update_iops();
-    }
-    template <class Material>
-    void set_scaling_factor(double factor) {
-      set_scaling_factor<Material>(pe_function{{heights_[0], heights_.back()},
-					       {factor,factor}});
+    void set_range(double z_low, double z_high) {
+      range_[typeid(Material).name()] = {z_low, z_high};
       update_iops();
     }
     void should_update_iops(bool tf) {
@@ -80,17 +74,13 @@ namespace material {
 	a_profile_.clear();
 	s_profile_.clear();
 	for (auto const& [key, material] : materials_) {
-	  add(*material, scaling_factors_[key]);
+	  std::vector<double> range = range_.at(key);
+	  add(*material, range[0], range[1]);
 	}
       }
     }
   private:
     void add(base& material, double z_low, double z_high) {
-      add(material, pe_function{{z_low,z_high},{1,1}});
-    }
-    void add(base& material, pe_function scaling_profile) {
-      double z_low = scaling_profile.x()[0];
-      double z_high = scaling_profile.x().back();
       flick::pose initial_pose = material.pose();
       stdvector zs = z_low + (heights_ - heights_[0])
 	/ (heights_.back()-heights_[0])*(z_high - z_low);
@@ -98,9 +88,8 @@ namespace material {
       pe_function s;
       for (auto& z:zs) {
 	material.set_position({0,0,z});
-	double scaling_factor = scaling_profile.value(z);
-	a.append({z,material.absorption_coefficient()*scaling_factor});
-	s.append({z,material.scattering_coefficient()*scaling_factor});
+	a.append({z,material.absorption_coefficient()});
+	s.append({z,material.scattering_coefficient()});
       }
       a = add_extrapolation_points(a);
       s = add_extrapolation_points(s);
@@ -109,11 +98,8 @@ namespace material {
       double dz = z_high - z_low;
       a = scale_to_integral(a,material.absorption_optical_depth(dz));
       s = scale_to_integral(s,material.scattering_optical_depth(dz));
-      a = multiply(a, scaling_profile, a.x());
-      s = multiply(s, scaling_profile, s.x());
       a_profile_.add(iop_z_profile(a), heights_);
       s_profile_.add(iop_z_profile(s), heights_);
-
       if (material.real_refractive_index() > real_refractive_index_) {
 	real_refractive_index_ = material.real_refractive_index();
       }
@@ -131,9 +117,9 @@ namespace material {
     void add(base& material) {
       add(material, heights_[0], heights_.back());
     }
-    pe_function add_extrapolation_points(pe_function& f) const {
+    pe_function add_extrapolation_points(pe_function f) const {
       double i0 = f.integral();
-      f.add_extrapolation_points(0);
+      f.add_extrapolation_points(0,1e-5);
       return scale_to_integral(f,i0);
     }
     angular_mueller fill_angular_mueller(const base& material)
@@ -154,6 +140,9 @@ namespace material {
       return am;
     }
   };
+  //pe_function unit_pe_function(double from, double to) {
+  //  return pe_function({from,to},{1,1});//.add_extrapolation_points(0,(to-from)*1e-6);
+  //}
 }
 }
 

@@ -56,6 +56,8 @@ namespace flick {
       } else {
 	profile_ = integral_conservative_add(profile_, p.profile_, heights);
       }
+      if (not std::isfinite(profile_.integral()))
+	throw std::runtime_error("Possible less than two points in iop_profile");
       return *this;
     }
   private:

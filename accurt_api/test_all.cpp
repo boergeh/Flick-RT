@@ -1,9 +1,10 @@
-#include "input_test.hpp"
+#include "accurt_test.hpp"
 
 int main() {
   using namespace flick;
-  unit_test t("input");
-  t.include<input_test>();
+  unit_test t("accurt");
+  t.include<accurt_test_A>();
+  t.include<accurt_test_B>();
   t.run_test_cases();
   return 0;
 } 
