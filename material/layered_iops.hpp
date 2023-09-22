@@ -25,7 +25,7 @@ namespace flick {
 	refidx_(n_layers())
     {
       m_.set_direction({0,0});
-      if (n_terms <= 2)
+      if (boundaries.size()<2 or n_terms <= 2)
 	throw std::runtime_error("layered_iops");
       for (size_t i=0; i < n_layers(); i++) {
 	move(layer_thickness(i)/2);
@@ -99,60 +99,6 @@ namespace flick {
       for (size_t i=0; i < t.size(); i++)
 	t[i] = layer_thickness(i);
       return t;
-    }
-  };
-
-  class accurt_user_specified {
-    layered_iops& iops_;
-    stdvector wls_;
-  public:
-    accurt_user_specified(layered_iops& iops, const stdvector& wavelengths)
-      : iops_{iops}, wls_{wavelengths} {}
-  private:
-    friend std::ostream& operator<<(std::ostream &os, const accurt_user_specified& u) {
-      os << "# AccuRT configuration file for the user_specified material #\n"
-	 << "PROFILE_LABEL = layer_numbering #\n"
-	 << "MATERIAL_PROFILE = 1 #\n"
-	 << "TURN_OFF_DELTA_FIT = true #\n\n"
-	 << "WAVELENGTHS = ";
-      for (auto& wl:u.wls_)
-	os << wl*1e9 << " ";
-      os << "#\n\n";
-      std::vector<stdvector> n;
-      std::vector<stdvector> a;
-      std::vector<stdvector> s;
-      std::vector<std::vector<stdvector>> p;
-      for (auto& wl:u.wls_) {
-	u.iops_.set_wavelength(wl);
-	for (size_t j=0; j<u.iops_.n_layers(); j++) {
-	  n.push_back(u.iops_.refractive_index());
-	  a.push_back(u.iops_.absorption_coefficient());
-	  s.push_back(u.iops_.scattering_coefficient());
-	  p.push_back(u.iops_.alpha_terms(0));
-	}
-      }
-      os << "REFRACTIVE_INDEX = ";
-      for (size_t i=0; i<u.wls_.size(); i++) {
-	os << *std::max_element(std::begin(n[i]), std::end(n[i])) << " ";
-      }
-      os << "#\n\n";
-      size_t l = u.iops_.n_layers();
-      for (int i=l-1; i>=0; i--) {
-	for (size_t j=0; j<u.wls_.size(); j++) {
-	  os << "A_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = " << a[i][j] << " #\n";
-	  os << "S_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = " << s[i][j] << " #\n";
-	  os << "P_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = ";
-	  for (size_t k=0; k<p[i][j].size(); k++) {
-	    os << p[i][j][k]/p[i][j][0]/(2*k+1) << " ";
-	  }
-	  os << " #\n";
-	  os << "\n";
-	}
-      }  
-      return os;
     }
   };
 }

@@ -21,7 +21,6 @@ int main() {
   t.include<ab_functions_test_A>();
   t.include<ab_functions_test_B>();
   t.include<layered_iops_test_A>();
-  t.include<layered_iops_test_B>();
   t.include<z_profile_test>();
   t.include<mixture_test>();
   t.include<atmosphere_test>();

@@ -6,27 +6,27 @@
 
 namespace flick {
 namespace material {
-  pe_function layer_only(double z_low, double z_high) {
-    return pe_function{{z_low,z_high},{1,1}};
-  }
   class mixture : public z_profile {
     bool should_update_iops_ = true;
     stdvector angles_;
     stdvector heights_;
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
-    std::map<std::string, std::vector<double>> range_;   
+    std::map<std::string, std::vector<size_t>> range_;   
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
       mueller_.resize(heights.size());
+    }
+    const stdvector& heights() const {
+      return heights_;
     }
     template <class Material, class... Args>
     void add_material(Args... a) {
       std::string key = typeid(Material).name();
       materials_[key] = std::make_shared<Material>(a...);
       if (range_.find(key) == range_.end())
-	range_[key]={heights_[0], heights_.back()};
+	range_[key]={0, heights_.size()-1};
       update_iops();
     }
     template <class Material>
@@ -35,8 +35,8 @@ namespace material {
       return *static_cast<Material*>(ptr);
     }
     template <class Material>
-    void set_range(double z_low, double z_high) {
-      range_[typeid(Material).name()] = {z_low, z_high};
+    void set_range(size_t n_low, size_t n_high) {
+      range_[typeid(Material).name()] = {n_low, n_high};
       update_iops();
     }
     void should_update_iops(bool tf) {
@@ -74,16 +74,17 @@ namespace material {
 	a_profile_.clear();
 	s_profile_.clear();
 	for (auto const& [key, material] : materials_) {
-	  std::vector<double> range = range_.at(key);
+	  std::vector<size_t> range = range_.at(key);
 	  add(*material, range[0], range[1]);
 	}
       }
     }
   private:
-    void add(base& material, double z_low, double z_high) {
+    void add(base& material, size_t n_low, size_t n_high) {
+      if (n_low >= n_high or n_high >= heights_.size())
+	throw std::runtime_error("mixtrue");
       flick::pose initial_pose = material.pose();
-      stdvector zs = z_low + (heights_ - heights_[0])
-	/ (heights_.back()-heights_[0])*(z_high - z_low);
+      stdvector zs = {heights_.begin()+n_low, heights_.begin()+n_high+1};
       pe_function a;
       pe_function s;
       for (auto& z:zs) {
@@ -93,9 +94,9 @@ namespace material {
       }
       a = add_extrapolation_points(a);
       s = add_extrapolation_points(s);
-      material.set_position({0,0,z_low});
+      material.set_position({0,0,heights_[n_low]});
 
-      double dz = z_high - z_low;
+      double dz = heights_[n_high] - heights_[n_low];
       a = scale_to_integral(a,material.absorption_optical_depth(dz));
       s = scale_to_integral(s,material.scattering_optical_depth(dz));
       a_profile_.add(iop_z_profile(a), heights_);
@@ -115,7 +116,7 @@ namespace material {
       material.set(initial_pose);
     }
     void add(base& material) {
-      add(material, heights_[0], heights_.back());
+      add(material, 0, heights_.size()-1);
     }
     pe_function add_extrapolation_points(pe_function f) const {
       double i0 = f.integral();
@@ -140,9 +141,6 @@ namespace material {
       return am;
     }
   };
-  //pe_function unit_pe_function(double from, double to) {
-  //  return pe_function({from,to},{1,1});//.add_extrapolation_points(0,(to-from)*1e-6);
-  //}
 }
 }
 

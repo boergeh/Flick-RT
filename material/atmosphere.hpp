@@ -67,14 +67,15 @@ namespace material {
       add_material<urban_aerosols>(aod*(1-ratio), rh);
     }
     void add_clouds() {
-      double base = 3e3;
-      double top = 14e3;
+      size_t n_base = 1;
+      size_t n_top = 2;
       double radius = 5e-6;
-      double volume_fraction = c_.get<double>("cloud_liquid")/(top-base);  
+      double dh = heights().at(n_top)-heights().at(n_base);
+      double volume_fraction = c_.get<double>("cloud_liquid")/dh;  
       double mu = log(radius);
       double sigma = 0;
       using cloud = water_cloud<parameterized_monodispersed_mie>;
-      set_range<cloud>(base,top);
+      set_range<cloud>(n_base,n_top);
       add_material<cloud>(volume_fraction,mu,sigma);
     }
   };

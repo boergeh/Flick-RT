@@ -2,6 +2,7 @@
 #define flick_configuration
 
 #include "input_output.hpp"
+#include <map>
 
 namespace flick {
   class basic_parameter {
@@ -41,6 +42,7 @@ namespace flick {
       return description_;
     }
     void print(std::ostream &os) {
+      os << std::setprecision(6);
       os << begin_qualifier_ << " " << description_ << " " << end_qualifier_ << "\n";
       os << name_ << " = ";
       for (size_t i = 0; i<p_.size(); ++i)
@@ -64,7 +66,7 @@ namespace flick {
   };
   
   class configuration {    
-    std::unordered_map<std::string, std::shared_ptr<basic_parameter>> parameters_;
+    std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
   public:
     template<class T>
     void add(const std::string& name, const std::vector<T>& p, std::string description="") {
@@ -77,18 +79,27 @@ namespace flick {
       add(name, std::vector<T>{p}, description);  
     }
     template<class T>
-    void set(const std::string& name, const T& p, const std::string& description="") {
-      add(name, std::vector<T>{p}, description);  
+    void set(const std::string& name, const std::vector<T>& p, std::string description="") {
+      add(name,p,description);
     }
     template<class T>
-    T get(const std::string& name, size_t element=0) const {
-      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
-      return p->p(element);
+    void set(const std::string& name, const T& p, const std::string& description="") {
+      add(name, p, description);  
     }
     template<class T>
     std::vector<T> get_vector(const std::string& name) const {
-      parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
+      parameter<T>* p;
+      try {
+	p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
+      } catch (const std::exception& e) {
+	throw std::runtime_error("configuration parameter "+name+" not found");
+      }
       return p->p();
+    }
+    template<class T>
+    T get(const std::string& name, size_t element=0) const {
+      std::vector<T> p = get_vector<T>(name);
+      return p.at(element);
     }
     template<class T>
     size_t size(const std::string& name) const {
@@ -112,6 +123,7 @@ namespace flick {
 	c.parameters_.at(name)->print(os);
 	os << "\n\n";
       }
+      os << "#";
       return os;
     }   
     friend std::istream& operator>>(std::istream &is,
