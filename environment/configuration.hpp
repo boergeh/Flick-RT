@@ -67,12 +67,15 @@ namespace flick {
   
   class configuration {    
     std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
+    std::string qualifier_begin_ = "/*";
+    std::string qualifier_end_ = "*/";
   public:
     template<class T>
     void add(const std::string& name, const std::vector<T>& p, std::string description="") {
       if (empty(description) && parameters_.find(name)!=parameters_.end())
 	description = parameters_.at(name)->description();
       parameters_[name] = std::make_shared<parameter<T>>(name,p,description);
+      parameters_.at(name)->set_text_qualifiers(qualifier_begin_,qualifier_end_);
     }
     template<class T>
     void add(const std::string& name, const T& p, const std::string& description="") {
@@ -115,6 +118,8 @@ namespace flick {
       for (auto& [name, val] : parameters_) {
 	parameters_.at(name)->set_text_qualifiers(begin,end);
       }
+      qualifier_begin_ = begin;
+      qualifier_end_ = end;
     }
   private:
     friend std::ostream& operator<<(std::ostream &os,

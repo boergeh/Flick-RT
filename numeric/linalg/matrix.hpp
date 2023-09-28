@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <vector>
+#include "Eigen/Dense"
+//#include <Eigen/Core>
 
 namespace flick {
   namespace linalg
@@ -146,11 +148,25 @@ namespace flick {
       return m;
     }
     
-    std::vector<double> solve(const matrix& m, const std::vector<double>& v)
-    // Solves set of linear equations
+    std::vector<double> solve_small(const matrix& m, const std::vector<double>& v)
+    // Solves set of linear equations for small matrixes
     {
       auto col = t(matrix{v});
       return column(0, inv(t(m)*m) * (t(m)*col));
+    }
+    
+    std::vector<double> solve(const matrix& m, const std::vector<double>& v)
+    // Solves set of linear equations using the Eigen library
+    {
+      int rows = m.size();
+      int cols = m.at(0).size();
+      Eigen::MatrixXd me(rows,cols);
+      for (size_t i=0; i<rows; i++)
+	for (size_t j=0; j<cols; j++)
+	  me(i,j) = m[i][j];
+      const Eigen::VectorXd b = Eigen::Map<const Eigen::VectorXd, Eigen::Unaligned>(v.data(),v.size());
+      Eigen::VectorXd a = me.colPivHouseholderQr().solve(b);
+      return std::vector<double>(a.data(),a.data()+a.size());
     }
   }
 }

@@ -63,12 +63,14 @@ namespace material {
       }
       update_iops();
     }
+    /*
     void set(const flick::pose& p) override {
       for (auto const& [key, material] : materials_) {
 	material->set(p);
       }
       update_iops();
     }
+    */
     void update_iops() {
       if (should_update_iops_) {
 	a_profile_.clear();

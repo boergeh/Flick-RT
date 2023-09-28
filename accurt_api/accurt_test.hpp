@@ -6,10 +6,10 @@
 
 namespace flick {
   begin_test_case(accurt_test_A) {
-    stdvector layer_boundaries = {1, 10e3,100e3};
-    size_t n_terms = 16;
+    stdvector layer_boundaries = {1, 10e3,20e3,100e3};
+    size_t n_terms = 10;
     material::atmosphere::config c;
-    c.set<size_t>("angles",10);
+    c.set<size_t>("angles",30);
     c.set<size_t>("heights",8);
     auto atm = material::atmosphere(c);
     layered_iops layered_atmosphere(atm,layer_boundaries,n_terms);
@@ -29,7 +29,7 @@ namespace flick {
   begin_test_case(accurt_test_C) {
     accurt::configuration ac;
     material::atmosphere::config mc;
-    mc.set<size_t>("angles",20);
+    mc.set<size_t>("angles",30);
     mc.set<size_t>("heights",8);
     auto m = std::make_shared<material::atmosphere>(mc);
     auto a =  accurt(ac,m);

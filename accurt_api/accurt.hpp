@@ -6,6 +6,7 @@
 #include "../numeric/function.hpp"
 #include "../numeric/std_operators.hpp"
 #include "../numeric/table.hpp"
+//#include "../numeric/grid.hpp"
 #include "../material/material.hpp"
 #include "../material/layered_iops.hpp"
 
@@ -70,7 +71,7 @@ namespace flick {
       configuration() {
 	add<double>("DETECTOR_HEIGHT",1,"[m]");
 	add<std::string>("DETECTOR_ORIENTATION","up","Vertically <up> or <down>");
-	add<std::string>("DETECTOR_TYPE","plane_irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
+	add<std::string>("DETECTOR_TYPE","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"[m]");
 	add<double>("REFERENCE_DETECTOR_HEIGHT",100e3,"[m] Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height.");
 	add<std::string>("REFERENCE_DETECTOR_ORIENTATION","up","<up> or <down>");
@@ -153,8 +154,7 @@ namespace flick {
       stdvector d = c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB");
       std::reverse(d.begin(),d.end());
       stdvector layer_boundaries = toa_-d;
-      layer_boundaries.push_back(toa_);
-      
+      layer_boundaries.push_back(toa_);      
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
       layered_iops layered_atmosphere(*material_,layer_boundaries,n_terms);
       write(accurt_user_specified(layered_atmosphere,wavelengths_),
@@ -261,9 +261,24 @@ namespace flick {
       ifs >> n_runs >> n_streams;
       pe_table t;
       ifs >> t;
+      ifs.close();
       return t;
     }
+    /*
+    nd_table read_radiance(const std::string& file_name) {
+      std::ifstream ifs(file_name);
+      if (!ifs)
+	throw std::invalid_argument(file_name+" not found");
+      size_t n_runs, n_streams;
+      ifs >> n_runs >> n_streams;
+      grid t;
+      ifs >> t;
+      ifs.close()
+      return t;
+    }
+    */
   };
+   
 }
 
 #endif
