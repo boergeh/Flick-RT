@@ -6,7 +6,7 @@
 #include "../numeric/function.hpp"
 #include "../numeric/std_operators.hpp"
 #include "../numeric/table.hpp"
-//#include "../numeric/grid.hpp"
+#include "../numeric/grid.hpp"
 #include "../material/material.hpp"
 #include "../material/layered_iops.hpp"
 
@@ -71,7 +71,7 @@ namespace flick {
       configuration() {
 	add<double>("DETECTOR_HEIGHT",1,"[m]");
 	add<std::string>("DETECTOR_ORIENTATION","up","Vertically <up> or <down>");
-	add<std::string>("DETECTOR_TYPE","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
+	add<std::string>("DETECTOR_TYPE","radiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"[m]");
 	add<double>("REFERENCE_DETECTOR_HEIGHT",100e3,"[m] Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height.");
 	add<std::string>("REFERENCE_DETECTOR_ORIENTATION","up","<up> or <down>");
@@ -128,7 +128,7 @@ namespace flick {
       c_.add<std::string>("DO_2D_ROUGH_SEA_SURFACE","false");
       c_.add<double>("SURFACE_WIND_SPEED",6);
       c_.add<double>("RELATIVE_WIND_DIRECTION",0);
-      c_.add<std::string>("USRANG","true");
+      c_.add<std::string>("USRANG","false");
       c_.add<double>("LPICK",0);
      
       wavelengths_ = c_.get_vector<double>("DETECTOR_WAVELENGTHS");
@@ -209,11 +209,19 @@ namespace flick {
       return t.row(n_reference_).y();
     }
     stdvector detector_radiance() {
-      //pe_table t = read_radiance(path_+"/radiance.txt");
-      if (c_.get<std::string>("REFERENCE_DETECTOR_ORIENTATION")=="up") {
-      } else {
+      grid_4d g = read_radiance(path_+"/radiance.txt");
+      stdvector wls = g.x[1];
+      stdvector up(wls.size());
+      stdvector down(wls.size());
+      for (size_t i=0; i<wls.size(); i++) {
+	up[i] = g.f[0][i][1][0];
+	down[i] = g.f[0][i][0][0];
       }
-      return stdvector(wavelengths_.size());
+      if (c_.get<std::string>("REFERENCE_DETECTOR_ORIENTATION")=="up") {
+	return up;
+      } else {
+	return down;
+      }
     }    
     void add_detector_depths() {
       double h1 = c_.get<double>("DETECTOR_HEIGHT");    
@@ -264,21 +272,18 @@ namespace flick {
       ifs.close();
       return t;
     }
-    /*
-    nd_table read_radiance(const std::string& file_name) {
+    grid_4d read_radiance(const std::string& file_name) {
       std::ifstream ifs(file_name);
       if (!ifs)
 	throw std::invalid_argument(file_name+" not found");
       size_t n_runs, n_streams;
       ifs >> n_runs >> n_streams;
-      grid t;
-      ifs >> t;
-      ifs.close()
-      return t;
+      grid_4d g;
+      ifs >> g;
+      ifs.close();
+      return g;
     }
-    */
   };
-   
 }
 
 #endif
