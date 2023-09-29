@@ -27,20 +27,18 @@ namespace flick {
       for (auto& wl:u.wls_)
 	os << wl*1e9 << " ";
       os << "#\n\n";
-      std::vector<stdvector> n;
-      std::vector<stdvector> a;
-      std::vector<stdvector> s;
-      std::vector<std::vector<stdvector>> p;
-      for (auto& wl:u.wls_) {
-	u.iops_.set_wavelength(wl);
-	for (size_t j=0; j<u.iops_.n_layers(); j++) {
-	  n.push_back(u.iops_.refractive_index());
-	  a.push_back(u.iops_.absorption_coefficient());
-	  s.push_back(u.iops_.scattering_coefficient());
-	  p.push_back(u.iops_.alpha_terms(0));
-	}
+      std::vector<stdvector> n(u.wls_.size());
+      std::vector<stdvector> a(u.wls_.size());
+      std::vector<stdvector> s(u.wls_.size());
+      std::vector<std::vector<stdvector>> p(u.wls_.size());
+      for (size_t i=0; i<u.wls_.size(); i++) {
+	u.iops_.set_wavelength(u.wls_[i]);
+	n[i] = u.iops_.refractive_index();
+	a[i] = u.iops_.absorption_coefficient();
+	s[i] = u.iops_.scattering_coefficient();
+	p[i] = u.iops_.alpha_terms(0);
       }
-      os << "REFRACTIVE_INDEX = ";
+      os << "REFRACTIVE_INDICES = ";
       for (size_t i=0; i<u.wls_.size(); i++) {
 	os << *std::max_element(std::begin(n[i]), std::end(n[i])) << " ";
       }
@@ -49,13 +47,13 @@ namespace flick {
       for (int i=l-1; i>=0; i--) {
 	for (size_t j=0; j<u.wls_.size(); j++) {
 	  os << "A_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = " << a[i][j] << " #\n";
+	     << " = " << a[j][i] << " #\n";
 	  os << "S_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = " << s[i][j] << " #\n";
+	     << " = " << s[j][i] << " #\n";
 	  os << "P_" << std::to_string(l-i) << "_" << std::to_string(j+1)
 	     << " = ";
-	  for (size_t k=0; k<p[i][j].size(); k++) {
-	    os << p[i][j][k]/p[i][j][0]/(2*k+1) << " ";
+	  for (size_t k=0; k<p[j][i].size(); k++) {
+	    os << p[j][i][k]/p[j][i][0]/(2*k+1) << " ";
 	  }
 	  os << " #\n";
 	  os << "\n";
@@ -102,7 +100,7 @@ namespace flick {
 					     98.0e3, 100.0e3});
       c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",{bottom_depth_});
       c_.add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_atmosphere");
-      c_.add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","vacuum");
+      c_.add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","user_specified_ocean");
       add_detector_depths();
       c_.add<std::string>("DETECTOR_AZIMUTH_ANGLES","0:20:180");
       c_.add<std::string>("DETECTOR_POLAR_ANGLES","0:2:180");   
@@ -156,13 +154,16 @@ namespace flick {
       stdvector layer_boundaries = toa_-d;
       layer_boundaries.push_back(toa_);      
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
+      
       layered_iops layered_atmosphere(*material_,layer_boundaries,n_terms);
       write(accurt_user_specified(layered_atmosphere,wavelengths_),
-      	    "./tmpMaterials/user_specified_atmosphere");
-           
-      //layered_iops layered_ocean(m,bottoms,n_terms); // more terms needed
-      //write(accurt_user_specified(layered_ocean,wavelengths_),
-      //    "./tmpMaterial/user_specified_ocean");
+       	    "./tmpMaterials/user_specified_atmosphere");
+
+      layer_boundaries = {-bottom_depth_,0};
+      layered_iops layered_ocean(*material_, layer_boundaries, n_terms);
+      accurt_user_specified tmp0(layered_ocean, wavelengths_);
+      write(accurt_user_specified(layered_ocean, wavelengths_),
+      	    "./tmpMaterials/user_specified_ocean");
     }
     pp_function relative_plane_irradiance() {
       run();

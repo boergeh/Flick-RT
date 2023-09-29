@@ -13,7 +13,7 @@ namespace material {
     iop_z_profile s_profile_;
     bool has_changed_ = true;
     double real_refractive_index_{1};
-    double height_{0};
+    //double height_{0};
   public:
     z_profile() = default;
     z_profile(base& mat, const stdvector& z) {

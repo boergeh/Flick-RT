@@ -13,7 +13,7 @@ namespace material {
   struct atmosphere : public mixture {
     struct config : configuration {
       config() {
-	add<size_t>("angles", 0,
+	add<size_t>("angles", 2,
 		    "Number of computed phase function angles");
 	add<size_t>("heights", 8,
 		    "Number of computed vertical gas profile height points");
