@@ -25,7 +25,7 @@ namespace flick {
 	refidx_(n_layers())
     {
       m_.set_direction({0,0});
-      if (boundaries.size()<2 or n_terms <= 2)
+      if (boundaries.size()<2 or n_terms < 3)
 	throw std::runtime_error("layered_iops");
       for (size_t i=0; i < n_layers(); i++) {
 	move(layer_thickness(i)/2);

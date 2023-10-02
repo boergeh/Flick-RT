@@ -9,6 +9,7 @@
 #include "../numeric/grid.hpp"
 #include "../material/material.hpp"
 #include "../material/layered_iops.hpp"
+#include "../material/z_profile.hpp"
 
 namespace flick {
     class accurt_user_specified {
@@ -19,9 +20,13 @@ namespace flick {
       : iops_{iops}, wls_{wavelengths} {}
   private:
     friend std::ostream& operator<<(std::ostream &os, const accurt_user_specified& u) {
-      os << "# AccuRT configuration file for the user_specified material #\n"
+	os << "# AccuRT configuration file for the user_specified material #\n"
 	 << "PROFILE_LABEL = layer_numbering #\n"
-	 << "MATERIAL_PROFILE = 1 #\n"
+	 << "MATERIAL_PROFILE = ";
+      for (size_t i = 0; i < u.iops_.n_layers(); i++) {
+	os << i+1 << " 1  ";
+      }
+      os << " #\n"
 	 << "TURN_OFF_DELTA_FIT = true #\n\n"
 	 << "WAVELENGTHS = ";
       for (auto& wl:u.wls_)
@@ -65,15 +70,16 @@ namespace flick {
   
   class accurt {
   public:
-    struct configuration : public flick::configuration {
+    struct configuration : public basic_configuration {
       configuration() {
-	add<double>("DETECTOR_HEIGHT",1,"[m]");
-	add<std::string>("DETECTOR_ORIENTATION","up","Vertically <up> or <down>");
-	add<std::string>("DETECTOR_TYPE","radiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
+	add<double>("DETECTOR_HEIGHT",100e3,"[m]");
+	add<std::string>("DETECTOR_ORIENTATION","up","Vertical orientation, <up> or <down>");
+	add<std::string>("DETECTOR_TYPE","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"[m]");
-	add<double>("REFERENCE_DETECTOR_HEIGHT",100e3,"[m] Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height.");
+	add<double>("REFERENCE_DETECTOR_HEIGHT",100e3,"Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height [m].");
 	add<std::string>("REFERENCE_DETECTOR_ORIENTATION","up","<up> or <down>");
-	add<double>("SOURCE_ZENITH_ANGLE",0,"[degrees] Zero gives overhead source.");
+	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees].");
+	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Set to zero for black");
       }
     };
   private:
@@ -82,25 +88,21 @@ namespace flick {
     const std::string path_ = "./tmpOutput";
     size_t n_detector_;
     size_t n_reference_;
-    const double toa_ = 100e3;
-    const double bottom_depth_ = 200;
+    double max_height_ = 1;
+    double bottom_depth_ = 1;
     stdvector wavelengths_;
+    const size_t precision_ = 9;
   public:
     accurt(const configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
       c_.add<std::string>("SOURCE_TYPE","constant_one"); 
       c_.add<double>("SOURCE_SCALING_FACTOR",1);
       c_.add<std::string>("BOTTOM_BOUNDARY_SURFACE","loamy_sand");
-      c_.add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1);
       c_.add<size_t>("STREAM_UPPER_SLAB_SIZE",10);
       c_.add<double>("STREAM_LOWER_SLAB_PARAMETERS",{1,2});
-      c_.add<double>("LAYER_DEPTHS_UPPER_SLAB",{30.0e3, 50.0e3, 60.0e3, 70.0e3, 
-					     76.0e3, 80.0e3, 84.0e3, 88.0e3, 
-					     90.0e3, 92.0e3, 94.0e3, 96.0e3, 
-					     98.0e3, 100.0e3});
-      c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",{bottom_depth_});
-      c_.add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_atmosphere");
-      c_.add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","user_specified_ocean");
+      add_layer_depths();
+      c_.add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_upper_slab");
+      c_.add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","user_specified_lower_slab");
       add_detector_depths();
       c_.add<std::string>("DETECTOR_AZIMUTH_ANGLES","0:20:180");
       c_.add<std::string>("DETECTOR_POLAR_ANGLES","0:2:180");   
@@ -149,21 +151,24 @@ namespace flick {
       c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",30);
     }
     void make_material_files() {
-      stdvector d = c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB");
-      std::reverse(d.begin(),d.end());
-      stdvector layer_boundaries = toa_-d;
-      layer_boundaries.push_back(toa_);      
+          
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
-      
-      layered_iops layered_atmosphere(*material_,layer_boundaries,n_terms);
-      write(accurt_user_specified(layered_atmosphere,wavelengths_),
-       	    "./tmpMaterials/user_specified_atmosphere");
 
-      layer_boundaries = {-bottom_depth_,0};
-      layered_iops layered_ocean(*material_, layer_boundaries, n_terms);
-      accurt_user_specified tmp0(layered_ocean, wavelengths_);
-      write(accurt_user_specified(layered_ocean, wavelengths_),
-      	    "./tmpMaterials/user_specified_ocean");
+      stdvector b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB"));
+      layered_iops layered_upper_slab(*material_,b,n_terms);
+      write(accurt_user_specified(layered_upper_slab, wavelengths_),
+       	    "./tmpMaterials/user_specified_upper_slab",precision_);
+
+      b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB"));
+      layered_iops layered_lower_slab(*material_,b,n_terms);
+      write(accurt_user_specified(layered_lower_slab, wavelengths_),
+      	    "./tmpMaterials/user_specified_lower_slab",precision_);
+    }
+    stdvector depths_to_boundaries(stdvector depths) {
+      std::reverse(depths.begin(),depths.end());
+      stdvector layer_boundaries = max_height_-depths;
+      layer_boundaries.push_back(max_height_);
+      return layer_boundaries;
     }
     pp_function relative_plane_irradiance() {
       run();
@@ -223,10 +228,38 @@ namespace flick {
       } else {
 	return down;
       }
-    }    
+    }
+    void add_layer_depths() {
+      stdvector h = {-bottom_depth_,0, max_height_};
+      material::z_profile* zp = dynamic_cast<material::z_profile*>(&*material_);
+      if (zp != NULL) {
+	h = zp->height_grid();
+      }      
+      max_height_ = h.back();
+      bottom_depth_ = -h.front();
+      stdvector depths = max_height_ - h;
+      depths.pop_back();
+      std::reverse(depths.begin(),depths.end());
+      stdvector depths_upper, depths_lower;
+      for (auto d:depths) {
+	if (d > max_height_)
+	  depths_lower.push_back(d-max_height_);
+	else
+	  depths_upper.push_back(d);
+      }
+      if (depths_lower.size()==0) {
+	bottom_depth_ = 1;
+	depths_lower = {bottom_depth_};
+      }
+      c_.add<double>("LAYER_DEPTHS_UPPER_SLAB",depths_upper);
+      c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",depths_lower);
+    }
     void add_detector_depths() {
       double h1 = c_.get<double>("DETECTOR_HEIGHT");    
       double h2 = c_.get<double>("REFERENCE_DETECTOR_HEIGHT");
+      double epsilon = pow(10,-(double)precision_+3);
+      if (fabs(h1-h2)<epsilon)
+	h2 *= (1-epsilon);
       if (h1 > h2) {
 	n_detector_ = 0;
 	n_reference_ = 1;
@@ -237,26 +270,27 @@ namespace flick {
       stdvector h = {h1,h2};
       std::sort(h.begin(),h.end());
       stdvector h_upper, h_lower;
-      if (h[0] < 0) {
-	h_upper = {0};
+      if (h[1] < 0) {
+	h_upper = {1};
 	h_lower = h;
 	n_detector_++;
 	n_reference_++;
       }
-      else if (h[1] > 0) {
+      else if (h[0] > 0) {
 	h_upper = h;
 	h_lower = {-bottom_depth_/2};
       }
-      else if (h[0] > 0 and h[1] < 0) {
-	h_upper = {h[0]};
-	h_lower = {h[1]};
+      else if (h[0] < 0 and h[1] > 0) {
+	h_upper = {h[1]};
+	h_lower = {h[0]};
       }
       std::reverse(h_upper.begin(), h_upper.end());
-      c_.add<double>("DETECTOR_DEPTHS_UPPER_SLAB",toa_-h_upper);
+      std::reverse(h_lower.begin(), h_lower.end());
+      c_.add<double>("DETECTOR_DEPTHS_UPPER_SLAB",max_height_-h_upper);
       c_.add<double>("DETECTOR_DEPTHS_LOWER_SLAB",0-h_lower);
     }
     void run() {
-      write(c_,"./tmp");
+      write(c_,"./tmp",precision_);
       system("mkdir -p ./tmpMaterials");
       system("mkdir -p ./tmpOutput");
       make_material_files();

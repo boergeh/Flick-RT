@@ -2,7 +2,7 @@
 
 namespace flick {
   begin_test_case(configuration_test) {
-    struct my_config_A : public configuration {
+    struct my_config_A : public basic_configuration {
       my_config_A() {
 	add<double>("age", 49, "person's age in years");	
 	add<double>("shoe", 42, "person's shoe size");	
@@ -12,13 +12,13 @@ namespace flick {
       }
     };
     
-    struct my_config_B : public configuration {
+    struct my_config_B : public basic_configuration {
       my_config_B() {
 	add<std::string>("bike", "candondale", "person's bike");	
       }
     };
 
-    struct my_config_C : public configuration {
+    struct my_config_C : public basic_configuration {
       my_config_C() {
 	add_configuration(my_config_A());
 	add_configuration(my_config_B());

@@ -11,9 +11,7 @@ namespace material {
   protected:
     iop_z_profile a_profile_;
     iop_z_profile s_profile_;
-    bool has_changed_ = true;
     double real_refractive_index_{1};
-    //double height_{0};
   public:
     z_profile() = default;
     z_profile(base& mat, const stdvector& z) {
@@ -34,6 +32,9 @@ namespace material {
     }
     const iop_z_profile& s_profile() const {
       return s_profile_;
+    }
+    const stdvector& height_grid() const {
+      return a_profile_.height_grid();
     }
     virtual mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
@@ -63,6 +64,7 @@ namespace material {
     double scattering_distance(double scattering_optical_depth) const {
       return s_profile_.distance(pose(),scattering_optical_depth);
     }
+  private:
     friend std::ostream& operator<<(std::ostream &os, const z_profile& p) {
       os << "\n";
       os << "Absorption coefficient profile" << "\n";

@@ -65,7 +65,7 @@ namespace flick {
     }
   };
   
-  class configuration {    
+  class basic_configuration {    
     std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
     std::string qualifier_begin_ = "/*";
     std::string qualifier_end_ = "*/";
@@ -109,7 +109,7 @@ namespace flick {
       parameter<T> *p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->size();
     }
-    void add_configuration(const configuration& c) {
+    void add_configuration(const basic_configuration& c) {
       for (auto& [name, val] : c.parameters_) {
 	parameters_[name] = c.parameters_.at(name);
       }
@@ -123,7 +123,7 @@ namespace flick {
     }
   private:
     friend std::ostream& operator<<(std::ostream &os,
-				    const configuration& c) {
+				    const basic_configuration& c) {
       for (auto& [name, val] : c.parameters_) {
 	c.parameters_.at(name)->print(os);
 	os << "\n\n";
@@ -132,7 +132,7 @@ namespace flick {
       return os;
     }   
     friend std::istream& operator>>(std::istream &is,
-				    const configuration& c) {
+				    const basic_configuration& c) {
       for (auto& [name, val] : c.parameters_) {
 	c.parameters_.at(name)->read(is);
       }

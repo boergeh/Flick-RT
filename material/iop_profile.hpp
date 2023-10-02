@@ -46,6 +46,9 @@ namespace flick {
     double value(double height) const {
       return profile_.value(height);
     }
+    const std::vector<double>& height_grid() const {
+      return profile_.x();
+    }
     double integral() const {
       return profile_.integral();
     }
@@ -86,7 +89,7 @@ namespace flick {
       if (fabs(mu) < epsilon_) {
 	double v = profile_.value(start.position().z());
 	return constant_iop(v).distance(optical_depth);
-      };
+      }
       std::optional<double> z =
 	profile_.integral_limit_b(next_z(start,0),optical_depth * mu);
       if (z.has_value()) {

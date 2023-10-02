@@ -2,6 +2,7 @@
 #define flick_material_mixture
 
 #include "z_profile.hpp"
+#include "../environment/configuration.hpp"
 #include <map>
 
 namespace flick {
@@ -12,7 +13,7 @@ namespace material {
     stdvector heights_;
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
-    std::map<std::string, std::vector<size_t>> range_;   
+    std::map<std::string, std::vector<size_t>> range_;
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
@@ -21,7 +22,7 @@ namespace material {
     const stdvector& heights() const {
       return heights_;
     }
-    template <class Material, class... Args>
+    template<class Material, class... Args>
     void add_material(Args... a) {
       std::string key = typeid(Material).name();
       materials_[key] = std::make_shared<Material>(a...);
@@ -29,12 +30,12 @@ namespace material {
 	range_[key]={0, heights_.size()-1};
       update_iops();
     }
-    template <class Material>
+    template<class Material>
     const Material& get_material() const {
       auto ptr = materials_.at(typeid(Material).name()).get();
       return *static_cast<Material*>(ptr);
     }
-    template <class Material>
+    template<class Material>
     void set_range(size_t n_low, size_t n_high) {
       range_[typeid(Material).name()] = {n_low, n_high};
       update_iops();
@@ -63,14 +64,6 @@ namespace material {
       }
       update_iops();
     }
-    /*
-    void set(const flick::pose& p) override {
-      for (auto const& [key, material] : materials_) {
-	material->set(p);
-      }
-      update_iops();
-    }
-    */
     void update_iops() {
       if (should_update_iops_) {
 	a_profile_.clear();

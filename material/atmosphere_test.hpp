@@ -9,7 +9,7 @@ namespace flick {
     using namespace units;
     using namespace material;
    
-    atmosphere::config c;
+    atmosphere::configuration c;
     c.set<size_t>("angles",100);
     c.set<size_t>("heights",8);
     auto atm = atmosphere(c);
@@ -22,6 +22,12 @@ namespace flick {
     atm.set_position({0,0,5e3});
     double s2 = atm.scattering_coefficient();
     check(s1 < 0.1*s2);
+
+    atm.set_position({0,0,0});
+    stdvector od = layered_iops(atm,range(0.1,100e3,8).logspace(),4).scattering_optical_depth();
+    //std::cout << std::setprecision(6)<< od;
+    atm.set_position({0,0,0.1});
+    check_close(vec::sum(od),atm.scattering_optical_depth(100e3),0.001_pct);
 
     //auto [alpha,beta] = material::fitted_mueller_alpha_beta(atm,8);
     //std::cout << "Phase function terms:" << alpha[0]/(4*constants::pi) << std::endl;

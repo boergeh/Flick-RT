@@ -10,38 +10,41 @@
 
 namespace flick {
 namespace material {
-  struct atmosphere : public mixture {
-    struct config : configuration {
-      config() {
+  class atmosphere : public mixture {
+  public:
+    struct configuration : basic_configuration {
+      configuration() {
 	add<size_t>("angles", 2,
 		    "Number of computed phase function angles");
 	add<size_t>("heights", 8,
 		    "Number of computed vertical gas profile height points");
 	add<double>("temperature", 290,
-		    "[K] Bottom of atmosphere ground temperature");
+		    "Bottom of atmosphere ground temperature [K]");
 	add<double>("pressure", 1000e2,
-		    "[Pa] Bottom of atmosphere ground pressure");
+		    "Bottom of atmosphere ground pressure [Pa]");
 	add<double>("ozone", 0.003,
-		    "[m] Ozone column thickness at stp, 100 DU = 0.001 m");
+		    "Ozone column thickness [m] at STP (100 DU = 0.001 m)");
 	add<double>("aerosol_od", 0.01,
 		    "Vertical aerosol optical depth at 550 nm");
 	add<double>("aerosol_ratio", 1,
 		    "Rural to urban aerosol concentration ratio");
 	add<double>("relative_humidity", 0.5,
 		    "Surface relative humidity (for aerosols)");
-	add<double>("cloud_liquid", 0.0001,
-		    "[m] Cloud liquid thickness");
+	add<double>("cloud_liquid", 1e-4,
+		    "Cloud liquid thickness [m]");
 	add<std::string>("wavelength_range", "uv_vis",
-	  "Name of smoothed gas absorption spectra with a give wavelength range");
+	  "Name of smoothed gas absorption spectra");
 	add<std::string>("gases", {"o3","o2","h2o","no2"},
 			 "Name of gases to include");
       }
     };
-
-    configuration c_;
-    atmosphere(const atmosphere::config& c)
-      : c_{c}, mixture(range(0,constants::pi,c.get<size_t>("angles")).linspace(),
+  private:
+    basic_configuration c_;
+  public:
+    atmosphere(const basic_configuration& c=atmosphere::configuration())
+      : mixture(range(0,constants::pi,c.get<size_t>("angles")).linspace(),
 		atmospheric_state(c.get<size_t>("heights")).height_grid()) {
+      c_ = c;
       should_update_iops(false);
       add_air();
       add_aerosols();
@@ -69,7 +72,7 @@ namespace material {
     void add_clouds() {
       size_t n_base = 1;
       size_t n_top = 2;
-      double radius = 5e-6;
+      double radius = 15e-6;
       double dh = heights().at(n_top)-heights().at(n_base);
       double volume_fraction = c_.get<double>("cloud_liquid")/dh;  
       double mu = log(radius);
