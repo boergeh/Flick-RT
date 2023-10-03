@@ -14,12 +14,11 @@ namespace material {
   public:
     struct configuration : basic_configuration {
       configuration() {
-	/*
-	add<size_t>("angles", 2,
+	add<size_t>("angles", 30,
 		    "Number of computed phase function angles");
-	add<size_t>("heights", 8,
-		    "Number of computed vertical gas profile height points");
-	*/
+	//add<size_t>("heights", 8,
+	//	    "Number of computed vertical gas profile height points");
+	//	*/
 	add<double>("temperature", 290,
 		    "Bottom of atmosphere ground temperature [K]");
 	add<double>("pressure", 1000e2,
@@ -44,7 +43,7 @@ namespace material {
     basic_configuration c_;
   public:
     atmosphere(const basic_configuration& c=atmosphere::configuration())
-      : mixture(range(0,constants::pi,50).linspace(),
+      : mixture(angle_range(c.get<size_t>("angles")),
 		atmospheric_state(8).height_grid()) {
       //      : mixture(range(0,constants::pi,c.get<size_t>("angles")).linspace(),
       //	atmospheric_state(c.get<size_t>("heights")).height_grid()) {

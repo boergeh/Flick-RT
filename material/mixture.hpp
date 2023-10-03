@@ -40,6 +40,9 @@ namespace material {
       range_[typeid(Material).name()] = {n_low, n_high};
       update_iops();
     }
+    stdvector angle_range(size_t n) const {
+      return range(0,constants::pi,n).linspace(); 
+    }
     void should_update_iops(bool tf) {
       should_update_iops_ = tf;
     }

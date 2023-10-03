@@ -10,8 +10,8 @@ namespace material {
   struct ocean : public mixture {
     struct configuration : basic_configuration {
       configuration() {
-	//add<size_t>("angles", 2,
-	//	    "Number of computed phase function angles");
+	add<size_t>("angles", 30,
+		    "Number of computed phase function angles");
 	add<double>("bottom_depth", 200, "[m]");
       }
     };
