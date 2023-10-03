@@ -72,12 +72,12 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
-	add<double>("DETECTOR_HEIGHT",100e3,"[m]");
-	add<std::string>("DETECTOR_ORIENTATION","up","Vertical orientation, <up> or <down>");
-	add<std::string>("DETECTOR_TYPE","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
+	add<double>("detector_height",100e3,"[m]");
+	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
+	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"[m]");
-	add<double>("REFERENCE_DETECTOR_HEIGHT",100e3,"Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height [m].");
-	add<std::string>("REFERENCE_DETECTOR_ORIENTATION","up","<up> or <down>");
+	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height [m].");
+	add<std::string>("reference_detector_orientation","up","<up> or <down>");
 	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees].");
 	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Set to zero for black");
       }
@@ -91,7 +91,7 @@ namespace flick {
     double max_height_ = 1;
     double bottom_depth_ = 1;
     stdvector wavelengths_;
-    const size_t precision_ = 9;
+    const size_t precision_ = 12;
   public:
     accurt(const configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
@@ -115,7 +115,7 @@ namespace flick {
       c_.add<std::string>("SAVE_BOTTOM_BOUNDARY_SURFACE","false");
       c_.add<std::string>("SAVE_MATERIAL_PROFILE","false");
       c_.add<double>("PROFILE_OUTPUT_WAVELENGTH",500);
-      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","true");
+      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","false");
       c_.add<size_t>("REPEATED_RUN_SIZE",1);
       c_.add<std::string>("USE_POLARIZATION","false");
       c_.add<std::string>("DO_OCEAN_PHASEMATRIX","false");
@@ -136,9 +136,9 @@ namespace flick {
       c_.set_text_qualifiers("#","#");
     }
     pp_function relative_radiation() {
-      if (c_.get<std::string>("DETECTOR_TYPE")=="radiance")
+      if (c_.get<std::string>("detector_type")=="radiance")
 	return relative_radiance();
-      else if (c_.get<std::string>("DETECTOR_TYPE")=="scalar_irradiance")
+      else if (c_.get<std::string>("detector_type")=="scalar_irradiance")
 	return relative_scalar_irradiance();
       else
 	return relative_plane_irradiance();
@@ -188,7 +188,7 @@ namespace flick {
     }
     stdvector detector_plane_irradiance() {
       pe_table t;
-      if (c_.get<std::string>("DETECTOR_ORIENTATION")=="up") {
+      if (c_.get<std::string>("detector_orientation")=="up") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
       } else {
 	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
@@ -198,7 +198,7 @@ namespace flick {
     stdvector detector_scalar_irradiance() {
       c_.set<std::string>("SAVE_SCALAR_IRRADIANCE","true");      
       pe_table t;
-      if (c_.get<std::string>("DETECTOR_ORIENTATION")=="up") {
+      if (c_.get<std::string>("detector_orientation")=="up") {
 	t = read_irradiance(path_+"/scalar_irradiance_total_downward.txt");
       } else {
 	t = read_irradiance(path_+"/scalar_irradiance_total_upward.txt");
@@ -207,7 +207,7 @@ namespace flick {
     }
     stdvector reference_detector_irradiance() {
       pe_table t;
-      if (c_.get<std::string>("REFERENCE_DETECTOR_ORIENTATION")=="up") {
+      if (c_.get<std::string>("reference_detector_orientation")=="up") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
       } else {
 	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
@@ -223,7 +223,7 @@ namespace flick {
 	up[i] = g.f[0][i][1][0];
 	down[i] = g.f[0][i][0][0];
       }
-      if (c_.get<std::string>("REFERENCE_DETECTOR_ORIENTATION")=="up") {
+      if (c_.get<std::string>("reference_detector_orientation")=="up") {
 	return up;
       } else {
 	return down;
@@ -255,8 +255,8 @@ namespace flick {
       c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",depths_lower);
     }
     void add_detector_depths() {
-      double h1 = c_.get<double>("DETECTOR_HEIGHT");    
-      double h2 = c_.get<double>("REFERENCE_DETECTOR_HEIGHT");
+      double h1 = c_.get<double>("detector_height");    
+      double h2 = c_.get<double>("reference_detector_height");
       double epsilon = pow(10,-(double)precision_+3);
       if (fabs(h1-h2)<epsilon)
 	h2 *= (1-epsilon);
@@ -268,6 +268,14 @@ namespace flick {
 	n_reference_ = 0;
       }
       stdvector h = {h1,h2};
+      // Avoid exact surface.
+      double min_height = epsilon*max_height_;
+      for (size_t i =0; i<h.size(); i++) {
+	if (h[i] < min_height && h[i] >= 0) {
+	  double sign = h[i]/fabs(h[i]);
+	  h[i] = min_height*sign;
+	}
+      }
       std::sort(h.begin(),h.end());
       stdvector h_upper, h_lower;
       if (h[1] < 0) {
@@ -319,6 +327,44 @@ namespace flick {
       return g;
     }
   };
+
+  namespace configuration_template {
+    class basic_accurt {
+      const size_t precision_ = 12;
+    protected:
+      basic_configuration c_;
+      const double toa_height_ = 120e3;
+    public:
+      basic_accurt() {
+	c_.add_configuration(accurt::configuration());
+	c_.add_configuration(material::atmosphere_ocean::configuration());
+	c_.set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9, 550e-9,
+					       600e-9, 650e-9, 700e-9, 750e-9});
+	c_.set<double>("reference_detector_height",toa_height_);
+	c_.set<double>("SOURCE_ZENITH_ANGLE",45);
+      }
+      void write(const std::string& fname) {
+	flick::write(c_, "./"+fname, precision_);
+      }
+    };
+  
+    struct toa_reflectance : public basic_accurt {
+      toa_reflectance() : basic_accurt() {
+	c_.set<double>("detector_height",toa_height_);
+	c_.set<std::string>("detector_orientation","down");
+	c_.set<std::string>("detector_type","radiance");
+	c_.set<double>("cloud_liquid", 0);
+      }
+    };
+    
+    struct boa_transmittance : public basic_accurt {
+      boa_transmittance() : basic_accurt() {
+	c_.set<double>("detector_height",0);
+	c_.set<std::string>("detector_orientation","up");
+	c_.set<std::string>("detector_type","irradiance");
+      }
+    };
+  }
 }
 
 #endif

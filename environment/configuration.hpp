@@ -42,7 +42,6 @@ namespace flick {
       return description_;
     }
     void print(std::ostream &os) {
-      os << std::setprecision(6);
       os << begin_qualifier_ << " " << description_ << " " << end_qualifier_ << "\n";
       os << name_ << " = ";
       for (size_t i = 0; i<p_.size(); ++i)

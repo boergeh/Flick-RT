@@ -33,8 +33,8 @@ namespace flick {
     asymmetry_factor g{0};
  
     accurt::configuration c;
-    c.set<std::string>("DETECTOR_ORIENTATION","down");
-    c.set<double>("REFERENCE_DETECTOR_HEIGHT",1);
+    c.set<std::string>("detector_orientation","down");
+    c.set<double>("reference_detector_height",1);
     c.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
     auto ac =  accurt(c,m);
@@ -42,27 +42,33 @@ namespace flick {
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
 
-  begin_test_case(accurt_test_D) {
+  begin_test_case(accurt_test_D) {  
     accurt::configuration ac;
-    ac.set<std::string>("DETECTOR_ORIENTATION","up");
-    ac.set<double>("REFERENCE_DETECTOR_HEIGHT",100e3);
-    ac.set<double>("DETECTOR_HEIGHT",1);
-    //material::atmosphere_ocean::configuration mc;
-    material::atmosphere::configuration mc;
+    ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
+    ac.set<std::string>("detector_orientation","up");
+    ac.set<double>("reference_detector_height",100e3);
+    ac.set<double>("detector_height",1);
+    material::atmosphere_ocean::configuration mc;
+    //material::atmosphere::configuration mc;
     mc.set<size_t>("angles",30);
     mc.set<size_t>("heights",8);
-    //std::cout << mc;
-    //auto m = std::make_shared<material::atmosphere_ocean>(mc);
-    auto m = std::make_shared<material::atmosphere>(mc);
+    auto m = std::make_shared<material::atmosphere_ocean>(mc);
+    //auto m = std::make_shared<material::atmosphere>(mc);
     auto a =  accurt(ac,m);
     check_close(a.relative_radiation().y()[0],0.3,50_pct);
-    ac.set<double>("DETECTOR_HEIGHT",-0.5);
+    ac.set<double>("detector_height",-0.5);
     auto a2 =  accurt(ac,m);
     check_close(a2.relative_radiation().y()[0],0.3,50_pct);
-    //std::cout << a2.relative_radiation() << std::endl;
-    ac.set<double>("REFERENCE_DETECTOR_HEIGHT",-0.1);
+    ac.set<double>("reference_detector_height",-0.1);
     auto a3 =  accurt(ac,m);
     check_close(a3.relative_radiation().y()[0],1,10_pct);
-    //std::cout << a3.relative_radiation() << std::endl;
+    ac.set<double>("detector_height",1e-9);
+    ac.set<double>("reference_detector_height",-0.9);
+    auto a4 =  accurt(ac,m);
+    check_close(a4.relative_radiation().y()[0],1,10_pct);
+  } end_test_case()
+  
+  begin_test_case(accurt_test_E) {  
+    configuration_template::toa_reflectance().write("toa_reflectance_configuration");
   } end_test_case()
 }

@@ -7,6 +7,7 @@ int main() {
   t.include<accurt_test_B>();
   t.include<accurt_test_C>();
   t.include<accurt_test_D>();
+  t.include<accurt_test_E>();
   t.run_test_cases();
   return 0;
 } 
