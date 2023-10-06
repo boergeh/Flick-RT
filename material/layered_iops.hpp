@@ -6,7 +6,7 @@
 
 namespace flick {
   class layered_iops {
-    material::base& m_;
+    std::shared_ptr<material::base> m_;
     stdvector boundaries_;
     size_t n_terms_;
     stdvector oda_;
@@ -15,7 +15,7 @@ namespace flick {
     std::vector<std::vector<stdvector>> beta_;
     stdvector refidx_;
   public:
-    layered_iops(material::base& m, const stdvector& boundaries, size_t n_terms)
+    layered_iops(std::shared_ptr<material::base> m, const stdvector& boundaries, size_t n_terms)
       : m_{m}, boundaries_{boundaries},
 	n_terms_{n_terms},
 	oda_(n_layers()),
@@ -24,20 +24,13 @@ namespace flick {
 	beta_(2, std::vector<stdvector>(n_layers(), stdvector(n_terms))),
 	refidx_(n_layers())
     {
-      m_.set_direction({0,0});
       if (boundaries.size()<2 or n_terms < 3)
 	throw std::runtime_error("layered_iops");
-      for (size_t i=0; i < n_layers(); i++) {
-	move(layer_thickness(i)/2);
-	set_alpha_beta(i);
-	refidx_[i] = m_.real_refractive_index();
-	move(-layer_thickness(i)/2);
-	set_optical_depth(i);
-	move(layer_thickness(i));
-      }
+      update();
     }
     void set_wavelength(double wl) {
-      m_.set_wavelength(wl);
+      m_->set_wavelength(wl);
+      update();
     }
     size_t n_layers() const {
       return boundaries_.size() - 1;
@@ -67,6 +60,17 @@ namespace flick {
       return ods_ / layer_thicknesses();
     }
   private:
+    void update() {
+      m_->set_direction({0,0}); 
+      for (size_t i=0; i < n_layers(); i++) {
+	move(layer_thickness(i)/2);
+	set_alpha_beta(i);
+	refidx_[i] = m_->real_refractive_index();
+	move(-layer_thickness(i)/2);
+	set_optical_depth(i);
+	move(layer_thickness(i));
+      }
+    }
     friend std::ostream& operator<<(std::ostream &os,
 				    const layered_iops& iops) {
       os << "Scattering optical depth: " << iops.scattering_optical_depth() << "\n";
@@ -75,24 +79,24 @@ namespace flick {
       return os;
     }  
     void set_alpha_beta(size_t i) {
-      auto [alpha, beta] = material::fitted_mueller_alpha_beta(m_,n_terms_);
+      auto [alpha, beta] = material::fitted_mueller_alpha_beta(*m_,n_terms_);
       for (size_t n=0; n < alpha_.size(); n++)
 	alpha_[n][i] = alpha[n];
       for (size_t n=0; n < beta_.size(); n++)
 	beta_[n][i] = beta[n];
     }
     void set_optical_depth(size_t i) {
-      m_.set_position({0,0,boundaries_[i]});
-      oda_[i] = m_.absorption_optical_depth(layer_thickness(i));
-      ods_[i] = m_.scattering_optical_depth(layer_thickness(i));
+      m_->set_position({0,0,boundaries_[i]});
+      oda_[i] = m_->absorption_optical_depth(layer_thickness(i));
+      ods_[i] = m_->scattering_optical_depth(layer_thickness(i));
     }
     double layer_thickness(size_t i) const {
       return boundaries_.at(i+1)-boundaries_.at(i);
     }
     void move(double distance) const {
-      vector new_position = m_.pose().position() +
-	m_.pose().direction()*distance;
-      m_.set_position(new_position);
+      vector new_position = m_->pose().position() +
+	m_->pose().direction()*distance;
+      m_->set_position(new_position);
     }
     stdvector layer_thicknesses() const {
       stdvector t(n_layers());

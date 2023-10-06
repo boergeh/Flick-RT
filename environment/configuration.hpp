@@ -17,7 +17,6 @@ namespace flick {
       begin_qualifier_ = begin;
       end_qualifier_ = end;
     }
-
   };
 
   template<class T>
@@ -55,26 +54,27 @@ namespace flick {
 	if(str.find(end_qualifier_) != std::string::npos) {
 	  is_description = false;
 	}
-	if (is.eof())
+	if (is.eof() or str.empty())
 	  throw std::runtime_error("parameter: missing text qualifier");
       }
       is >> name_ >> str;
-      for (size_t i = 0; i<p_.size(); ++i)
-	is >> p_[i];   
+      for (size_t i = 0; i<p_.size(); ++i) {
+	is >> p_[i];
+      }
     }
   };
   
   class basic_configuration {    
     std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
-    std::string qualifier_begin_ = "/*";
-    std::string qualifier_end_ = "*/";
+    std::string begin_qualifier_ = "/*";
+    std::string end_qualifier_ = "*/";
   public:
     template<class T>
     void add(const std::string& name, const std::vector<T>& p, std::string description="") {
       if (empty(description) && parameters_.find(name)!=parameters_.end())
 	description = parameters_.at(name)->description();
       parameters_[name] = std::make_shared<parameter<T>>(name,p,description);
-      parameters_.at(name)->set_text_qualifiers(qualifier_begin_,qualifier_end_);
+      parameters_.at(name)->set_text_qualifiers(begin_qualifier_,end_qualifier_);
     }
     template<class T>
     void add(const std::string& name, const T& p, const std::string& description="") {
@@ -82,21 +82,22 @@ namespace flick {
     }
     template<class T>
     void set(const std::string& name, const std::vector<T>& p, std::string description="") {
+      ensure_exists(name);
       add(name,p,description);
     }
     template<class T>
     void set(const std::string& name, const T& p, const std::string& description="") {
+      ensure_exists(name);
       add(name, p, description);  
     }
     template<class T>
     std::vector<T> get_vector(const std::string& name) const {
-      parameter<T>* p;
-      try {
-	p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
-      } catch (const std::exception& e) {
-	throw std::runtime_error("configuration parameter "+name+" not found");
-      }
+      ensure_exists(name);
+      parameter<T>* p = dynamic_cast<parameter<T>*>(&*parameters_.at(name));
       return p->p();
+    }
+    bool exists(const std::string& name) const {
+      return (parameters_.find(name) != parameters_.end());
     }
     template<class T>
     T get(const std::string& name, size_t element=0) const {
@@ -117,17 +118,24 @@ namespace flick {
       for (auto& [name, val] : parameters_) {
 	parameters_.at(name)->set_text_qualifiers(begin,end);
       }
-      qualifier_begin_ = begin;
-      qualifier_end_ = end;
+      begin_qualifier_ = begin;
+      end_qualifier_ = end;
     }
   private:
+    void ensure_exists(const std::string& name) const {
+      ensure(exists(name),"parameter "+name+" not found");
+    }
+    void ensure(bool b, const std::string& s) const {
+      if (not b)
+	throw std::runtime_error("configuration " + s);
+    }
     friend std::ostream& operator<<(std::ostream &os,
 				    const basic_configuration& c) {
       for (auto& [name, val] : c.parameters_) {
 	c.parameters_.at(name)->print(os);
 	os << "\n\n";
       }
-      os << "#";
+      os << c.begin_qualifier_ <<" end of file "<< c.end_qualifier_;
       return os;
     }   
     friend std::istream& operator>>(std::istream &is,

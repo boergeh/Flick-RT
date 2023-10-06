@@ -9,6 +9,7 @@
 #include "commands/iop.hpp"
 #include "commands/delta_fit.hpp"
 #include "commands/text.hpp"
+#include "commands/accurt.hpp"
 
 int main(int argc, char* argv[]) {
   using namespace flick;
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
   if (run<command::iop>(a)) return 0;
   if (run<command::delta_fit>(a)) return 0;
   if (run<command::text>(a)) return 0;
+  if (run<command::accurt>(a)) return 0;
   std::cout << "\n Cannot recognize command, try 'flick help'.\n" << std::endl;
   return -1;
 }

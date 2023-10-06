@@ -1,0 +1,35 @@
+
+Command:
+
+  flick accurt <output> <configuration_file_name>
+
+  The accurt command can only be used if the radiative transfer code
+  AccuRT (http://www.geminor.com/accurt.html) is already installed.
+
+Parameters:
+
+  <output>
+  
+     Select 'toa_reflectance' or 'boa_transmittance'
+
+     The 'toa_reflectance' option will generate a top-of-atmosphere
+     reflectance spectrum [1/sr], where the nadir radiance is divided
+     by the downwelling irradiance.
+
+     The 'boa_transmittance' option will generate a
+     bottom-of-atmosphere transmittance spectrum [unitless], where the
+     downwelling irradiance at the ground is divided by the
+     downwelling irradiance at the top of the atmosphere.
+
+  <configuration_file_name>
+
+    The configuration file is an ASCII text file containing a list of
+    all changeable input parameters. If this file does not exist in
+    the current directory, it will be generate automatically during
+    the first run.
+
+Examples:
+
+  flick accurt toa_reflectance my_config
+
+  flick accurt toa_reflectance my_config > output_to_my_file.txt

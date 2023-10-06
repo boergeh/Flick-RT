@@ -12,16 +12,16 @@ namespace flick {
     material::atmosphere::configuration c;
     c.set<size_t>("angles",30);
     c.set<size_t>("heights",8);
-    auto atm = material::atmosphere(c);
+    auto atm = std::make_shared<material::atmosphere>(c);
     layered_iops layered_atmosphere(atm,layer_boundaries,n_terms);
     //std::cout << layered_atmosphere;
   } end_test_case()
 
    begin_test_case(accurt_test_B) {
-     material::white_isotropic m(1.0);
+    auto m = std::make_shared<material::white_isotropic>(1.0);
      stdvector boundaries{1,2,10,20};
      size_t n_terms = 4;
-     layered_iops iops{m, boundaries, n_terms};
+     auto iops = std::make_shared<layered_iops>(m, boundaries, n_terms);
      stdvector wavelengths{300e-9, 500e-9};
      accurt_user_specified accurt{iops, wavelengths};
      //std::cout << accurt;
@@ -41,7 +41,7 @@ namespace flick {
     // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
-
+ 
   begin_test_case(accurt_test_D) {  
     accurt::configuration ac;
     ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
@@ -49,11 +49,14 @@ namespace flick {
     ac.set<double>("reference_detector_height",100e3);
     ac.set<double>("detector_height",1);
     material::atmosphere_ocean::configuration mc;
-    //material::atmosphere::configuration mc;
     mc.set<size_t>("angles",30);
     mc.set<size_t>("heights",8);
+    //mc.set<double>("aerosol_od",0);
+    //mc.set<double>("cloud_liquid",0);
+    //mc.set<double>("pressure",10);
+
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
-    //auto m = std::make_shared<material::atmosphere>(mc);
+
     auto a =  accurt(ac,m);
     check_close(a.relative_radiation().y()[0],0.3,50_pct);
     ac.set<double>("detector_height",-0.5);
@@ -66,9 +69,24 @@ namespace flick {
     ac.set<double>("reference_detector_height",-0.9);
     auto a4 =  accurt(ac,m);
     check_close(a4.relative_radiation().y()[0],1,10_pct);
+    
+    ac.set<double>("DETECTOR_WAVELENGTHS",{400e-9,700e-9});
+    ac.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
+    ac.set<double>("reference_detector_height",120e3);
+    ac.set<double>("detector_height",120e3);
+    ac.set<std::string>("detector_orientation","down");
+    auto a5 =  accurt(ac,m);
+    pp_function r = a5.relative_radiation();
+    std::cout <<std::setprecision(9)<< r;
+    double dr = r.y()[0] / r.y()[1];
+    check(dr > 1.01);
   } end_test_case()
   
-  begin_test_case(accurt_test_E) {  
-    configuration_template::toa_reflectance().write("toa_reflectance_configuration");
+  begin_test_case(accurt_test_E) {
+    configuration_template::toa_reflectance c;
+    std::string f = "./toa_reflectance_configuration";
+    c.write(f);
+    auto c2 = read<configuration_template::toa_reflectance>(f);
+    //std::cout << c2;
   } end_test_case()
 }

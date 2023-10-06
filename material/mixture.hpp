@@ -65,12 +65,15 @@ namespace material {
       for (auto const& [key, material] : materials_) {
 	material->set_wavelength(wl);
       }
+      base::set_wavelength(wl);
       update_iops();
     }
     void update_iops() {
+      should_update_iops_=true;
       if (should_update_iops_) {
 	a_profile_.clear();
 	s_profile_.clear();
+	real_refractive_index_ = 1;
 	for (auto const& [key, material] : materials_) {
 	  std::vector<size_t> range = range_.at(key);
 	  add(*material, range[0], range[1]);

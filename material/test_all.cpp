@@ -8,11 +8,12 @@
 #include "z_profile_test.hpp"
 #include "mixture_test.hpp"
 #include "atmosphere_test.hpp"
+#include "ocean_test.hpp"
+#include "atmosphere_ocean_test.hpp"
 
 int main() {
   using namespace flick;
   unit_test t("material");
-  
   t.include<material_test_A>();
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();
@@ -22,11 +23,13 @@ int main() {
   t.include<ab_functions_test_B>();
   t.include<layered_iops_test_A>();
   t.include<layered_iops_test_B>();
+  t.include<layered_iops_test_C>();
   t.include<z_profile_test>();
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
   t.include<atmosphere_test>();
-  
+  t.include<ocean_test>();
+  t.include<atmosphere_ocean_test>();
   t.run_test_cases();
   return 0;
 }

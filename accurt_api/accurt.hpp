@@ -12,18 +12,18 @@
 #include "../material/z_profile.hpp"
 
 namespace flick {
-    class accurt_user_specified {
-    layered_iops& iops_;
+  class accurt_user_specified {
+    std::shared_ptr<layered_iops> iops_;
     stdvector wls_;
   public:
-    accurt_user_specified(layered_iops& iops, const stdvector& wavelengths)
+    accurt_user_specified(std::shared_ptr<layered_iops> iops, const stdvector& wavelengths)
       : iops_{iops}, wls_{wavelengths} {}
   private:
     friend std::ostream& operator<<(std::ostream &os, const accurt_user_specified& u) {
 	os << "# AccuRT configuration file for the user_specified material #\n"
 	 << "PROFILE_LABEL = layer_numbering #\n"
 	 << "MATERIAL_PROFILE = ";
-      for (size_t i = 0; i < u.iops_.n_layers(); i++) {
+      for (size_t i = 0; i < u.iops_->n_layers(); i++) {
 	os << i+1 << " 1  ";
       }
       os << " #\n"
@@ -37,18 +37,18 @@ namespace flick {
       std::vector<stdvector> s(u.wls_.size());
       std::vector<std::vector<stdvector>> p(u.wls_.size());
       for (size_t i=0; i<u.wls_.size(); i++) {
-	u.iops_.set_wavelength(u.wls_[i]);
-	n[i] = u.iops_.refractive_index();
-	a[i] = u.iops_.absorption_coefficient();
-	s[i] = u.iops_.scattering_coefficient();
-	p[i] = u.iops_.alpha_terms(0);
+	u.iops_->set_wavelength(u.wls_[i]);
+	n[i] = u.iops_->refractive_index();
+	a[i] = u.iops_->absorption_coefficient();
+	s[i] = u.iops_->scattering_coefficient();
+	p[i] = u.iops_->alpha_terms(0);
       }
       os << "REFRACTIVE_INDICES = ";
       for (size_t i=0; i<u.wls_.size(); i++) {
 	os << *std::max_element(std::begin(n[i]), std::end(n[i])) << " ";
       }
       os << "#\n\n";
-      size_t l = u.iops_.n_layers();
+      size_t l = u.iops_->n_layers();
       for (int i=l-1; i>=0; i--) {
 	for (size_t j=0; j<u.wls_.size(); j++) {
 	  os << "A_" << std::to_string(l-i) << "_" << std::to_string(j+1)
@@ -72,18 +72,18 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
-	add<double>("detector_height",100e3,"[m]");
+	add<double>("detector_height",100e3,"Radiometer position above ground level [m]");
 	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
 	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
-	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"[m]");
-	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated reference detector plane irradiance signal at a give height [m].");
+	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"Wavelengths to be detected [m]");
+	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated \nplane irradiance reference signal at a give height [m].");
 	add<std::string>("reference_detector_orientation","up","<up> or <down>");
-	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees].");
-	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Set to zero for black");
+	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees]");
+	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Zero gives black surface");
       }
     };
   private:
-    configuration c_;
+    basic_configuration c_;
     std::shared_ptr<material::base> material_;
     const std::string path_ = "./tmpOutput";
     size_t n_detector_;
@@ -93,7 +93,7 @@ namespace flick {
     stdvector wavelengths_;
     const size_t precision_ = 12;
   public:
-    accurt(const configuration& c, std::shared_ptr<material::base> material)
+    accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
       c_.add<std::string>("SOURCE_TYPE","constant_one"); 
       c_.add<double>("SOURCE_SCALING_FACTOR",1);
@@ -115,7 +115,7 @@ namespace flick {
       c_.add<std::string>("SAVE_BOTTOM_BOUNDARY_SURFACE","false");
       c_.add<std::string>("SAVE_MATERIAL_PROFILE","false");
       c_.add<double>("PROFILE_OUTPUT_WAVELENGTH",500);
-      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","false");
+      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","true");
       c_.add<size_t>("REPEATED_RUN_SIZE",1);
       c_.add<std::string>("USE_POLARIZATION","false");
       c_.add<std::string>("DO_OCEAN_PHASEMATRIX","false");
@@ -133,7 +133,7 @@ namespace flick {
      
       wavelengths_ = c_.get_vector<double>("DETECTOR_WAVELENGTHS");
       c_.set<double>("DETECTOR_WAVELENGTHS",wavelengths_*1e9);
-      c_.set_text_qualifiers("#","#");
+      c_.set_text_qualifiers("#","##");
     }
     pp_function relative_radiation() {
       if (c_.get<std::string>("detector_type")=="radiance")
@@ -148,21 +148,21 @@ namespace flick {
       c_.set<std::string>("SAVE_RADIANCE","true");
       c_.set<std::string>("DETECTOR_AZIMUTH_ANGLES","nan");
       c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
-      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",30);
+      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",20);
     }
     void make_material_files() {
           
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
 
       stdvector b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB"));
-      layered_iops layered_upper_slab(*material_,b,n_terms);
+      auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,n_terms);
       write(accurt_user_specified(layered_upper_slab, wavelengths_),
-       	    "./tmpMaterials/user_specified_upper_slab",precision_);
+       	    "./tmpMaterials/user_specified_upper_slab", precision_);
 
-      b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB"));
-      layered_iops layered_lower_slab(*material_,b,n_terms);
+      b = -1*depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB"));
+      auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
       write(accurt_user_specified(layered_lower_slab, wavelengths_),
-      	    "./tmpMaterials/user_specified_lower_slab",precision_);
+      	    "./tmpMaterials/user_specified_lower_slab", precision_);
     }
     stdvector depths_to_boundaries(stdvector depths) {
       std::reverse(depths.begin(),depths.end());
@@ -329,39 +329,41 @@ namespace flick {
   };
 
   namespace configuration_template {
-    class basic_accurt {
+    class basic_accurt : public basic_configuration {
       const size_t precision_ = 12;
     protected:
-      basic_configuration c_;
       const double toa_height_ = 120e3;
     public:
       basic_accurt() {
-	c_.add_configuration(accurt::configuration());
-	c_.add_configuration(material::atmosphere_ocean::configuration());
-	c_.set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9, 550e-9,
+	add_configuration(accurt::configuration());
+	add_configuration(material::atmosphere_ocean::configuration());
+	set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9, 550e-9,
 					       600e-9, 650e-9, 700e-9, 750e-9});
-	c_.set<double>("reference_detector_height",toa_height_);
-	c_.set<double>("SOURCE_ZENITH_ANGLE",45);
+	set<double>("reference_detector_height",toa_height_);
+	set<double>("SOURCE_ZENITH_ANGLE",45);
+	set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
+	set_text_qualifiers("#","##");
       }
       void write(const std::string& fname) {
-	flick::write(c_, "./"+fname, precision_);
+	flick::write(*this, "./"+fname, precision_);
       }
     };
   
     struct toa_reflectance : public basic_accurt {
       toa_reflectance() : basic_accurt() {
-	c_.set<double>("detector_height",toa_height_);
-	c_.set<std::string>("detector_orientation","down");
-	c_.set<std::string>("detector_type","radiance");
-	c_.set<double>("cloud_liquid", 0);
+	set<double>("detector_height",toa_height_);
+	set<std::string>("detector_orientation","down");
+	set<std::string>("detector_type","radiance");
+	set<double>("cloud_liquid", 0);
+	set<double>("aerosol_od", 0);
       }
     };
     
     struct boa_transmittance : public basic_accurt {
       boa_transmittance() : basic_accurt() {
-	c_.set<double>("detector_height",0);
-	c_.set<std::string>("detector_orientation","up");
-	c_.set<std::string>("detector_type","irradiance");
+	set<double>("detector_height",0);
+	set<std::string>("detector_orientation","up");
+	set<std::string>("detector_type","irradiance");
       }
     };
   }

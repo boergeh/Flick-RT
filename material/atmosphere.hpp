@@ -14,25 +14,24 @@ namespace material {
   public:
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("angles", 30,
-		    "Number of computed phase function angles");
-	//add<size_t>("heights", 8,
-	//	    "Number of computed vertical gas profile height points");
-	//	*/
+	add<size_t>("angles", 20,
+		    "Number of computational phase function angles");
+	add<size_t>("heights", 8,
+		    "Number of computational atmospheric profile points");
 	add<double>("temperature", 290,
-		    "Bottom of atmosphere ground temperature [K]");
+		    "Atmosphere ground temperature [K]");
 	add<double>("pressure", 1000e2,
-		    "Bottom of atmosphere ground pressure [Pa]");
+		    "Atmosphere ground pressure [Pa]");
 	add<double>("ozone", 0.003,
 		    "Ozone column thickness [m] at STP (100 DU = 0.001 m)");
 	add<double>("aerosol_od", 0.01,
-		    "Vertical aerosol optical depth at 550 nm");
+		    "Aerosol vertical optical depth at 550 nm");
 	add<double>("aerosol_ratio", 1,
 		    "Rural to urban aerosol concentration ratio");
 	add<double>("relative_humidity", 0.5,
 		    "Surface relative humidity (for aerosols)");
 	add<double>("cloud_liquid", 1e-4,
-		    "Cloud liquid thickness [m]");
+		    "Cloud liquid thickness [m] (0.001 gives a thick cloud)");
 	//add<std::string>("wavelength_range", "uv_vis",
 	// "Name of smoothed gas absorption spectra");
 	add<std::string>("gases", {"o3","o2","h2o","no2"},
@@ -44,15 +43,13 @@ namespace material {
   public:
     atmosphere(const basic_configuration& c=atmosphere::configuration())
       : mixture(angle_range(c.get<size_t>("angles")),
-		atmospheric_state(8).height_grid()) {
-      //      : mixture(range(0,constants::pi,c.get<size_t>("angles")).linspace(),
-      //	atmospheric_state(c.get<size_t>("heights")).height_grid()) {
+		atmospheric_state(c.get<size_t>("heights")).height_grid()) {
       c_ = c;
-      should_update_iops(false);
+      //should_update_iops(false);
       add_air();
       add_aerosols();
       add_clouds();      
-      should_update_iops(true);
+      //should_update_iops(true);
       update_iops();
     }
   private:

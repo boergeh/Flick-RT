@@ -21,6 +21,9 @@ namespace flick {
       void set_arguments(const std::vector<std::string>& args) {
 	arguments_ = args;
       }
+      size_t size() {
+	return arguments_.size();
+      }
       bool has_name(const std::string& name) const {
 	return (name_ == name);
       }

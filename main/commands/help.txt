@@ -1,5 +1,5 @@
 
-Get more help by writing 'flick help' followed by any of the
+Get more help by writing 'flick help' followed by one of the
 following commands:
 	  	  
   mie		Lorentz-Mie calculator for spheres in absorbing host medium
@@ -8,6 +8,7 @@ following commands:
   filter	Filter and integate irradiance spectra		
   text		Reading and modifying text files
   delta_fit     Fitting Legendre coefficients to phase function
+  accurt	Running radiative transfer code AccuRT with Flick materials
 
 Example:
 
