@@ -8,6 +8,7 @@
 namespace flick {
 namespace material {
   class pure_water : public base {
+    double volume_fraction_ = 1;
     pp_function absorption_coefficient_;
     pp_function segelstein_real_refractive_index_;
     pl_function temperature_correction_;
@@ -31,10 +32,11 @@ namespace material {
      temperature_correction_.add_extrapolation_points(0);
      salinity_correction_.add_extrapolation_points(0);
     }
-    pure_water(double salinity_psu, double temperature)
-      : pure_water()  {
+    pure_water(double salinity_psu, double temperature, double volume_fraction = 1)
+      : pure_water() {
       salinity_psu_ = salinity_psu;
       temperature_ = temperature;
+      volume_fraction_ = volume_fraction;
     }  
     void salinity(const pl_function& s) {
       salinity_psu_ = s;
@@ -50,14 +52,14 @@ namespace material {
       double da_dT = temperature_correction_.value(wavelength());
       double da_dS = salinity_correction_.value(wavelength());
       double a0 = absorption_coefficient_.value(wavelength());
-      return a0 + da_dT * delta_T + da_dS * delta_S;
+      return (a0 + da_dT * delta_T + da_dS * delta_S) * volume_fraction_;
     }
     double scattering_coefficient() const
     // Consider update with temp. corr according to: Pure water
     // spectral absorption, scattering, and real part of refractive
     // index model. Algorithm Technical Basis Document
     {
-      return pow(129.0 / (wavelength() * 1e9), 4.32);
+      return pow(129.0 / (wavelength() * 1e9), 4.32) * volume_fraction_;
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const
     // Depolarization ratio from R. S. Farinato and R. L. Rowell, “New

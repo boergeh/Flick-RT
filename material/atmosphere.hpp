@@ -30,8 +30,8 @@ namespace material {
 		    "Rural to urban aerosol concentration ratio");
 	add<double>("relative_humidity", 0.5,
 		    "Surface relative humidity (for aerosols)");
-	add<double>("cloud_liquid", 1e-4,
-		    "Cloud liquid thickness [m] (0.001 gives a thick cloud)");
+	add<double>("cloud_liquid", 0,
+		    "Cloud liquid thickness [m] (0.0001 gives a thick cloud)");
 	//add<std::string>("wavelength_range", "uv_vis",
 	// "Name of smoothed gas absorption spectra");
 	add<std::string>("gases", {"o3","o2","h2o","no2"},

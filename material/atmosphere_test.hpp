@@ -23,10 +23,6 @@ namespace flick {
   
     atm->set_position({0,0,0});
     double s1 = atm->scattering_coefficient();
-    atm->set_position({0,0,5e3});
-    double s2 = atm->scattering_coefficient();
-    check(s1 < 0.1*s2);
-
     atm->set_position({0,0,0});
     stdvector od = layered_iops(atm,range(0.1,100e3,8).logspace(),4).scattering_optical_depth();
     atm->set_position({0,0,0.1});

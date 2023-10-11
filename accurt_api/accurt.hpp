@@ -8,6 +8,7 @@
 #include "../numeric/table.hpp"
 #include "../numeric/grid.hpp"
 #include "../material/material.hpp"
+#include "../material/water/pure_water.hpp"
 #include "../material/layered_iops.hpp"
 #include "../material/z_profile.hpp"
 
@@ -72,6 +73,7 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
+	add<std::string>("subtract_specular_radiance","false","Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance.");
 	add<double>("detector_height",100e3,"Radiometer position above ground level [m]");
 	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
 	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
@@ -115,7 +117,7 @@ namespace flick {
       c_.add<std::string>("SAVE_BOTTOM_BOUNDARY_SURFACE","false");
       c_.add<std::string>("SAVE_MATERIAL_PROFILE","false");
       c_.add<double>("PROFILE_OUTPUT_WAVELENGTH",500);
-      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","true");
+      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","false");
       c_.add<size_t>("REPEATED_RUN_SIZE",1);
       c_.add<std::string>("USE_POLARIZATION","false");
       c_.add<std::string>("DO_OCEAN_PHASEMATRIX","false");
@@ -186,6 +188,24 @@ namespace flick {
       return pp_function{wavelengths_,
 	detector_radiance()/reference_detector_irradiance()};	  
     }
+    stdvector detector_radiance() {
+      grid_4d g = read_radiance(path_+"/radiance.txt");
+      stdvector wls = g.x[1]*1e-9;
+      stdvector Lu(wls.size());
+      stdvector Ld(wls.size());
+      for (size_t i=0; i<wls.size(); i++) {
+	Lu[i] = g.f[0][i][1][0];
+	Ld[i] = g.f[0][i][0][0];
+      }
+      if (c_.get<std::string>("subtract_specular_radiance")=="true") {
+	Lu - Ld * nadir_fresnel_coefficient(wls);
+      }
+      if (c_.get<std::string>("detector_orientation")=="up") {
+	return Ld;
+      } else {
+	return Lu;
+      }
+    }
     stdvector detector_plane_irradiance() {
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
@@ -214,20 +234,16 @@ namespace flick {
       }
       return t.row(n_reference_).y();
     }
-    stdvector detector_radiance() {
-      grid_4d g = read_radiance(path_+"/radiance.txt");
-      stdvector wls = g.x[1];
-      stdvector up(wls.size());
-      stdvector down(wls.size());
+    stdvector nadir_fresnel_coefficient(const stdvector& wls) {
+      material::pure_water pw;
+      stdvector c(wls.size());
       for (size_t i=0; i<wls.size(); i++) {
-	up[i] = g.f[0][i][1][0];
-	down[i] = g.f[0][i][0][0];
+	double n1 = 1;
+	pw.set_wavelength(wls[i]);
+	double n2 = pw.real_refractive_index(); 
+	c[i] = pow((n1 - n2) / (n1 + n2),2); 
       }
-      if (c_.get<std::string>("reference_detector_orientation")=="up") {
-	return up;
-      } else {
-	return down;
-      }
+      return c;
     }
     void add_layer_depths() {
       stdvector h = {-bottom_depth_,0, max_height_};
@@ -341,7 +357,6 @@ namespace flick {
 					       600e-9, 650e-9, 700e-9, 750e-9});
 	set<double>("reference_detector_height",toa_height_);
 	set<double>("SOURCE_ZENITH_ANGLE",45);
-	set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
 	set_text_qualifiers("#","##");
       }
       void write(const std::string& fname) {
@@ -354,16 +369,37 @@ namespace flick {
 	set<double>("detector_height",toa_height_);
 	set<std::string>("detector_orientation","down");
 	set<std::string>("detector_type","radiance");
-	set<double>("cloud_liquid", 0);
-	set<double>("aerosol_od", 0);
       }
     };
     
     struct boa_transmittance : public basic_accurt {
       boa_transmittance() : basic_accurt() {
-	set<double>("detector_height",0);
+	set<double>("pure_water_vf",0);
+	set<double>("cdom_440",0);
+	set<double>("detector_height",2);
 	set<std::string>("detector_orientation","up");
 	set<std::string>("detector_type","irradiance");
+      }
+    };
+      
+    struct rs_reflectance : public basic_accurt {
+      rs_reflectance() : basic_accurt() {
+	set<double>("reference_detector_height",0.1);
+	set<double>("detector_height",0.1);
+	set<std::string>("detector_orientation","down");
+	set<std::string>("detector_type","radiance");
+	set<std::string>("subtract_specular_radiance","true");	
+      }
+    };
+    
+    struct ramses_reflectance : public basic_accurt {
+      ramses_reflectance() : basic_accurt() {
+	double irradiance_top = -0.3;
+	double detector_distance = 0.3;
+	set<double>("reference_detector_height",irradiance_top);
+	set<double>("detector_height",irradiance_top-detector_distance);
+	set<std::string>("detector_orientation","down");
+	set<std::string>("detector_type","radiance");
       }
     };
   }
