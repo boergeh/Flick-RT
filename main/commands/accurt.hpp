@@ -24,9 +24,19 @@ namespace flick {
 	    configuration_template::ramses_reflectance().write(a(3));
 	  }
 	} else if (size() == 2) {
-	  auto c = read<configuration_template::basic_accurt>("./"+a(1));
-	  auto m = std::make_shared<material::atmosphere_ocean>(c);
-	  std::cout << flick::accurt(c,m).relative_radiation();
+	  auto c0 = read<configuration_template::basic_accurt>("./"+a(1));
+	  std::string name = c0.get<std::string>("material_name");
+	  std::shared_ptr<material::base> m;
+	  if (name == "atmosphere") {
+	    auto c = read<configuration_template::atmosphere>("./"+a(1));
+	    m = std::make_shared<material::atmosphere>(c);
+	  } else if(name == "atmosphere_ocean") {
+	    auto c = read<configuration_template::atmosphere_ocean>("./"+a(1));
+	    m = std::make_shared<material::atmosphere_ocean>(c);
+	  } else {
+	    throw std::runtime_error("accurt command: material '"+name+"' not found");
+	  }
+	  std::cout << flick::accurt(c0,m).relative_radiation();
 	}
 	else {
 	  error();

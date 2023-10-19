@@ -27,7 +27,6 @@ namespace material {
 		{-c.get<double>("bottom_depth"), 0}) {
       c_ = c;
       //should_update_iops(false);
-      //if (c_.get<bool>("remove_ocean") = false)
       add_pure_water();
       add_cdom();
       //should_update_iops(true);

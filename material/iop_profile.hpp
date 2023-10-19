@@ -44,6 +44,8 @@ namespace flick {
       return profile_.low_index_near(height);
     }
     double value(double height) const {
+      if (height < profile_.x().front() or height > profile_.x().back())
+	return 0;
       return profile_.value(height);
     }
     const std::vector<double>& height_grid() const {

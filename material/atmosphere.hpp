@@ -14,7 +14,7 @@ namespace material {
   public:
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("angles", 20,
+	add<size_t>("angles", 30,
 		    "Number of computational phase function angles");
 	add<size_t>("heights", 8,
 		    "Number of computational atmospheric profile points");
@@ -60,7 +60,6 @@ namespace material {
 	s.add_gas(c_.get<std::string>("gases",i));
       }
       s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
-      //add_material<smooth_air>(s,c_.get<std::string>("wavelength_range"));
       add_material<smooth_air>(s,"uv_vis");
     }
     void add_aerosols() {

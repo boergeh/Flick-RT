@@ -73,6 +73,7 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
+	add<std::string>("material_name","atmosphere_ocean","Name of material to be used with AccuRT.");
 	add<std::string>("subtract_specular_radiance","false","Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance.");
 	add<double>("detector_height",100e3,"Radiometer position above ground level [m]");
 	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
@@ -94,6 +95,9 @@ namespace flick {
     double bottom_depth_ = 1;
     stdvector wavelengths_;
     const size_t precision_ = 12;
+    const double minimum_height_ = 1e-6;
+    const double minimum_depth_ = 1e-6;
+
   public:
     accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
@@ -152,8 +156,7 @@ namespace flick {
       c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
       c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",20);
     }
-    void make_material_files() {
-          
+    void make_material_files() {        
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
 
       stdvector b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB"));
@@ -161,8 +164,14 @@ namespace flick {
       write(accurt_user_specified(layered_upper_slab, wavelengths_),
        	    "./tmpMaterials/user_specified_upper_slab", precision_);
 
-      b = -1*depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB"));
+      b = 0 - c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB");
+      std::reverse(b.begin(),b.end());
+      b.push_back(0);
+      //if (b.at(0) > -minimum_depth_)
+      //	b.insert(b.begin(), minimum_depth_);
+      //std::cout << "boundary lower  "<< b<<std::endl;
       auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
+      //std::cout << "scat coef "<<layered_lower_slab->scattering_coefficient()<<std::endl;
       write(accurt_user_specified(layered_lower_slab, wavelengths_),
       	    "./tmpMaterials/user_specified_lower_slab", precision_);
     }
@@ -246,12 +255,15 @@ namespace flick {
       return c;
     }
     void add_layer_depths() {
-      stdvector h = {-bottom_depth_,0, max_height_};
+      //stdvector h = {-bottom_depth_, -minimum_depth_, 0, max_height_};
+      stdvector h = {-bottom_depth_, 0,max_height_};
       material::z_profile* zp = dynamic_cast<material::z_profile*>(&*material_);
       if (zp != NULL) {
 	h = zp->height_grid();
       }      
       max_height_ = h.back();
+      if (h.front()>=0)
+      	h.insert(h.begin(),-bottom_depth_);
       bottom_depth_ = -h.front();
       stdvector depths = max_height_ - h;
       depths.pop_back();
@@ -263,19 +275,42 @@ namespace flick {
 	else
 	  depths_upper.push_back(d);
       }
+      /*
       if (depths_lower.size()==0) {
 	bottom_depth_ = 1;
 	depths_lower = {bottom_depth_};
       }
+      */
       c_.add<double>("LAYER_DEPTHS_UPPER_SLAB",depths_upper);
       c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",depths_lower);
     }
     void add_detector_depths() {
       double h1 = c_.get<double>("detector_height");    
       double h2 = c_.get<double>("reference_detector_height");
-      double epsilon = pow(10,-(double)precision_+3);
-      if (fabs(h1-h2)<epsilon)
-	h2 *= (1-epsilon);
+      bool in_atmosphere = (h1 >= 0 and h2 >= 0);
+      bool in_ocean = (h1 < 0 and h2 < 0);
+      if (in_atmosphere and fabs(h1-h2) < minimum_height_) {
+	h2 -= minimum_height_/2;
+	//throw std::runtime_error("Atmospheric detector and reference must be at least 0.01 m appart.");
+      }
+      else if (in_ocean and fabs(h1-h2) < minimum_depth_) {
+	//throw std::runtime_error("Ocean detector and reference must be at least 0.001 m appart.");
+	h2 += minimum_depth_/2;
+      }
+      if (h1 >= 0 and h1 < minimum_height_) {
+	h1 += minimum_height_;
+      }
+      if (h2 >= 0 and h2 < minimum_height_) {
+	h2 += minimum_height_;
+	//throw std::runtime_error("Atmospheric detector and reference must be at least 0.01 m above surface.");
+      }
+      if (h1 < 0 and h1 > -minimum_depth_) {
+	h1 -= minimum_depth_;
+      }
+      if (h2 < 0 and h2 > -minimum_depth_) {
+	h2 -= minimum_depth_;
+	//throw std::runtime_error("Ocean detector and reference must be at least 0.001 m below surface.");
+      }
       if (h1 > h2) {
 	n_detector_ = 0;
 	n_reference_ = 1;
@@ -284,14 +319,6 @@ namespace flick {
 	n_reference_ = 0;
       }
       stdvector h = {h1,h2};
-      // Avoid exact surface.
-      double min_height = epsilon*max_height_;
-      for (size_t i =0; i<h.size(); i++) {
-	if (h[i] < min_height && h[i] >= 0) {
-	  double sign = h[i]/fabs(h[i]);
-	  h[i] = min_height*sign;
-	}
-      }
       std::sort(h.begin(),h.end());
       stdvector h_upper, h_lower;
       if (h[1] < 0) {
@@ -352,9 +379,9 @@ namespace flick {
     public:
       basic_accurt() {
 	add_configuration(accurt::configuration());
-	add_configuration(material::atmosphere_ocean::configuration());
-	set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9, 550e-9,
-					       600e-9, 650e-9, 700e-9, 750e-9});
+	set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9,
+					    550e-9, 600e-9, 650e-9, 700e-9,
+					    750e-9});
 	set<double>("reference_detector_height",toa_height_);
 	set<double>("SOURCE_ZENITH_ANGLE",45);
 	set_text_qualifiers("#","##");
@@ -363,37 +390,48 @@ namespace flick {
 	flick::write(*this, "./"+fname, precision_);
       }
     };
-  
-    struct toa_reflectance : public basic_accurt {
-      toa_reflectance() : basic_accurt() {
-	set<double>("detector_height",toa_height_);
+
+    struct atmosphere : public basic_accurt {
+      atmosphere() : basic_accurt() {
+	add_configuration(material::atmosphere::configuration());
+      }
+    };
+
+    struct atmosphere_ocean : public basic_accurt {
+      atmosphere_ocean() : basic_accurt() {
+	add_configuration(material::atmosphere_ocean::configuration());
+      }
+    };
+
+    struct toa_reflectance : public atmosphere_ocean {
+      toa_reflectance() : atmosphere_ocean() {
+	set<double>("detector_height",toa_height_-0.2);
 	set<std::string>("detector_orientation","down");
 	set<std::string>("detector_type","radiance");
       }
     };
     
-    struct boa_transmittance : public basic_accurt {
-      boa_transmittance() : basic_accurt() {
-	set<double>("pure_water_vf",0);
-	set<double>("cdom_440",0);
-	set<double>("detector_height",2);
+    struct boa_transmittance : public atmosphere {
+      boa_transmittance() : atmosphere() {
+	set<std::string>("material_name","atmosphere");
+	set<double>("detector_height",0.2);
 	set<std::string>("detector_orientation","up");
 	set<std::string>("detector_type","irradiance");
       }
     };
       
-    struct rs_reflectance : public basic_accurt {
-      rs_reflectance() : basic_accurt() {
-	set<double>("reference_detector_height",0.1);
-	set<double>("detector_height",0.1);
+    struct rs_reflectance : public atmosphere_ocean {
+      rs_reflectance() : atmosphere_ocean() {
+	set<double>("reference_detector_height",0.4);
+	set<double>("detector_height",0.2);
 	set<std::string>("detector_orientation","down");
 	set<std::string>("detector_type","radiance");
 	set<std::string>("subtract_specular_radiance","true");	
       }
     };
     
-    struct ramses_reflectance : public basic_accurt {
-      ramses_reflectance() : basic_accurt() {
+    struct ramses_reflectance : public atmosphere_ocean {
+      ramses_reflectance() : atmosphere_ocean() {
 	double irradiance_top = -0.3;
 	double detector_distance = 0.3;
 	set<double>("reference_detector_height",irradiance_top);

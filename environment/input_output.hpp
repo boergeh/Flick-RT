@@ -52,6 +52,7 @@ namespace flick {
       return os;
     }
   };
+  
   struct two_columns : public columns {
     two_columns() : columns::columns(2) {}
   };

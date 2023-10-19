@@ -61,7 +61,8 @@ namespace flick {
     }
   private:
     void update() {
-      m_->set_direction({0,0}); 
+      m_->set_direction({0,0});
+      m_->set_position({0,0,boundaries_[0]});
       for (size_t i=0; i < n_layers(); i++) {
 	move(layer_thickness(i)/2);
 	set_alpha_beta(i);
@@ -86,7 +87,6 @@ namespace flick {
 	beta_[n][i] = beta[n];
     }
     void set_optical_depth(size_t i) {
-      m_->set_position({0,0,boundaries_[i]});
       oda_[i] = m_->absorption_optical_depth(layer_thickness(i));
       ods_[i] = m_->scattering_optical_depth(layer_thickness(i));
     }

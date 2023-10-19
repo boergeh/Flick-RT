@@ -14,24 +14,22 @@ namespace material {
       }
     };
     atmosphere_ocean(const basic_configuration& c=atmosphere_ocean::configuration())
-      : mixture(angle_range(c.get<size_t>("angles")), boundaries()) {
+      : mixture(angle_range(c.get<size_t>("angles")), boundaries(c.get<double>("bottom_depth"),c.get<size_t>("heights"))) {
       //should_update_iops(false);
       //c_ = c;
       add_material<ocean>(c);
       set_range<ocean>(0,1);
       add_material<atmosphere>(c);
-      set_range<atmosphere>(2,boundaries().size()-1);
+      set_range<atmosphere>(2,boundaries(c.get<double>("bottom_depth"),c.get<size_t>("heights")).size()-1);
       //should_update_iops(true);
       update_iops();
     }
   private:
     //basic_configuration c_;
-    stdvector boundaries() const {
-      stdvector h1 = {-100, -0.001};
-      //stdvector h2 = atmospheric_state(c.get<size_t>("heights")).height_grid();
-      stdvector h2 = atmospheric_state(8).height_grid();
+    stdvector boundaries(double bottom_depth, size_t n_atm_heights) const {
+      stdvector h1 = {-bottom_depth, -1e-6};
+      stdvector h2 = atmospheric_state(n_atm_heights).height_grid();
       h1.insert(h1.end(),h2.begin(),h2.end());
-      //std::cout << h1 << std::endl;
       return h1;
     }
   };

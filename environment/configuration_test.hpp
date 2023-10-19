@@ -26,19 +26,20 @@ namespace flick {
     };
         
     my_config_A c_A1;
+    c_A1.add<std::string>("An_extra_variable","Should not add problem for reading");
     check(c_A1.exists("age"));
     check(not c_A1.exists("not_there"));
     check_throw(c_A1.set<double>("not_there",1));
     my_config_A c_A2;
     
     check_close(c_A1.get<double>("age"), c_A2.get<double>("age"));
-    bool stream = false;
+    bool stream = true;
     if (stream) {
       write(c_A1,"./tmp.txt");
       c_A2 = read<my_config_A>("./tmp.txt");
-      std::cout << std::setprecision(6) << c_A2;
-      std::cout << c_A2.get<double>("shoe");
-      std::cout << my_config_C();
+      //std::cout << std::setprecision(6) << c_A2;
+      check_close(c_A2.get<double>("shoe"),42);
+      //std::cout << my_config_C();
     }
   } end_test_case()
 }

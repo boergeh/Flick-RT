@@ -37,18 +37,18 @@ namespace flick {
     check(p1 > 2/(4*pi));
     check(p2/p1 < 0.3);
     auto pf2 = material::phase_function(sky);
-    check_close(delta_fit(pf2,16).coefficients()[0]*4*pi,1,0.05_pct);
+    check_close(delta_fit(pf2,16).coefficients()[0]*4*pi,1,0.07_pct);
   } end_test_case()
   
     begin_test_case(mixture_test_B) {
     using namespace material;
-    material::mixture m({0,1,3.14},{-100,0,10e3,50e3,100e3});
-    m.should_update_iops(false);
+    material::mixture m({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
+    //m.should_update_iops(false);
     m.add_material<ocean>();
     m.add_material<atmosphere>();
     m.set_range<ocean>(0,1);
-    m.set_range<atmosphere>(1,4);
-    m.should_update_iops(true);
-    m.update_iops();    
+    m.set_range<atmosphere>(2,5);
+    //m.should_update_iops(true);
+    //m.update_iops();
   } end_test_case()
 }

@@ -105,12 +105,15 @@ namespace material {
       if (material.real_refractive_index() > real_refractive_index_) {
 	real_refractive_index_ = material.real_refractive_index();
       }
-      for (size_t i=0; i<heights_.size(); ++i) {
+      //for (size_t i=0; i<heights_.size(); ++i) {
+      for (size_t i=n_low; i<=n_high; ++i) {
 	double z = heights_[i];
 	double s1 = s_profile_.value(z);
 	material.set_position({0,0,z});
 	double s2 = material.scattering_coefficient();
 	double weight = s2/(s1+s2);
+	if (not isfinite(weight))
+	  weight = 0;
 	angular_mueller am = fill_angular_mueller(material);
 	mueller_[i].add(am, weight);
       }
