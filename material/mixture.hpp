@@ -112,7 +112,7 @@ namespace material {
 	material.set_position({0,0,z});
 	double s2 = material.scattering_coefficient();
 	double weight = s2/(s1+s2);
-	if (not isfinite(weight))
+	if (not std::isfinite(weight))
 	  weight = 0;
 	angular_mueller am = fill_angular_mueller(material);
 	mueller_[i].add(am, weight);
