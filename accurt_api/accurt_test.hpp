@@ -56,7 +56,7 @@ namespace flick {
     check_close(a.relative_radiation().y()[0],0.8,20_pct);
     ac.set<double>("detector_height",-0.5);
     auto a2 =  accurt(ac,m);
-    check_close(a2.relative_radiation().y()[0],0.8,20_pct);
+    check_close(a2.relative_radiation().y()[0],0.98,20_pct);
     ac.set<double>("reference_detector_height",-0.1);
     auto a3 =  accurt(ac,m);
     check_close(a3.relative_radiation().y()[0],1,10_pct);
@@ -96,6 +96,6 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac,m);
     double Rrs = a.relative_radiation().y()[0];
-    check_close(Rrs, 0.05, 20_pct);
+    check_close(Rrs, 0.08, 20_pct);
   } end_test_case()
 }

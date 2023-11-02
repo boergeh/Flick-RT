@@ -8,9 +8,9 @@
 #include "function_test.hpp"
 #include "physics_function_test.hpp"
 #include "table_test.hpp"
+#include "flist_test.hpp"
 #include "distribution_test.hpp"
 #include "value_collection_test.hpp"
-//#include "configuration_test.hpp"
 //#include "mks_units_test.hpp"
 
 int main() {
@@ -22,6 +22,7 @@ int main() {
   t.include<function_test_B>();
   t.include<function_test_C>();
   t.include<function_test_D>();
+  t.include<function_test_E>();
   t.include<direction_generator_test>();
   t.include<vector_test>();
   t.include<histogram_test>();
@@ -29,9 +30,9 @@ int main() {
   t.include<range_test>();
   t.include<physics_function_test>();
   t.include<table_test>();
+  t.include<flist_test>();
   t.include<distribution_test>();
   t.include<value_collection_test>();
-  //  t.include<configuration_test>();
   t.run_test_cases();
   return 0;
 } 

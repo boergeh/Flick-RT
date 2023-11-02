@@ -1,5 +1,6 @@
 #include "../../environment/unit_test.hpp"
 #include "matrix.hpp"
+#include "solve_with_eigen.hpp"
 
 namespace flick {
   begin_test_case(matrix_test) {
@@ -44,6 +45,13 @@ namespace flick {
     std::vector<double> c = solve(m8,v);
     check_close(c.at(0),1);
     check_close(c.at(1),1);
+
+    std::stringstream ss("\n\n 0 0.0 \n 1 1.1 \n 2 2.2");
+    matrix m9;
+    ss >> m9;
+    check_small(m9[0][0]);
+    check_close(m9[2][0],2);
+    check_close(m9[2][1],2.2);    
     
   } end_test_case()  
 }

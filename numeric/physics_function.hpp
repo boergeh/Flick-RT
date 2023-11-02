@@ -17,6 +17,8 @@ namespace flick {
     double value(double mu) const
     // Note that integral over 4*pi equals one 
     {
+      if (mu >1 or mu<-1)
+	throw std::out_of_range("henyey greenstein function mu out of range");
       double g = asymmetry_factor_;
       double arg = 1+pow(g,2)-2*g*mu;
       return 1/(4*constants::pi)*(1-pow(g,2))/pow(arg,3./2);

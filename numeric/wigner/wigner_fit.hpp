@@ -3,7 +3,7 @@
 
 #include "../std_operators.hpp"
 #include "../function.hpp"
-#include "../linalg/matrix.hpp"
+#include "../linalg/solve_with_eigen.hpp"
 #include "wigner_d.hpp"
  
 namespace flick {

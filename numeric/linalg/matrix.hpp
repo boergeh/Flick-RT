@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include "Eigen/Dense"
 
 namespace flick {
   namespace linalg
@@ -22,6 +21,23 @@ namespace flick {
       return os;
     }
 
+    std::istream& operator>>(std::istream &is, matrix& m) {
+      m.clear();
+      double x;
+      std::vector<double> row;
+      std::string line;
+      while (std::getline(is, line)) {	  
+	std::stringstream ss(line);
+	while (ss >> x) {
+	  row.push_back(x);
+	}
+	if (row.size() > 0)
+	  m.push_back(row);
+	row.clear();
+      }
+      return is;
+    }
+    
     matrix operator*(double k, matrix m) {
       for (size_t i=0; i < m.size(); i++) {
 	for (size_t j=0; j < m[0].size(); j++) {
@@ -58,8 +74,7 @@ namespace flick {
       }
       return result;
     }
-
-    
+ 
     double det(matrix m)
     // Determinant
     {
@@ -152,20 +167,6 @@ namespace flick {
     {
       auto col = t(matrix{v});
       return column(0, inv(t(m)*m) * (t(m)*col));
-    }
-    
-    std::vector<double> solve(const matrix& m, const std::vector<double>& v)
-    // Solves set of linear equations using the Eigen library
-    {
-      int rows = m.size();
-      int cols = m.at(0).size();
-      Eigen::MatrixXd me(rows,cols);
-      for (size_t i=0; i<rows; i++)
-	for (size_t j=0; j<cols; j++)
-	  me(i,j) = m[i][j];
-      const Eigen::VectorXd b = Eigen::Map<const Eigen::VectorXd, Eigen::Unaligned>(v.data(),v.size());
-      Eigen::VectorXd a = me.colPivHouseholderQr().solve(b);
-      return std::vector<double>(a.data(),a.data()+a.size());
     }
   }
 }

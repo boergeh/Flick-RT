@@ -35,14 +35,15 @@ namespace material {
     double angle(const unit_vector& scattering_direction) const {
       double d = dot(pose_.z_direction(),scattering_direction);
       d = std::clamp<double>(d,-1,1);
-      return acos(d);
+      return acos(d); 
     }
     virtual double absorption_coefficient() const = 0;
     virtual double scattering_coefficient() const = 0;
-    virtual double real_refractive_index() const = 0;
     virtual mueller mueller_matrix(const unit_vector&
-				   scattering_direction) const = 0;
-
+				   scattering_direction) const {
+      mueller m;
+      return m.add(0,0,1/(4*constants::pi));
+    }
     virtual double absorption_optical_depth(double distance) const {
       return absorption_coefficient()*distance;
     }
@@ -51,6 +52,9 @@ namespace material {
     }
     double optical_depth(double distance) const {
       return absorption_optical_depth(distance) + scattering_optical_depth(distance);
+    }
+    virtual double real_refractive_index() const {
+      return 1;
     }
     virtual double absorption_distance(double absorption_optical_depth) const {
       double ac = absorption_coefficient();
@@ -86,15 +90,12 @@ namespace material {
   // Phase function relative to current traveling direction, keeping
   // azimuth angle equal to zero
   {    
-    //  std::shared_ptr<material::base> mat_;
     material::base& mat_;
   public:
-    //    phase_function(std::shared_ptr<material::base> mat) : mat_{mat} {}
     phase_function(material::base& mat) : mat_{mat} {}
     double value(double mu) const {
       mu = std::clamp<double>(mu, -1, 1);
       double theta = acos(mu);
-      //  mueller m = mat_->mueller_matrix(unit_vector{theta,0});
       mueller m = mat_.mueller_matrix(unit_vector{theta,0});
       return m.value(0,0);
     }

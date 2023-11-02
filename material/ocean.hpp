@@ -3,6 +3,7 @@
 
 #include "water/pure_water.hpp"
 #include "water/cdom.hpp"
+#include "water/phytoplankton.hpp"
 #include "mixture.hpp"
 #include "../environment/configuration.hpp"
 
@@ -17,6 +18,7 @@ namespace material {
 	add<double>("cdom_440", 0.01, "CDOM absorption coefficient at 440 nm [1/m]");
 	add<double>("cdom_slope", 0.017, "CDOM absorption spectrum slope [1/nm]");
 	add<double>("pure_water_vf", 1, "Fraction of volume filled with pure water.");
+	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
       }
     };
   private:
@@ -29,6 +31,7 @@ namespace material {
       //should_update_iops(false);
       add_pure_water();
       add_cdom();
+      add_phytoplankton();
       //should_update_iops(true);
       //update_iops();
     }
@@ -38,6 +41,9 @@ namespace material {
     }
     void add_cdom() {
       add_material<cdom>(c_.get<double>("cdom_440"),c_.get<double>("cdom_slope"));
+    }
+    void add_phytoplankton() {
+      add_material<phytoplankton>(c_.get<double>("chl_concentration"));
     }
   };
 }

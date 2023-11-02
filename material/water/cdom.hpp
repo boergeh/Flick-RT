@@ -19,13 +19,6 @@ namespace material {
     double scattering_coefficient() const {
       return 0;
     }
-    double real_refractive_index() const {
-      return 1.0;
-    }
-    mueller mueller_matrix(const unit_vector& scattering_direction) const
-    {
-      return rayleigh_mueller(angle(scattering_direction), 0.039);
-    }
   };
 }
 }

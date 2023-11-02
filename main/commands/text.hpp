@@ -29,6 +29,9 @@ namespace flick {
 	  auto y = f.y();
 	  for (size_t i=0; i < x.size(); ++i)
 	    std::cout << kx*x[i] << " " << ky*y[i] << '\n';
+	  //} else if (size()==4 and a(1) == "atmosphere") {
+	  //  auto c = read<configuration_template::atmosphere>("./"+a(2));
+	  // c.set<>
 	} else {
 	  error();
 	}

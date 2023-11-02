@@ -2,7 +2,7 @@
 #define flick_delta_fit
 
 #include "../constants.hpp"
-#include "../linalg/matrix.hpp"
+#include "../linalg/solve_with_eigen.hpp"
 #include "legendre.hpp"
  
 namespace flick {

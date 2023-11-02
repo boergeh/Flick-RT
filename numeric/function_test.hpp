@@ -177,4 +177,12 @@ namespace flick {
     check_small(fb.value(3.5));
     check_close(fb.integral(),1);
   } end_test_case()
+  
+  begin_test_case(function_test_E) {
+    std::istringstream s("/* test stream */ 1 1.1 2 2.2 3 NAN 4 Inf 5 -inf INF -naN");
+    pe_function f;
+    s >> f;
+    //std::cout << std::setprecision(3)<<f;
+    check(isnan(f.integral()));
+  } end_test_case()
 }
