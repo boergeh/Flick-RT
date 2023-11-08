@@ -43,7 +43,7 @@ namespace flick {
     iops.set_wavelength(400e-9);
     size_t ly = 0;
     double g = iops.alpha_terms(0)[ly][1]*4*constants::pi/3;
-    check_close(g,0.2,50);
+    check_close(g,0.35,50);
 
   } end_test_case()
 }

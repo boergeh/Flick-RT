@@ -1,6 +1,5 @@
 #include "phytoplankton.hpp"
 #include "../../numeric/units.hpp"
-//#include "../material.hpp"
 
 namespace flick {
   begin_test_case(phytoplankton_test) {
@@ -16,7 +15,7 @@ namespace flick {
     check_close(p.absorption_coefficient(),0.1,30);
     p.chl_concentration(25e-6);
     check_close(p.absorption_coefficient(),0.3,30);
-    auto p_forward = p.mueller_matrix(unit_vector{0,0}).value(0,0);
+    auto p_forward = p.mueller_matrix(unit_vector{0.001,0}).value(0,0);
     auto unit_back = unit_vector{constants::pi,0};
     auto p_backward = p.mueller_matrix(unit_back).value(0,0);
     check(p_forward/p_backward > 1e4);

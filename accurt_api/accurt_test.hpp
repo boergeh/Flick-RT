@@ -59,11 +59,11 @@ namespace flick {
     check_close(a2.relative_radiation().y()[0],0.98,20_pct);
     ac.set<double>("reference_detector_height",-0.1);
     auto a3 =  accurt(ac,m);
-    check_close(a3.relative_radiation().y()[0],1,10_pct);
+    check_close(a3.relative_radiation().y()[0],0.9,10_pct);
     ac.set<double>("detector_height",1e-9);
     ac.set<double>("reference_detector_height",-0.9);
     auto a4 =  accurt(ac,m);
-    check_close(a4.relative_radiation().y()[0],1,10_pct);
+    check_close(a4.relative_radiation().y()[0],1.1,10_pct);
     
     ac.set<double>("DETECTOR_WAVELENGTHS",{400e-9,700e-9});
     ac.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);

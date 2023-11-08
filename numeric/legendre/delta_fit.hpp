@@ -14,7 +14,6 @@ namespace flick {
       : coefficients_(n_terms) {
       int n_points = pow(n_terms,1.6);
       std::vector<double> x = range(-1,1,n_points).linspace();
-
       linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);
       for (size_t i=0; i<x.size(); ++i) {
@@ -25,7 +24,6 @@ namespace flick {
       auto v = std::vector<double>(x.size(),1);
       coefficients_ = linalg::solve(m,v);
     }
-
     std::vector<double> coefficients() {
       return coefficients_;
     }

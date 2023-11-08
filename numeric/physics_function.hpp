@@ -36,6 +36,63 @@ namespace flick {
     }
   };
 
+  class fournier_forand
+  // Fournier, G.R. and Forand, J.L., 1994, October. Analytic phase
+  // function for ocean water. In Ocean Optics XII (Vol. 2258,
+  // pp. 194-201). SPIE.
+  // See also Ocean Optics Web Book
+  {
+    double junge_slope_;
+    double refractive_index_; // real refractive index relative to water
+  public:
+    fournier_forand(double junge_slope, double refractive_index)
+      : junge_slope_{junge_slope}, refractive_index_{refractive_index} {
+    }
+    fournier_forand(double asymmetry_parameter)
+    // Fournier, G.R., 2011. Derivation of an explicit expression for
+    // the Fournier-Forand phase function in terms of the mean cosine.
+    {
+      double g = asymmetry_parameter;
+      ensure((1-g) > 0.0002 and (1-g) < 0.6);
+      double a = 1-g;
+      double b = a/(23-7.5*a);
+      refractive_index_ = pow(b,2./5) + 1;
+      junge_slope_ = 6*(refractive_index_-1)+3;
+      //std::cout << std::setprecision(5)<<"refidx "<< refractive_index_ << std::endl;
+      //std::cout << "junge_slope "<< junge_slope_ << std::endl;
+    }
+    double value(double mu) const {
+      ensure(mu < 1-1e-9);
+      using namespace constants;
+      double d = delta(mu);
+      double n = nu();
+      double a = 1-d;
+      double b = pow(d,n);
+      double c = 1-b;
+      double d180 = delta(-1);
+      double b180 = pow(d180,n);
+      double k1 = 1/(4*pi*pow(a,2)*b);
+      double k2 = (1-b180)/(16*pi*(d180-1)*b180);
+      double p = k1*(n*a-c+(d*c-n*a)/sin_squared_factor(mu)) + k2*(3*pow(mu,2)-1);
+      //std::cout << std::setprecision(4)<<p << std::endl;
+      return p;
+    }
+  private:
+    void ensure(bool b) const {
+      if (!b)
+	throw std::runtime_error("fournier_forand");
+    }
+    double nu() const {
+      return  (3 - junge_slope_)/2;
+    }
+    double delta(double mu) const {
+      return 4 / (3*pow(refractive_index_-1,2)) * sin_squared_factor(mu);
+    }
+    double sin_squared_factor(double mu) const {
+      return (1-mu)/2;
+    }	
+  };
+
   class size_distribution
   // Size number distribution. Integral over all sizes equals one.
   {

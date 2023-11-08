@@ -28,7 +28,8 @@ int main() {
   t.include<histogram_test>();
   t.include<pose_test>();
   t.include<range_test>();
-  t.include<physics_function_test>();
+  t.include<physics_function_test_A>();
+  t.include<physics_function_test_B>();
   t.include<table_test>();
   t.include<flist_test>();
   t.include<distribution_test>();

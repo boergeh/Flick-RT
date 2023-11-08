@@ -41,7 +41,9 @@ namespace material {
       update_iops();
     }
     stdvector angle_range(size_t n) const {
-      return range(0,constants::pi,n).linspace(); 
+      stdvector a = range(0,constants::pi,n+1).linspace();
+      a.erase(a.begin());
+      return a;
     }
     void should_update_iops(bool tf) {
       should_update_iops_ = tf;
@@ -105,7 +107,6 @@ namespace material {
       if (material.real_refractive_index() > real_refractive_index_) {
 	real_refractive_index_ = material.real_refractive_index();
       }
-      //for (size_t i=0; i<heights_.size(); ++i) {
       for (size_t i=n_low; i<=n_high; ++i) {
 	double z = heights_[i];
 	double s1 = s_profile_.value(z);

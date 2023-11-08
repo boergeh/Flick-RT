@@ -7,9 +7,10 @@
 namespace flick {
 namespace material {
   class phytoplankton : public base {
-    double asymmetry_factor_ = 0.94;
+    double asymmetry_factor_ = 0.98;
     double chl_concentration_ = 1e-6; // [kg/m^3]    
-    flick::henyey_greenstein hg_{asymmetry_factor_};
+    //flick::henyey_greenstein hg_{asymmetry_factor_};
+    flick::fournier_forand ff_{asymmetry_factor_};
     pl_function A_;
     pl_function B_;
   public:
@@ -33,7 +34,7 @@ namespace material {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
-      return m.add(0,0,hg_.value(scattering_direction.mu()));
+      return m.add(0,0,ff_.value(scattering_direction.mu()));
     }
   private:
     double a_star() const
