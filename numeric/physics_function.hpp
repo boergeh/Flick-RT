@@ -58,8 +58,6 @@ namespace flick {
       double b = a/(23-7.5*a);
       refractive_index_ = pow(b,2./5) + 1;
       junge_slope_ = 6*(refractive_index_-1)+3;
-      //std::cout << std::setprecision(5)<<"refidx "<< refractive_index_ << std::endl;
-      //std::cout << "junge_slope "<< junge_slope_ << std::endl;
     }
     double value(double mu) const {
       ensure(mu < 1-1e-9);
@@ -74,7 +72,6 @@ namespace flick {
       double k1 = 1/(4*pi*pow(a,2)*b);
       double k2 = (1-b180)/(16*pi*(d180-1)*b180);
       double p = k1*(n*a-c+(d*c-n*a)/sin_squared_factor(mu)) + k2*(3*pow(mu,2)-1);
-      //std::cout << std::setprecision(4)<<p << std::endl;
       return p;
     }
   private:

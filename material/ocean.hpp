@@ -5,6 +5,7 @@
 #include "water/cdom.hpp"
 #include "water/phytoplankton.hpp"
 #include "water/nap.hpp"
+#include "marine_particles/marine_particles.hpp"
 #include "mixture.hpp"
 #include "../environment/configuration.hpp"
 
@@ -21,6 +22,8 @@ namespace material {
 	add<double>("pure_water_vf", 1, "Fraction of volume filled with pure water.");
 	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
 	add<double>("nap_concentration", 1e-3, "Nonalgal particle dry mass concentration in the water column [kg/m^3]");
+	add<std::string>("mp_name", "MP21_PA61", "Name of additional tabulated marine particles");
+	add<double>("mp_concentration", 0.01, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3]");
       }
     };
   private:
@@ -35,6 +38,7 @@ namespace material {
       add_cdom();
       add_phytoplankton();
       add_nap();
+      add_marine_particles();
       //should_update_iops(true);
       //update_iops();
     }
@@ -50,6 +54,10 @@ namespace material {
     }
     void add_nap() {
       add_material<nap>(c_.get<double>("nap_concentration"));
+    }
+    void add_marine_particles() {
+      add_material<marine_particles>(c_.get<std::string>("mp_name"),
+					     c_.get<double>("mp_concentration"));
     }
   };
 }

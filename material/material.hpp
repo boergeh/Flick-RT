@@ -91,13 +91,33 @@ namespace material {
   // azimuth angle equal to zero
   {    
     material::base& mat_;
+    const size_t n_integration_points_ = 5000;
   public:
-    phase_function(material::base& mat) : mat_{mat} {}
+    phase_function(material::base& mat)
+      : mat_{mat} {}
     double value(double mu) const {
       mu = std::clamp<double>(mu, -1, 1);
       double theta = acos(mu);
       mueller m = mat_.mueller_matrix(unit_vector{theta,0});
       return m.value(0,0);
+    }
+    double integral_4pi() {
+      return 2*constants::pi*tabulate().integral();
+    }
+    double asymmetry_factor() {
+      return tabulate().asymmetry_factor();
+    }
+  private:
+    tabulated_phase_function tabulate() {
+      using namespace constants;
+      size_t n_points = n_integration_points_;
+      std::vector<double> theta = range(0,pi,n_points+1).linspace();
+      theta.erase(theta.begin());
+      std::vector<double> p(theta.size());
+      for (size_t i = 0; i<p.size(); i++) {
+	p[i] = value(cos(theta[i])); 
+      }      
+      return tabulated_phase_function(pe_function(theta,p));
     }
   };
 

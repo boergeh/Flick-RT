@@ -65,8 +65,7 @@ namespace flick {
       if (p.x()[0] < 0)
 	p_mu_ = p;
       else
-	cosine_transform_angles(p);
-	 
+	cosine_transform_angles(p);	 
       g_ = asymmetry_factor_(p_mu_);
       for (size_t i=0; i<4; ++i) {
 	set_residuals(p_mu_);
@@ -101,7 +100,7 @@ namespace flick {
       return g_;
     }
     double integral() const {
-      return 1/(2*constants::pi) + residuals_.integral();
+      return 1/(2*constants::pi) + residuals_.integral(-1,1);
     }
   private:
     void cosine_transform_angles(const pe_function& p) {
@@ -126,7 +125,7 @@ namespace flick {
 	double mu = p.x()[i];
 	p2.append({mu, p.y()[i]*mu});
       }
-      return 2*constants::pi*p2.integral();
+      return 2*constants::pi*p2.integral(-1,1);
     }    
   };
 

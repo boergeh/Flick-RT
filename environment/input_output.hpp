@@ -69,11 +69,18 @@ namespace flick {
       return os;
     }
   };
-  
+
+  std::string add_path(std::string file_name) {
+    if (file_name.substr(0,2)!="./")
+      file_name = path()+"/"+file_name;
+    return file_name;
+  }
+
   template<typename T>
   T read(std::string file_name) {
-    if (file_name.substr(0,2)!="./")
-      file_name = path()+"/"+file_name;     
+    file_name = add_path(file_name);
+    //if (file_name.substr(0,2)!="./")
+    //  file_name = path()+"/"+file_name;     
     std::ifstream ifs(file_name);
     if (!ifs)
       throw std::invalid_argument(file_name+" not found");
@@ -85,8 +92,9 @@ namespace flick {
 
   template<typename T>
   void write(const T& t, std::string file_name, size_t precision=5) {
-    if (file_name.substr(0,2)!="./")
-      file_name = path()+"/"+file_name;  
+    file_name = add_path(file_name);
+    //if (file_name.substr(0,2)!="./")
+    //  file_name = path()+"/"+file_name;  
     std::ofstream ofs(file_name);
     if (!ofs)
       throw std::invalid_argument(file_name+" could not be opened");
