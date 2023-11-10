@@ -8,6 +8,7 @@
 #include "../../material/henyey_greenstein.hpp"
 #include "../../material/tabulated.hpp"
 #include "../../material/ab_functions.hpp"
+#include "../../material/marine_particles/marine_particles.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
 #include "../../environment/input_output.hpp"
 
@@ -104,6 +105,12 @@ namespace flick {
 	  double real_refractive_index{std::stod(a(9))};
 	  tabulated_phase_function p = read<pe_function>("./"+file_name);
 	  material::tabulated m(abs,sca,p,real_refractive_index);
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="marine_particles") {
+	  std::string name = a(6);
+	  double mass_concentration{std::stod(a(7))};
+	  material::marine_particles m(name,mass_concentration);
 	  stream_iops(m, a(1));
 	}
 	else

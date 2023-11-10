@@ -68,6 +68,8 @@ Parameters:
     'tabulated' <absorption_coefficient> <scattering_coefficient>
       <phase_function_file_name> <refractive_index>
 
+    'marine_particles' <name> <mass_concentration>
+
      where <mie_code> should be 'full_mie' for full Mie code
      calculations or 'fast_mie' for approximate parameterized
      calculations. <median_radius> and <size_width> are exp(mu) and
@@ -96,6 +98,8 @@ Examples:
   flick iop AccuRT_1_8 400e-9 700e-9 10 bubbles_in_ice fast_mie 0.01 100e-6 0 
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 henyey_greenstein 10 5 0.8 1.33
+
+  flick iop AccuRT_1_8 400e-9 400e-9 1 marine_particles MP21_PA61 1e-3 10 5 0.8 1.33
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 tabulated 10 5 petzold_phase_function.txt 1.33
 
