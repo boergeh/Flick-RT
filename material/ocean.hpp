@@ -23,7 +23,7 @@ namespace material {
 	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
 	add<double>("nap_concentration", 1e-3, "Nonalgal particle dry mass concentration in the water column [kg/m^3]");
 	add<std::string>("mp_name", "MP21_PA61", "Name of additional tabulated marine particles");
-	add<double>("mp_concentration", 0.01, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3]");
+	add<double>("mp_concentration", 0, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3]");
       }
     };
   private:
