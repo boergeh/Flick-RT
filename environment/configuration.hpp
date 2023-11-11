@@ -7,8 +7,8 @@
 namespace flick {
   class basic_parameter {
   protected:
-    std::string begin_qualifier_ = "/*";
-    std::string end_qualifier_ = "*/";
+    std::string begin_qualifier_ = "#";
+    std::string end_qualifier_ = "##";
   public:
     virtual void print(std::ostream &os)=0;
     virtual void read(std::istream &is, const std::string& name) = 0;
@@ -84,8 +84,8 @@ namespace flick {
   
   class basic_configuration {    
     std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
-    std::string begin_qualifier_ = "/*";
-    std::string end_qualifier_ = "*/";
+    std::string begin_qualifier_ = "#";
+    std::string end_qualifier_ = "##";
     bool unordered_stream_ = false;
   public:
     template<class T>

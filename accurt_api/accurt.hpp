@@ -75,7 +75,7 @@ namespace flick {
       configuration() {
 	add<std::string>("material_name","atmosphere_ocean","Name of material to be used with AccuRT.");
 	add<std::string>("subtract_specular_radiance","false","Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance.");
-	add<double>("detector_height",100e3,"Radiometer position above ground level [m]");
+	add<double>("detector_height",100e3,"Radiometer position relative to sea level [m]");
 	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
 	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"Wavelengths to be detected [m]");
