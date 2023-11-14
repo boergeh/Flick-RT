@@ -48,22 +48,25 @@ namespace flick {
     }
     void read(std::istream &is, const std::string& name) {
       locate_parameter(is, name);
-      for (size_t i = 0; i<p_.size(); ++i) {
-	is >> p_[i];
+      p_.clear();
+      T x;
+      while(is.peek() != '#' and is.peek() != EOF) {
+	is >> x;
+	p_.push_back(x);
+	is >> std::ws;
       }
     }
   private:
     void skip_description(std::istream &is) const {
       std::string str;
-      bool is_description = true;
-      while (is_description) {
+      while (not end_of_description(str)) {
 	is >> str;
-	if(str.find(end_qualifier_) != std::string::npos) {
-	  is_description = false;
-	}
 	if (is.eof() or str.empty())
 	  throw std::runtime_error("parameter: missing text qualifier");
       }
+    }
+    bool end_of_description(const std::string& str) const {
+      return str.find(end_qualifier_) != std::string::npos; 
     }
     void locate_parameter(std::istream &is, const std::string& name) const {
       std::string current_name, equal_sign;

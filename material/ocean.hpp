@@ -22,8 +22,8 @@ namespace material {
 	add<double>("pure_water_vf", 1, "Fraction of volume filled with pure water.");
 	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
 	add<double>("nap_concentration", 1e-3, "Nonalgal particle dry mass concentration in the water column [kg/m^3]");
-	add<std::string>("mp_name", "MP21_PA61", "Name of additional tabulated marine particles");
-	add<double>("mp_concentration", 0, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3]");
+	add<std::string>("mp_names", "MP21_PA61", "Name of additional tabulated marine particles (may be a list of names)");
+	add<double>("mp_concentrations", 0, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3], one concentration for each name");
       }
     };
   private:
@@ -56,8 +56,11 @@ namespace material {
       add_material<nap>(c_.get<double>("nap_concentration"));
     }
     void add_marine_particles() {
-      add_material<marine_particles>(c_.get<std::string>("mp_name"),
-					     c_.get<double>("mp_concentration"));
+      std::vector<std::string> names = c_.get_vector<std::string>("mp_names");
+      std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
+      for (size_t i = 0; i<names.size(); i++) {
+	add_material<marine_particles>(names.at(i), concentrations.at(i));
+      }
     }
   };
 }
