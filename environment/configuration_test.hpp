@@ -1,7 +1,7 @@
 #include "configuration.hpp"
 
 namespace flick {
-  begin_test_case(configuration_test) {
+  begin_test_case(configuration_test_A) {
     struct my_config_A : public basic_configuration {
       my_config_A() {
 	add<double>("age", 49, "person's age in years");	
@@ -37,9 +37,17 @@ namespace flick {
     if (stream) {
       write(c_A1,"./tmp.txt");
       c_A2 = read<my_config_A>("./tmp.txt");
-      //std::cout << std::setprecision(6) << c_A2;
+      check_close(c_A2.get<double>("age"),49);
       check_close(c_A2.get<double>("shoe"),42);
-      //std::cout << my_config_C();
-    }
+    }    
+  } end_test_case()
+
+  begin_test_case(configuration_test_B) {
+    basic_configuration c;
+    c.add<double>("list",{0,1,2},"list of numbers");
+    check_close(c.get_vector<double>("list").at(1),1);
+    std::stringstream ss("# list of numbers ## list = 3 4");
+    ss >> c;
+    check_close(c.get_vector<double>("list").at(1),4);
   } end_test_case()
 }

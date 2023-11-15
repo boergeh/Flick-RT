@@ -1,5 +1,6 @@
 #include "basic_command.hpp"
 #include "../../environment/input_output.hpp"
+#include "../../environment/search_and_replace.hpp"
 #include "../../numeric/function.hpp"
 
 namespace flick {
@@ -7,32 +8,31 @@ namespace flick {
     struct text : public basic_command {
       text():basic_command("text"){};
       void run() {
-	if (a(1)=="xy") {
-	  std::string fname = a(2);
+	auto fname = a(1);
+	auto command = a(2);
+	if (command=="set") {
+	  auto parameter = a(3);
+	  auto value = a(4);
+	  auto t = read<parameter_text>("./"+fname);
+	  t.set(parameter, value);
+	  std::cout << t;
+	}
+	else if (command=="xy-precision")  {
+	  size_t nx = std::stoi(a(3));
+	  size_t ny = std::stoi(a(4));
+	  auto f = read<pl_function>("./"+fname);
+	  std::cout << significant_digits(f,nx,ny);
+	}
+	else if (command=="xy-scale")  {
+	  double kx = std::stod(a(3));
+	  double ky = std::stod(a(4));
 	  auto f = read<pl_function>("./"+fname);
 	  auto x = f.x();
 	  auto y = f.y();
 	  for (size_t i=0; i < x.size(); ++i)
-	    std::cout << x[i] << " " << y[i] << '\n';
-	} else if (a(1)=="xy-precision")  {
-	  size_t nx = std::stoi(a(2));
-	  size_t ny = std::stoi(a(3));
-	  std::string fname = a(4);
-	  auto f = read<pp_function>("./"+fname);
-	  std::cout << significant_digits(f,nx,ny);
-	} else if (a(1)=="xy-scale")  {
-	  double kx = std::stod(a(2));
-	  double ky = std::stod(a(3));
-	  std::string fname = a(4);
-	  auto f = read<pp_function>("./"+fname);
-	  auto x = f.x();
-	  auto y = f.y();
-	  for (size_t i=0; i < x.size(); ++i)
 	    std::cout << kx*x[i] << " " << ky*y[i] << '\n';
-	  //} else if (size()==4 and a(1) == "atmosphere") {
-	  //  auto c = read<configuration_template::atmosphere>("./"+a(2));
-	  // c.set<>
-	} else {
+	}
+	else {
 	  error();
 	}
       }

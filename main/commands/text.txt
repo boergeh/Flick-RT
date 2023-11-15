@@ -1,32 +1,50 @@
 
-flick text <sub_command> [argument ...] <file_name>
+Command:
 
-Usage 1:
+flick text <file_name> <command> [command_specific_argument ...]
 
-  flick text xy file_with_tabulated_xy_data.txt
-  
-  List xy-values in a text file with two columns with xy-data. Any
-  header text will be omitted.
+Parameters:
 
-Usage 2:
+  <command> [command_specific_argument ...]
 
-  flick text xy-precision <nx> <ny> file_with_tabulated_xy_data.txt
+    Select among the following commands with corresponding arguments
 
-  List xy-values with a given precision, where 'nx' and 'ny' are the
-  number of significant figures in x and y columns,
-  respectively. Header text will be included.
 
-  Example:
+    'set' <parameter_name> <parameter_value>
 
-  flick text xy-precision 4 4 file_with_tabulated_xy_data.txt
+    Replaces the value(s) following the a given parameter name. The
+    intput file must have the following format.
 
-Usage 3:
+    # Description a ## 
+    parameter_name_a = value_0 value_1 ...
 
-  flick text xy-scale <kx> <ky> file_with_tabulated_xy_data.txt
+    # Description b ## 
+    parameter_name_b = value_0 value_1 ...
 
-  List scaled xy-values, where 'kx' and 'ky' are the scaling factors
-  for x and y columns, respectively. Header text will be included.
 
-  Example:
+    'xy-precision' <nx> <ny>
 
-  flick text xy-scale 1e-9 1e-4 file_with_tabulated_xy_data.txt
+    Lists xy-values with a given precision, where 'nx' and 'ny' are
+    the number of significant figures in x and y columns,
+    respectively. The input file must be a two-column text file, which
+    may include a header.
+
+
+    'xy-scale' <kx> <ky> file_with_tabulated_xy_data.txt
+
+    Lists scaled xy-values, where 'kx' and 'ky' are the scaling
+    factors for x and y columns, respectively. The input file must be
+    a two-column text file, which may include a header.
+
+
+  Examples:
+
+  flick text my_config.txt set cdom_slope 0.019 
+
+  flick text my_config.txt set DETECTOR_WAVELENGTHS "3.5e-07 4e-07"
+
+  flick text my_config.txt set gases "o2 o3" > my_new_config.txt
+
+  flick text file_with_tabulated_xy_data.txt xy-precision 4 4
+
+  flick text file_with_tabulated_xy_data.txt xy-scale 1e-9 1e-4
