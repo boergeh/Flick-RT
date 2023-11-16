@@ -1,18 +1,18 @@
 
 Command:
 
-  flick filter <irradiance_file_name> <filter_name> [filter_specific_parameters]...
+  flick filter <irradiance_file_name> <filter_name> [filter_specific_parameters ...]
 
-  Filter and integrate an irradiance spectrum.
+  Filters and integrates an irradiance spectrum.
 
 Parameters:
 
   <irradiance_file_name>
 
-    Name of acii text file containing two columns, one with
+    Name of ascii text file containing two columns, one with
     wavelengths and one with spectral irradiance values.
     
-  <filter_name> [filter_specific_parameters]...
+  <filter_name> [filter_specific_parameter ...]
 
     Select among the following filters with corresponding paramters:
 
