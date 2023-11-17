@@ -1,7 +1,7 @@
 #ifndef flick_delta_fit
 #define flick_delta_fit
 
-#include "../constants.hpp"
+#include <numbers>
 #include "../linalg/solve_with_eigen.hpp"
 #include "legendre.hpp"
  
@@ -31,7 +31,7 @@ namespace flick {
       return legendre_evaluation(coefficients_).values(x);
     }
     double scaling_factor() const {
-      return coefficients_.at(0)*4*constants::pi;
+      return coefficients_.at(0)*4*std::numbers::pi;
     }
   };  
 }

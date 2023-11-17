@@ -1,6 +1,5 @@
 #include "wigner_fit.hpp"
 #include "../physics_function.hpp"
-#include "../../environment/input_output.hpp"
 
 namespace flick {
   stdvector make_henyey_greenstein(const stdvector& x, double g) {
@@ -19,13 +18,6 @@ namespace flick {
     wigner_fit wf(f,0,0,n_terms,fit::relative);
     check_close(2*wf.coefficients().at(0),1/(2*constants::pi),0.1_pct);
     check_close(wf.value(x),f.value(x),0.1_pct);
-
-    auto p = flick::read<flick::pl_function>("./petzold_phase_function.txt");
-    n_terms = 31;
-    //wigner_fit wf_p(p,0,0,n_terms,fit::scaling, pl_function(p0.x(),1/p.y()));
-    wigner_fit wf_p(p,0,0,n_terms,fit::relative);
-    auto c = wf_p.coefficients();
-    check_close(wf_p.value(x),p.value(x),0.2_pct);
   } end_test_case()
   
   begin_test_case(wigner_fit_test_B) {

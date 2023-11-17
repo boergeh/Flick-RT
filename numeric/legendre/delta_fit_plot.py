@@ -12,7 +12,7 @@ n_terms = [[8, 16],
 
 for i in range(2):
     for j in range(2):
-        os.system('flick text xy ./petzold_phase_function.txt > tmp.txt')
+        os.system('flick text ./petzold_phase_function.txt xy > tmp.txt')
         xy = np.loadtxt("tmp.txt")
         ax[i,j].semilogy(xy[:,0], xy[:,1],'b-',linewidth=1,label="Petzold")
         
@@ -33,4 +33,4 @@ for i in range(2):
         
 os.system('rm -f ./tmp.txt')
 plt.show()
-fig.savefig("delta_fit_plot.pdf", bbox_inches='tight')
+#fig.savefig("delta_fit_plot.pdf", bbox_inches='tight')

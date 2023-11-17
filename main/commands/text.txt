@@ -37,6 +37,11 @@ Parameters:
     a two-column text file, which may include a header.
 
 
+    'xy' file_with_tabulated_xy_data.txt
+
+    Lists xy-values without header.
+
+
   Examples:
 
   flick text my_config.txt set cdom_slope 0.019 

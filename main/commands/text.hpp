@@ -32,6 +32,13 @@ namespace flick {
 	  for (size_t i=0; i < x.size(); ++i)
 	    std::cout << kx*x[i] << " " << ky*y[i] << '\n';
 	}
+	else if (command=="xy")  {
+	  auto f = read<pl_function>("./"+fname);
+	  auto x = f.x();
+	  auto y = f.y();
+	  for (size_t i=0; i < x.size(); ++i)
+	    std::cout << x[i] << " " << y[i] << '\n';
+	}
 	else {
 	  error();
 	}
