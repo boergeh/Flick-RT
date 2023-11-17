@@ -3,6 +3,7 @@
 #include "water/cdom.hpp"
 #include "mixture.hpp"
 #include "atmosphere_ocean.hpp"
+#include <numbers>
 
 namespace flick {
   begin_test_case(layered_iops_test_A) {
@@ -21,7 +22,7 @@ namespace flick {
     check_close(l.scattering_optical_depth()[2],10);
     check_small(l.absorption_optical_depth()[2]);
     check_close(l.single_scattering_albedo()[2],1);
-    check_close(l.alpha_terms(0)[0][0],1/(4*constants::pi));
+    check_close(l.alpha_terms(0)[0][0],1/(4*std::numbers::pi));
     check_small(l.alpha_terms(0)[0][1]);
     check_close(l.refractive_index()[2],1);   
   } end_test_case()
@@ -42,7 +43,7 @@ namespace flick {
     m->set_position({0,0,-10});
     iops.set_wavelength(400e-9);
     size_t ly = 0;
-    double g = iops.alpha_terms(0)[ly][1]*4*constants::pi/3;
+    double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;
     check_close(g,0.35,50);
 
   } end_test_case()

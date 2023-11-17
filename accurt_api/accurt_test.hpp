@@ -10,8 +10,8 @@ namespace flick {
     stdvector layer_boundaries = {1, 10e3,20e3,100e3};
     size_t n_terms = 10;
     material::atmosphere::configuration c;
-    c.set<size_t>("angles",30);
-    c.set<size_t>("heights",8);
+    c.set<size_t>("n_angles",30);
+    c.set<size_t>("n_heights",8);
     auto atm = std::make_shared<material::atmosphere>(c);
     layered_iops layered_atmosphere(atm,layer_boundaries,n_terms);
   } end_test_case()
@@ -21,9 +21,6 @@ namespace flick {
      stdvector boundaries{-1,-1e-6};
      size_t n_terms = 4;
      auto iops = std::make_shared<layered_iops>(m, boundaries, n_terms);
-     std::cout << iops->scattering_optical_depth();
-     //stdvector wavelengths{300e-9, 500e-9};
-     //accurt_user_specified accurt{iops, wavelengths};
   } end_test_case()
   
   begin_test_case(accurt_test_C) {
@@ -49,8 +46,8 @@ namespace flick {
     ac.set<double>("reference_detector_height",100e3);
     ac.set<double>("detector_height",1);
     material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("angles",30);
-    mc.set<size_t>("heights",8);
+    mc.set<size_t>("n_angles",30);
+    mc.set<size_t>("n_heights",8);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac,m);
     check_close(a.relative_radiation().y()[0],0.8,20_pct);
@@ -91,8 +88,8 @@ namespace flick {
     ac.set<double>("detector_height",0.1);
     ac.set<std::string>("subtract_specular_radiance","true");
     material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("angles",30);
-    mc.set<size_t>("heights",8);
+    mc.set<size_t>("n_angles",30);
+    mc.set<size_t>("n_heights",8);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac,m);
     double Rrs = a.relative_radiation().y()[0];

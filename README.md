@@ -14,10 +14,9 @@ For macOS and Linux:
 
 You will need to have a c++ compiler (e.g. clang++ or g++) already installed.  
 
-Flick is distributed under the MIT license.  
+Flick is named after the flickering of a flame and the unit
+occasionally used for spectral radiance, and it is distributed under
+the MIT license.  
 https://docs.openmc.org/en/stable/license.html
 
-The name Flick is inspired by flickering of a candle and the flick
-unit occasionally used for spectral radiance, where one flick equals
-one watt per steradian per square centimeter of surface per micrometer
-of span in wavelength.  
+

@@ -14,37 +14,34 @@ namespace material {
   struct ocean : public mixture {
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("angles", 20,
-		    "Number of computational phase function angles");
+	add<size_t>("n_angles", 20, "Number of computational phase function angles");
 	add<double>("bottom_depth", 200, "Depth of water column [m]");
 	add<double>("cdom_440", 0.01, "CDOM absorption coefficient at 440 nm [1/m]");
 	add<double>("cdom_slope", 0.017, "CDOM absorption spectrum slope [1/nm]");
-	add<double>("pure_water_vf", 1, "Fraction of volume filled with pure water.");
 	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
 	add<double>("nap_concentration", 1e-3, "Nonalgal particle dry mass concentration in the water column [kg/m^3]");
-	add<std::string>("mp_names", "MP21_PA61", "Name of additional tabulated marine particles (may be a list of names)");
-	add<double>("mp_concentrations", 0, "Dry mass concentration of additional tabulated marine particles in the water column [kg/m^3], one concentration for each name");
+	add<std::string>("mp_names", "MP21_PA61", "A list of names of additional tabulated marine particles");
+	add<double>("mp_concentrations", 0, R"(A list of dry mass concentrations of additional tabulated marine
+particles in the water column [kg/m^3], one concentration value for
+each name)");
       }
     };
   private:
     basic_configuration c_;
   public:
     ocean(const basic_configuration& c=ocean::configuration())
-      : mixture(angle_range(c.get<size_t>("angles")),
+      : mixture(angle_range(c.get<size_t>("n_angles")),
 		{-c.get<double>("bottom_depth"), 0}) {
       c_ = c;
-      //should_update_iops(false);
       add_pure_water();
       add_cdom();
       add_phytoplankton();
       add_nap();
       add_marine_particles();
-      //should_update_iops(true);
-      //update_iops();
     }
   private:
     void add_pure_water() {
-      add_material<pure_water>(30,290,c_.get<double>("pure_water_vf"));
+      add_material<pure_water>(30,290);
     }
     void add_cdom() {
       add_material<cdom>(c_.get<double>("cdom_440"),c_.get<double>("cdom_slope"));

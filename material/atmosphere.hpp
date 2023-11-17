@@ -14,9 +14,9 @@ namespace material {
   public:
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("angles", 30,
+	add<size_t>("n_angles", 30,
 		    "Number of computational phase function angles");
-	add<size_t>("heights", 8,
+	add<size_t>("n_heights", 8,
 		    "Number of computational atmospheric profile points");
 	add<double>("temperature", 290,
 		    "Atmosphere ground temperature [K]");
@@ -29,28 +29,23 @@ namespace material {
 	add<double>("aerosol_ratio", 1,
 		    "Rural to urban aerosol concentration ratio");
 	add<double>("relative_humidity", 0.5,
-		    "Surface relative humidity (for aerosols)");
+		    "Atmosphere ground relative humidity (for aerosols)");
 	add<double>("cloud_liquid", 0,
 		    "Cloud liquid thickness [m] (0.0001 gives a thick cloud)");
-	//add<std::string>("wavelength_range", "uv_vis",
-	// "Name of smoothed gas absorption spectra");
 	add<std::string>("gases", {"o3","o2","h2o","no2"},
-			 "Name of gases to include");
+			 "List of name of gases to include. Possible gases: o3, o2 ,h2o, and no2");
       }
     };
   private:
     basic_configuration c_;
   public:
     atmosphere(const basic_configuration& c=atmosphere::configuration())
-      : mixture(angle_range(c.get<size_t>("angles")),
-		atmospheric_state(c.get<size_t>("heights")).height_grid()) {
+      : mixture(angle_range(c.get<size_t>("n_angles")),
+		atmospheric_state(c.get<size_t>("n_heights")).height_grid()) {
       c_ = c;
-      //should_update_iops(false);
       add_air();
       add_aerosols();
       add_clouds();      
-      //should_update_iops(true);
-      update_iops();
     }
   private:
     void add_air() {

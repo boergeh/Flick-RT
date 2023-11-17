@@ -8,7 +8,7 @@ namespace flick {
    
     atmosphere_ocean::configuration c;
     double depth = 100;
-    c.set<size_t>("angles",50);
+    c.set<size_t>("n_angles",50);
     c.set<double>("aerosol_od",1e-5);
     c.set<double>("bottom_depth",depth);
     auto ao = std::make_shared<atmosphere_ocean>(c);

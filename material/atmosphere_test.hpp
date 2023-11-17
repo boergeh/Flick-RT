@@ -10,8 +10,8 @@ namespace flick {
     using namespace material;
    
     atmosphere::configuration c;
-    c.set<size_t>("angles",100);
-    c.set<size_t>("heights",8);
+    c.set<size_t>("n_angles",100);
+    c.set<size_t>("n_heights",8);
     c.set<double>("aerosol_od",1e-5);
     auto atm = std::make_shared<atmosphere>(c);
     auto wls = {400e-9, 800e-9};

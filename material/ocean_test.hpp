@@ -7,7 +7,7 @@ namespace flick {
     using namespace material;
    
     ocean::configuration c;
-    c.set<size_t>("angles",100);
+    c.set<size_t>("n_angles",100);
     auto oce = ocean(c);
     oce.set_position({0,0,-199});
     oce.set_wavelength(400e-9);
