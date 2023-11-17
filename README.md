@@ -1,5 +1,5 @@
 
-Flick-RT is a 3D Monte Carlo radiative transport code  
+Flick is a general radiative transfer framework  
 
 Clone from GitHub with:  
  git clone https://github.com/boergeh/Flick-RT.git  
