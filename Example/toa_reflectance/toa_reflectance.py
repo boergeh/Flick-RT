@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-wavelengths = np.linspace(400e-9,700e-9,5);
+wavelengths = np.linspace(300e-9,700e-9,15);
 if not os.path.exists("./config"):
     os.system("flick accurt -g toa_reflectance config")
     

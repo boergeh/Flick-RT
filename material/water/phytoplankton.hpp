@@ -9,10 +9,10 @@ namespace material {
   class phytoplankton : public base {
     double asymmetry_factor_ = 0.98;
     double chl_concentration_ = 1e-6; // [kg/m^3]    
-    //flick::henyey_greenstein hg_{asymmetry_factor_};
     flick::fournier_forand ff_{asymmetry_factor_};
     pl_function A_;
     pl_function B_;
+    const double epsilon_ = 10*std::numeric_limits<double>::epsilon();
   public:
     phytoplankton(double chl_concentration = 1e-6)
       : chl_concentration_{chl_concentration} {
@@ -46,7 +46,7 @@ namespace material {
     // 100(C7), pp.13321-13332.
     {
       double wl_nm = wavelength()*1e9;
-      return A_.value(wl_nm) * pow(chl_mg(), -B_.value(wl_nm));
+      return A_.value(wl_nm) * pow(chl_mg()+epsilon_, -B_.value(wl_nm));
     }
     double b_star() const
     // Chlorophyll-specific scattering coefficient [m^2/mg]     
@@ -55,7 +55,7 @@ namespace material {
     // Research Part A. Oceanographic Research Papers, 34(7),
     // pp.1093-1105.
     {
-      return 0.3 * pow(chl_mg(), -0.38);
+      return 0.3 * pow(chl_mg()+epsilon_, -0.38);
     }
     double b_wavelength_factor() const
     // Babin, M., Morel, A., Fournier-Sicre, V., Fell, F. and Stramski,

@@ -19,5 +19,9 @@ namespace flick {
     auto unit_back = unit_vector{constants::pi,0};
     auto p_backward = p.mueller_matrix(unit_back).value(0,0);
     check(p_forward/p_backward > 1e4);
+
+    p.chl_concentration(0);
+    check_small(p.absorption_coefficient());
+    check_small(p.scattering_coefficient());
   } end_test_case()
 }
