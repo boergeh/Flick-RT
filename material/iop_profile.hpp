@@ -37,6 +37,9 @@ namespace flick {
     const std::vector<double>& heights() const {
       return profile_.x();
     }
+    size_t size() const {
+      return profile_.size();
+    }
     void clear() {
       profile_ = pe_function();
     }

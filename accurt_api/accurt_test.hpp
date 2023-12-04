@@ -61,8 +61,7 @@ namespace flick {
     ac.set<double>("reference_detector_height",-0.9);
     auto a4 =  accurt(ac,m);
     check_close(a4.relative_radiation().y()[0],1.1,10_pct);
-    
-    ac.set<double>("DETECTOR_WAVELENGTHS",{400e-9,700e-9});
+    ac.set<double>("DETECTOR_WAVELENGTHS",{400e-9, 700e-9});
     ac.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
     ac.set<double>("reference_detector_height",120e3);
     ac.set<double>("detector_height",120e3);

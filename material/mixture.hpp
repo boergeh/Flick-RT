@@ -107,6 +107,14 @@ namespace material {
       if (n_low >= n_high or n_high >= heights_.size())
 	throw std::runtime_error("mixtrue");
       flick::pose initial_pose = material.pose();
+      add_mueller(material,n_low,n_high);
+      add_absorption_and_scattering(material, n_low, n_high);
+      if (material.real_refractive_index() > real_refractive_index_) {
+	real_refractive_index_ = material.real_refractive_index();
+      }
+      material.set(initial_pose);
+    }
+    void add_absorption_and_scattering(base& material, size_t n_low, size_t n_high) {
       stdvector zs = {heights_.begin()+n_low, heights_.begin()+n_high+1};
       pe_function a;
       pe_function s;
@@ -124,21 +132,25 @@ namespace material {
       s = scale_to_integral(s,material.scattering_optical_depth(dz));
       a_profile_.add(iop_z_profile(a), heights_);
       s_profile_.add(iop_z_profile(s), heights_);
-      if (material.real_refractive_index() > real_refractive_index_) {
-	real_refractive_index_ = material.real_refractive_index();
-      }
+    }
+    void add_mueller(base& material, size_t n_low, size_t n_high)
+    // Must be run before adding scattering coefficients
+    {
       for (size_t i=n_low; i<=n_high; ++i) {
 	double z = heights_[i];
-	double s1 = s_profile_.value(z);
+	double s1 = 0;
+	double weight = 0;
+	if (s_profile_.size() > 0)
+	  s1 = s_profile_.value(z);
 	material.set_position({0,0,z});
 	double s2 = material.scattering_coefficient();
-	double weight = s2/(s1+s2);
+	if (s1+s2 > 0)
+	  weight = s2/(s1+s2);
 	if (not std::isfinite(weight))
 	  weight = 0;
 	angular_mueller am = fill_angular_mueller(material);
 	mueller_[i].add(am, weight);
       }
-      material.set(initial_pose);
     }
     void add(base& material) {
       add(material, 0, heights_.size()-1);

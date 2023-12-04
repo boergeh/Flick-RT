@@ -167,11 +167,7 @@ namespace flick {
       b = 0 - c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB");
       std::reverse(b.begin(),b.end());
       b.push_back(0);
-      //if (b.at(0) > -minimum_depth_)
-      //	b.insert(b.begin(), minimum_depth_);
-      //std::cout << "boundary lower  "<< b<<std::endl;
       auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
-      //std::cout << "scat coef "<<layered_lower_slab->scattering_coefficient()<<std::endl;
       write(accurt_user_specified(layered_lower_slab, wavelengths_),
       	    "./tmpMaterials/user_specified_lower_slab", precision_);
     }
@@ -255,7 +251,6 @@ namespace flick {
       return c;
     }
     void add_layer_depths() {
-      //stdvector h = {-bottom_depth_, -minimum_depth_, 0, max_height_};
       stdvector h = {-bottom_depth_, 0,max_height_};
       material::z_profile* zp = dynamic_cast<material::z_profile*>(&*material_);
       if (zp != NULL) {
@@ -275,12 +270,6 @@ namespace flick {
 	else
 	  depths_upper.push_back(d);
       }
-      /*
-      if (depths_lower.size()==0) {
-	bottom_depth_ = 1;
-	depths_lower = {bottom_depth_};
-      }
-      */
       c_.add<double>("LAYER_DEPTHS_UPPER_SLAB",depths_upper);
       c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",depths_lower);
     }
