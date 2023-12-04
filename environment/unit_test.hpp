@@ -136,6 +136,7 @@ namespace flick {
       write_begin("");
       std::cout << "did not throw as expected";
       write_end();
+      errors_++;
     }
   };
 

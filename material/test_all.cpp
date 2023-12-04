@@ -29,7 +29,8 @@ int main() {
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
   t.include<atmosphere_test>();
-  t.include<ocean_test>();
+  t.include<ocean_test_A>();
+  t.include<ocean_test_B>();
   t.include<atmosphere_ocean_test>();
   t.run_test_cases();
   return 0;

@@ -1,5 +1,5 @@
 
-Flick is a general radiative transfer framework  
+Flick is a general radiative transfer modeling framework  
 
 Clone from GitHub with:  
  git clone https://github.com/boergeh/Flick-RT.git  

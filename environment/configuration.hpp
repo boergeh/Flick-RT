@@ -61,7 +61,7 @@ namespace flick {
       std::string str;
       while (not end_of_description(str)) {
 	is >> str;
-	if (is.eof() or str.empty())
+	if (str.empty())
 	  throw std::runtime_error("parameter: missing text qualifier");
       }
     }
@@ -93,11 +93,11 @@ namespace flick {
   public:
     template<class T>
     void add(const std::string& name, const std::vector<T>& p, std::string description="") {
-      if (description.empty() && parameters_.find(name)!=parameters_.end())
-	description = parameters_.at(name)->description();
-      parameters_[name] = std::make_shared<parameter<T>>(name,p,description);
-      parameters_.at(name)->set_text_qualifiers(begin_qualifier_,end_qualifier_);
+      if (exists(name))
+      	throw std::runtime_error("configuration add: " + name + " already exists");
+      add_or_set(name,p,description);
     }
+   
     template<class T>
     void add(const std::string& name, const T& p, const std::string& description="") {
       add(name, std::vector<T>{p}, description);  
@@ -105,7 +105,7 @@ namespace flick {
     template<class T>
     void set(const std::string& name, const std::vector<T>& p, const std::string& description="") {
       ensure_exists(name);
-      add(name,p,description);
+      add_or_set(name,p,description);
     }
     void set_unordered_stream(bool b) {
       unordered_stream_ = b;
@@ -113,7 +113,7 @@ namespace flick {
     template<class T>
     void set(const std::string& name, const T& p, const std::string& description="") {
       ensure_exists(name);
-      add(name, p, description);  
+      set(name, std::vector<T>{p}, description);
     }
     template<class T>
     std::vector<T> get_vector(const std::string& name) const {
@@ -147,6 +147,13 @@ namespace flick {
       end_qualifier_ = end;
     }
   private:
+    template<class T>
+    void add_or_set(const std::string& name, const std::vector<T>& p, std::string description="") {
+      if (description.empty() && parameters_.find(name)!=parameters_.end())
+	description = parameters_.at(name)->description();
+      parameters_[name] = std::make_shared<parameter<T>>(name,p,description);
+      parameters_.at(name)->set_text_qualifiers(begin_qualifier_,end_qualifier_);
+    }
     void ensure_exists(const std::string& name) const {
       ensure(exists(name),"parameter "+name+" not found");
     }

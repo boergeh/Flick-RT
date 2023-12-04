@@ -14,17 +14,23 @@ namespace material {
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
     std::map<std::string, std::vector<size_t>> range_;
+    std::string name_extension_;
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
       mueller_.resize(heights.size());
+    }
+    void name_extension(const std::string& s) {
+      name_extension_ = s;
     }
     const stdvector& heights() const {
       return heights_;
     }
     template<class Material, class... Args>
     void add_material(Args... a) {
-      std::string key = typeid(Material).name();
+      std::string key = id<Material>();
+      if (exists(key))
+      	throw std::runtime_error("material add: " + key + " already exists");
       materials_[key] = std::make_shared<Material>(a...);
       if (range_.find(key) == range_.end())
 	range_[key]={0, heights_.size()-1};
@@ -32,12 +38,12 @@ namespace material {
     }
     template<class Material>
     const Material& get_material() const {
-      auto ptr = materials_.at(typeid(Material).name()).get();
+      auto ptr = materials_.at(id<Material>()).get();
       return *static_cast<Material*>(ptr);
     }
     template<class Material>
     void set_range(size_t n_low, size_t n_high) {
-      range_[typeid(Material).name()] = {n_low, n_high};
+      range_[id<Material>()] = {n_low, n_high};
       update_iops();
     }
     stdvector angle_range(size_t n) const {
@@ -82,7 +88,21 @@ namespace material {
 	}
       }
     }
+    std::vector<std::string> material_ids() const {
+      std::vector<std::string> ids;
+      for (auto& [name, val] : materials_) {
+	ids.push_back(name);
+      }
+      return ids;
+    }
   private:
+    bool exists(const std::string& name) const {
+      return (materials_.find(name) != materials_.end());
+    }
+    template<class Material>
+    std::string id() const {
+      return typeid(Material).name() + name_extension_;
+    }
     void add(base& material, size_t n_low, size_t n_high) {
       if (n_low >= n_high or n_high >= heights_.size())
 	throw std::runtime_error("mixtrue");

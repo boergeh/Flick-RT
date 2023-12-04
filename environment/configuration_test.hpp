@@ -44,10 +44,17 @@ namespace flick {
 
   begin_test_case(configuration_test_B) {
     basic_configuration c;
-    c.add<double>("list",{0,1,2},"list of numbers");
-    check_close(c.get_vector<double>("list").at(1),1);
-    std::stringstream ss("# list of numbers ## list = 3 4");
+    c.add<double>("list_1",{0,1,2},"list of numbers one");
+    c.add<double>("list_2",{3,4,5},"list of numbers two");
+    c.add<std::string>("list_s",{"abc","def"},"list of strings");
+    check_close(c.get_vector<double>("list_1").at(1),1);
+    check_close(c.get_vector<double>("list_2").at(1),4);
+    check(c.get_vector<std::string>("list_s").at(1)=="def");
+
+    std::stringstream ss("# l1 ## \nlist_1 = 3 4\n# l2 ##\nlist_2 = 7 8\n # l3 ##\nlist_s = efg hij");
     ss >> c;
-    check_close(c.get_vector<double>("list").at(1),4);
+    check_close(c.get_vector<double>("list_1").at(1),4);
+    check_close(c.get_vector<double>("list_2").at(1),8);
+    check(c.get_vector<std::string>("list_s").at(1)=="hij");
   } end_test_case()
 }

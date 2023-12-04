@@ -56,7 +56,9 @@ each name)");
       std::vector<std::string> names = c_.get_vector<std::string>("mp_names");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
       for (size_t i = 0; i<names.size(); i++) {
+	name_extension(std::to_string(i));
 	add_material<marine_particles>(names.at(i), concentrations.at(i));
+	name_extension("");
       }
     }
   };

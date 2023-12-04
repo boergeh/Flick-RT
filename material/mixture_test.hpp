@@ -43,12 +43,9 @@ namespace flick {
     begin_test_case(mixture_test_B) {
     using namespace material;
     material::mixture m({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
-    //m.should_update_iops(false);
     m.add_material<ocean>();
     m.add_material<atmosphere>();
     m.set_range<ocean>(0,1);
     m.set_range<atmosphere>(2,5);
-    //m.should_update_iops(true);
-    //m.update_iops();
   } end_test_case()
 }

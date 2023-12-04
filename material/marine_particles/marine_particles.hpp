@@ -40,6 +40,10 @@ namespace material {
       return m.add(0,0,p_.value(ang_deg));
     }
   };
+  template<int n>
+  struct listable_marine_particles : public marine_particles {
+    using marine_particles::marine_particles;
+  };
 }
 }
 
