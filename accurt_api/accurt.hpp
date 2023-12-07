@@ -18,9 +18,10 @@ namespace flick {
     stdvector wls_;
   public:
     accurt_user_specified(std::shared_ptr<layered_iops> iops, const stdvector& wavelengths)
-      : iops_{iops}, wls_{wavelengths} {}
-  private:
-    friend std::ostream& operator<<(std::ostream &os, const accurt_user_specified& u) {
+      : iops_{iops}, wls_{wavelengths} {
+    }
+    friend std::ostream& operator<<(std::ostream &os,
+				    const accurt_user_specified& u) {
 	os << "# AccuRT configuration file for the user_specified material #\n"
 	 << "PROFILE_LABEL = layer_numbering #\n"
 	 << "MATERIAL_PROFILE = ";
@@ -142,19 +143,22 @@ namespace flick {
       c_.set_text_qualifiers("#","##");
     }
     pp_function relative_radiation() {
-      if (c_.get<std::string>("detector_type")=="radiance")
+      std::string t = c_.get<std::string>("detector_type"); 
+      if (t=="radiance")
 	return relative_radiance();
-      else if (c_.get<std::string>("detector_type")=="scalar_irradiance")
+      else if (t=="scalar_irradiance")
 	return relative_scalar_irradiance();
-      else
+      else if (t=="plane_irradiance")
 	return relative_plane_irradiance();
+      else
+	throw std::runtime_error("detector_type");
     }
   private:
     void set_vertical_radiance() {
       c_.set<std::string>("SAVE_RADIANCE","true");
       c_.set<std::string>("DETECTOR_AZIMUTH_ANGLES","nan");
       c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
-      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",20);
+      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",32);
     }
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
@@ -202,22 +206,29 @@ namespace flick {
 	Lu[i] = g.f[0][i][1][0];
 	Ld[i] = g.f[0][i][0][0];
       }
-      if (c_.get<std::string>("subtract_specular_radiance")=="true") {
-	Lu - Ld * nadir_fresnel_coefficient(wls);
+      std::string tf = c_.get<std::string>("subtract_specular_radiance"); 
+      if (tf=="true") {
+	Lu =  Lu - Ld * nadir_fresnel_coefficient(wls);
+      } else if (tf!="false") {
+	throw std::runtime_error("subtract_specular_radiance");
       }
-      if (c_.get<std::string>("detector_orientation")=="up") {
+      tf = c_.get<std::string>("detector_orientation");
+      if (tf=="up") {
 	return Ld;
-      } else {
+      } else if (tf=="down"){
 	return Lu;
+      } else {
+	throw std::runtime_error("detector_orientation");
       }
     }
     stdvector detector_plane_irradiance() {
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
-      } else {
+      } else if (c_.get<std::string>("detector_orientation")=="down") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
-      }
+      } else
+	throw std::runtime_error("detector_orientation");
       return t.row(n_detector_).y();
     }
     stdvector detector_scalar_irradiance() {
@@ -225,18 +236,20 @@ namespace flick {
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
 	t = read_irradiance(path_+"/scalar_irradiance_total_downward.txt");
-      } else {
+      } else if (c_.get<std::string>("detector_orientation")=="down") {
 	t = read_irradiance(path_+"/scalar_irradiance_total_upward.txt");
-      }
+      } else
+	throw std::runtime_error("detector_orientation");
       return t.row(n_detector_).y();
     }
     stdvector reference_detector_irradiance() {
       pe_table t;
       if (c_.get<std::string>("reference_detector_orientation")=="up") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
-      } else {
+      } else if (c_.get<std::string>("reference_detector_orientation")=="down") {
 	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
-      }
+      } else
+	throw std::runtime_error("reference_detector_orientation");
       return t.row(n_reference_).y();
     }
     stdvector nadir_fresnel_coefficient(const stdvector& wls) {

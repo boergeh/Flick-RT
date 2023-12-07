@@ -59,6 +59,15 @@ namespace flick {
     stdvector scattering_coefficient() const {
       return ods_ / layer_thicknesses();
     }
+    friend std::ostream& operator<<(std::ostream &os,
+				    const layered_iops& iops) {
+      os << "Scattering optical depth: " << iops.scattering_optical_depth()
+	 << "\n";
+      os << "Absorption optical depth: " << iops.absorption_optical_depth()
+	 << "\n";
+      os << "Phase function terms: " << iops.alpha_terms(0)[0] << "\n";
+      return os;
+    }  
   private:
     void update() {
       m_->set_direction({0,0});
@@ -72,13 +81,6 @@ namespace flick {
 	move(layer_thickness(i));
       }
     }
-    friend std::ostream& operator<<(std::ostream &os,
-				    const layered_iops& iops) {
-      os << "Scattering optical depth: " << iops.scattering_optical_depth() << "\n";
-      os << "Absorption optical depth: " << iops.absorption_optical_depth() << "\n";
-      os << "Phase function terms: " << iops.alpha_terms(0)[0] << "\n";
-      return os;
-    }  
     void set_alpha_beta(size_t i) {
       auto [alpha, beta] = material::fitted_mueller_alpha_beta(*m_,n_terms_);
       for (size_t n=0; n < alpha_.size(); n++)

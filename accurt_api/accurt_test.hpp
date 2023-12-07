@@ -7,7 +7,7 @@
 
 namespace flick {
   begin_test_case(accurt_test_A) {
-    stdvector layer_boundaries = {1, 10e3,20e3,100e3};
+    stdvector layer_boundaries = {1,10e3,20e3,100e3};
     size_t n_terms = 10;
     material::atmosphere::configuration c;
     c.set<size_t>("n_angles",30);
@@ -24,18 +24,20 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(accurt_test_C) {
+    // Compare with van de Hulst 1980, vol 1, chapter 9, table 12,
+    // p258, FLUX
     absorption_coefficient a{0};
     scattering_coefficient b{0.5};
     asymmetry_factor g{0};
     accurt::configuration c;
     c.set<std::string>("detector_orientation","down");
+    c.set<std::string>("detector_type","plane_irradiance");
     c.set<double>("detector_height",1);
     c.set<double>("reference_detector_height",1);
     c.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
     c.set<double>("DETECTOR_WAVELENGTHS",400e-9);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
     auto ac =  accurt(c,m);
-    // van de Hulst 1980, vol 1, chapter 9, table 12, p258, FLUX
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
  
@@ -43,6 +45,7 @@ namespace flick {
     accurt::configuration ac;
     ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
     ac.set<std::string>("detector_orientation","up");
+    ac.set<std::string>("detector_type","plane_irradiance");
     ac.set<double>("reference_detector_height",100e3);
     ac.set<double>("detector_height",1);
     material::atmosphere_ocean::configuration mc;
@@ -80,18 +83,21 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(accurt_test_F) {
+    // Assert low remote sensing reflectance in NIR
     accurt::configuration ac;
-    ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
+    ac.set<double>("DETECTOR_WAVELENGTHS",950e-9);
     ac.set<std::string>("detector_orientation","down");
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.1);
+    ac.set<double>("reference_detector_height",0.2);
     ac.set<std::string>("subtract_specular_radiance","true");
     material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("n_angles",30);
+    mc.set<size_t>("n_angles",100);
     mc.set<size_t>("n_heights",8);
+    mc.set<double>("aerosol_od",1);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac,m);
     double Rrs = a.relative_radiation().y()[0];
-    check_close(Rrs, 0.08, 20_pct);
+    check_small(Rrs, 0.0002);
   } end_test_case()
 }
