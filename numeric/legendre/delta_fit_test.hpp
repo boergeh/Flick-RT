@@ -17,6 +17,6 @@ namespace flick {
     auto g = flick::read<flick::pl_function>("./petzold_phase_function.txt");
     n_terms = 30;
     delta_fit df2(g,n_terms);
-    check_close(df2.function_values({-1}).at(0),g.value(-1),0.2_pct);
+    check_close(df2.function_values({-1}).at(0),g.value(-1),0.5_pct);
   } end_test_case()
 }

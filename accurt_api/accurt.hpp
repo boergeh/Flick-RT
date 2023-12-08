@@ -158,7 +158,7 @@ namespace flick {
       c_.set<std::string>("SAVE_RADIANCE","true");
       c_.set<std::string>("DETECTOR_AZIMUTH_ANGLES","nan");
       c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
-      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",32);
+      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",34);
     }
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;

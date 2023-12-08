@@ -12,8 +12,9 @@ namespace flick {
   public:
     delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
-      int n_points = pow(n_terms,1.6);
-      std::vector<double> x = range(-1,1,n_points).linspace();
+      int n_angles = pow(n_terms,1.6);
+      double forward_max = 1 - 0.1/(n_angles+1);
+      std::vector<double> x = range(-1,forward_max,n_angles).linspace();
       linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);
       for (size_t i=0; i<x.size(); ++i) {
