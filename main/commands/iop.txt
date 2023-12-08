@@ -11,21 +11,20 @@ Parameters:
   <property>
 
     Select 'absorption_length', 'scattering_length',
-    'refractive_index',
-    'scattering_ab_10','scattering_ab_10_8','wigner_alpha_beta_10', or
-    'AccuRT_1_8'
+    'refractive_index', 'scattering_ab_10', 'scattering_ab_10',
+    'scattering_ab_fitted_10', 'wigner_alpha_beta_10', or 'AccuRT_1_8'
 
     The 'scattering_ab_10' property will for each wavelength list the
     a and b elements of the Mueller matrix multiplied with the
-    scattering coefficient for 10 scattering angles (number of angles
-    may be changed). First column gives cosine of scattering angle,
-    next 4 columns give a-function values, and the two last columns
-    give b-function values. 4*pi steradian integral over the first
-    a-function gives the scattering coefficient.
+    scattering coefficient for 10 scattering angles (the 10 number of
+    angles may be changed). First column gives cosine of scattering
+    angle, next 4 columns give a-function values, and the two last
+    columns give b-function values. 2*pi times the integral over the
+    first a-function gives the scattering coefficient.
 
-    The 'scattering_ab_10_8' property is the same as
-    'scattering_ab_10' except that it lists fitted ab functions with 8
-    expansion terms.
+    The 'scattering_ab_fitted_10' property is the same as
+    'scattering_ab_10', except that it lists fitted ab functions using
+    10 wigner function expansion terms.
 
     The 'wigner_alpha_beta_10' property will for each wavelength list
     10 Wigner-d fitted alpha and beta expansion terms for the Mueller
@@ -51,6 +50,12 @@ Parameters:
 
     'pure_ice'
 
+    'pythoplankton' <chlorophyll_concentration_in_kg/m^3>
+
+    'nap' <mass_concentration_in_kg/m^3>
+
+    'cdom' <absorption_coefficient_at_440_nm> <slope_per_nm>
+
     'water_cloud' <mie_code> <volume_fraction> <median_radius> <size_width>
 
     'ice_cloud' <mie_code> <volume_fraction> <median_radius> <size_width>
@@ -61,6 +66,13 @@ Parameters:
       <size_width> <salinity_in_psu>
     
     'bubbles_in_ice' <mie_code> <volume_fraction> <median_radius> <size_width>
+
+       where <mie_code> should be 'full_mie' for full Mie code
+       calculations or 'fast_mie' for approximate parameterized
+       calculations. <median_radius> and <size_width> are exp(mu) and
+       sigma of a log-normal number size distribution,
+       https://en.wikipedia.org/wiki/Log-normal_distribution,
+       respectively.
     
     'henyey_greenstein' <absorption_coefficient> <scattering_coefficient>
       <asymmetry_factor> <refractive_index>
@@ -70,18 +82,20 @@ Parameters:
 
     'marine_particles' <name> <mass_concentration>
 
-     where <mie_code> should be 'full_mie' for full Mie code
-     calculations or 'fast_mie' for approximate parameterized
-     calculations. <median_radius> and <size_width> are exp(mu) and
-     sigma of a log-normal number size distribution,
-     https://en.wikipedia.org/wiki/Log-normal_distribution,
-     respectively.
 
 Examples:
 
   flick iop absorption_length 400e-9 700e-9 10 pure_water 273 35
 
   flick iop refractive_index 400e-9 700e-9 10 pure_ice
+
+  flick iop scattering_length 400e-9 700e-9 10 phytoplankton 1e-6
+
+  flick iop wigner_alpha_beta_34 500e-9 500e-9 1 phytoplankton 1e-6
+
+  flick iop absorption_length 400e-9 700e-9 10 nap 1e-3	
+
+  flick iop absorption_length 400e-9 700e-9 10 cdom 0.1 0.014	
 
   flick iop scattering_length 400e-9 700e-9 10 water_cloud full_mie 1e-7 5e-6 0.1
 

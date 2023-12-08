@@ -4,6 +4,9 @@
 #include "basic_command.hpp"
 #include "../../material/water/pure_water.hpp"
 #include "../../material/ice/pure_ice.hpp"
+#include "../../material/water/phytoplankton.hpp"
+#include "../../material/water/nap.hpp"
+#include "../../material/water/cdom.hpp"
 #include "../../material/spheres.hpp"
 #include "../../material/henyey_greenstein.hpp"
 #include "../../material/tabulated.hpp"
@@ -34,6 +37,18 @@ namespace flick {
 	}
 	else if (a(5)=="pure_ice") {
 	  material::pure_ice m;
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="nap") {
+	  material::nap m(std::stod(a(6)));
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="cdom") {
+	  material::cdom m(std::stod(a(6)), std::stod(a(7)));
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="phytoplankton") {
+	  material::phytoplankton m(std::stod(a(6)));
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="water_cloud") {
@@ -130,33 +145,41 @@ namespace flick {
 	return numbers;
       }
       template<class Material>
+      void stream_ab_functions(Material& m,
+			       const std::vector<std::vector<double>>& a,
+			       const std::vector<std::vector<double>>& b,
+			       const std::vector<double>& x) const {
+	std::cout << std::setprecision(8) << "\n";
+	for (size_t i = 0; i < wls_.size(); ++i) {
+	  m.set_wavelength(wls_[i]);
+	  double k = m.scattering_coefficient();
+	  for (size_t j = 0; j < x.size(); ++j) {
+	    std::cout << x[j] << " " << a[0][j]*k << " " << a[1][j]*k
+		      << " " << a[2][j]*k
+		      << " " << a[3][j]*k
+		      << " " << b[0][j]*k
+		      << " " << b[1][j]*k << "\n";
+	  }
+	}
+      }
+      template<class Material>
       void stream_iops(Material& m, const std::string& property) const {
 	const std::string& p = property;
 	if (p.substr(0,6)=="AccuRT") {
 	  auto n = sub_script_numbers(p);
 	  stream_AccuRT(m, n.at(0), n.at(1));
-	} else if (p.substr(0,13)=="scattering_ab") {
-	  auto n = sub_script_numbers(p.substr(13));	  
-	  size_t n_angles = n.at(0);
-	  size_t n_terms = 0;
+	}
+	else if (p.substr(0,20)=="scattering_ab_fitted") {
+	  size_t n_terms = sub_script_numbers(p.substr(20)).at(0);
+	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms);
+	  stream_ab_functions(m,a,b,x);
+	}
+	else if (p.substr(0,13)=="scattering_ab") {
+	  size_t n_angles = sub_script_numbers(p.substr(13)).at(0);
 	  auto [a,b,x] = material::mueller_ab_functions(m,n_angles);
-	  if (n.size()==2) {
-	    n_terms = n.at(1);
-	    std::tie(a,b,x) = material::fitted_mueller_ab_functions(m, n_angles,n_terms);
-	  }
-	  std::cout << std::setprecision(7);
-	  for (size_t i = 0; i < wls_.size(); ++i) {
-	    m.set_wavelength(wls_[i]);
-	    double k = m.scattering_coefficient();
-	    for (size_t j = 0; j < x.size(); ++j) {
-	      std::cout << x[j] << " " << a[0][j]*k << " " << a[1][j]*k
-			<< " " << a[2][j]*k
-			<< " " << a[3][j]*k
-			<< " " << b[0][j]*k
-			<< " " << b[1][j]*k << "\n";
-	    }
-	  }
-	} else if (p.substr(0,17)=="wigner_alpha_beta") {
+	  stream_ab_functions(m,a,b,x);
+	}
+	else if (p.substr(0,17)=="wigner_alpha_beta") {
 	  auto n = sub_script_numbers(p.substr(17));
 	  size_t n_terms = n.at(0);
 	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms);
@@ -172,7 +195,8 @@ namespace flick {
 			<< " " << beta[1][j]*k << "\n";
 	    }
 	  }
-	} else {
+	}
+	else {
 	  double value = 0;
 	  for (auto wl:wls_) {
 	    m.set_wavelength(wl);

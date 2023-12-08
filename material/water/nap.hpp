@@ -5,7 +5,9 @@
 
 namespace flick {
 namespace material {
-  class nap : public base {
+  class nap : public base
+  // Nonalgal particulate matter 
+  {
     double mass_concentration_; // [kg/m^3]
     double asymmetry_factor_ = 0.8;
     flick::fournier_forand ff_{asymmetry_factor_};

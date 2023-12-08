@@ -16,7 +16,14 @@ namespace material {
   // taken relative to current traveling direction, keeping azimuth
   // angle equal to zero
   {
-    std::vector<double> x = range(-1,1,n_angles).linspace();
+    double forward_max = 1 - 0.1/(n_angles+1);
+    std::vector<double> x = range(-1,forward_max,n_angles).linspace();
+    
+    //std::vector<double> theta = range(0,constants::pi,n_angles+1).linspace();
+    //theta.erase(theta.begin());
+    //std::vector<double> x = vec::cos(theta);//(theta.size());
+    //std::reverse(x.begin(),x.end());
+
     std::vector<std::vector<double>> a(4,std::vector<double>(x.size()));
     std::vector<std::vector<double>> b(2,std::vector<double>(x.size()));
     for (size_t i=0; i<n_angles; ++i) {
@@ -49,7 +56,7 @@ namespace material {
   template<class Material>
   std::tuple<std::vector<std::vector<double>>,
 	     std::vector<std::vector<double>>,
-	     std::vector<double>> fitted_mueller_ab_functions(const Material& mat, size_t n_angles, size_t n_terms)
+	     std::vector<double>> fitted_mueller_ab_functions(const Material& mat, size_t n_terms)
   {
     size_t n_points = wigner_sample_points(n_terms);
     auto [a,b,x] = mueller_ab_functions(mat, n_points);
