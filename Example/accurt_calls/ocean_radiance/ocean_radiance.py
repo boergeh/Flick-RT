@@ -11,7 +11,7 @@ def run_os(command):
     subprocess.CalledProcessError    
 
 def configure():
-    wavelengths = np.linspace(300e-9,900e-9,30);    
+    wavelengths = np.linspace(300e-9,500e-9,30);    
     wls_str = "\""+" ".join(str(x) for x in wavelengths)+"\""
     command = "flick text config_template set DETECTOR_WAVELENGTHS "+wls_str+" > updated_config"
     run_os(command)

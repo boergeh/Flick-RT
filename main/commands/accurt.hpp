@@ -17,6 +17,9 @@ namespace flick {
 	  if (a(2) == "toa_reflectance") {
 	    configuration_template::toa_reflectance().write(a(3));
 	  }
+	  else if (a(2) == "ocean_radiance") {
+	    configuration_template::ocean_radiance().write(a(3));
+	  }
 	  else if (a(2) == "boa_transmittance") {
 	    configuration_template::boa_transmittance().write(a(3));
 	  }
