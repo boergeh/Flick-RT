@@ -16,24 +16,30 @@ namespace flick {
 	if (size() == 4 && a(1) == "-g" ) {
 	  if (a(2) == "toa_reflectance") {
 	    configuration_template::toa_reflectance().write(a(3));
-	  } else if (a(2) == "boa_transmittance") {
+	  }
+	  else if (a(2) == "boa_transmittance") {
 	    configuration_template::boa_transmittance().write(a(3));
-	  } else if (a(2) == "rs_reflectance") {
+	  }
+	  else if (a(2) == "rs_reflectance") {
 	    configuration_template::rs_reflectance().write(a(3));
-	  } else if (a(2) == "ramses_reflectance") {
+	  }
+	  else if (a(2) == "ramses_reflectance") {
 	    configuration_template::ramses_reflectance().write(a(3));
 	  }
-	} else if (size() == 2) {
+	}
+	else if (size() == 2) {
 	  auto c0 = read<configuration_template::basic_accurt>("./"+a(1));
 	  std::string name = c0.get<std::string>("material_name");
 	  std::shared_ptr<material::base> m;
 	  if (name == "atmosphere") {
 	    auto c = read<configuration_template::atmosphere>("./"+a(1));
 	    m = std::make_shared<material::atmosphere>(c);
-	  } else if(name == "atmosphere_ocean") {
+	  }
+	  else if(name == "atmosphere_ocean") {
 	    auto c = read<configuration_template::atmosphere_ocean>("./"+a(1));
 	    m = std::make_shared<material::atmosphere_ocean>(c);
-	  } else {
+	  }
+	  else {
 	    throw std::runtime_error("accurt command: material '"+name+"' not found");
 	  }
 	  std::cout << flick::accurt(c0,m).relative_radiation();

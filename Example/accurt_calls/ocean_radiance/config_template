@@ -1,0 +1,85 @@
+# Zero gives black surface ##
+BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR = 0 
+
+# Wavelengths to be detected [m] ##
+DETECTOR_WAVELENGTHS = 500e-9
+
+# Zero gives overhead source [degrees] ##
+SOURCE_ZENITH_ANGLE = 45 
+
+# Aerosol vertical optical depth at 550 nm ##
+aerosol_od = 0.0 
+
+# Rural to urban aerosol concentration ratio ##
+aerosol_ratio = 1 
+
+# Depth of water column [m] ##
+bottom_depth = 200 
+
+# CDOM absorption coefficient at 440 nm [1/m] ##
+cdom_440 = 0.0
+
+# CDOM absorption spectrum slope [1/nm] ##
+cdom_slope = 0.017 
+
+# Chlorophyll concentration in the water column [kg/m^3] ##
+chl_concentration = 0
+
+# Cloud liquid thickness [m] (0.0001 gives a thick cloud) ##
+cloud_liquid = 0 
+
+# Radiometer position relative to sea level [m] ##
+detector_height = -0.5
+
+# Vertical orientation, looking <up> or <down> ##
+detector_orientation = down 
+
+# <plane_irradiance>, <scalar_irradiance>, or <radiance> ##
+detector_type = radiance 
+
+# List of name of gases to include. Possible gases: o3, o2 ,h2o, and no2 ##
+gases = o3
+
+# Name of material to be used with AccuRT. ##
+material_name = atmosphere_ocean 
+
+# A list of dry mass concentrations of additional tabulated marine
+particles in the water column [kg/m^3], one concentration value for
+each name ##
+mp_concentrations = 0 
+
+# A list of names of additional tabulated marine particles ##
+mp_names = MP21_PA61 
+
+# Number of computational phase function angles ##
+n_angles = 400 
+
+# Number of computational atmospheric profile points ##
+n_heights = 8 
+
+# Nonalgal particle dry mass concentration in the water column [kg/m^3] ##
+nap_concentration = 0.001 
+
+# Ozone column thickness [m] at STP (100 DU = 0.001 m) ##
+ozone = 0.003 
+
+# Atmosphere ground pressure [Pa] ##
+pressure = 100000 
+
+# Calculated detector signal is divided by the calculated 
+plane irradiance reference signal at a give height [m]. ##
+reference_detector_height = 120000 
+
+# <up> or <down> ##
+reference_detector_orientation = up 
+
+# Atmosphere ground relative humidity (for aerosols) ##
+relative_humidity = 0.5 
+
+# Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance. ##
+subtract_specular_radiance = false 
+
+# Atmosphere ground temperature [K] ##
+temperature = 290 
+
+# end of file ##

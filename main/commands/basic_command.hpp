@@ -43,15 +43,7 @@ namespace flick {
     Command c;
     c.set_arguments(args);
     if (!args.empty() && c.has_name(args.at(0))) {
-      try {
-	c.run();
-      } catch (const flick::exception& e) {
-	std::cout << "\n Flick exception in " << e.what() << "\n\n";
-      } catch (const std::exception& e) {
-	std::cout << "\n c++ standard exception: " << e.what() << "\n\n";
-      } catch (...) {
-	std::cout << "\n Unknown exception" << "\n\n";
-      }
+      c.run();
       return true;
     }
     return false;

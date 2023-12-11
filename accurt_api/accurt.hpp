@@ -77,7 +77,7 @@ namespace flick {
 	add<std::string>("material_name","atmosphere_ocean","Name of material to be used with AccuRT.");
 	add<std::string>("subtract_specular_radiance","false","Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance.");
 	add<double>("detector_height",100e3,"Radiometer position relative to sea level [m]");
-	add<std::string>("detector_orientation","up","Vertical orientation, <up> or <down>");
+	add<std::string>("detector_orientation","up","Vertical orientation, looking <up> or <down>");
 	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"Wavelengths to be detected [m]");
 	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated \nplane irradiance reference signal at a give height [m].");
@@ -347,7 +347,9 @@ namespace flick {
       system("mkdir -p ./tmpMaterials");
       system("mkdir -p ./tmpOutput");
       make_material_files();
-      system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT tmp");
+      int s=system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT tmp");
+      if (s!=0)
+	throw std::runtime_error("accurt_api");
     }
     pe_table read_irradiance(const std::string& file_name) {
       std::ifstream ifs(file_name);
@@ -412,7 +414,15 @@ namespace flick {
 	set<std::string>("detector_type","radiance");
       }
     };
-    
+
+    struct ocean_radiance : public atmosphere_ocean {
+      ocean_radiance() : atmosphere_ocean() {
+	set<double>("detector_height",-0.5);
+	set<std::string>("detector_orientation","down");
+	set<std::string>("detector_type","radiance");
+      }
+    };
+
     struct boa_transmittance : public atmosphere {
       boa_transmittance() : atmosphere() {
 	set<std::string>("material_name","atmosphere");

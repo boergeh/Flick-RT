@@ -14,10 +14,10 @@ namespace material {
   public:
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("n_angles", 30,
-		    "Number of computational phase function angles");
+	add<size_t>("n_angles", 300,
+		    "Number of angles used to sample the phase function");
 	add<size_t>("n_heights", 8,
-		    "Number of computational atmospheric profile points");
+		    "Number of grid points used represent the vertical atmospheric gas profiles");
 	add<double>("temperature", 290,
 		    "Atmosphere ground temperature [K]");
 	add<double>("pressure", 1000e2,
@@ -27,13 +27,13 @@ namespace material {
 	add<double>("aerosol_od", 0.01,
 		    "Aerosol vertical optical depth at 550 nm");
 	add<double>("aerosol_ratio", 1,
-		    "Rural to urban aerosol concentration ratio");
+		    "Ratio of rural aerosol optical depth to total aerosol optical depth. Set to one for rural only and zero for urban only");
 	add<double>("relative_humidity", 0.5,
-		    "Atmosphere ground relative humidity (for aerosols)");
+		    "Relative humidity of the atmosphere at the ground level (for aerosols)");
 	add<double>("cloud_liquid", 0,
-		    "Cloud liquid thickness [m] (0.0001 gives a thick cloud)");
+		    "Cloud liquid thickness [m]. A typical thickness for fully overcast sky could be 1e-5 m");
 	add<std::string>("gases", {"o3","o2","h2o","no2"},
-			 "List of name of gases to include. Possible gases: o3, o2 ,h2o, and no2");
+			 "List of name of absorbing gases to include. Select among o3, o2 ,h2o, and no2");
       }
     };
   private:

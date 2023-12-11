@@ -14,8 +14,8 @@ namespace material {
   struct ocean : public mixture {
     struct configuration : basic_configuration {
       configuration() {
-	add<size_t>("n_angles", 20, "Number of computational phase function angles");
-	add<double>("bottom_depth", 200, "Depth of water column [m]");
+	add<size_t>("n_angles", 300, "Number of angles used to sample the phase function");
+	add<double>("bottom_depth", 200, "Total depth of the water column [m]");
 	add<double>("cdom_440", 0.01, "CDOM absorption coefficient at 440 nm [1/m]");
 	add<double>("cdom_slope", 0.017, "CDOM absorption spectrum slope [1/nm]");
 	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
