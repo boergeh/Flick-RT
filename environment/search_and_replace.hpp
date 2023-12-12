@@ -11,16 +11,18 @@ namespace flick {
     parameter_text() = default;
     parameter_text(const std::string& s) : s_{s} {}
     std::string get(const std::string& parameter) {
-      size_t n = s_.find(parameter+" =");
-      if (n == std::string::npos)
-	throw std::runtime_error("\""+parameter+" =\""+" not found in parameter text");
+      size_t n = s_.find(parameter+" = ");
+      if (n == std::string::npos or parameter.length()==0)
+	throw std::runtime_error("\""+parameter+" = \""+" not found in parameter text");
       size_t n_first = n + parameter.length() + 2; 
       size_t n_last = s_.find(identifier, n_first);
       return trim(s_.substr(n_first, n_last-n_first));
     }
     void set(const std::string& parameter, const std::string& value) {
-      std::string s = get(parameter);
-      s_.replace(s_.find(s),s.length(),value);
+      //std::string p = get(parameter);
+      std::string old_str = parameter + " = " + get(parameter);
+      std::string new_str = parameter + " = " + value;
+      s_.replace(s_.find(old_str),old_str.length(), new_str);
     }
   private:
     std::string trim(std::string s) const {

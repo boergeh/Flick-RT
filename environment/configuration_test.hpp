@@ -14,7 +14,7 @@ namespace flick {
     
     struct my_config_B : public basic_configuration {
       my_config_B() {
-	add<std::string>("bike", "candondale", "person's bike");	
+	add<std::string>("bike", "cannondale", "person's bike");	
       }
     };
 

@@ -81,7 +81,7 @@ namespace flick {
 	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
 	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"Wavelengths to be detected [m]");
 	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated \nplane irradiance reference signal at a give height [m].");
-	add<std::string>("reference_detector_orientation","up","<up> or <down>");
+	add<std::string>("reference_detector_orientation","up","Vertical orientation, looking <up> or <down>");
 	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees]");
 	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Zero gives black surface");
       }
@@ -293,10 +293,8 @@ namespace flick {
       bool in_ocean = (h1 < 0 and h2 < 0);
       if (in_atmosphere and fabs(h1-h2) < minimum_height_) {
 	h2 -= minimum_height_/2;
-	//throw std::runtime_error("Atmospheric detector and reference must be at least 0.01 m appart.");
       }
       else if (in_ocean and fabs(h1-h2) < minimum_depth_) {
-	//throw std::runtime_error("Ocean detector and reference must be at least 0.001 m appart.");
 	h2 += minimum_depth_/2;
       }
       if (h1 >= 0 and h1 < minimum_height_) {
@@ -304,14 +302,12 @@ namespace flick {
       }
       if (h2 >= 0 and h2 < minimum_height_) {
 	h2 += minimum_height_;
-	//throw std::runtime_error("Atmospheric detector and reference must be at least 0.01 m above surface.");
       }
       if (h1 < 0 and h1 > -minimum_depth_) {
 	h1 -= minimum_depth_;
       }
       if (h2 < 0 and h2 > -minimum_depth_) {
 	h2 -= minimum_depth_;
-	//throw std::runtime_error("Ocean detector and reference must be at least 0.001 m below surface.");
       }
       if (h1 > h2) {
 	n_detector_ = 0;

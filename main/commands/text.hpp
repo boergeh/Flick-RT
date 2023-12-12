@@ -11,8 +11,8 @@ namespace flick {
 	auto fname = a(1);
 	auto command = a(2);
 	if (command=="set") {
-	  auto parameter = a(3);
-	  auto value = a(4);
+	  std::string parameter = a(3);
+	  std::string value = a(4);
 	  auto t = read<parameter_text>("./"+fname);
 	  t.set(parameter, value);
 	  std::cout << t;
