@@ -8,10 +8,10 @@
 namespace flick {
   begin_test_case(accurt_test_A) {
     stdvector layer_boundaries = {1,10e3,20e3,100e3};
-    size_t n_terms = 10;
+    size_t n_terms = 3;
     material::atmosphere::configuration c;
-    c.set<size_t>("n_angles",30);
-    c.set<size_t>("n_heights",8);
+    c.set<size_t>("n_angles",2);
+    c.set<size_t>("n_heights",3);
     auto atm = std::make_shared<material::atmosphere>(c);
     layered_iops layered_atmosphere(atm,layer_boundaries,n_terms);
   } end_test_case()
@@ -19,7 +19,7 @@ namespace flick {
    begin_test_case(accurt_test_B) {
     auto m = std::make_shared<material::white_isotropic>(1.0);
      stdvector boundaries{-1,-1e-6};
-     size_t n_terms = 4;
+     size_t n_terms = 3;
      auto iops = std::make_shared<layered_iops>(m, boundaries, n_terms);
   } end_test_case()
   
@@ -34,6 +34,7 @@ namespace flick {
     c.set<std::string>("detector_type","plane_irradiance");
     c.set<double>("detector_height",1);
     c.set<double>("reference_detector_height",1);
+    c.set<size_t>("STREAM_UPPER_SLAB_SIZE",8);
     c.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
     c.set<double>("DETECTOR_WAVELENGTHS",400e-9);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
@@ -41,16 +42,19 @@ namespace flick {
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
  
-  begin_test_case(accurt_test_D) {  
+  begin_test_case(accurt_test_D) {
+    size_t n_angles = 20;
+    size_t n_streams = pow(n_angles,1/1.6);
     accurt::configuration ac;
+    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
     ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
     ac.set<std::string>("detector_orientation","up");
     ac.set<std::string>("detector_type","plane_irradiance");
     ac.set<double>("reference_detector_height",100e3);
     ac.set<double>("detector_height",1);
     material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("n_angles",30);
-    mc.set<size_t>("n_heights",8);
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac,m);
     check_close(a.relative_radiation().y()[0],0.8,20_pct);
@@ -83,21 +87,49 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(accurt_test_F) {
-    // Assert low remote sensing reflectance in NIR
+    // Assert low remote sensing reflectance in NIR and that detectors
+    // can have same position
+    size_t n_angles = 30;
+    size_t n_streams = pow(n_angles,1/1.6);
     accurt::configuration ac;
+    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
     ac.set<double>("DETECTOR_WAVELENGTHS",950e-9);
     ac.set<std::string>("detector_orientation","down");
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.1);
-    ac.set<double>("reference_detector_height",0.2);
+    ac.set<double>("reference_detector_height",0.1);
     ac.set<std::string>("subtract_specular_radiance","true");
     material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("n_angles",100);
-    mc.set<size_t>("n_heights",8);
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
     mc.set<double>("aerosol_od",1);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
-    auto a =  accurt(ac,m);
+    auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y()[0];
     check_small(Rrs, 0.0002);
+  } end_test_case()
+  
+  begin_test_case(accurt_test_G) {
+    // Assert difference in nadir radiance above and below surface
+    size_t n_angles = 30;
+    size_t n_streams = pow(n_angles,1/1.6);
+    accurt::configuration ac;
+    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
+    ac.set<double>("DETECTOR_WAVELENGTHS",500e-9);
+    ac.set<std::string>("detector_orientation","down");
+    ac.set<std::string>("detector_type","radiance");
+    ac.set<double>("detector_height",0.01);
+    ac.set<double>("reference_detector_height",120e3);
+    material::atmosphere_ocean::configuration mc;
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
+    auto m = std::make_shared<material::atmosphere_ocean>(mc);
+    auto a_above =  accurt(ac,m);
+    double L_above = a_above.relative_radiation().y()[0];
+
+    ac.set<double>("detector_height",-0.01);
+    auto a_below =  accurt(ac,m);
+    double L_below = a_below.relative_radiation().y()[0];
+    check_close(L_above, L_below/pow(1.33,2), 3_pct);
   } end_test_case()
 }

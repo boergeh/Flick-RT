@@ -84,6 +84,7 @@ namespace flick {
 	add<std::string>("reference_detector_orientation","up","Vertical orientation, looking <up> or <down>");
 	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees]");
 	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Zero gives black surface");
+	add<size_t>("STREAM_UPPER_SLAB_SIZE",34,"Number of streams used when solving the radiative transfer equation");
       }
     };
   private:
@@ -96,8 +97,9 @@ namespace flick {
     double bottom_depth_ = 1;
     stdvector wavelengths_;
     const size_t precision_ = 12;
-    const double minimum_height_ = 1e-6;
-    const double minimum_depth_ = 1e-6;
+    const double dh_ = 1e-4;
+    //const double minimum_height_ = 1e-6;
+    //const double minimum_depth_ = 1e-6;
 
   public:
     accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
@@ -105,7 +107,6 @@ namespace flick {
       c_.add<std::string>("SOURCE_TYPE","constant_one"); 
       c_.add<double>("SOURCE_SCALING_FACTOR",1);
       c_.add<std::string>("BOTTOM_BOUNDARY_SURFACE","loamy_sand");
-      c_.add<size_t>("STREAM_UPPER_SLAB_SIZE",10);
       c_.add<double>("STREAM_LOWER_SLAB_PARAMETERS",{1,2});
       add_layer_depths();
       c_.add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_upper_slab");
@@ -158,7 +159,6 @@ namespace flick {
       c_.set<std::string>("SAVE_RADIANCE","true");
       c_.set<std::string>("DETECTOR_AZIMUTH_ANGLES","nan");
       c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
-      c_.set<size_t>("STREAM_UPPER_SLAB_SIZE",34);
     }
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
@@ -203,8 +203,8 @@ namespace flick {
       stdvector Lu(wls.size());
       stdvector Ld(wls.size());
       for (size_t i=0; i<wls.size(); i++) {
-	Lu[i] = g.f[0][i][1][0];
-	Ld[i] = g.f[0][i][0][0];
+	Lu[i] = g.f[n_detector_][i][1][0];
+	Ld[i] = g.f[n_detector_][i][0][0];
       }
       std::string tf = c_.get<std::string>("subtract_specular_radiance"); 
       if (tf=="true") {
@@ -264,14 +264,14 @@ namespace flick {
       return c;
     }
     void add_layer_depths() {
-      stdvector h = {-bottom_depth_, 0,max_height_};
+      stdvector h = {-bottom_depth_, 0, max_height_};
       material::z_profile* zp = dynamic_cast<material::z_profile*>(&*material_);
       if (zp != NULL) {
 	h = zp->height_grid();
       }      
       max_height_ = h.back();
       if (h.front()>=0)
-      	h.insert(h.begin(),-bottom_depth_);
+      	h.insert(h.begin(), -bottom_depth_);
       bottom_depth_ = -h.front();
       stdvector depths = max_height_ - h;
       depths.pop_back();
@@ -283,60 +283,69 @@ namespace flick {
 	else
 	  depths_upper.push_back(d);
       }
-      c_.add<double>("LAYER_DEPTHS_UPPER_SLAB",depths_upper);
-      c_.add<double>("LAYER_DEPTHS_LOWER_SLAB",depths_lower);
+      c_.add<double>("LAYER_DEPTHS_UPPER_SLAB", depths_upper);
+      c_.add<double>("LAYER_DEPTHS_LOWER_SLAB", depths_lower);
+    }
+    double ensure_distance_to_surface(double h) {
+      if (h >= 0 and h < dh_)
+	h = dh_;
+      if (h < 0 and h > -dh_)
+	h = -dh_;
+      return h;
+    }
+    double ensure_distance_to_max_height(double h) {
+      if (h >=  max_height_)
+	h = max_height_-dh_;
+      return h;
+    }
+    double ensure_distance_to_bottom(double h) {
+      if (h <=  -bottom_depth_)
+	h = -bottom_depth_+dh_;
+      return h;
     }
     void add_detector_depths() {
-      double h1 = c_.get<double>("detector_height");    
-      double h2 = c_.get<double>("reference_detector_height");
-      bool in_atmosphere = (h1 >= 0 and h2 >= 0);
-      bool in_ocean = (h1 < 0 and h2 < 0);
-      if (in_atmosphere and fabs(h1-h2) < minimum_height_) {
-	h2 -= minimum_height_/2;
-      }
-      else if (in_ocean and fabs(h1-h2) < minimum_depth_) {
-	h2 += minimum_depth_/2;
-      }
-      if (h1 >= 0 and h1 < minimum_height_) {
-	h1 += minimum_height_;
-      }
-      if (h2 >= 0 and h2 < minimum_height_) {
-	h2 += minimum_height_;
-      }
-      if (h1 < 0 and h1 > -minimum_depth_) {
-	h1 -= minimum_depth_;
-      }
-      if (h2 < 0 and h2 > -minimum_depth_) {
-	h2 -= minimum_depth_;
-      }
-      if (h1 > h2) {
+      double h_d = c_.get<double>("detector_height");    
+      double h_r = c_.get<double>("reference_detector_height");
+      h_d = ensure_distance_to_surface(h_d);
+      h_r = ensure_distance_to_surface(h_r);
+      h_d = ensure_distance_to_max_height(h_d);
+      h_r = ensure_distance_to_max_height(h_r);
+      h_d = ensure_distance_to_bottom(h_d);
+      h_r = ensure_distance_to_bottom(h_r);
+      
+      bool both_in_atmosphere = (h_d > 0 and h_r > 0);
+      bool both_in_ocean = (h_d < 0 and h_r < 0);
+      bool same_height = (fabs(h_d-h_r) < dh_);
+
+      double mh = max_height_;
+      stdvector depths = {0, mh-dh_, mh+dh_, mh+bottom_depth_-dh_};      
+      if (h_d > h_r) {
 	n_detector_ = 0;
 	n_reference_ = 1;
       } else {
 	n_detector_ = 1;
 	n_reference_ = 0;
       }
-      stdvector h = {h1,h2};
-      std::sort(h.begin(),h.end());
-      stdvector h_upper, h_lower;
-      if (h[1] < 0) {
-	h_upper = {1};
-	h_lower = h;
-	n_detector_++;
-	n_reference_++;
+      if (not both_in_atmosphere and not both_in_ocean) {
+	n_detector_ += 1;
+	n_reference_ += 1;
+      } else if (both_in_ocean) {
+	n_detector_ += 2;
+	n_reference_ += 2;
       }
-      else if (h[0] > 0) {
-	h_upper = h;
-	h_lower = {-bottom_depth_/2};
-      }
-      else if (h[0] < 0 and h[1] > 0) {
-	h_upper = {h[1]};
-	h_lower = {h[0]};
-      }
-      std::reverse(h_upper.begin(), h_upper.end());
-      std::reverse(h_lower.begin(), h_lower.end());
-      c_.add<double>("DETECTOR_DEPTHS_UPPER_SLAB",max_height_-h_upper);
-      c_.add<double>("DETECTOR_DEPTHS_LOWER_SLAB",0-h_lower);
+      if (same_height && both_in_atmosphere) {
+	n_reference_ = 0;
+	n_detector_ = 0;
+	depths[1] = mh-dh_/2;
+      } else if (same_height && both_in_ocean) {
+	n_reference_ = 3;
+	n_detector_ = 3;
+	depths[2] = mh+dh_/2;
+      }       
+      depths[n_detector_] = mh - h_d;
+      depths[n_reference_] = mh - h_r;
+      c_.add<double>("DETECTOR_DEPTHS_UPPER_SLAB",{depths[0],depths[1]});
+      c_.add<double>("DETECTOR_DEPTHS_LOWER_SLAB",{depths[2]-mh,depths[3]-mh});
     }
     void run() {
       write(c_,"./tmp",precision_);

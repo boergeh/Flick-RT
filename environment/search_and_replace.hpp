@@ -19,7 +19,6 @@ namespace flick {
       return trim(s_.substr(n_first, n_last-n_first));
     }
     void set(const std::string& parameter, const std::string& value) {
-      //std::string p = get(parameter);
       std::string old_str = parameter + " = " + get(parameter);
       std::string new_str = parameter + " = " + value;
       s_.replace(s_.find(old_str),old_str.length(), new_str);
