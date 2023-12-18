@@ -12,28 +12,26 @@ namespace flick {
 namespace material {
   class atmosphere : public mixture {
   public:
-    struct configuration : basic_configuration {
+    struct configuration : public mixture::configuration {
       configuration() {
-	add<size_t>("n_angles", 300,
-		    "Number of angles used to sample the phase function");
-	add<size_t>("n_heights", 8,
-		    "Number of grid points used represent the vertical atmospheric gas profiles");
-	add<double>("temperature", 290,
-		    "Atmosphere ground temperature [K]");
-	add<double>("pressure", 1000e2,
-		    "Atmosphere ground pressure [Pa]");
-	add<double>("ozone", 0.003,
-		    "Ozone column thickness [m] at STP (100 DU = 0.001 m)");
-	add<double>("aerosol_od", 0.01,
-		    "Aerosol vertical optical depth at 550 nm");
-	add<double>("aerosol_ratio", 1,
-		    "Ratio of rural aerosol optical depth to total aerosol optical depth. Set to one for rural only and zero for urban only");
-	add<double>("relative_humidity", 0.5,
-		    "Relative humidity of the atmosphere at the ground level (for aerosols)");
-	add<double>("cloud_liquid", 0,
-		    "Cloud liquid thickness [m]. A typical thickness for fully overcast sky could be 1e-5 m");
-	add<std::string>("gases", {"o3","o2","h2o","no2"},
-			 "List of name of absorbing gases to include. Select among o3, o2 ,h2o, and no2");
+	add<double>("temperature", 290, R"(Atmosphere ground temperature [K])");
+		    
+	add<double>("pressure", 1000e2, R"(Atmosphere ground pressure [Pa])");
+	
+	add<double>("ozone", 0.003, R"(Ozone column thickness [m] at STP. Note that 100 DU = 0.001 m)");
+	
+	add<double>("aerosol_od", 0.01, R"(Aerosol vertical total optical thickness at 550 nm)");
+	
+	add<double>("aerosol_ratio", 1, R"(Ratio of rural aerosol optical depth to total aerosol optical
+depth. Set to '1' for rural aerosols only and '0' for urban aerosols only)");
+	
+	add<double>("relative_humidity", 0.5, R"(Relative humidity ratio of the atmosphere at the ground)");
+	
+	add<double>("cloud_liquid", 0, R"(Liquid equivalent cloud thickness [m]. Typical values are in the range
+0 to 1e-4 m)");
+	
+	add<std::string>("gases", {"o3","o2","h2o","no2"}, R"(Space-separated list of names of absorbing gases included in the
+atmosphere, selected among 'o3', 'o2', 'h2o', and 'no2')");
       }
     };
   private:

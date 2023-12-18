@@ -12,18 +12,33 @@
 namespace flick {
 namespace material {
   struct ocean : public mixture {
-    struct configuration : basic_configuration {
+    struct configuration : public mixture::configuration {
       configuration() {
-	add<size_t>("n_angles", 300, "Number of angles used to sample the phase function");
-	add<double>("bottom_depth", 200, "Total depth of the water column [m]");
-	add<double>("cdom_440", 0.01, "CDOM absorption coefficient at 440 nm [1/m]");
-	add<double>("cdom_slope", 0.017, "CDOM absorption spectrum slope [1/nm]");
-	add<double>("chl_concentration", 1e-6, "Chlorophyll concentration in the water column [kg/m^3]");
-	add<double>("nap_concentration", 1e-3, "Nonalgal particle dry mass concentration in the water column [kg/m^3]");
-	add<std::string>("mp_names", "MP21_PA61", "A list of names of additional tabulated marine particles");
-	add<double>("mp_concentrations", 0, R"(A list of dry mass concentrations of additional tabulated marine
-particles in the water column [kg/m^3], one concentration value for
-each name)");
+	add<double>("bottom_depth", 200, R"(Total depth of the water column [m])");
+	
+	add<double>("cdom_440", 0.01, R"(CDOM absorption coefficient at 440 nm [1/m])");
+		    
+	add<double>("cdom_slope", 0.017, R"(Slope of the CDOM absorption spectrum [1/nm]. Note the exception from
+the SI unit convention)");
+		    
+	add<double>("chl_concentration", 1e-6, R"(Chlorophyll concentration in the water column [kg/m^3]. A
+concentration of e.g., 10.0 mg/m^3 may be written as 10.0e-6 kg/m^3
+for clarity)");
+
+	add<double>("nap_concentration", 1e-3, R"(Dry mass concentration of nonalgal particles in the water column
+[kg/m^3]. A concentration of e.g., 10.0 g/m^3 may be written as
+10.0e-3 kg/m^3 for clarity)");
+
+	add<std::string>("mp_names", "MP21_PA61", R"(Space-separated list of names of included marine particle materials
+with inherent optical properties listed in separate ASCII files stored
+in the Flick directory material/marine_particles/iop_tables)");
+	
+	add<double>("mp_concentrations", 0, R"(Spaced-separated list of dry mass concentrations [kg/m^3] for included
+marine particle materials with inherent optical properties listed in
+separated ASCII files in the Flick directory
+material/marine_particles/iop_table, one concentration value for each
+material given in mp_names. Note that a concentration of e.g., 10.0
+g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       }
     };
   private:

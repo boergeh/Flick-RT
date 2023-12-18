@@ -6,12 +6,11 @@ namespace flick {
       my_config_A() {
 	add<double>("age", 49, "person's age in years");	
 	add<double>("shoe", 42, "person's shoe size");	
-	add<std::string>("name", {"B","Hamre"},
-			 R"(person's name and a very very very very very very very very very very
-	very long description text.)");
+	add<std::string>("name", {"B","Hamre"}, R"(
+person's name and a very very very very very very very very very very
+very long description text.)");
       }
     };
-    
     struct my_config_B : public basic_configuration {
       my_config_B() {
 	add<std::string>("bike", "cannondale", "person's bike");	
@@ -39,7 +38,7 @@ namespace flick {
       c_A2 = read<my_config_A>("./tmp.txt");
       check_close(c_A2.get<double>("age"),49);
       check_close(c_A2.get<double>("shoe"),42);
-    }    
+    } 
   } end_test_case()
 
   begin_test_case(configuration_test_B) {
@@ -52,6 +51,7 @@ namespace flick {
     check(c.get_vector<std::string>("list_s").at(1)=="def");
 
     std::stringstream ss("# l1 ## \nlist_1 = 3 4\n# l2 ##\nlist_2 = 7 8\n # l3 ##\nlist_s = efg hij");
+    c.set_text_qualifiers("#","##");
     ss >> c;
     check_close(c.get_vector<double>("list_1").at(1),4);
     check_close(c.get_vector<double>("list_2").at(1),8);

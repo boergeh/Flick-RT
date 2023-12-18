@@ -6,16 +6,19 @@
 namespace flick {
   class parameter_text {
     std::string s_;
-    std::string identifier = "#";
+    std::string begin_qualifier_ = "/*";
   public:
     parameter_text() = default;
     parameter_text(const std::string& s) : s_{s} {}
+    void set_begin_qualifier(const std::string s) {
+      begin_qualifier_ = s;
+    }
     std::string get(const std::string& parameter) {
       size_t n = s_.find(parameter+" = ");
       if (n == std::string::npos or parameter.length()==0)
 	throw std::runtime_error("\""+parameter+" = \""+" not found in parameter text");
       size_t n_first = n + parameter.length() + 2; 
-      size_t n_last = s_.find(identifier, n_first);
+      size_t n_last = s_.find(begin_qualifier_, n_first);
       return trim(s_.substr(n_first, n_last-n_first));
     }
     void set(const std::string& parameter, const std::string& value) {

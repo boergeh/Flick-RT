@@ -27,11 +27,11 @@ int main(int argc, char* argv[]) {
     throw std::runtime_error("cannot recognize command, try\n\n flick help\n\n");
   }
   catch (const flick::exception& e) {
-    std::cerr << "flick exception " << e.what() << "\n";
+    std::cerr << "flick exception: " << e.what() << "\n";
     return -1;
   }
   catch(std::exception& e) {
-    std::cerr << "flick std exception " << e.what() << "\n";
+    std::cerr << "flick std exception: " << e.what() << "\n";
     return -1;
   }
   catch(...) {

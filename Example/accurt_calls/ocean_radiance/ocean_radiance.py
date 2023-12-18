@@ -16,14 +16,20 @@ def to_string(s):
     return str(s)
 
 def set_config(name,value):
-    command = "flick text config set "+name+" "+to_string(value)+" > config_tmp"  
+    command = "flick text config set "+name+" "+to_string(value)+" > config_tmp"
     run_os(command)
     run_os("mv -f config_tmp config")
     
 def configure():
-    wavelengths = np.linspace(300e-9,800e-9,9);
-    set_config("DETECTOR_WAVELENGTHS", wavelengths)
-    set_config("cdom_440", 1)
+    wavelengths = np.linspace(300e-9,800e-9,30);
+    n_angles = 52
+    n_streams = str(np.floor(n_angles**(1/1.6))).rstrip('0').rstrip('.');
+    set_config("stream_upper_slab_size", 8)
+    set_config("detector_wavelengths", wavelengths)
+    set_config("n_angles", n_angles)
+    set_config("n_heights", 3)
+    set_config("cdom_440", 0.01)
+    set_config("nap_concentration", 0.0)
     set_config("chl_concentration", 0)
     set_config("detector_height", -0.5)
     set_config("mp_concentrations", 0)

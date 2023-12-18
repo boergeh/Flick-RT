@@ -10,7 +10,7 @@ if not os.path.exists("./config"):
     os.system("flick accurt -g toa_reflectance config")
     
 wls_str = "\""+" ".join(str(x) for x in wavelengths)+"\""
-command = "flick text config set DETECTOR_WAVELENGTHS "+wls_str+" > new_config"
+command = "flick text config set detector_wavelengths "+wls_str+" > new_config"
 os.system(command)
 print("calculating ...")
 os.system("flick accurt new_config > tmp.txt")

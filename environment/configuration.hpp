@@ -7,15 +7,51 @@
 namespace flick {
   class basic_parameter {
   protected:
-    std::string begin_qualifier_ = "#";
-    std::string end_qualifier_ = "##";
+    std::string begin_qualifier_ = "/*";
+    std::string end_qualifier_ = "*/";
+    bool uppercase_ = false;
   public:
     virtual void print(std::ostream &os)=0;
     virtual void read(std::istream &is, const std::string& name) = 0;
     virtual const std::string& description() = 0;
+    void locate_parameter(std::istream &is, const std::string& name) {
+      std::string current_name, equal_sign;
+      bool found = false;
+      while (not found) {
+	skip_description(is);
+	is >> current_name;
+	if (current_name == name) {
+	  found = true;
+	}
+	is >> equal_sign;
+	if (is.eof() or current_name.empty()) {
+	  std::cerr << "Configuration parameter '"+ name +"' not found. Using a default which could be added to the configuration file:\n\n";
+	  print(std::cerr);
+	  std::cerr <<"\n"<<std::endl;
+	  found = true;
+	  is.clear();
+	  is.seekg(0);
+	}
+      }      
+    }
+    void set_uppercase(bool b) {
+      uppercase_ = b;
+    }
     void set_text_qualifiers(const std::string& begin, const std::string& end) {
       begin_qualifier_ = begin;
       end_qualifier_ = end;
+    }
+  private:
+    void skip_description(std::istream &is) const {
+      std::string str;
+      while (not end_of_description(str) and not is.eof()) {
+	is >> str;
+	if (str.empty() and not is.eof())
+	  throw std::runtime_error("missing text qualifier in configuration");
+      }
+    }
+    bool end_of_description(const std::string& str) const {
+      return str.find(end_qualifier_) != std::string::npos; 
     }
   };
 
@@ -25,7 +61,8 @@ namespace flick {
     std::vector<T> p_;
     std::string description_;
   public:
-    parameter(const std::string& name, const std::vector<T>& p, const std::string& description="")
+    parameter(const std::string& name, const std::vector<T>& p,
+	      const std::string& description="")
       : name_{name}, p_{p}, description_{description} {
     }   
     T p(size_t n) const {
@@ -41,60 +78,37 @@ namespace flick {
       return description_;
     }
     void print(std::ostream &os) {
-      os << begin_qualifier_ << " " << description_ << " " << end_qualifier_ << "\n";
-      os << name_ << " = ";
+      os << begin_qualifier_ << " " << description_ << " "
+	 << end_qualifier_ << "\n\n";
+      std::string s = name_;
+      if (uppercase_)
+	std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+      os << s << " = ";
       for (size_t i = 0; i<p_.size(); ++i)
 	os << p_[i] << " ";
     }
     void read(std::istream &is, const std::string& name) {
-      locate_parameter(is, name);
       p_.clear();
       T x;
-      while(is.peek() != '#' and is.peek() != EOF) {
+      while(is.peek() != begin_qualifier_.at(0) and is.peek() != EOF) {
 	is >> x;
 	p_.push_back(x);
 	is >> std::ws;
       }
-    }
-  private:
-    void skip_description(std::istream &is) const {
-      std::string str;
-      while (not end_of_description(str)) {
-	is >> str;
-	if (str.empty())
-	  throw std::runtime_error("parameter: missing text qualifier");
-      }
-    }
-    bool end_of_description(const std::string& str) const {
-      return str.find(end_qualifier_) != std::string::npos; 
-    }
-    void locate_parameter(std::istream &is, const std::string& name) const {
-      std::string current_name, equal_sign;
-      bool found = false;
-      while (not found) {
-	skip_description(is);
-	is >> current_name;
-	if (current_name == name) {
-	  found = true;
-	}
-	is >> equal_sign;
-	if (is.eof() or current_name.empty()) {
-	  throw std::runtime_error("parameter name '"+name+"' not found");
-	}
-      }
-    }
+    }  
   };
   
   class basic_configuration {    
     std::map<std::string, std::shared_ptr<basic_parameter>> parameters_;
-    std::string begin_qualifier_ = "#";
-    std::string end_qualifier_ = "##";
+    std::string begin_qualifier_ = "/*";
+    std::string end_qualifier_ = "*/";
     bool unordered_stream_ = false;
   public:
     template<class T>
     void add(const std::string& name, const std::vector<T>& p, std::string description="") {
       if (exists(name))
-      	throw std::runtime_error("configuration add: " + name + " already exists");
+      	throw std::runtime_error("configuration add: " + name +
+				 " already exists");
       add_or_set(name,p,description);
     }
    
@@ -103,17 +117,17 @@ namespace flick {
       add(name, std::vector<T>{p}, description);  
     }
     template<class T>
-    void set(const std::string& name, const std::vector<T>& p, const std::string& description="") {
+    void set(const std::string& name, const std::vector<T>& p,
+	     const std::string& description="") {
       ensure_exists(name);
       add_or_set(name,p,description);
     }
-    void set_unordered_stream(bool b) {
-      unordered_stream_ = b;
-    }
     template<class T>
     void set(const std::string& name, const T& p, const std::string& description="") {
-      ensure_exists(name);
       set(name, std::vector<T>{p}, description);
+    }
+    void set_unordered_stream(bool b) {
+      unordered_stream_ = b;
     }
     template<class T>
     std::vector<T> get_vector(const std::string& name) const {
@@ -146,9 +160,15 @@ namespace flick {
       begin_qualifier_ = begin;
       end_qualifier_ = end;
     }
+    void set_uppercase(bool b) {
+      for (auto& [name, val] : parameters_) {
+	parameters_.at(name)->set_uppercase(b);
+      }
+    }
   private:
     template<class T>
-    void add_or_set(const std::string& name, const std::vector<T>& p, std::string description="") {
+    void add_or_set(const std::string& name, const std::vector<T>& p,
+		    std::string description="") {
       if (description.empty() && parameters_.find(name)!=parameters_.end())
 	description = parameters_.at(name)->description();
       parameters_[name] = std::make_shared<parameter<T>>(name,p,description);
@@ -173,7 +193,9 @@ namespace flick {
     friend std::istream& operator>>(std::istream &is,
 				    const basic_configuration& c) {
       for (auto& [name, val] : c.parameters_) {
-	c.parameters_.at(name)->read(is,name);
+	c.parameters_.at(name)->locate_parameter(is, name);
+	if (is.tellg()!=0)
+	  c.parameters_.at(name)->read(is,name);
 	if (c.unordered_stream_) {
 	  is.clear();
 	  is.seekg(0);

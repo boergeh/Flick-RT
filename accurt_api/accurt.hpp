@@ -74,17 +74,47 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
-	add<std::string>("material_name","atmosphere_ocean","Name of material to be used with AccuRT.");
-	add<std::string>("subtract_specular_radiance","false","Possible subtraction the nadir radiance specularly reflected on the water surface. Should be set 'true' when calculating remote sensing reflectance.");
-	add<double>("detector_height",100e3,"Radiometer position relative to sea level [m]");
-	add<std::string>("detector_orientation","up","Vertical orientation, looking <up> or <down>");
-	add<std::string>("detector_type","irradiance","<plane_irradiance>, <scalar_irradiance>, or <radiance>");
-	add<double>("DETECTOR_WAVELENGTHS",{400e-9,500e-9},"Wavelengths to be detected [m]");
-	add<double>("reference_detector_height",100e3,"Calculated detector signal is divided by the calculated \nplane irradiance reference signal at a give height [m].");
-	add<std::string>("reference_detector_orientation","up","Vertical orientation, looking <up> or <down>");
-	add<double>("SOURCE_ZENITH_ANGLE",0,"Zero gives overhead source [degrees]");
-	add<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",1,"Zero gives black surface");
-	add<size_t>("STREAM_UPPER_SLAB_SIZE",34,"Number of streams used when solving the radiative transfer equation");
+	add<std::string>("material_name","atmosphere_ocean", R"( Name of the material that gives inherent optical properties used in
+the radiative transfer calculations, which could be 'atmosphere' or
+'atmosphere_ocean')");
+
+	add<std::string>("subtract_specular_radiance","false", R"(Possible subtraction the nadir radiance specularly reflected off the
+water surface, which could be 'true' or 'false'. Note that it should
+be set to 'true' when calculating remote sensing reflectance)");
+	
+	add<double>("detector_height", 100e3, R"(Detector height relative to sea level [m], where a positive value
+gives height in atmosphere and a negative value gives depth in the
+ocean)");
+
+	add<std::string>("detector_orientation", "up", R"(Detector vertical orientation, looking 'up' or 'down')");
+	
+	add<std::string>("detector_type", "irradiance", R"(Type of radiation to be detected, which could be 'plane_irradiance',
+'scalar_irradiance', or 'radiance')");
+	
+	add<double>("detector_wavelengths", {400e-9,500e-9}, R"(Space-separated list of radiation wavelengths to be calculated and
+saved [m]. Note that a wavelength of e.g., 400 nm may be written as
+400e-9 m for clarity)");
+	
+	add<double>("reference_detector_height", 100e3, R"(Radiation is calculated relative to a reference plane
+irradiance at a given height [m]. For example, a reference
+detector height of 100e3 gives calculated radiation relative to the
+top-of-atmosphere irradiance)");
+	
+	add<std::string>("reference_detector_orientation","up", R"(Reference detector vertical orientation, looking 'up' or 'down')");
+			 
+	add<double>("source_zenith_angle", 0, R"(Zenith angle of the radiation source [degrees], where zero gives
+vertically downward-directed incident irradiance)");
+
+	add<double>("bottom_boundary_surface_scaling_factor", 1, R"(Darkness scaling of the bottom boundary, where '0' gives no bottom
+reflection and '1' gives loamy sand reflection)");
+		    
+	add<size_t>("stream_upper_slab_size", 34, R"(Number of streams used when solving the radiative transfer equation)");
+      }
+      size_t to_streams(size_t n_angles) {
+	size_t n_streams = pow(n_angles,1/1.6); 
+	if (n_streams % 2 == 0) 
+	  return n_streams;
+	return n_streams++;
       }
     };
   private:
@@ -98,50 +128,45 @@ namespace flick {
     stdvector wavelengths_;
     const size_t precision_ = 12;
     const double dh_ = 1e-4;
-    //const double minimum_height_ = 1e-6;
-    //const double minimum_depth_ = 1e-6;
-
   public:
     accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
-      c_.add<std::string>("SOURCE_TYPE","constant_one"); 
-      c_.add<double>("SOURCE_SCALING_FACTOR",1);
-      c_.add<std::string>("BOTTOM_BOUNDARY_SURFACE","loamy_sand");
-      c_.add<double>("STREAM_LOWER_SLAB_PARAMETERS",{1,2});
+      c_.add<std::string>("source_type","constant_one"); 
+      c_.add<double>("source_scaling_factor",1);
+      c_.add<std::string>("bottom_boundary_surface","loamy_sand");
+      c_.add<double>("stream_lower_slab_parameters",{1,2});
       add_layer_depths();
-      c_.add<std::string>("MATERIALS_INCLUDED_UPPER_SLAB","user_specified_upper_slab");
-      c_.add<std::string>("MATERIALS_INCLUDED_LOWER_SLAB","user_specified_lower_slab");
+      c_.add<std::string>("materials_included_upper_slab","user_specified_upper_slab");
+      c_.add<std::string>("materials_included_lower_slab","user_specified_lower_slab");
       add_detector_depths();
-      c_.add<std::string>("DETECTOR_AZIMUTH_ANGLES","0:20:180");
-      c_.add<std::string>("DETECTOR_POLAR_ANGLES","0:2:180");   
-      c_.add<double>("DETECTOR_WAVELENGTH_BAND_WIDTHS",{270,0.01,4000,0.01});
-      c_.add<std::string>("SAVE_COSINE_IRRADIANCE","true");
-      c_.add<std::string>("SAVE_SINE_IRRADIANCE","false");
-      c_.add<std::string>("SAVE_SCALAR_IRRADIANCE","false");
-      c_.add<std::string>("SAVE_RADIANCE","false");
-      c_.add<std::string>("SAVE_IOPS","false");
-      c_.add<std::string>("SAVE_BOTTOM_BOUNDARY_SURFACE","false");
-      c_.add<std::string>("SAVE_MATERIAL_PROFILE","false");
-      c_.add<double>("PROFILE_OUTPUT_WAVELENGTH",500);
-      c_.add<std::string>("PRINT_PROGRESS_TO_SCREEN","false");
-      c_.add<size_t>("REPEATED_RUN_SIZE",1);
-      c_.add<std::string>("USE_POLARIZATION","false");
-      c_.add<std::string>("DO_OCEAN_PHASEMATRIX","false");
-      c_.add<double>("ACCURACY",0.0);
-      c_.add<double>("MIE_CALCULATOR",2);
-      c_.add<std::string>("DO_DELTA_FIT","false");
-      c_.add<double>("DELTA_FIT_TRUNCATION",3.0);
-      c_.add<double>("RESPONSE_FUNCTION_TYPE",1);
-      c_.add<std::string>("DO_SPHERICAL_CORRECTION","true");
-      c_.add<std::string>("DO_2D_ROUGH_SEA_SURFACE","false");
-      c_.add<double>("SURFACE_WIND_SPEED",6);
-      c_.add<double>("RELATIVE_WIND_DIRECTION",0);
-      c_.add<std::string>("USRANG","false");
-      c_.add<double>("LPICK",0);
-     
-      wavelengths_ = c_.get_vector<double>("DETECTOR_WAVELENGTHS");
-      c_.set<double>("DETECTOR_WAVELENGTHS",wavelengths_*1e9);
-      c_.set_text_qualifiers("#","##");
+      c_.add<std::string>("detector_azimuth_angles","0:20:180");
+      c_.add<std::string>("detector_polar_angles","0:2:180");   
+      c_.add<double>("detector_wavelength_band_widths",{270,0.01,4000,0.01});
+      c_.add<std::string>("save_cosine_irradiance","true");
+      c_.add<std::string>("save_sine_irradiance","false");
+      c_.add<std::string>("save_scalar_irradiance","false");
+      c_.add<std::string>("save_radiance","false");
+      c_.add<std::string>("save_iops","false");
+      c_.add<std::string>("save_bottom_boundary_surface","false");
+      c_.add<std::string>("save_material_profile","false");
+      c_.add<double>("profile_output_wavelength",500);
+      c_.add<std::string>("print_progress_to_screen","false");
+      c_.add<size_t>("repeated_run_size",1);
+      c_.add<std::string>("use_polarization","false");
+      c_.add<std::string>("do_ocean_phasematrix","false");
+      c_.add<double>("accuracy",0.0);
+      c_.add<double>("mie_calculator",2);
+      c_.add<std::string>("do_delta_fit","false");
+      c_.add<double>("delta_fit_truncation",3.0);
+      c_.add<double>("response_function_type",1);
+      c_.add<std::string>("do_spherical_correction","true");
+      c_.add<std::string>("do_2d_rough_sea_surface","false");
+      c_.add<double>("surface_wind_speed",6);
+      c_.add<double>("relative_wind_direction",0);
+      c_.add<std::string>("usrang","false");
+      c_.add<double>("lpick",0);
+      wavelengths_ = c_.get_vector<double>("detector_wavelengths");
+      c_.set<double>("detector_wavelengths",wavelengths_*1e9);
     }
     pp_function relative_radiation() {
       std::string t = c_.get<std::string>("detector_type"); 
@@ -156,19 +181,19 @@ namespace flick {
     }
   private:
     void set_vertical_radiance() {
-      c_.set<std::string>("SAVE_RADIANCE","true");
-      c_.set<std::string>("DETECTOR_AZIMUTH_ANGLES","nan");
-      c_.set<std::string>("DETECTOR_POLAR_ANGLES","0 180");
+      c_.set<std::string>("save_radiance","true");
+      c_.set<std::string>("detector_azimuth_angles","nan");
+      c_.set<std::string>("detector_polar_angles","0 180");
     }
     void make_material_files() {        
-      size_t n_terms = c_.get<size_t>("STREAM_UPPER_SLAB_SIZE") + 1;
+      size_t n_terms = c_.get<size_t>("stream_upper_slab_size") + 1;
 
-      stdvector b = depths_to_boundaries(c_.get_vector<double>("LAYER_DEPTHS_UPPER_SLAB"));
+      stdvector b = depths_to_boundaries(c_.get_vector<double>("layer_depths_upper_slab"));
       auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,n_terms);
       write(accurt_user_specified(layered_upper_slab, wavelengths_),
        	    "./tmpMaterials/user_specified_upper_slab", precision_);
 
-      b = 0 - c_.get_vector<double>("LAYER_DEPTHS_LOWER_SLAB");
+      b = 0 - c_.get_vector<double>("layer_depths_lower_slab");
       std::reverse(b.begin(),b.end());
       b.push_back(0);
       auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
@@ -283,8 +308,8 @@ namespace flick {
 	else
 	  depths_upper.push_back(d);
       }
-      c_.add<double>("LAYER_DEPTHS_UPPER_SLAB", depths_upper);
-      c_.add<double>("LAYER_DEPTHS_LOWER_SLAB", depths_lower);
+      c_.add<double>("layer_depths_upper_slab", depths_upper);
+      c_.add<double>("layer_depths_lower_slab", depths_lower);
     }
     double ensure_distance_to_surface(double h) {
       if (h >= 0 and h < dh_)
@@ -344,10 +369,12 @@ namespace flick {
       }       
       depths[n_detector_] = mh - h_d;
       depths[n_reference_] = mh - h_r;
-      c_.add<double>("DETECTOR_DEPTHS_UPPER_SLAB",{depths[0],depths[1]});
-      c_.add<double>("DETECTOR_DEPTHS_LOWER_SLAB",{depths[2]-mh,depths[3]-mh});
+      c_.add<double>("detector_depths_upper_slab",{depths[0],depths[1]});
+      c_.add<double>("detector_depths_lower_slab",{depths[2]-mh,depths[3]-mh});
     }
     void run() {
+      c_.set_text_qualifiers("#","##");
+      c_.set_uppercase(true);
       write(c_,"./tmp",precision_);
       system("mkdir -p ./tmpMaterials");
       system("mkdir -p ./tmpOutput");
@@ -388,12 +415,6 @@ namespace flick {
     public:
       basic_accurt() {
 	add_configuration(accurt::configuration());
-	set<double>("DETECTOR_WAVELENGTHS",{350e-9, 400e-9, 450e-9, 500e-9,
-					    550e-9, 600e-9, 650e-9, 700e-9,
-					    750e-9});
-	set<double>("reference_detector_height",toa_height_);
-	set<double>("SOURCE_ZENITH_ANGLE",45);
-	set_text_qualifiers("#","##");
       }
       void write(const std::string& fname) {
 	flick::write(*this, "./"+fname, precision_);

@@ -7,7 +7,15 @@
 
 namespace flick {
 namespace material {
-  class mixture : public z_profile {
+  struct mixture : public z_profile {
+      struct configuration : basic_configuration {
+	configuration() {
+	  add<size_t>("n_angles", 300, R"(Number of grid points used to sample the volume scattering function)");
+		      
+	  add<size_t>("n_heights", 8, R"(Number of grid points used sample vertical atmospheric gas profiles)");
+	}
+      };
+  private:
     bool should_update_iops_ = true;
     stdvector angles_;
     stdvector heights_;

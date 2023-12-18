@@ -7,6 +7,7 @@
 
 namespace flick {
   begin_test_case(accurt_test_A) {
+    // Assert compiling and running
     stdvector layer_boundaries = {1,10e3,20e3,100e3};
     size_t n_terms = 3;
     material::atmosphere::configuration c;
@@ -17,6 +18,7 @@ namespace flick {
   } end_test_case()
 
    begin_test_case(accurt_test_B) {
+    // Assert compiling and running
     auto m = std::make_shared<material::white_isotropic>(1.0);
      stdvector boundaries{-1,-1e-6};
      size_t n_terms = 3;
@@ -34,20 +36,20 @@ namespace flick {
     c.set<std::string>("detector_type","plane_irradiance");
     c.set<double>("detector_height",1);
     c.set<double>("reference_detector_height",1);
-    c.set<size_t>("STREAM_UPPER_SLAB_SIZE",8);
-    c.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
-    c.set<double>("DETECTOR_WAVELENGTHS",400e-9);
+    c.set<size_t>("stream_upper_slab_size",8);
+    c.set<double>("bottom_boundary_surface_scaling_factor",0);
+    c.set<double>("detector_wavelengths",400e-9);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
     auto ac =  accurt(c,m);
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
  
   begin_test_case(accurt_test_D) {
+    // Assert that transmittance and reflectance are sane. 
     size_t n_angles = 20;
-    size_t n_streams = pow(n_angles,1/1.6);
     accurt::configuration ac;
-    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
-    ac.set<double>("DETECTOR_WAVELENGTHS",400e-9);
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",400e-9);
     ac.set<std::string>("detector_orientation","up");
     ac.set<std::string>("detector_type","plane_irradiance");
     ac.set<double>("reference_detector_height",100e3);
@@ -68,8 +70,8 @@ namespace flick {
     ac.set<double>("reference_detector_height",-0.9);
     auto a4 =  accurt(ac,m);
     check_close(a4.relative_radiation().y()[0],1.1,10_pct);
-    ac.set<double>("DETECTOR_WAVELENGTHS",{400e-9, 700e-9});
-    ac.set<double>("BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR",0);
+    ac.set<double>("detector_wavelengths",{400e-9, 700e-9});
+    ac.set<double>("bottom_boundary_surface_scaling_factor",0);
     ac.set<double>("reference_detector_height",120e3);
     ac.set<double>("detector_height",120e3);
     ac.set<std::string>("detector_orientation","down");
@@ -80,6 +82,7 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(accurt_test_E) {
+    // Assert compiling and running
     configuration_template::toa_reflectance c;
     std::string f = "./toa_reflectance_configuration";
     c.write(f);
@@ -90,10 +93,9 @@ namespace flick {
     // Assert low remote sensing reflectance in NIR and that detectors
     // can have same position
     size_t n_angles = 30;
-    size_t n_streams = pow(n_angles,1/1.6);
     accurt::configuration ac;
-    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
-    ac.set<double>("DETECTOR_WAVELENGTHS",950e-9);
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",950e-9);
     ac.set<std::string>("detector_orientation","down");
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.1);
@@ -112,10 +114,9 @@ namespace flick {
   begin_test_case(accurt_test_G) {
     // Assert difference in nadir radiance above and below surface
     size_t n_angles = 30;
-    size_t n_streams = pow(n_angles,1/1.6);
     accurt::configuration ac;
-    ac.set<size_t>("STREAM_UPPER_SLAB_SIZE",n_streams);
-    ac.set<double>("DETECTOR_WAVELENGTHS",500e-9);
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",500e-9);
     ac.set<std::string>("detector_orientation","down");
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.01);
