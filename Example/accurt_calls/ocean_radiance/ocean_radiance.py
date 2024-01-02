@@ -6,25 +6,37 @@ import matplotlib.pyplot as plt
 import os
 import subprocess
 
+class py_accurt:
+    def __run_os(command):
+        subprocess.run(command, shell=True, check=True, universal_newlines=True)
+        subprocess.CalledProcessError
+
+    
+    
 def run_os(command):
     subprocess.run(command, shell=True, check=True, universal_newlines=True)
     subprocess.CalledProcessError    
 
-def to_string(s):
-    if isinstance(s, np.ndarray):
-        return "\""+" ".join(str(x) for x in s)+"\""
-    return str(s)
+def to_string(numbers):
+    if isinstance(numbers, np.ndarray):
+        return "\""+" ".join(str(x) for x in numbers)+"\""
+    return str(numbers)
 
-def set_config(name,value):
+def set_config(name, value):
     command = "flick text config set "+name+" "+to_string(value)+" > config_tmp"
     run_os(command)
     run_os("mv -f config_tmp config")
-    
+
+def to_streams(n_angles):
+    n_streams = np.floor(n_angles**(1/1.6))    
+    if (n_streams % 2) != 0:
+        n_streams += 1
+    return str(n_streams).rstrip('0').rstrip('.');
+
 def configure():
     wavelengths = np.linspace(300e-9,800e-9,30);
     n_angles = 52
-    n_streams = str(np.floor(n_angles**(1/1.6))).rstrip('0').rstrip('.');
-    set_config("stream_upper_slab_size", 8)
+    set_config("stream_upper_slab_size", to_streams(n_angles))
     set_config("detector_wavelengths", wavelengths)
     set_config("n_angles", n_angles)
     set_config("n_heights", 3)

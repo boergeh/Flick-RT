@@ -5,6 +5,7 @@ all:	check-env build test
 
 build:
 	cd environment; make obj link
+	cd astronomy; make obj link
 	cd numeric/linalg; make obj link
 	cd numeric; make obj link
 	cd numeric/legendre; make obj link
@@ -26,6 +27,7 @@ build:
 	cd main; make obj link
 test:
 	@cd environment; make test
+	@cd astronomy; make test
 	@cd numeric/linalg; make test
 	@cd numeric; make test
 	@cd numeric/legendre; make test
@@ -46,6 +48,7 @@ test:
 	@cd radiator; make test
 clean:
 	cd environment; make clean
+	cd astronomy; make clean	
 	cd numeric/linalg; make clean
 	cd numeric; make clean
 	cd numeric/legendre; make clean
