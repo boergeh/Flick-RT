@@ -1,0 +1,38 @@
+
+  flick sun_position <command> <command_specific_argument>...
+
+Parameters:
+
+  <command> [command_specific_argument]... 
+
+    Select among the following commands with corresponding parameters:
+
+    'distance' <year> <month> <day> <UTC_hour> <minutes> <seconds>
+
+    Gives Sun-Earth distance in astronomical units.
+    
+    'zenith_angle' <year> <month> <day> <UTC_hour> <minutes> <seconds>
+    <latitude> <longitude>
+
+    Gives solar zenith angle in degrees, where 'latitude' and
+    'longitude' should also be given in degrees.
+
+    'azimuth_angle' <year> <month> <day> <UTC_hour> <minutes>
+    <seconds> <latitude> <longitude>
+
+    Gives solar azimuth angle in degrees, where 'latitude' and
+    'longitude' should also be given in degrees.
+
+Examples:
+    
+  flick sun_position distance 2023 6 21 14 58 0    
+
+  flick sun_position zenith_angle 2023 6 21 14 58 0 60.39 5.32
+
+  flick sun_position azimuth_angle 2023 6 21 14 58 0 60.39 5.32
+
+
+Remember: unless other units are explicitly stated, Flick is always
+using SI units (m, kg, s) for input and output of physical values, see
+https://en.wikipedia.org/wiki/International_System_of_Units.
+

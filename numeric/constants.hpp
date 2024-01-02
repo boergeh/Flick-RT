@@ -15,6 +15,9 @@ namespace flick {
     // Speed of light in vacuum (exact)
     inline constexpr double c = 299792458; // [m/s]
 
+    // Astronomical unit (exact)
+    inline constexpr double au = 149597870700; // [m]
+
     // Standard atmospheric pressure
     inline constexpr double P_stp = 1e5; // [Pa]
 

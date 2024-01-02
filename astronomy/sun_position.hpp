@@ -3,6 +3,7 @@
 
 #include <numbers>
 #include "time_point.hpp"
+#include "../numeric/constants.hpp"
 
 namespace flick {
   class earth_orbit
@@ -17,9 +18,8 @@ namespace flick {
       : year_{year}, day_of_year_{day_of_year} {
     }
     double distance() const {
-      const double au = 149597870700;
       double g = (357.528 + 0.9856003*days_since_2000())*to_radians_;
-      return (1.00014 - 0.01671*cos(g) - 0.00014*cos(2*g))*au;
+      return (1.00014 - 0.01671*cos(g) - 0.00014*cos(2*g))*constants::au;
     }
     double equation_of_time() const {
       double D = 6.24004077+0.01720197*(365.25*(year_-2000)+day_of_year_);
