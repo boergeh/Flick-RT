@@ -82,7 +82,7 @@ the radiative transfer calculations, which could be 'atmosphere' or
 water surface, which could be 'true' or 'false'. Note that it should
 be set to 'true' when calculating remote sensing reflectance)");
 	
-	add<double>("detector_height", 100e3, R"(Detector height relative to sea level [m], where a positive value
+	add<double>("detector_height", 120e3, R"(Detector height relative to sea level [m], where a positive value
 gives height in atmosphere and a negative value gives depth in the
 ocean)");
 
@@ -95,7 +95,7 @@ ocean)");
 saved [m]. Note that a wavelength of e.g., 400 nm may be written as
 400e-9 m for clarity)");
 	
-	add<double>("reference_detector_height", 100e3, R"(Radiation is calculated relative to a reference plane
+	add<double>("reference_detector_height", 120e3, R"(Radiation is calculated relative to a reference plane
 irradiance at a given height [m]. For example, a reference
 detector height of 100e3 gives calculated radiation relative to the
 top-of-atmosphere irradiance)");

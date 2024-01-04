@@ -13,7 +13,8 @@ namespace flick {
 	  std::cout << flick::radiator::planck(T).spectrum(n_points);
 	}
 	else if (a(1)=="toa-solar") {
-	  std::cout << flick::radiator::toa_solar().spectrum();
+	  auto s = flick::radiator::toa_solar().spectrum();
+	  std::cout << s.header("");
 	}
 	else {
 	  error();

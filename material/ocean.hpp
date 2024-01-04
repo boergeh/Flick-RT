@@ -33,7 +33,7 @@ for clarity)");
 with inherent optical properties listed in separate ASCII files stored
 in the Flick directory material/marine_particles/iop_tables)");
 	
-	add<double>("mp_concentrations", 0, R"(Spaced-separated list of dry mass concentrations [kg/m^3] for included
+	add<double>("mp_concentrations", 0, R"(Space-separated list of dry mass concentrations [kg/m^3] for included
 marine particle materials with inherent optical properties listed in
 separated ASCII files in the Flick directory
 material/marine_particles/iop_table, one concentration value for each

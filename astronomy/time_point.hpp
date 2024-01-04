@@ -50,10 +50,8 @@ namespace flick {
   };
   
   double day_of_year(const time_point& t) {
-    //const double tt_and_leap_seconds = 0.0008;
     return t.julian_date() -
-      time_point(t.year(),1,1,0,0,0).julian_date();// +
-    //tt_and_leap_seconds;
+      time_point(t.year(),1,1,0,0,0).julian_date();
   }
   double hour_of_day(const time_point& t) {
     double days = t.julian_date() -
