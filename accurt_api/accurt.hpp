@@ -53,10 +53,11 @@ namespace flick {
       size_t l = u.iops_->n_layers();
       for (int i=l-1; i>=0; i--) {
 	for (size_t j=0; j<u.wls_.size(); j++) {
+	  double delta_fit_scaling = p[j][i][0]*4*constants::pi;
 	  os << "A_" << std::to_string(l-i) << "_" << std::to_string(j+1)
 	     << " = " << a[j][i] << " #\n";
 	  os << "S_" << std::to_string(l-i) << "_" << std::to_string(j+1)
-	     << " = " << s[j][i] << " #\n";
+	     << " = " << s[j][i]*delta_fit_scaling << " #\n";
 	  os << "P_" << std::to_string(l-i) << "_" << std::to_string(j+1)
 	     << " = ";
 	  for (size_t k=0; k<p[j][i].size(); k++) {
@@ -114,7 +115,7 @@ reflection and '1' gives loamy sand reflection)");
 	size_t n_streams = pow(n_angles,1/1.6); 
 	if (n_streams % 2 == 0) 
 	  return n_streams;
-	return n_streams++;
+	return ++n_streams;
       }
     };
   private:
@@ -343,7 +344,7 @@ reflection and '1' gives loamy sand reflection)");
       bool same_height = (fabs(h_d-h_r) < dh_);
 
       double mh = max_height_;
-      stdvector depths = {0, mh-dh_, mh+dh_, mh+bottom_depth_-dh_};      
+      stdvector depths = {0, mh-dh_/2, mh+dh_/2, mh+bottom_depth_-dh_/2};      
       if (h_d > h_r) {
 	n_detector_ = 0;
 	n_reference_ = 1;
@@ -351,7 +352,7 @@ reflection and '1' gives loamy sand reflection)");
 	n_detector_ = 1;
 	n_reference_ = 0;
       }
-      if (not both_in_atmosphere and not both_in_ocean) {
+      if (not (both_in_atmosphere or both_in_ocean)) {
 	n_detector_ += 1;
 	n_reference_ += 1;
       } else if (both_in_ocean) {
@@ -366,7 +367,7 @@ reflection and '1' gives loamy sand reflection)");
 	n_reference_ = 3;
 	n_detector_ = 3;
 	depths[2] = mh+dh_/2;
-      }       
+      }
       depths[n_detector_] = mh - h_d;
       depths[n_reference_] = mh - h_r;
       c_.add<double>("detector_depths_upper_slab",{depths[0],depths[1]});

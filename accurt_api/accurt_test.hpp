@@ -43,8 +43,32 @@ namespace flick {
     auto ac =  accurt(c,m);
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
- 
+  
   begin_test_case(accurt_test_D) {
+    // Compare with van de Hulst 1980, vol 2, chapter 13, table 35,
+    // p419, FLUX
+    double ssalb = 0.9;
+    double od = 1;
+    double ac = od*(1-ssalb);
+    double sc = ssalb*od;
+    absorption_coefficient a{ac/2}; // 2 m slab thickness
+    scattering_coefficient b{sc/2};
+    asymmetry_factor g{0.5};
+    size_t n_angles = 30;
+    accurt::configuration c;
+    c.set<std::string>("detector_orientation","up");
+    c.set<std::string>("detector_type","plane_irradiance");
+    c.set<double>("detector_height",-1);
+    c.set<double>("reference_detector_height",1);
+    c.set<size_t>("stream_upper_slab_size", c.to_streams(n_angles));
+    c.set<double>("bottom_boundary_surface_scaling_factor",0);
+    c.set<double>("detector_wavelengths",400e-9);
+    auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
+    auto acc =  accurt(c,m);
+    check_close(acc.relative_radiation().y()[0],0.73909, 0.003_pct);
+  } end_test_case()
+ 
+  begin_test_case(accurt_test_E) {
     // Assert that transmittance and reflectance are sane. 
     size_t n_angles = 20;
     accurt::configuration ac;
@@ -81,7 +105,7 @@ namespace flick {
     check(dr > 1.01);
   } end_test_case()
   
-  begin_test_case(accurt_test_E) {
+  begin_test_case(accurt_test_F) {
     // Assert compiling and running
     configuration_template::toa_reflectance c;
     std::string f = "./toa_reflectance_configuration";
@@ -89,7 +113,7 @@ namespace flick {
     auto c2 = read<configuration_template::toa_reflectance>(f);
   } end_test_case()
   
-  begin_test_case(accurt_test_F) {
+  begin_test_case(accurt_test_G) {
     // Assert low remote sensing reflectance in NIR and that detectors
     // can have same position
     size_t n_angles = 30;
@@ -111,7 +135,7 @@ namespace flick {
     check_small(Rrs, 0.0002);
   } end_test_case()
   
-  begin_test_case(accurt_test_G) {
+  begin_test_case(accurt_test_H) {
     // Assert difference in nadir radiance above and below surface
     size_t n_angles = 30;
     accurt::configuration ac;
