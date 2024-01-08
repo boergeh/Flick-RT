@@ -13,15 +13,15 @@ def configure(file_name,zenith_angle):
         flick.run("accurt -g ocean_radiance "+f)
         
     wavelengths = np.linspace(310e-9,810e-9,30);
-    n_angles = 52
+    n_angles = 50
     flick.config(f,"stream_upper_slab_size", flick.to_streams(n_angles))
     flick.config(f,"detector_wavelengths", wavelengths)
     flick.config(f,"n_angles", n_angles)
     flick.config(f,"n_heights", 3)
     flick.config(f,"source_zenith_angle", zenith_angle)
-    flick.config(f,"cdom_440", 0.15)
-    flick.config(f,"nap_concentration", 0.15e-3)
-    flick.config(f,"chl_concentration", 0.9e-6)
+    flick.config(f,"cdom_440", 0.1)
+    flick.config(f,"nap_concentration", 0.8e-3)
+    flick.config(f,"chl_concentration", 1.0e-6)
     flick.config(f,"detector_height", -0.4)
     flick.config(f,"mp_concentrations", 0)
     
@@ -81,11 +81,11 @@ latitude = "60.39"
 longitude = "5.32"
 config_file_name = "config"
 solar_zenith_angle = flick.run("sun_position zenith_angle "+time_utc+" "+latitude+" "+longitude)
-configure(config_file_name,solar_zenith_angle[0][0])
+configure(config_file_name, solar_zenith_angle[0][0])
 r = relative_radiance(config_file_name)
 r = radiance(r, solar_zenith_angle)
 r = smooth(r)
-r = sun_earth_distance_correction(r,time_utc)
+r = sun_earth_distance_correction(r, time_utc)
 r = to_mW_per_m2_per_nm(r)
 plot(r)
 
