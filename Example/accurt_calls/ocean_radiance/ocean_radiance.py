@@ -35,7 +35,6 @@ def radiance(relative_radiance, solar_zenith_angle):
     r = np.empty([len(wl),2])
     r[:,0] = wl 
     r[:,1] = np.interp(wl,relative_radiance[:,0],relative_radiance[:,1]) * toa_irradiance[:,1]*np.cos(solar_zenith_angle*np.pi/180)
-  
     return r
 
 def smooth(radiance):
