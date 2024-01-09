@@ -10,7 +10,7 @@
 
 namespace flick {
 namespace material {
-  class atmosphere : public mixture {
+  class atmosphere : public mixture<pe_function> {
   public:
     struct configuration : public mixture::configuration {
       configuration() {

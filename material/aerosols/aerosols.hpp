@@ -9,7 +9,7 @@
 
 namespace flick {
 namespace material {
-  class aerosols : public z_profile
+  class aerosols : public z_profile<pe_function>
   /* Implementation adapted from: Ruiz-Arias, J.A., Dudhia, J. and
      Gueymard, C.A., 2014. A simple parameterization of the short-wave
      aerosol optical properties for surface direct and diffuse
@@ -66,8 +66,8 @@ namespace material {
 	s.push_back(omega.value(rh_,frequency) * att_coef);
 	a.push_back(att_coef - s.back());
       }
-      a_profile_ = iop_z_profile(pe_function(h,a));
-      s_profile_ = iop_z_profile(pe_function(h,s));
+      a_profile_ = iop_z_profile<pe_function>(pe_function(h,a));
+      s_profile_ = iop_z_profile<pe_function>(pe_function(h,s));
     }
   };
   

@@ -6,11 +6,12 @@
 #include "../numeric/function.hpp"
 
 namespace flick {
-namespace material { 
+namespace material {
+  template<class Function>
   class z_profile : public base {
   protected:
-    iop_z_profile a_profile_;
-    iop_z_profile s_profile_;
+    iop_z_profile<Function> a_profile_;
+    iop_z_profile<Function> s_profile_;
     double real_refractive_index_{1};
   public:
     z_profile() = default;
@@ -24,13 +25,13 @@ namespace material {
 	a[i] = mat.absorption_coefficient();
 	s[i] = mat.scattering_coefficient();
       }
-      a_profile_ = iop_z_profile(pe_function(z,a));
-      s_profile_ = iop_z_profile(pe_function(z,s));
+      a_profile_ = iop_z_profile<Function>(pe_function(z,a));
+      s_profile_ = iop_z_profile<Function>(pe_function(z,s));
     }
-    const iop_z_profile& a_profile() const {
+    const iop_z_profile<Function>& a_profile() const {
       return a_profile_;
     }
-    const iop_z_profile& s_profile() const {
+    const iop_z_profile<Function>& s_profile() const {
       return s_profile_;
     }
     const stdvector& height_grid() const {

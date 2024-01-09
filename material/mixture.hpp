@@ -7,14 +7,18 @@
 
 namespace flick {
 namespace material {
-  struct mixture : public z_profile {
-      struct configuration : basic_configuration {
-	configuration() {
-	  add<size_t>("n_angles", 300, R"(Number of grid points used to sample the volume scattering function)");
-		      
-	  add<size_t>("n_heights", 8, R"(Number of grid points used sample vertical atmospheric gas profiles)");
-	}
-      };
+  template<class Function>
+  struct mixture : public z_profile<Function> {
+    using z_profile<Function>::a_profile_;
+    using z_profile<Function>::s_profile_;
+    using z_profile<Function>::real_refractive_index_;
+    struct configuration : basic_configuration {
+      configuration() {
+	add<size_t>("n_angles", 300, R"(Number of grid points used to sample the volume scattering function)");
+	
+	add<size_t>("n_heights", 8, R"(Number of grid points used sample vertical atmospheric gas profiles)");
+      }
+    };
   private:
     bool should_update_iops_ = true;
     stdvector angles_;
@@ -64,7 +68,7 @@ namespace material {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       mueller m;
-      double theta = angle(scattering_direction);
+      double theta = z_profile<Function>::angle(scattering_direction);
       size_t n = s_profile_.low_index_near(pose().position().z());
       for (size_t i=0; i<mueller_[n].size(); ++i) {
 	size_t row = mueller_[n](i).row;
@@ -124,8 +128,8 @@ namespace material {
     }
     void add_absorption_and_scattering(base& material, size_t n_low, size_t n_high) {
       stdvector zs = {heights_.begin()+n_low, heights_.begin()+n_high+1};
-      pe_function a;
-      pe_function s;
+      Function a;
+      Function s;
       for (auto& z:zs) {
 	material.set_position({0,0,z});
 	a.append({z,material.absorption_coefficient()});
@@ -134,12 +138,11 @@ namespace material {
       a = add_extrapolation_points(a);
       s = add_extrapolation_points(s);
       material.set_position({0,0,heights_[n_low]});
-
       double dz = heights_[n_high] - heights_[n_low];
       a = scale_to_integral(a,material.absorption_optical_depth(dz));
       s = scale_to_integral(s,material.scattering_optical_depth(dz));
-      a_profile_.add(iop_z_profile(a), heights_);
-      s_profile_.add(iop_z_profile(s), heights_);
+      a_profile_.add(iop_z_profile<Function>(a), heights_);
+      s_profile_.add(iop_z_profile<Function>(s), heights_);
     }
     void add_mueller(base& material, size_t n_low, size_t n_high)
     // Must be run before adding scattering coefficients
@@ -163,7 +166,7 @@ namespace material {
     void add(base& material) {
       add(material, 0, heights_.size()-1);
     }
-    pe_function add_extrapolation_points(pe_function f) const {
+    Function add_extrapolation_points(Function f) const {
       double i0 = f.integral();
       f.add_extrapolation_points(0,1e-5);
       return scale_to_integral(f,i0);

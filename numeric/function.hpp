@@ -266,7 +266,7 @@ namespace flick {
       return *this;
     }   
     auto& scale_y(double factor) {
-      ensure(factor > 0);
+      //ensure(factor > 0);
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
       return *this;

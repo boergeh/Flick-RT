@@ -46,14 +46,14 @@ namespace flick {
   
   begin_test_case(accurt_test_D) {
     // Compare with van de Hulst 1980, vol 2, chapter 13, table 35,
-    // p419, FLUX
+    // p431, FLUX
     double ssalb = 0.9;
     double od = 1;
     double ac = od*(1-ssalb);
     double sc = ssalb*od;
     absorption_coefficient a{ac/2}; // 2 m slab thickness
     scattering_coefficient b{sc/2};
-    asymmetry_factor g{0.5};
+    asymmetry_factor g{0.75};
     size_t n_angles = 30;
     accurt::configuration c;
     c.set<std::string>("detector_orientation","up");
@@ -65,7 +65,7 @@ namespace flick {
     c.set<double>("detector_wavelengths",400e-9);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
     auto acc =  accurt(c,m);
-    check_close(acc.relative_radiation().y()[0],0.73909, 0.003_pct);
+    check_close(acc.relative_radiation().y()[0],0.82792, 0.001_pct);
   } end_test_case()
  
   begin_test_case(accurt_test_E) {

@@ -291,7 +291,7 @@ reflection and '1' gives loamy sand reflection)");
     }
     void add_layer_depths() {
       stdvector h = {-bottom_depth_, 0, max_height_};
-      material::z_profile* zp = dynamic_cast<material::z_profile*>(&*material_);
+      material::z_profile<pe_function>* zp = dynamic_cast<material::z_profile<pe_function>*>(&*material_);
       if (zp != NULL) {
 	h = zp->height_grid();
       }      

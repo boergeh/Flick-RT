@@ -3,6 +3,7 @@
 #include "ab_functions.hpp"
 #include "../numeric/legendre/delta_fit.hpp"
 #include "aerosols/aerosols.hpp"
+#include "layered_iops.hpp"
 
 namespace flick {
   begin_test_case(atmosphere_test) {

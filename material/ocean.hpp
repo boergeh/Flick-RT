@@ -7,11 +7,12 @@
 #include "water/nap.hpp"
 #include "marine_particles/marine_particles.hpp"
 #include "mixture.hpp"
+#include "spheres.hpp"
 #include "../environment/configuration.hpp"
 
 namespace flick {
 namespace material {
-  struct ocean : public mixture {
+  struct ocean : public mixture<pl_function> {
     struct configuration : public mixture::configuration {
       configuration() {
 	add<double>("bottom_depth", 200, R"(Total depth of the water column [m])");
@@ -28,6 +29,12 @@ for clarity)");
 	add<double>("nap_concentration", 1e-3, R"(Dry mass concentration of nonalgal particles in the water column
 [kg/m^3]. A concentration of e.g., 10.0 g/m^3 may be written as
 10.0e-3 kg/m^3 for clarity)");
+	
+	add<double>("bubble_volume_fraction", 1e-7, R"(Bubble volume fraction in the water column [unitless])");
+
+	add<double>("water_temperature", 290, R"(Temperature in the water column [K])");
+
+	add<double>("water_salinity", 30, R"(Salinity of the water column [PSU])");
 
 	add<std::string>("mp_names", "MP21_PA61", R"(Space-separated list of names of included marine particle materials
 with inherent optical properties listed in separate ASCII files stored
@@ -52,11 +59,12 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       add_cdom();
       add_phytoplankton();
       add_nap();
+      add_bubbles();
       add_marine_particles();
     }
   private:
     void add_pure_water() {
-      add_material<pure_water>(30,290);
+      add_material<pure_water>(c_.get<double>("water_salinity"),c_.get<double>("water_temperature"));
     }
     void add_cdom() {
       add_material<cdom>(c_.get<double>("cdom_440"),c_.get<double>("cdom_slope"));
@@ -66,6 +74,15 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
     }
     void add_nap() {
       add_material<nap>(c_.get<double>("nap_concentration"));
+    }
+    void add_bubbles() {
+      double effective_radius = 50e-6;
+      double volume_fraction = c_.get<double>("bubble_volume_fraction");  
+      double mu = log(effective_radius);
+      double sigma = 0;
+      using bubbles = bubbles_in_water<parameterized_monodispersed_mie>;
+      auto b = bubbles(volume_fraction,mu,sigma);
+      add_material<bubbles>(volume_fraction,mu,sigma);
     }
     void add_marine_particles() {
       std::vector<std::string> names = c_.get_vector<std::string>("mp_names");

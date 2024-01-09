@@ -23,14 +23,16 @@ namespace flick {
       return value_;
     }
   };
-  
+
+  template<class Function>
   class basic_iop_profile {
   protected:
-    pe_function profile_;
+    Function profile_;
+    //pe_function profile_;
     double epsilon_ = std::numeric_limits<double>::epsilon()*10;
   public:
     basic_iop_profile() = default;
-    basic_iop_profile(const pe_function& vertical_profile)
+    basic_iop_profile(const Function& vertical_profile)
       : profile_{vertical_profile} {}
     virtual double optical_depth(const pose& start, double distance) const = 0;
     virtual double distance(const pose& start, double optical_depth) const = 0;
@@ -41,7 +43,7 @@ namespace flick {
       return profile_.size();
     }
     void clear() {
-      profile_ = pe_function();
+      profile_ = Function();
     }
     size_t low_index_near(double height) const {
       return profile_.low_index_near(height);
@@ -57,7 +59,7 @@ namespace flick {
     double integral() const {
       return profile_.integral();
     }
-    basic_iop_profile& add(const basic_iop_profile& p, const std::vector<double>& heights) {
+    basic_iop_profile<Function>& add(const basic_iop_profile<Function>& p, const std::vector<double>& heights) {
       if (profile_.size() == 0) {
 	profile_ = integral_conservative_add(p.profile_, p.profile_, heights);
 	profile_.scale_y(0.5);	
@@ -65,20 +67,23 @@ namespace flick {
 	profile_ = integral_conservative_add(profile_, p.profile_, heights);
       }
       if (not std::isfinite(profile_.integral()))
-	throw std::runtime_error("Possible less than two points in iop_profile");
+	throw std::runtime_error("Possibly less than two points in iop_profile");
       return *this;
     }
   private:
-    friend std::ostream& operator<<(std::ostream &os, const basic_iop_profile& p) {
+    friend std::ostream& operator<<(std::ostream &os, const basic_iop_profile<Function>& p) {
       os << p.profile_;
       return os;
     }
   };
-    
-  class iop_z_profile : public basic_iop_profile {
+
+  template<class Function>
+  class iop_z_profile : public basic_iop_profile<Function> {
+    using basic_iop_profile<Function>::epsilon_;
+    using basic_iop_profile<Function>::profile_;
     unit_vector z_direction_{0,0,1};
   public:
-    using basic_iop_profile::basic_iop_profile;
+    using basic_iop_profile<Function>::basic_iop_profile;
     double optical_depth(const pose& start, double distance) const {
       double mu = zk(start);
       if (fabs(mu) < epsilon_) {

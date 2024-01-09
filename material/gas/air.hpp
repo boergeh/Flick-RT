@@ -12,14 +12,14 @@
 
 namespace flick {
 namespace material {  
-  class basic_air : public z_profile {
+  class basic_air : public z_profile<pe_function> {
   protected:
     atmospheric_state atm_;
   public:
     basic_air(const atmospheric_state& atm)
       : atm_{atm} {}
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
-      return rayleigh_mueller(angle(scattering_direction),0.0279);
+      return rayleigh_mueller(z_profile<pe_function>::angle(scattering_direction),0.0279);
     }
     double real_refractive_index() const override {
       return 1;
@@ -52,8 +52,8 @@ namespace material {
 	}
 	s[i] = scattering_cross_section(wavelength())*atm_.air_concentration(h[i]);
       }
-      a_profile_ = iop_z_profile(pe_function(h,a));
-      s_profile_ = iop_z_profile(pe_function(h,s));
+      a_profile_ = iop_z_profile<pe_function>(pe_function(h,a));
+      s_profile_ = iop_z_profile<pe_function>(pe_function(h,s));
     }
   };
   

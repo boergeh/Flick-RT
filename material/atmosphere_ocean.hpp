@@ -6,7 +6,7 @@
 
 namespace flick {
 namespace material {
-  struct atmosphere_ocean : public mixture {
+  struct atmosphere_ocean : public mixture<pe_function> {
     struct configuration : basic_configuration {
       configuration() {
 	add_configuration(ocean::configuration());

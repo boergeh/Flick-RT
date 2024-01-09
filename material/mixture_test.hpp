@@ -1,6 +1,7 @@
 #include "mixture.hpp"
 #include "atmosphere.hpp"
 #include "ocean.hpp"
+#include "henyey_greenstein.hpp"
 #include "../numeric/legendre/delta_fit.hpp"
 
 namespace flick {
@@ -16,7 +17,7 @@ namespace flick {
     stdvector heights = {0,100,700,800,2000,toa};
     stdvector angles = range(0,pi,100).linspace();
 
-    auto sky =material::mixture(angles, heights);
+    auto sky = material::mixture<pe_function>(angles, heights);
     using simple_cloud = material::white_isotropic;
    
     sky.add_material<simple_cloud>(cloud_scat_coef);
@@ -43,13 +44,13 @@ namespace flick {
     begin_test_case(mixture_test_B) {
     // Check that material adding order does not matter
     using namespace material;
-    material::mixture m1({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
+    material::mixture<pe_function> m1({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
     m1.add_material<atmosphere>();
     m1.set_range<atmosphere>(0,5);
     m1.add_material<ocean>();
     m1.set_range<ocean>(0,1);
 
-    material::mixture m2({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
+    material::mixture<pe_function> m2({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
     m2.add_material<ocean>();
     m2.set_range<ocean>(0,1);
     m2.add_material<atmosphere>();

@@ -14,7 +14,7 @@ namespace flick {
     // point two at 10 km
     pe_function f = {{0,10},{1, exp(-K*10)}};
     pose start{{0,0,0},{0,0,1}};
-    iop_z_profile atmlike{f};
+    iop_z_profile<pe_function> atmlike{f};
     double z_max = 20;
     double tau_zenith = (1-exp(-K*z_max))/K;
     check_close(atmlike.optical_depth(start,z_max),tau_zenith);

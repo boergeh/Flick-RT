@@ -111,6 +111,21 @@ namespace material {
 				 material::pure_ice(),
 				 material::vacuum()) {}
   };
+
+  template<class Monodispersed_mie>
+  struct bubbles_in_water : public spheres<log_normal_distribution,
+					 material::pure_water,
+					 material::vacuum,
+					 Monodispersed_mie> {
+    bubbles_in_water(double volume_fraction,double mu, double sigma) :
+      spheres<log_normal_distribution,
+	      material::pure_water,
+	      material::vacuum,
+	      Monodispersed_mie>(volume_fraction,
+				 log_normal_distribution(mu,sigma),
+				 material::pure_water(),
+				 material::vacuum()) {}
+  };
   
   template<class Monodispersed_mie>
   struct brines_in_ice : public spheres<log_normal_distribution,
