@@ -27,8 +27,7 @@ namespace flick {
   template<class Function>
   class basic_iop_profile {
   protected:
-    Function profile_;
-    //pe_function profile_;
+    Function profile_{0};
     double epsilon_ = std::numeric_limits<double>::epsilon()*10;
   public:
     basic_iop_profile() = default;

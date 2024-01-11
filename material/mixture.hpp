@@ -45,7 +45,7 @@ namespace material {
       	throw std::runtime_error("material add: " + key + " already exists");
       materials_[key] = std::make_shared<Material>(a...);
       if (range_.find(key) == range_.end())
-	range_[key]={0, heights_.size()-1};
+      	range_[key]={0, heights_.size()-1};
       update_iops();
     }
     template<class Material>
@@ -69,7 +69,7 @@ namespace material {
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       mueller m;
       double theta = z_profile<Function>::angle(scattering_direction);
-      size_t n = s_profile_.low_index_near(pose().position().z());
+      size_t n = s_profile_.low_index_near(z_profile<Function>::pose().position().z());
       for (size_t i=0; i<mueller_[n].size(); ++i) {
 	size_t row = mueller_[n](i).row;
 	size_t col = mueller_[n](i).col;
@@ -77,7 +77,7 @@ namespace material {
 	stdvector y{mueller_[n].value(row,col,theta),
 	  mueller_[n+1].value(row,col,theta)};
 	pe_function f{x,y};
-	m.add(row,col,f.value(pose().position().z()));
+	m.add(row,col,f.value(z_profile<Function>::pose().position().z()));
       }
       return m;
     }
@@ -94,6 +94,8 @@ namespace material {
 	a_profile_.clear();
 	s_profile_.clear();
 	real_refractive_index_ = 1;
+	mueller_.clear();
+	mueller_.resize(heights_.size());
 	for (auto const& [key, material] : materials_) {
 	  std::vector<size_t> range = range_.at(key);
 	  add(*material, range[0], range[1]);

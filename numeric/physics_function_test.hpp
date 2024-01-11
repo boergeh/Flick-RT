@@ -25,4 +25,18 @@ namespace flick {
     pl_function f(mu,p);
     check_close(2*pi*f.integral(-1,1),1,0.2);
   } end_test_case()
+  
+  begin_test_case(physics_function_test_C) {
+    using namespace constants;
+    double g0 = 0.5;
+    fournier_forand ff(g0);
+    std::vector<double> mu = range(-1,1-1e-4,1000).linspace();
+    std::vector<double> p;
+    for (size_t i = 0; i<mu.size(); i++) {
+      p.push_back(ff.value(mu[i])*mu[i]);
+    }
+    pl_function f(mu,p);
+    double g = 2*pi*f.integral(-1,1);
+    check_close(g,g0,3_pct);
+  } end_test_case()
 }

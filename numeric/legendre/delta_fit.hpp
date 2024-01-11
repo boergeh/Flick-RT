@@ -13,7 +13,7 @@ namespace flick {
     delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
       int n_angles = pow(n_terms,1.6);
-      double forward_max = 1 - 0.1/(n_angles+1);
+      double forward_max = 1;// - 0.1/(n_angles+1);
       std::vector<double> x = range(-1,forward_max,n_angles).linspace();
       linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);

@@ -309,6 +309,7 @@ reflection and '1' gives loamy sand reflection)");
 	else
 	  depths_upper.push_back(d);
       }
+      depths_upper.back() = max_height_; 
       c_.add<double>("layer_depths_upper_slab", depths_upper);
       c_.add<double>("layer_depths_lower_slab", depths_lower);
     }

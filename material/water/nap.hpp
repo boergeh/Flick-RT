@@ -28,7 +28,7 @@ namespace material {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
-      return m.add(0,0,ff_.value(scattering_direction.mu()));
+      return m.add(0,0,ff_.value(cos(angle(scattering_direction))));
     }
   private:
     double a_m_star_443() const

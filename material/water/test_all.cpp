@@ -8,6 +8,7 @@ int main() {
   unit_test t("water");
   t.include<pure_water_test_A>();
   t.include<pure_water_test_B>();
+  t.include<pure_water_test_C>();
   t.include<phytoplankton_test>();
   t.include<nap_test>();
  

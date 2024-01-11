@@ -30,6 +30,7 @@ int main() {
   t.include<range_test>();
   t.include<physics_function_test_A>();
   t.include<physics_function_test_B>();
+  t.include<physics_function_test_C>();
   t.include<table_test>();
   t.include<flist_test>();
   t.include<distribution_test>();

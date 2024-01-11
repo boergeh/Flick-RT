@@ -18,6 +18,10 @@ namespace material {
 		  const flick::asymmetry_factor& g,
 		  double real_refractive_index = 1)
       : ac_{ac}, sc_{sc}, g_{g}, real_refractive_index_{real_refractive_index} {}    
+    monocrome_iop(double ac, double sc, double g,
+		  double real_refractive_index = 1)
+      : ac_{flick::absorption_coefficient(ac)}, sc_{flick::scattering_coefficient{sc}},
+	g_{flick::asymmetry_factor{g}}, real_refractive_index_{real_refractive_index} {}    
     double absorption_coefficient() const {
       return ac_();
     }

@@ -43,7 +43,8 @@ atmosphere, selected among 'o3', 'o2', 'h2o', and 'no2')");
       c_ = c;
       add_air();
       add_aerosols();
-      add_clouds();      
+      add_clouds();
+      //update_iops();
     }
   private:
     void add_air() {

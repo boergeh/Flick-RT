@@ -30,8 +30,18 @@ namespace flick {
     // Natural atmospheric temperature
     inline constexpr double T_ntp = 293.15; // [K]
 
+    // Degree Celcius for a absolute zero
+    inline constexpr double zero_K = -273.15; // [Celsius]
+
     // Stefan-Boltzmann constant
     inline constexpr double sigma = 5.670374419184429453970996731889e-8; // [W/m^2/K^4]
+
+    double to_celsius(double kelvin) {
+      return kelvin + zero_K;
+    }
+    double to_kelvin(double celsius) {
+      return celsius - zero_K;
+    }
   }
 }
 

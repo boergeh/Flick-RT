@@ -10,6 +10,7 @@ namespace material {
     double asymmetry_factor_ = 0.98;
     double chl_concentration_ = 1e-6; // [kg/m^3]    
     flick::fournier_forand ff_{asymmetry_factor_};
+    //flick::fournier_forand ff_{4,1.01};
     pl_function A_;
     pl_function B_;
     const double epsilon_ = 10*std::numeric_limits<double>::epsilon();
@@ -34,7 +35,7 @@ namespace material {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
-      return m.add(0,0,ff_.value(scattering_direction.mu()));
+      return m.add(0,0,ff_.value(cos(angle(scattering_direction))));
     }
   private:
     double a_star() const

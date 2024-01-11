@@ -19,18 +19,21 @@ namespace flick {
 
     auto sky = material::mixture<pe_function>(angles, heights);
     using simple_cloud = material::white_isotropic;
-   
     sky.add_material<simple_cloud>(cloud_scat_coef);
     sky.set_range<simple_cloud>(n_low, n_high);
     double od_cl = sky.optical_depth(toa);
     double od_cl_bench = cloud_scat_coef*(heights[n_high]-heights[n_low]);
     check_close(od_cl,od_cl_bench);
+    
+    sky.set_position({0,0,heights[n_low]});
     double p = sky.mueller_matrix(unit_vector{pi/2,0}).value(0,0);
     check_close(p,1/(4*pi),1e-7_pct);
+    
     auto pf = material::phase_function(sky);
     check_close(delta_fit(pf,8).coefficients()[0]*4*pi,1,1e-7_pct);
     sky.add_material<material::rural_aerosols>();
     sky.update_iops();
+    sky.set_position({0,0,0});
     double od_ae = sky.get_material<material::rural_aerosols>().optical_depth(toa);
     check_close(sky.optical_depth(toa),od_ae+od_cl_bench);
     auto p1 = sky.mueller_matrix(unit_vector{0,0}).value(0,0);
@@ -39,6 +42,7 @@ namespace flick {
     check(p2/p1 < 0.3);
     auto pf2 = material::phase_function(sky);
     check_close(delta_fit(pf2,16).coefficients()[0]*4*pi,1,0.2_pct);
+    
   } end_test_case()
   
     begin_test_case(mixture_test_B) {
@@ -63,6 +67,5 @@ namespace flick {
     check_close(m1.absorption_optical_depth(distance),m2.absorption_optical_depth(distance));
     double mu = 0.1;
     check_close(phase_function(m1).value(mu),phase_function(m2).value(mu),1e-6);
-
   } end_test_case()
 }

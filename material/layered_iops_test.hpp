@@ -38,13 +38,34 @@ namespace flick {
   } end_test_case()
 
   begin_test_case(layered_iops_test_D) {
-    auto m = std::make_shared<material::atmosphere_ocean>();
-    layered_iops iops(m,{-10000,-10,1e-6,0,10,100e3},20);
-    m->set_position({0,0,-10});
-    iops.set_wavelength(400e-9);
+    double g0 = 0.6;
+    auto m = std::make_shared<material::henyey_greenstein>(1,1,g0);
+    size_t n_terms = 20;
+    layered_iops iops(m,{-10,1e-6,0},n_terms);
     size_t ly = 0;
     double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;
-    check_close(g,0.35,50);
-
+    check_close(g0,g,0.1_pct);
+  } end_test_case()
+  
+  begin_test_case(layered_iops_test_E) {
+    auto c = material::atmosphere_ocean::configuration();
+    c.set<double>("aerosol_od",1);
+    c.set<double>("cdom_440",0);
+    c.set<double>("chl_concentration",0);
+    c.set<double>("nap_concentration",0);
+    c.set<double>("bubble_volume_fraction",0);
+    auto m = std::make_shared<material::atmosphere_ocean>(c);
+    size_t n_terms = 34;
+    layered_iops iops(m,{-1000, -100, -10,1, 1e3},n_terms);
+    size_t ly = 0;
+    double x0 = iops.alpha_terms(0)[ly][0]*4*std::numbers::pi;
+    double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;
+    double x2 = iops.alpha_terms(0)[ly][2];
+    double x3 = iops.alpha_terms(0)[ly][3];
+    double epsilon = 1e-5;
+    check_close(x0,1,0.01_pct);
+    check_small(g,epsilon);
+    check(x2>epsilon);
+    check_small(x3,epsilon);
   } end_test_case()
 }

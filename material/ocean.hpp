@@ -53,7 +53,7 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
   public:
     ocean(const basic_configuration& c=ocean::configuration())
       : mixture(angle_range(c.get<size_t>("n_angles")),
-		{-c.get<double>("bottom_depth"), 0}) {
+		{-c.get<double>("bottom_depth"), -1e-6}) {
       c_ = c;
       add_pure_water();
       add_cdom();
@@ -61,6 +61,7 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       add_nap();
       add_bubbles();
       add_marine_particles();
+      //update_iops();
     }
   private:
     void add_pure_water() {
