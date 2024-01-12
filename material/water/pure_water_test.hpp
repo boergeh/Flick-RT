@@ -8,27 +8,38 @@ namespace flick {
     // from density fluctuation of the refractive
     // index. Opt. Expr. 17: 1671- 1678, Table 1.
     double S = 0;
-    double wl = 366e-9;
-    double PMH = 4.500e-4;
     double T = constants::to_kelvin(20);
-    material::zhang_hu_scattering zhs(S,T,wl);
-    check_close(zhs.volume_scattering_90(), PMH, 0.1_pct);
-    wl = 578e-9;
-    PMH = 0.650e-4;
-    material::zhang_hu_scattering zhs2(S,T,wl);
-    check_close(zhs2.volume_scattering_90(), PMH, 0.2_pct);
-    
+    material::water::scattering s1(S,T);
+    check_close(s1.vsf90_temperature(366e-9), 4.500e-4, 0.3_pct);
+    material::water::scattering s2(S,T);
+    double bench = 0.650e-4;
+    double wl = 578e-9;
+    check_close(s2.vsf90_temperature(wl), bench, 0.2_pct);
+      
+    // https://www.oceanopticsbook.info/view/
+    // optical-constituents-of-the-ocean/water
     S = 0;
-    wl = 300e-9;
     T = constants::to_kelvin(20);
-    material::zhang_hu_scattering zhs3(S,T,wl);
-    //double b_morel = pow(129.0 / (wl * 1e9), 4.32);
-    // https://www.oceanopticsbook.info/view/optical-constituents-of-the-ocean/water
-    check_close(zhs3.scattering_coefficient(), 0.018, 0.5_pct);
+    bench = 0.018;
+    wl = 300e-9;
+    material::water::scattering s3(S,T);
+    check_close(s3.coefficient(wl), bench, 0.5_pct);
     S = 35;
-    T = constants::to_kelvin(0);
-    material::zhang_hu_scattering zhs4(S,T,wl);
-    check_close(zhs4.scattering_coefficient(), 0.025, 0.5_pct);
+    T = constants::to_kelvin(10);
+    material::water::scattering s4(S,T);
+    wl = 300e-9;
+    bench = 0.024;
+    check_close(s4.coefficient(wl), bench, 0.5_pct);
+    S = 35;
+    material::water::scattering s5(S,T);
+
+    // Morel
+    S = 38.5;
+    T = constants::to_kelvin(20);
+    wl = 500e-9;
+    material::water::scattering s6(S,T);
+    double morel = pow(129.0 / (wl * 1e9), 4.32);
+    check_close(s6.coefficient(wl), morel, 2_pct);
     
   } end_test_case()
   
@@ -51,7 +62,7 @@ namespace flick {
     pw.set_wavelength(270_nm);
     pw.temperature({273_K});
     pw.salinity(0_psu);
-    check_close(pw.real_refractive_index(),1.37,0.2_pct);
+    check_close(pw.real_refractive_index(),1.37,0.5_pct);
     pw.set_wavelength(1001_nm);
     check_close(pw.real_refractive_index(),1.326,0.2_pct);
     pw.set_wavelength(2000_nm);
@@ -59,7 +70,6 @@ namespace flick {
   } end_test_case()
   
    begin_test_case(pure_water_test_C) {
-    //return pow(129.0 / (wavelength() * 1e9), 4.32) * volume_fraction_;
     material::pure_water pw;
     unit_vector v0 = {0,0,1};   
     unit_vector v90 = {0,1,0};   

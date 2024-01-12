@@ -6,6 +6,9 @@ namespace flick {
   {
     inline constexpr double pi = 3.141592653589793238462643383279;
     
+    // Avogadro's constant (exact)
+    inline constexpr double N_A = 6.02214076e23; // [1/mol]
+
     // Boltzman constant (exact)
     inline constexpr double k_B = 1.380649e-23; // [J/K]
 
