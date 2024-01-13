@@ -23,7 +23,7 @@ namespace flick {
     bench = 0.018;
     wl = 300e-9;
     material::water::scattering s3(S,T);
-    check_close(s3.coefficient(wl), bench, 1_pct);
+    check_close(s3.coefficient(wl), bench, 0.1_pct);
 
     S = 40;
     T = constants::to_kelvin(20);

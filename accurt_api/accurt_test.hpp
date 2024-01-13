@@ -157,4 +157,24 @@ namespace flick {
     double L_below = a_below.relative_radiation().y()[0];
     check_close(L_above, L_below/pow(1.33,2), 3_pct);
   } end_test_case()
+  
+  begin_test_case(accurt_test_I) {
+    // Assert flick standard atmosphere-ocean remote sensing reflectance
+    size_t n_angles = 30;
+    accurt::configuration ac;
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",500e-9);
+    ac.set<std::string>("detector_orientation","down");
+    ac.set<std::string>("detector_type","radiance");
+    ac.set<double>("detector_height",0.01);
+    ac.set<double>("reference_detector_height",120e3);
+    material::atmosphere_ocean::configuration mc;
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
+    ac.set<std::string>("subtract_specular_radiance","true");
+    auto m = std::make_shared<material::atmosphere_ocean>(mc);
+    auto a =  accurt(ac, m);
+    double Rrs = a.relative_radiation().y()[0];
+    check_close(Rrs, 0.0252, 0.1_pct);
+  } end_test_case()
 }

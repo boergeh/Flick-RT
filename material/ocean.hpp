@@ -61,7 +61,6 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       add_nap();
       add_bubbles();
       add_marine_particles();
-      //update_iops();
     }
   private:
     void add_pure_water() {

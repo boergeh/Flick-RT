@@ -24,8 +24,11 @@ namespace flick {
 	beta_(2, std::vector<stdvector>(n_layers(), stdvector(n_terms))),
 	refidx_(n_layers())
     {
-      if (boundaries.size()<2 or n_terms < 3)
-	throw std::runtime_error("layered_iops");
+      if (boundaries.size()< 2 or boundaries[1] < boundaries[0] or
+	  (not std::is_sorted(boundaries.begin(), boundaries.end())))
+	throw std::runtime_error("boundary error in layered_iops");
+      if (n_terms < 3)
+	throw std::runtime_error("number of terms error in layered_iops");
       update();
     }
     void set_wavelength(double wl) {

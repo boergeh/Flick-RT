@@ -13,6 +13,7 @@ namespace flick {
     c.set<double>("bottom_depth",depth);
     auto ao = std::make_shared<atmosphere_ocean>(c);
     ao->set_wavelength(400e-9);
+    ao->set_position({0,0,0.1});
     double s1 = ao->scattering_coefficient();
     ao->set_wavelength(800e-9);
     double s2 = ao->scattering_coefficient();
