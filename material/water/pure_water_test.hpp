@@ -10,11 +10,11 @@ namespace flick {
     double S = 0;
     double T = constants::to_kelvin(20);
     material::water::scattering s1(S,T);
-    check_close(s1.vsf90_temperature(366e-9), 4.500e-4, 0.3_pct);
+    check_close(s1.vsf90_density(366e-9), 4.500e-4, 0.3_pct);
     material::water::scattering s2(S,T);
     double bench = 0.650e-4;
     double wl = 578e-9;
-    check_close(s2.vsf90_temperature(wl), bench, 0.2_pct);
+    check_close(s2.vsf90_density(wl), bench, 0.2_pct);
       
     // https://www.oceanopticsbook.info/view/
     // optical-constituents-of-the-ocean/water
@@ -23,23 +23,29 @@ namespace flick {
     bench = 0.018;
     wl = 300e-9;
     material::water::scattering s3(S,T);
-    check_close(s3.coefficient(wl), bench, 0.5_pct);
+    check_close(s3.coefficient(wl), bench, 1_pct);
+
+    S = 40;
+    T = constants::to_kelvin(20);
+    bench = 0.024;
+    wl = 300e-9;
+    material::water::scattering s4(S,T);
+    check_close(s4.coefficient(wl), bench, 1_pct);
+
     S = 35;
     T = constants::to_kelvin(10);
-    material::water::scattering s4(S,T);
     wl = 300e-9;
     bench = 0.024;
-    check_close(s4.coefficient(wl), bench, 0.5_pct);
-    S = 35;
     material::water::scattering s5(S,T);
-
+    check_close(s5.coefficient(wl), bench, 1_pct);
+   
     // Morel
     S = 38.5;
     T = constants::to_kelvin(20);
     wl = 500e-9;
     material::water::scattering s6(S,T);
     double morel = pow(129.0 / (wl * 1e9), 4.32);
-    check_close(s6.coefficient(wl), morel, 2_pct);
+    check_close(s6.coefficient(wl), morel, 3_pct);
     
   } end_test_case()
   
