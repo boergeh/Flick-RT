@@ -74,7 +74,8 @@ namespace water {
   public:
     using base::base;
     double value() {
-      return 1/(fresh_water_coefficient_kell()+salinity_correction_coefficient()); 
+      return 1/(fresh_water_coefficient_millero()+salinity_correction_coefficient())/
+	constants::P_stp; 
     }
   private:
     double fresh_water_coefficient_kell() const
@@ -86,20 +87,19 @@ namespace water {
       vec a = {50.88630, 0.7171582, 0.7819867e-3, 31.62214e-6,
 	-0.1323594e-6, 0.6345750e-9};
       vec b = {1, 21.65928e-3};
-      double c = power_sum(a,Tc_)/power_sum(b,Tc_)*1e-6/constants::P_stp;
+      double c = power_sum(a,Tc_)/power_sum(b,Tc_)*1e-6;
       return 1/c;
     }
     double fresh_water_coefficient_millero() const
     // Millero (1980), Deep-sea Research
     {
       vec a = {19652.21, 148.4206, -2.327105, 1.360477e-2, -5.155288e-5};
-      return power_sum(a,Tc_) * constants::P_stp;
+      return power_sum(a,Tc_);
     }
     double salinity_correction_coefficient() const {
       vec a = {54.6746, -0.603459, 1.09987e-2, -6.167e-5};
       vec b = {7.944e-2, 1.6483e-2, -5.3009e-4};
-      return (power_sum(a,Tc_)*S_ + power_sum(b,Tc_)*pow(S_,1.5)) /
-	constants::P_stp;
+      return (power_sum(a,Tc_)*S_ + power_sum(b,Tc_)*pow(S_,1.5));
     }
   };
   
@@ -112,8 +112,7 @@ namespace water {
       15.868, 0.01155, -0.00423, -4382, 1.1455e6};
   public:
     using base::base;
-    double at(double wavelength) const
-    {
+    double at(double wavelength) const {
       double lambda = wavelength*1e9; // [nm]
       return (a[0]+(a[1]+a[2]*Tc_+a[3]*pow(Tc_,2))*S_+a[4]*pow(Tc_,2)+
 	      (a[5]+a[6]*S_+a[7]*Tc_)/lambda+a[8]/pow(lambda,2)+a[9]/pow(lambda,3))*
@@ -141,7 +140,7 @@ namespace water {
     {
       vec a = {238.0185, 5792105, 57.362, 167917}; // [microns^-2]
       double nu = 1/(wavelength*1e6); // [microns^-1]
-      return 1+(a[1]/(a[0]-pow(nu,2)+a[3]/(a[2]-pow(nu,2))))/1e8;
+      return 1+(a[1]/(a[0]-pow(nu,2))+a[3]/(a[2]-pow(nu,2)))/1e8;
     }      
   };
  
@@ -158,19 +157,19 @@ namespace water {
       // J. Chem. Phys. 65, 593–595 (1976).
       return 0.039;
     }
+    double vsf90_density(double wavelength) const {
+      refractive_index n(S_,T_);
+      double wl = wavelength;
+      double beta_T = compressibility(S_,T_).value();
+      return vsf90_factor(wl) / 2 * pow(n.density_variation(wl),2) *
+	constants::k_B * T_ * beta_T;
+    }
     double vsf90_salinity(double wavelength) const {
       refractive_index n(S_,T_);
       double wl = wavelength;
       return vsf90_factor(wl) * 2 * pow(n.at(wl),2) * S_ *
 	water_molecular_weight() * pow(n.dn_dS(wl),2) /
       	(density(S_,T_).value() * (-activity(S_,T_).value())*constants::N_A);
-    }
-    double vsf90_density(double wavelength) const {
-      refractive_index n(S_,T_);
-      double wl = wavelength;
-      double beta_T = compressibility(S_,T_).value();
-      return vsf90_factor(wl) / 2 * pow(n.density_variation(wl),2) *
-	constants::k_B*T_ * beta_T;
     }
     double coefficient(double wavelength) const {
       double wl = wavelength;

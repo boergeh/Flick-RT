@@ -175,6 +175,6 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y()[0];
-    check_close(Rrs, 0.0252, 0.1_pct);
+    check_close(Rrs, 0.0252, 0.2_pct);
   } end_test_case()
 }

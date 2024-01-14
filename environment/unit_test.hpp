@@ -55,11 +55,11 @@ namespace flick {
       std::cout << "\n\n" << " " << name_ << ", check number "
 		<< std::to_string(checks_) <<":";
       if (not s.empty())
-	std::cout << " with message \"" << s << "\"";
+	std::cout << " \"" << s << "\".";
       std::cout << std::setprecision(3) << " ";
     }
     void write_end() {
-      std::cout << std::endl << std::endl;
+      std::cout << std::setprecision(6) << std::endl << std::endl;
     }
     test_case(const std::string& name="") : name_{name}{}
     virtual void test() = 0;
@@ -93,8 +93,8 @@ namespace flick {
     void check_close(double value1, double value2, double percent=1e-12,
 		     const std::string& s="") {
       checks_++;
-      double diff = fabs(value1/value2-1)*100;
-      if (!std::isfinite(diff) | (diff > percent)) {
+      double diff = (value1/value2-1)*100;
+      if (!std::isfinite(diff) | (fabs(diff) > percent)) {
 	write_begin(s);
 	std::cout << "The difference between "
 		  << value1 << " and benchmark " << value2 << " is " << diff
@@ -119,7 +119,6 @@ namespace flick {
     }
     void check_fast(double max_time, const std::string& s="") {
       checks_++;
-      //std::chrono::time_point<std::chrono::system_clock> time;
       auto time = std::chrono::system_clock::now();
       std::chrono::duration<double> duration = time - time_2;
       if (duration > std::chrono::duration<double>(max_time)) {
