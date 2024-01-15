@@ -12,6 +12,7 @@
 #include "../../material/tabulated.hpp"
 #include "../../material/ab_functions.hpp"
 #include "../../material/marine_particles/marine_particles.hpp"
+#include "../../material/ocean.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
 #include "../../environment/input_output.hpp"
 
@@ -126,6 +127,14 @@ namespace flick {
 	  std::string name = a(6);
 	  double mass_concentration{std::stod(a(7))};
 	  material::marine_particles m(name,mass_concentration);
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="atmosphere_ocean") {
+	  std::string config_file = a(6);
+	  double height = stod(a(7));
+	   auto c = read<material::ocean::configuration>("./"+config_file);
+	  material::ocean m(c);
+	  m.set_position({0,0,height});
 	  stream_iops(m, a(1));
 	}
 	else

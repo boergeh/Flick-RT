@@ -82,6 +82,7 @@ Parameters:
 
     'marine_particles' <name> <mass_concentration>
 
+    'atmosphere_ocean' <name_of_configuration_file> <heigth>
 
 Examples:
 
@@ -106,6 +107,8 @@ Examples:
   flick iop scattering_ab_10_8 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 
   flick iop wigner_alpha_beta_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
+
+  flick iop wigner_alpha_beta_10 400e-9 400e-9 1 atmosphere_ocean my_config -1
 
   flick iop AccuRT_1_8 400e-9 700e-9 10 brines_in_ice fast_mie 0.1 100e-6 0 100 
 

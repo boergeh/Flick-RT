@@ -19,13 +19,12 @@ def configure(file_name, zenith_angle):
     flick.config(f,"n_angles", n_angles)
     flick.config(f,"n_heights", 3)
     flick.config(f,"source_zenith_angle", zenith_angle)
-    #flick.config(f,"cdom_440", 0.1)
-    #flick.config(f,"nap_concentration", 0.8e-3)
-    #flick.config(f,"chl_concentration", 1.0e-6)
-    #flick.config(f,"cdom_440", 0.1)
-    flick.config(f,"cdom_440", 0.16)
-    flick.config(f,"nap_concentration", 20.1e-3)
-    flick.config(f,"chl_concentration", 7.55e-6)
+    flick.config(f,"cdom_440", 0.09)
+    flick.config(f,"nap_concentration", 2.5e-3)
+    flick.config(f,"chl_concentration", 2e-6)
+    #flick.config(f,"cdom_440", 0.16)
+    #flick.config(f,"nap_concentration", 20.1e-3)
+    #flick.config(f,"chl_concentration", 7.55e-6)
     flick.config(f,"mp_concentrations", 0)
     
 def relative_radiance(file_name):
@@ -66,7 +65,7 @@ def measured_spectrum():
 def ocean_radiance():
     flick.config(config_file_name, "subtract_specular_radiance", "false")
     flick.config(config_file_name, "reference_detector_height", 120e3)
-    flick.config(config_file_name, "detector_height", -0.4)
+    flick.config(config_file_name, "detector_height", -0.3)
     r = relative_radiance(config_file_name)
     r = radiance(r, solar_zenith_angle)
     r = smooth(r)
@@ -101,8 +100,8 @@ def plot_ocean_radiance(ax, radiance):
     ax.legend()
 
 def plot_reflectances(ax, toa, rrs):
-    line1=ax.semilogy(toa[:,0],toa[:,1],linewidth=1,label="top of atmosphere")
-    line2=ax.semilogy(rrs[:,0],rrs[:,1],linewidth=1,label="ocean remote sensing")
+    line1=ax.plot(toa[:,0],toa[:,1],linewidth=1,label="top of atmosphere")
+    line2=ax.plot(rrs[:,0],rrs[:,1],linewidth=1,label="ocean remote sensing")
     ax.grid()
     ax.set_ylabel("Nadir reflectance [sr$^{-1}$]")
     ax.set_xlabel("Wavelength [nm]")
