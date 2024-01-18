@@ -179,7 +179,9 @@ namespace flick {
 	  stream_AccuRT(m, n.at(0), n.at(1));
 	}
 	else if (p.substr(0,20)=="scattering_ab_fitted") {
-	  size_t n_terms = sub_script_numbers(p.substr(20)).at(0);
+	  auto n = sub_script_numbers(p.substr(20));
+	  size_t n_terms = n.at(0);
+	  std::optional<size_t> n_points = get_n_points(n);
 	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms);
 	  stream_ab_functions(m,a,b,x);
 	}
@@ -191,7 +193,8 @@ namespace flick {
 	else if (p.substr(0,17)=="wigner_alpha_beta") {
 	  auto n = sub_script_numbers(p.substr(17));
 	  size_t n_terms = n.at(0);
-	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms);
+	  std::optional<size_t> n_points = get_n_points(n);
+	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms,n_points);
 	  std::cout << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set_wavelength(wls_[i]);
@@ -222,6 +225,12 @@ namespace flick {
 	    std::cout << std::setprecision(6) << wl << " " << value << '\n';
 	  }
 	}
+      }
+      std::optional<size_t> get_n_points(const std::vector<size_t>& n) const {
+	std::optional<size_t> n_points;
+	if (n.size()>1)
+	  n_points = n.at(1);
+	return n_points;
       }
       template<class Material>
       void stream_AccuRT(Material& m, size_t layer_n, size_t n_terms) const {

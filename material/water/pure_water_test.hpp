@@ -39,16 +39,6 @@ namespace flick {
 		"Zhang and Hu (2009) Matlab script");
     check_close(flick, morel, 10_pct,
 		"Morel parameterization");
-
-    // Morel
-    /*
-    S = 38.5;
-    T = constants::to_kelvin(20);
-    wl = 500e-9;
-    material::water::scattering s6(S,T);
-    double morel = pow(129.0 / (wl * 1e9), 4.32);
-    check_close(s6.coefficient(wl), morel, 3_pct);
-    */
   } end_test_case()
   
   begin_test_case(pure_water_test_B) {  
@@ -78,12 +68,17 @@ namespace flick {
   } end_test_case()
   
    begin_test_case(pure_water_test_C) {
-    material::pure_water pw;
+    double S = 35;
+    double T = constants::to_kelvin(0);
+    material::pure_water pw(S,T);
     unit_vector v0 = {0,0,1};   
     unit_vector v90 = {0,1,0};   
     pw.set_direction(v0);
     double p0 = pw.mueller_matrix(v0).value(0,0);
     double p90 = pw.mueller_matrix(v90).value(0,0);
     check_close(p90/p0,0.5,4_pct);
+    pw.set_wavelength(400e-9);
+    check_close(p0*pw.scattering_coefficient(),8.2053e-4,0.001_pct,"Zhang-Hu Matlab script");
+    check_close(p90*pw.scattering_coefficient(),4.2626e-4,0.001_pct,"Zhang-Hu Matlab script");
   } end_test_case()
 }

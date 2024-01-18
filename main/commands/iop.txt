@@ -104,7 +104,7 @@ Examples:
 
   flick iop scattering_ab_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 
-  flick iop scattering_ab_10_8 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
+  flick iop scattering_ab_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 
   flick iop wigner_alpha_beta_10 400e-9 400e-9 1 water_cloud full_mie 1e-7 5e-6 0
 

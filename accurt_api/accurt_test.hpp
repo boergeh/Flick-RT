@@ -54,7 +54,7 @@ namespace flick {
     absorption_coefficient a{ac/2}; // 2 m slab thickness
     scattering_coefficient b{sc/2};
     asymmetry_factor g{0.75};
-    size_t n_angles = 30;
+    size_t n_angles = 150;
     accurt::configuration c;
     c.set<std::string>("detector_orientation","up");
     c.set<std::string>("detector_type","plane_irradiance");

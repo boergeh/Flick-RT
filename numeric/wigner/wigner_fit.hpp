@@ -17,8 +17,11 @@ namespace flick {
       return 1;
     }
   };
-  size_t wigner_sample_points(size_t n_terms) {
-    return pow(n_terms,1.6);
+  size_t wigner_n_sampling_points(size_t n_terms) {
+    return pow(n_terms, 1.6);
+  }
+  double wigner_mu_max(size_t n_angles) {
+    return 1 - 1./pow(n_angles,2);
   }
   template<class Function>
   class wigner_fit {
@@ -28,9 +31,8 @@ namespace flick {
     wigner_fit(const Function& f, int m, int n, int n_terms, fit fit,
 	       const pe_function& scaling_function = pe_function{{-1,1},{1,1}})
       : m_{m}, n_{n}, coefficients_(n_terms) {
-      size_t n_angles = wigner_sample_points(n_terms);
-      double forward_max = 1;// - 0.1/(n_angles+1);
-      stdvector x = range(-1,forward_max, n_angles).linspace();   
+      size_t n_angles = wigner_n_sampling_points(n_terms);
+      stdvector x = range(-1,wigner_mu_max(n_angles), n_angles).linspace();   
       linalg::matrix mat(x.size(), std::vector<double>(n_terms));
       linalg::vector v(x.size());
       for (size_t i=0; i<x.size(); ++i) {

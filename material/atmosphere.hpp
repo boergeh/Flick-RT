@@ -30,8 +30,8 @@ depth. Set to '1' for rural aerosols only and '0' for urban aerosols only)");
 	add<double>("cloud_liquid", 0, R"(Liquid equivalent cloud thickness [m]. Typical values are in the range
 0 to 1e-4 m)");
 	
-	add<std::string>("gases", {"o3","o2","h2o","no2"}, R"(Space-separated list of names of absorbing gases included in the
-atmosphere, selected among 'o3', 'o2', 'h2o', and 'no2')");
+	add<std::string>("gases", {"o3","o2","h2o"}, R"(Space-separated list of names of absorbing gases included in the
+atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
       }
     };
   private:

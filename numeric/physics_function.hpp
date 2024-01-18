@@ -60,8 +60,7 @@ namespace flick {
       junge_slope_ = 6*(refractive_index_-1)+3;
     }
     double value(double mu) const {
-      ensure(mu < 1-1e-9);
-      using namespace constants;
+      using namespace constants;      
       double d = delta(mu);
       double n = nu();
       double a = 1-d;

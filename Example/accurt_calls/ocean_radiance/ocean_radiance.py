@@ -12,15 +12,21 @@ def configure(file_name, zenith_angle):
     if not os.path.exists(f):
         flick.run("accurt -g ocean_radiance "+f)
         
-    wavelengths = np.linspace(300e-9,810e-9,40);
-    n_angles = 50
-    flick.config(f,"stream_upper_slab_size", flick.to_streams(n_angles))
+    wavelengths = np.linspace(300e-9,950e-9,80);
+    n_angles = 30
+    flick.config(f,"stream_upper_slab_size", flick.to_streams(n_angles))    
     flick.config(f,"detector_wavelengths", wavelengths)
     flick.config(f,"n_angles", n_angles)
     flick.config(f,"n_heights", 3)
+    flick.config(f,"pressure", 1000e2)
+    flick.config(f,"stream_upper_slab_size", 8)
     flick.config(f,"source_zenith_angle", zenith_angle)
+    flick.config(f,"aerosol_od", 0.07)
+    #flick.config(f,"gases", "o3 h2o co2")
+    flick.config(f,"cloud_liquid", 0)
     flick.config(f,"cdom_440", 0.09)
     flick.config(f,"nap_concentration", 2.5e-3)
+    #flick.config(f,"nap_concentration", 5.2e-3)
     flick.config(f,"chl_concentration", 2e-6)
     #flick.config(f,"cdom_440", 0.16)
     #flick.config(f,"nap_concentration", 20.1e-3)
@@ -41,7 +47,7 @@ def radiance(relative_radiance, solar_zenith_angle):
 
 def smooth(radiance):
     np.savetxt("tmp_radiance",radiance)
-    wl = np.linspace(300e-9,800e-9,100);
+    wl = np.linspace(300e-9,900e-9,100);
     radiance = np.empty([len(wl),2])
     radiance[:,0] = wl
     for i in range(len(wl)):
@@ -58,9 +64,13 @@ def to_mW_per_m2_per_nm(radiance):
     radiance[:,1] = radiance[:,1]*1e-9*1e3
     return radiance
 
-def measured_spectrum():
-    r = np.loadtxt("measured_spectrum")
+def measured_radiance():
+    r = np.loadtxt("measured_radiance")
     return r[:,[0,1]]
+
+def measured_toa_reflectance():
+    r = np.loadtxt("measured_toa_reflectance")
+    return r
 
 def ocean_radiance():
     flick.config(config_file_name, "subtract_specular_radiance", "false")
@@ -90,7 +100,7 @@ def remote_sensing_reflectance():
     return r
 
 def plot_ocean_radiance(ax, radiance):
-    m = measured_spectrum()
+    m = measured_radiance()
     x = radiance[:,0]
     y = radiance[:,1]
     line1=ax.plot(m[:,0],m[:,1],linewidth=1,label="measurements")
@@ -99,9 +109,10 @@ def plot_ocean_radiance(ax, radiance):
     ax.set_ylabel("Nadir radiance [mW m$^{-2}$ nm$^{-1}$ sr$^{-1}$]")
     ax.legend()
 
-def plot_reflectances(ax, toa, rrs):
-    line1=ax.plot(toa[:,0],toa[:,1],linewidth=1,label="top of atmosphere")
+def plot_reflectances(ax, toa, rrs, toam):
+    line1=ax.plot(toa[:,0],toa[:,1],linewidth=1,label="top of atmosphere, nadir")
     line2=ax.plot(rrs[:,0],rrs[:,1],linewidth=1,label="ocean remote sensing")
+    line3=ax.plot(toam[:,0],toam[:,1],marker='o',markersize=2,linewidth=1,label="Sentinel 3, TOA, slant viewing")
     ax.grid()
     ax.set_ylabel("Nadir reflectance [sr$^{-1}$]")
     ax.set_xlabel("Wavelength [nm]")
@@ -118,11 +129,12 @@ configure(config_file_name, solar_zenith_angle[0][0])
 a = ocean_radiance()
 b = toa_reflectance()
 c = remote_sensing_reflectance()
+d = measured_toa_reflectance()
 
 fig, ax = plt.subplots(2,1,sharex=True)
 fig.set_size_inches(5,6)
 plot_ocean_radiance(ax[0],a)
-plot_reflectances(ax[1],b,c)
+plot_reflectances(ax[1],b,c,d)
 plt.subplots_adjust(left=0.15,
                     bottom=0.08,
                     right=0.98,

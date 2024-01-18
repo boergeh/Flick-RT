@@ -3,6 +3,7 @@
 
 #include <numbers>
 #include "../linalg/solve_with_eigen.hpp"
+#include "../wigner/wigner_fit.hpp"
 #include "legendre.hpp"
  
 namespace flick {
@@ -12,8 +13,8 @@ namespace flick {
   public:
     delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
-      int n_angles = pow(n_terms,1.6);
-      double forward_max = 1;// - 0.1/(n_angles+1);
+      int n_angles = wigner_n_sampling_points(n_terms);
+      double forward_max = wigner_mu_max(n_angles);
       std::vector<double> x = range(-1,forward_max,n_angles).linspace();
       linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);

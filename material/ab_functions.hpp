@@ -16,7 +16,7 @@ namespace material {
   // taken relative to current traveling direction, keeping azimuth
   // angle equal to zero
   {
-    double forward_max = 1 - 0.1/(n_angles+1);
+    double forward_max = wigner_mu_max(n_angles);
     std::vector<double> x = range(-1,forward_max,n_angles).linspace();
     std::vector<std::vector<double>> a(4,std::vector<double>(x.size()));
     std::vector<std::vector<double>> b(2,std::vector<double>(x.size()));
@@ -35,14 +35,15 @@ namespace material {
 
   template<class Material>
   std::tuple<std::vector<std::vector<double>>,
-	     std::vector<std::vector<double>>> fitted_mueller_alpha_beta(const Material& mat, size_t n_terms)
+	     std::vector<std::vector<double>>> fitted_mueller_alpha_beta(const Material& mat, size_t n_terms, std::optional<size_t> n_points = std::optional<size_t>())
   // Wigner d-function fits to the non-zero Mueller matrix a and b
   // functions. Returned coefficients are normalized such the 4*pi
   // solid angle integral over a[0] (phase function) equals one as
   // is common practice in Flick.
   {
-    size_t n_points = wigner_sample_points(n_terms);
-    auto [a,b,x] = mueller_ab_functions(mat, n_points);
+    if (not n_points)
+      n_points = wigner_n_sampling_points(n_terms);
+    auto [a,b,x] = mueller_ab_functions(mat, *n_points);
     normalized_scattering_matrix_fit fit(a,b,x,n_terms);
     return {fit.alpha(), fit.beta()};
   }
@@ -50,10 +51,11 @@ namespace material {
   template<class Material>
   std::tuple<std::vector<std::vector<double>>,
 	     std::vector<std::vector<double>>,
-	     std::vector<double>> fitted_mueller_ab_functions(const Material& mat, size_t n_terms)
+	     std::vector<double>> fitted_mueller_ab_functions(const Material& mat, size_t n_terms, std::optional<size_t> n_points = std::optional<size_t>())
   {
-    size_t n_points = wigner_sample_points(n_terms);
-    auto [a,b,x] = mueller_ab_functions(mat, n_points);
+    if (not n_points)
+      n_points = wigner_n_sampling_points(n_terms);
+    auto [a,b,x] = mueller_ab_functions(mat, *n_points);
     normalized_scattering_matrix_fit m(a,b,x,n_terms);
     std::vector<std::vector<double>> a_fitted(4);
     for (size_t i = 0; i < a_fitted.size(); ++i) {
