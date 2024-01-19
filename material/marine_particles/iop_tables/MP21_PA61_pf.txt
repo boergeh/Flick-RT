@@ -1,18 +1,22 @@
 /*
-Phase Functions [1/sr] at 532 nm from LISST-VSF measurements, Percentiles and mean
+Scattering Phase Functions [1/sr] at 532 nm from LISST-VSF (SN 1475), Percentiles and mean
+Volume scattering function corrected and extrapolated to 180º following Koestner et al. 2018 
+
 Dilution-corrected (if applicable) IOPs [1/m], Percentiles and mean;
 bbp = 0.145732	0.158213	0.176231	0.199380	0.234030	0.184296
 bp = 8.849832	9.273170	9.792716	10.424028	11.190359	9.942983
 cp = 8.521468	9.026627	9.639899	10.240589	11.207159	9.740747
+
 Lat, Lon = NaN, NaN
 Date Time UTC = NaN
 Depth = NaN m
+SPM = 18.90 g/m3
 POC/SPM = NaN 
 
-Created by Daniel Koestner on 10-Nov-2023 14:09:28
+Created by Daniel Koestner on 15-Jan-2024 15:28:33
 Data Version: V4_10-Nov-2023
 
-Column 1: Angle[deg]
+Column 1: Angle [deg]
 Column 2: 10th Percentile Data
 Column 3: 25th Percentile Data
 Column 4: 50th Percentile Data

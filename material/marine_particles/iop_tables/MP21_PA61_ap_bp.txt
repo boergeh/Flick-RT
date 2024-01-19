@@ -1,19 +1,21 @@
 /*
 Particulate absorption and scattering spectra, normalized by SPM 
-Scattering spectra from ac-s power-law fit 400–700 nm scaled by LISST-VSF scattering coefficient at 532 nm 
-Total (a_p) and MeOH-extracted (a_d) absorption spectra based on measurements with GF/F inside integrating sphere
+Scattering spectra from ac-s power-function fit 400-700 nm scaled by LISST-VSF scattering coefficient at 532 nm 
+Total (a_p) and MeOH-extracted (a_d) absorption spectra from UV/VIS spectrophotometer measurements with GF/F filter inside 15-cm integrating sphere
+Correction for filter-pad pathlength amplification from Stramski et al. 2015 
+
 Lat, Lon = NaN, NaN
 Date Time UTC = NaN
 Depth = NaN m
 SPM = 18.90 g/m3
 POC = NaN mg/m3
-PSD power-law exponent (~1.5–147 µm) = 3.55 
-Scattering spectra power-law exponent (400–700 nm) = 0.559 
+PSD power-law exponent (~1.5-147 µm) = 3.55 
+Scattering spectra power-function exponent (400-700 nm) = 0.559 
 
-Created by Daniel Koestner on 10-Nov-2023 14:09:34
+Created by Daniel Koestner on 15-Jan-2024 15:28:37
 Data Version: V4_10-Nov-2023
 
-Column 1: lambda[nm]
+Column 1: wavelength [nm]
 Column 2: a_p [m^2/g]
 Column 3: a_d [m^2/g]
 Column 4: b_p [m^2/g]

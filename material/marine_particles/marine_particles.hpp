@@ -18,8 +18,8 @@ namespace material {
     marine_particles(const std::string& name, double mass_concentration=1e-3)
       : mass_concentration_{mass_concentration} {
       const std::string path{"/material/marine_particles/iop_tables"};
-      pe_flist PF = read<pe_flist>(path+"/"+name+"_PFs.txt");
-      p_ = PF(5);
+      pe_flist pf = read<pe_flist>(path+"/"+name+"_pf.txt");
+      p_ = pf(5);
       pl_flist ab = read<pl_flist>(path+"/"+name+"_ap_bp.txt");
       a_star_ = ab(0);
       b_star_ = ab(2);

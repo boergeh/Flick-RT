@@ -75,7 +75,7 @@ namespace flick {
   public:
     struct configuration : public basic_configuration {
       configuration() {
-	add<std::string>("material_name","atmosphere_ocean", R"( Name of the material that gives inherent optical properties used in
+	add<std::string>("material_name","atmosphere_ocean", R"(Name of the material that gives inherent optical properties used in
 the radiative transfer calculations, which could be 'atmosphere' or
 'atmosphere_ocean')");
 
@@ -186,6 +186,11 @@ reflection and '1' gives loamy sand reflection)");
       c_.set<std::string>("detector_azimuth_angles","nan");
       c_.set<std::string>("detector_polar_angles","0 180");
     }
+    void set_slant_radiance(double polar, double azimuth_view, double azimuth_sun) {
+      c_.set<std::string>("save_radiance","true");
+      c_.set<std::string>("detector_azimuth_angles",std::to_string(azimuth_view - azimuth_sun));
+      c_.set<std::string>("detector_polar_angles",std::to_string(polar));
+    }
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("stream_upper_slab_size") + 1;
 
@@ -218,7 +223,15 @@ reflection and '1' gives loamy sand reflection)");
 	detector_scalar_irradiance()/reference_detector_irradiance()};	  
     }
     pp_function relative_radiance() {
-      set_vertical_radiance();
+      if (c_.get<std::string>("detector_orientation")=="slant") {
+	double polar_view = c_.get<double>("polar_veiewing_angle");
+	double azimuth_view = 0;
+	double azimuth_sun = 0;
+	set_slant_radiance(polar_view,azimuth_view,azimuth_sun);
+      }
+      else {
+	set_vertical_radiance();
+      }
       run();
       return pp_function{wavelengths_,
 	detector_radiance()/reference_detector_irradiance()};	  
