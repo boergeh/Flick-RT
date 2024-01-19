@@ -182,7 +182,7 @@ namespace flick {
 	  auto n = sub_script_numbers(p.substr(20));
 	  size_t n_terms = n.at(0);
 	  std::optional<size_t> n_points = get_n_points(n);
-	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms);
+	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms,n_points);
 	  stream_ab_functions(m,a,b,x);
 	}
 	else if (p.substr(0,13)=="scattering_ab") {
