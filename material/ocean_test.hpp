@@ -37,7 +37,7 @@ namespace flick {
     c.set<size_t>("n_angles",100);
     auto oce = ocean{c};
     size_t n1 = oce.material_ids().size();
-    c.set<std::string>("mp_names",{"MP21_PA61","MP21_PA61"});
+    c.set<std::string>("mp_names",{"SD16_VF17","SD16_VF18"});
     c.set<double>("mp_concentrations",{1,1});
     oce = ocean{c};
     check(oce.material_ids().size()==n1+1);

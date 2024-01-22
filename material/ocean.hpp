@@ -36,7 +36,7 @@ for clarity)");
 
 	add<double>("water_salinity", 30, R"(Salinity of the water column [PSU])");
 
-	add<std::string>("mp_names", "MP21_PA61", R"(Space-separated list of names of included marine particle materials
+	add<std::string>("mp_names", "SD16_VF17", R"(Space-separated list of names of included marine particle materials
 with inherent optical properties listed in separate ASCII files stored
 in the Flick directory material/marine_particles/iop_tables)");
 	

@@ -12,8 +12,11 @@ POC = 153.26 mg/m3
 PSD power-law exponent (~1.5-147 µm) = 3.92 
 Scattering spectra power-function exponent (400-700 nm) = 0.720 
 
-Created by Daniel Koestner on 15-Jan-2024 15:28:39
+Created by Daniel Koestner on 21-Jan-2024 22:51:45
 Data Version: V4_10-Nov-2023
+
+Unfractionated seawater sample Oc from Koestner et al. (2020)
+Koestner, D., Stramski, D., and Reynolds, R. A. (2020). Assessing the effects of particle size and composition on light scattering through measurements of size-fractionated seawater samples. Limnology and Oceanography, 65, 173–190. https://doi.org/10.1002/lno.11259 
 
 Column 1: wavelength [nm]
 Column 2: a_p [m^2/g]
