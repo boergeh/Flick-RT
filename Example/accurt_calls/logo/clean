@@ -1,0 +1,11 @@
+rm tmp
+rm -fr tmpMaterials
+rm -fr tmpOutput
+rm -fr __pycache__
+rm logo_white.png
+rm logo_white.jpg
+rm logo_black.png
+rm logo_black.jpg
+rm logo.npy
+rm config
+rm *~

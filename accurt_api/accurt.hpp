@@ -89,6 +89,27 @@ ocean)");
 
 	add<std::string>("detector_orientation", "up", R"(Detector vertical orientation, looking 'up' or 'down')");
 	
+	add<double>("detector_orientation_override", {0,0}, R"(Polar and azimuth viewing angles override for slant radiance view
+[degrees]. Note that '0 0' will deactivate the override, and a
+radiance detector will still be looking vertically up when
+detector_orientation is set to 'up' and be looking vertically down
+when detector_orientations is set to 'down'. For other override
+angles, a polar angle less than 90 degrees will make the detector look
+towards the upper heimisphere, and zero degrees azimuth will make it
+look towards the azimuth position of the source.)");
+	
+	add<size_t>("detector_radiance_distribution_override", {0,0}, R"(Number of polar and azimuth viewing angles override for detection of
+angular distributed radiance. Note that '0 0' will deactivate the
+override, and a radiance detector will still be looking vertically up
+when detector_orientation is set to 'up' and be looking vertically
+down when detector_orientations is set to 'down'. For other override
+number of angles, the first value gives number of polar viewing angles
+linearly spaced from 0 to 180 degrees, and the second value gives
+number of azimuth viewing angles linearly spaced from -180 to 180
+degrees. If detector_radiance_distribution_override is activated,
+Flick will return a 3D array with radiance values for each wavelength,
+polar angle, and azimuth angel, respectively.)");
+	
 	add<std::string>("detector_type", "irradiance", R"(Type of radiation to be detected, which could be 'plane_irradiance',
 'scalar_irradiance', or 'radiance')");
 	
@@ -103,9 +124,10 @@ top-of-atmosphere irradiance)");
 	
 	add<std::string>("reference_detector_orientation","up", R"(Reference detector vertical orientation, looking 'up' or 'down')");
 			 
-	add<double>("source_zenith_angle", 0, R"(Zenith angle of the radiation source [degrees], where zero gives
-vertically downward-directed incident irradiance)");
-
+	add<double>("source_zenith_angle", 0, R"(Source zenith angle [degrees], where zero gives vertically
+downward-directed incident irradiance. The source is usually the solar
+beam.)");
+	
 	add<double>("bottom_boundary_surface_scaling_factor", 1, R"(Darkness scaling of the bottom boundary, where '0' gives no bottom
 reflection and '1' gives loamy sand reflection)");
 		    
@@ -180,16 +202,75 @@ reflection and '1' gives loamy sand reflection)");
       else
 	throw std::runtime_error("detector_type");
     }
+    bool radiance_distribution_override() {
+      return (c_.get_vector<size_t>("detector_radiance_distribution_override").at(0) > 0);
+    }
+    bool detector_orientation_override() {
+      return (c_.get_vector<double>("detector_orientation_override").at(0) > 1e-5);
+    }
+    void print_radiance_distribution(const std::vector<std::vector<std::vector<double>>>& r) {
+      for (size_t i=0; i<r.size(); ++i) {
+	for (size_t j=0; j<r[i].size(); ++j) {
+	  for (size_t k=0; k<r[i][j].size(); ++k) {
+	    std::cout << r[i][j][k] << " ";
+	  }
+	  std::cout << '\n';
+	}
+      }      
+    }
+    std::vector<std::vector<std::vector<double>>> relative_distributed_radiance() {
+      auto n_d = c_.get_vector<size_t>("detector_radiance_distribution_override");
+      size_t n_polar = n_d.at(0);
+      size_t n_azimuth = n_d.at(1);
+      set_distributed_radiance(n_polar,n_azimuth);
+      run();
+      grid_4d g = read_radiance(path_+"/radiance.txt");
+      stdvector wls = g.x[1];
+      std::vector<std::vector<std::vector<double>>> L;
+      
+      L.resize(wls.size());
+      for (size_t i=0; i<wls.size(); i++) {
+	L[i].resize(n_polar);
+	for (size_t j=0; j<n_polar; j++) {
+	  L[i][j].resize(n_azimuth);
+	}
+      }
+      for (size_t i=0; i<wls.size(); i++) {
+	for (size_t j=0; j<n_polar; j++) {
+	  for (size_t k=0; k<n_azimuth; k++) {
+	    L[i][j][k] = g.f[n_detector_][i][j][k];
+	  }
+	}
+      }    
+      return L;
+    }
   private:
     void set_vertical_radiance() {
       c_.set<std::string>("save_radiance","true");
       c_.set<std::string>("detector_azimuth_angles","nan");
       c_.set<std::string>("detector_polar_angles","0 180");
     }
-    void set_slant_radiance(double polar, double azimuth_view, double azimuth_sun) {
+    void set_slant_radiance(double polar_view, double azimuth_view) {
+      const double polar_max = 179.1;
+      if (polar_view > polar_max)
+	polar_view = polar_max;
       c_.set<std::string>("save_radiance","true");
-      c_.set<std::string>("detector_azimuth_angles",std::to_string(azimuth_view - azimuth_sun));
-      c_.set<std::string>("detector_polar_angles",std::to_string(polar));
+      c_.set<std::string>("detector_polar_angles","0 "+std::to_string(180-polar_view));
+      c_.set<std::string>("detector_azimuth_angles",std::to_string(azimuth_view));
+    }
+    void set_distributed_radiance(size_t n_polar, size_t n_azimuth) {
+      c_.set<std::string>("save_radiance","true");
+      std::string polar = vector_to_string(range(0,180,n_polar).linspace());
+      std::string azimuth = vector_to_string(range(-180,180,n_azimuth).linspace());
+      c_.set<std::string>("detector_polar_angles",polar);
+      c_.set<std::string>("detector_azimuth_angles",azimuth);
+    }
+    std::string vector_to_string(const stdvector& v) {
+      std::string s;
+      for (size_t i=0; i<v.size(); ++i) {
+	s += std::to_string(v[i]) + " ";
+      }
+      return s;
     }
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("stream_upper_slab_size") + 1;
@@ -223,13 +304,12 @@ reflection and '1' gives loamy sand reflection)");
 	detector_scalar_irradiance()/reference_detector_irradiance()};	  
     }
     pp_function relative_radiance() {
-      if (c_.get<std::string>("detector_orientation")=="slant") {
-	double polar_view = c_.get<double>("polar_veiewing_angle");
-	double azimuth_view = 0;
-	double azimuth_sun = 0;
-	set_slant_radiance(polar_view,azimuth_view,azimuth_sun);
-      }
-      else {
+      if (detector_orientation_override()) {
+	auto view = c_.get_vector<double>("detector_orientation_override");     
+	double polar_view = view.at(0);
+	double azimuth_view = view.at(1);
+	set_slant_radiance(polar_view, azimuth_view);
+      } else {
 	set_vertical_radiance();
       }
       run();
@@ -245,16 +325,19 @@ reflection and '1' gives loamy sand reflection)");
 	Lu[i] = g.f[n_detector_][i][1][0];
 	Ld[i] = g.f[n_detector_][i][0][0];
       }
-      std::string tf = c_.get<std::string>("subtract_specular_radiance"); 
-      if (tf=="true") {
+      std::string subtract = c_.get<std::string>("subtract_specular_radiance"); 
+      if (subtract=="true") {
 	Lu =  Lu - Ld * nadir_fresnel_coefficient(wls);
-      } else if (tf!="false") {
+      } else if (subtract != "false") {
 	throw std::runtime_error("subtract_specular_radiance");
       }
-      tf = c_.get<std::string>("detector_orientation");
-      if (tf=="up") {
+      if (detector_orientation_override()) {
 	return Ld;
-      } else if (tf=="down"){
+      }
+      std::string ori = c_.get<std::string>("detector_orientation");
+      if (ori=="up") {
+	return Ld;
+      } else if (ori=="down") {
 	return Lu;
       } else {
 	throw std::runtime_error("detector_orientation");

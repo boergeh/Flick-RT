@@ -19,7 +19,6 @@ def configure(file_name, zenith_angle):
     flick.config(f,"n_angles", n_angles)
     flick.config(f,"n_heights", 3)
     flick.config(f,"pressure", 1000e2)
-    flick.config(f,"stream_upper_slab_size", 8)
     flick.config(f,"source_zenith_angle", zenith_angle)
     flick.config(f,"aerosol_od", 0.07)
     #flick.config(f,"gases", "o3 h2o co2")

@@ -168,13 +168,67 @@ namespace flick {
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.01);
     ac.set<double>("reference_detector_height",120e3);
+    ac.set<std::string>("subtract_specular_radiance","true");
     material::atmosphere_ocean::configuration mc;
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
-    ac.set<std::string>("subtract_specular_radiance","true");
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
-    double Rrs = a.relative_radiation().y()[0];
+    double Rrs = a.relative_radiation().y().at(0);
     check_close(Rrs, 0.0252, 0.2_pct);
+  } end_test_case()
+  
+  begin_test_case(accurt_test_J)
+    // Check that azimuthally averaged radiance is the same as
+    // directional specific radiance at polar angle is close to 180
+  {   
+    size_t n_angles = 200;
+    accurt::configuration ac;
+    ac.set<double>("source_zenith_angle",60);
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",500e-9);
+    ac.set<std::string>("detector_orientation","down");
+    ac.set<std::string>("reference_detector_orientation","up");
+    ac.set<std::string>("detector_type","radiance");
+    ac.set<double>("detector_height",120e3);
+    ac.set<double>("reference_detector_height",120e3);
+    material::atmosphere_ocean::configuration mc;
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
+    mc.set<double>("aerosol_od",0.1);
+    
+    auto m = std::make_shared<material::atmosphere_ocean>(mc); 
+    auto a_avg =  accurt(ac, m);
+    double r_avg = a_avg.relative_radiation().y()[0];
+
+    ac.set<double>("detector_orientation_override",{179.91,180});
+    auto a_dir =  accurt(ac, m);
+    double r_dir = a_dir.relative_radiation().y()[0];
+    check_close(r_avg, r_dir, 0.5_pct);
+  } end_test_case()
+  
+  begin_test_case(accurt_test_K) {
+    size_t n_angles = 100;
+    accurt::configuration ac;
+    ac.set<double>("source_zenith_angle",0);
+    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
+    ac.set<double>("detector_wavelengths",500e-9);
+    ac.set<std::string>("detector_orientation","up");
+    ac.set<std::string>("reference_detector_orientation","up");
+    ac.set<double>("detector_orientation_override",{0,0});
+    ac.set<size_t>("detector_radiance_distribution_override",{5,9});
+    ac.set<std::string>("detector_type","radiance");
+    ac.set<double>("detector_height",0.1);
+    ac.set<double>("reference_detector_height",120e3);
+    ac.set<std::string>("subtract_specular_radiance","false");
+    material::atmosphere_ocean::configuration mc;
+    mc.set<size_t>("n_angles",n_angles);
+    mc.set<size_t>("n_heights",3);
+    mc.set<double>("aerosol_od",0.3);
+    
+    auto m = std::make_shared<material::atmosphere_ocean>(mc); 
+    auto a =  accurt(ac, m);
+    auto r = a.relative_distributed_radiance();
+    //a.print_radiance_distribution(r); 
   } end_test_case()
 }
