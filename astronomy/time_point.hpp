@@ -21,6 +21,9 @@ namespace flick {
       static time_point julian_day() {
 	return time_point(-4713,11,24,12,0,0);
       }
+      static time_point J2000() {
+	return time_point(2000,1,1,12,0,0);
+      }
     };
     time_point() : time_point(epoch::julian_day()) {
     }
@@ -58,9 +61,8 @@ namespace flick {
 	time_point(year_,month_,day_,0,0,0).julian_date();
       return days*24;
     }
-    double julian_date_since_2000() const {
-      time_point J2000 = {2000,1,1,12,0,0};
-      return julian_date() - J2000.julian_date();
+    double J2000() const {
+      return julian_date() - epoch::J2000().julian_date();
     }
     double matlab_datenum() const {
       return julian_date() - epoch::matlab_datenum().julian_date();
@@ -77,13 +79,17 @@ namespace flick {
     friend std::ostream& operator<<(std::ostream &os,
 				    const time_point& t) {
       os << t.year_ << " " << t.month_ << " " << t.day_ << " "
-	 << t.hour_ << " " << t.minute_ << " " << round(t.second_);
+	 << t.hour_ << " " << t.minute_ << " " << t.second_;
       return os;
     }
   };
 
   double datenum_to_julian_date(double matlab_datenum) {
     return matlab_datenum + time_point::epoch::matlab_datenum().julian_date();
+  }
+  
+  double J2000_to_julian_date(double J2000) {
+    return J2000 + time_point::epoch::J2000().julian_date();
   }
 
   time_point make_time_point(double julian_date)

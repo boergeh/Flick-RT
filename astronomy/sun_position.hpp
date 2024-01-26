@@ -34,7 +34,7 @@ namespace flick {
     }
   private:
     double days_since_2000() const {
-      return time_point(year_,1,1,0,0,0).julian_date_since_2000()+day_of_year_;
+      return time_point(year_,1,1,0,0,0).J2000()+day_of_year_;
     }
   };
   
