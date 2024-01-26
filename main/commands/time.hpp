@@ -7,7 +7,6 @@ namespace flick {
       time():basic_command("time"){};
       void run() {
 	std::cout << std::setprecision(12);
-	std::cout << size();
 	std::string epoch = a(1);
 	if (size()==3) {
 	  double days = std::stod(a(2));
