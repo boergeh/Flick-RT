@@ -34,7 +34,7 @@ namespace flick {
     }
   private:
     double days_since_2000() const {
-      return julian_date_since_2000(time_point(year_,1,1,0,0,0))+day_of_year_;
+      return time_point(year_,1,1,0,0,0).julian_date_since_2000()+day_of_year_;
     }
   };
   
@@ -50,7 +50,7 @@ namespace flick {
   public:
     sun_position(const time_point& t, double latitude, double longitude)
       : time_point_{t}, latitude_{latitude}, longitude_{longitude},
-       	earth_orbit_{t.year(),day_of_year(t)} {
+       	earth_orbit_{t.year(),t.day_of_year()} {
       S_ = sun_direction();      
     }
     double zenith_angle() const {
@@ -65,7 +65,7 @@ namespace flick {
     }
     double longitude_of_subsolar_point() const {
       double E_min = earth_orbit_.equation_of_time()/60/60; //[hours]
-      double T_utc = hour_of_day(time_point_);
+      double T_utc = time_point_.hour_of_day();
       double degrees_per_hour = 15;
       return -degrees_per_hour*(T_utc-12+E_min)*to_radians_;
     }

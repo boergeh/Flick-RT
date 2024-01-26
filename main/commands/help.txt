@@ -5,6 +5,7 @@ following commands:
   mie		Lorentz-Mie calculator for spheres in absorbing host medium
   iop		Inherent optical properties of materials
   radiator	Radiation source spectra		
+  time		Julian Date and Matlab datenum conversions		
   sun_position	Sun-Earth distance and solar angles		
   filter	Filtered and integrated irradiance spectra		
   text		Modification of ascii text files

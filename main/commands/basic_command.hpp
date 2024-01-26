@@ -44,6 +44,7 @@ namespace flick {
     c.set_arguments(args);
     if (!args.empty() && c.has_name(args.at(0))) {
       c.run();
+      std::cout << std::endl;
       return true;
     }
     return false;

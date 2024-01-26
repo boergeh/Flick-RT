@@ -1,0 +1,31 @@
+
+  flick time <epoch> <time_point|number_of_days>
+
+  Converts back and forth between number of days since a given epoch
+  and a given time point.
+
+Parameters:
+
+  <epoch> 
+
+    Select 'julian_date' for number of days since 12'o clock midday,
+    November 24, year -4713. Select 'datenum' for number of days since
+    the beginning of (just after midnight) 31th of December, year
+    -1, also refer ed to as 0-Jan-0000, which is used by the Matlab
+    datenum function.
+
+    'time_point' should be UTC with format <year> <month> <day> <hour> <minute>
+    <second> 
+
+    'number_of_days' are the number of days (including decimals) since
+    the given epoch.
+
+Examples:
+    
+ flick time julian_date 2024 1 26 0 0 1
+ flick time datenum 2024 1 26 0 0 1
+ flick time julian_date 2460335.50001
+ flick time datenum 739277.00001
+
+
+

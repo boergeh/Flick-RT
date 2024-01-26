@@ -4,6 +4,7 @@
 #include "commands/basic_command.hpp"
 #include "commands/help.hpp"
 #include "commands/radiator.hpp"
+#include "commands/time.hpp"
 #include "commands/sun_position.hpp"
 #include "commands/filter.hpp"
 #include "commands/mie.hpp"
@@ -19,6 +20,7 @@ int main(int argc, char* argv[]) {
     if (a.empty()) {run<command::help>({"help"}); return 0;}
     if (run<command::help>(a)) return 0;
     if (run<command::radiator>(a)) return 0;
+    if (run<command::time>(a)) return 0;
     if (run<command::sun_position>(a)) return 0;
     if (run<command::filter>(a)) return 0;
     if (run<command::mie>(a)) return 0;

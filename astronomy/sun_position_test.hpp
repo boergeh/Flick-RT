@@ -7,10 +7,10 @@ namespace flick {
     double to_degrees = 180/std::numbers::pi;
 
     time_point tp_utc = {2024,1,1,22,0,0};
-    check_close(day_of_year(tp_utc),22./24,1e-7_pct);
-    check_close(hour_of_day(tp_utc),22,1e-7_pct);
+    check_close(tp_utc.day_of_year(),22./24,1e-7_pct);
+    check_close(tp_utc.hour_of_day(),22,1e-7_pct);
     
-    earth_orbit eo = {2024,day_of_year(tp_utc)};
+    earth_orbit eo = {2024,tp_utc.day_of_year()};
     check_close(eo.distance(),1.47102016e11,0.01_pct);
     check_close(eo.declination()*to_degrees,-23.03,0.1_pct);
  

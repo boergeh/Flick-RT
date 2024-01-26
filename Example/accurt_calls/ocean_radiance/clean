@@ -1,0 +1,7 @@
+rm tmp
+rm -fr tmpMaterials
+rm -fr tmpOutput
+rm -fr __pycache__
+rm config
+rm *~
+rm ./#*#

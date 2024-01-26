@@ -10,7 +10,7 @@ namespace flick {
       void run() {
 	if (a(1)=="distance") {
 	  flick::time_point t = get_time_point(); 
-	  std::cout << flick::earth_orbit(t.year(),day_of_year(t)).distance()/constants::au;
+	  std::cout << flick::earth_orbit(t.year(),t.day_of_year()).distance()/constants::au;
 	}
 	else if (a(1)=="zenith_angle") {
 	  double latitude = std::stod(a(8))*to_radians;
@@ -32,7 +32,7 @@ namespace flick {
 	int day = std::stoi(a(4));
 	int hour = std::stoi(a(5));
 	int minute = std::stoi(a(6));
-	int second = std::stoi(a(7));
+	double second = std::stod(a(7));
 	return time_point(year,month,day,hour,minute,second);
       }
     };

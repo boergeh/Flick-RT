@@ -5,19 +5,20 @@ Parameters:
 
   <command> [command_specific_argument]... 
 
-    Select among the following commands with corresponding parameters:
+    Select among the following commands with corresponding
+    parameters. All time points should be UTC:
 
-    'distance' <year> <month> <day> <UTC_hour> <minutes> <seconds>
+    'distance' <year> <month> <day> <hour> <minute> <second>
 
     Gives Sun-Earth distance in astronomical units.
     
-    'zenith_angle' <year> <month> <day> <UTC_hour> <minutes> <seconds>
+    'zenith_angle' <year> <month> <day> <hour> <minute> <second>
     <latitude> <longitude>
 
     Gives solar zenith angle in degrees, where 'latitude' and
     'longitude' should also be given in degrees.
 
-    'azimuth_angle' <year> <month> <day> <UTC_hour> <minutes>
+    'azimuth_angle' <year> <month> <day> <hour> <minute>
     <seconds> <latitude> <longitude>
 
     Gives solar azimuth angle in degrees, where 'latitude' and
@@ -32,7 +33,5 @@ Examples:
   flick sun_position azimuth_angle 2023 6 21 14 58 0 60.39 5.32
 
 
-Remember: unless other units are explicitly stated, Flick is always
-using SI units (m, kg, s) for input and output of physical values, see
-https://en.wikipedia.org/wiki/International_System_of_Units.
+Remember UTC for time points.
 
