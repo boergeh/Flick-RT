@@ -20,8 +20,11 @@ def _run_os(command):
 
 def _to_matrix(flick_output):
     try:
-        l = flick_output.stdout.decode('utf-8');    
+        l = flick_output.stdout.decode('utf-8');
         l = l.splitlines()
+        l = list(filter(None, l))
+        if not l:
+            return np.ndarray(shape=(0,0),dtype=float) 
         numbers_first_line = [float(x) for x in l[0].split()]
         rows = len(l);
         cols = len(numbers_first_line)
@@ -39,7 +42,8 @@ def _to_string(numbers):
     return str(numbers)
 
 def config(file_name, parameter_name, value):
-    command = "flick text "+file_name+" set "+parameter_name+" "+_to_string(value)+" > "+file_name+"_tmp"
+    command = "flick text "+file_name+" set "+parameter_name+" "+ \
+        _to_string(value)+" > "+file_name+"_tmp"
     _run_os(command)
     _run_os("mv -f "+file_name+"_tmp "+ file_name)
 

@@ -9,10 +9,9 @@ import flick
 
 def configure(file_name, zenith_angle):
     f = file_name
-    if not os.path.exists(f):
-        flick.run("accurt -g ocean_radiance "+f)
+    flick.run("accurt -g ocean_radiance "+f)
         
-    wavelengths = np.linspace(300e-9,950e-9,80);
+    wavelengths = np.linspace(300e-9,950e-9,20);
     n_angles = 30
     flick.config(f,"stream_upper_slab_size", flick.to_streams(n_angles))    
     flick.config(f,"detector_wavelengths", wavelengths)
@@ -21,16 +20,10 @@ def configure(file_name, zenith_angle):
     flick.config(f,"pressure", 1000e2)
     flick.config(f,"source_zenith_angle", zenith_angle)
     flick.config(f,"aerosol_od", 0.07)
-    #flick.config(f,"gases", "o3 h2o co2")
     flick.config(f,"cloud_liquid", 0)
     flick.config(f,"cdom_440", 0.09)
     flick.config(f,"nap_concentration", 2.5e-3)
-    #flick.config(f,"nap_concentration", 5.2e-3)
     flick.config(f,"chl_concentration", 2e-6)
-    #flick.config(f,"cdom_440", 0.16)
-    #flick.config(f,"nap_concentration", 20.1e-3)
-    #flick.config(f,"chl_concentration", 7.55e-6)
-    flick.config(f,"mp_concentrations", 0)
     
 def relative_radiance(file_name):
     print("calculating ...")
@@ -41,16 +34,18 @@ def radiance(relative_radiance, solar_zenith_angle):
     wl = toa_irradiance[:,0];
     r = np.empty([len(wl),2])
     r[:,0] = wl 
-    r[:,1] = np.interp(wl,relative_radiance[:,0],relative_radiance[:,1]) * toa_irradiance[:,1]*np.cos(solar_zenith_angle*np.pi/180)
+    r[:,1] = np.interp(wl,relative_radiance[:,0],relative_radiance[:,1]) \
+        * toa_irradiance[:,1]*np.cos(solar_zenith_angle*np.pi/180)
     return r
 
 def smooth(radiance):
-    np.savetxt("tmp_radiance",radiance)
+    np.savetxt(".tmp_radiance",radiance)
     wl = np.linspace(300e-9,900e-9,100);
     radiance = np.empty([len(wl),2])
     radiance[:,0] = wl
     for i in range(len(wl)):
-        radiance[i,1] = flick.run("filter tmp_radiance gaussian_mean "+str(wl[i])+" 10e-9")
+        radiance[i,1] = flick.run("filter .tmp_radiance gaussian_mean "+
+                                  str(wl[i])+" 10e-9")
     return radiance
 
 def sun_earth_distance_correction(radiance,time):
@@ -109,9 +104,11 @@ def plot_ocean_radiance(ax, radiance):
     ax.legend()
 
 def plot_reflectances(ax, toa, rrs, toam):
-    line1=ax.plot(toa[:,0],toa[:,1],linewidth=1,label="top of atmosphere, nadir")
+    line1=ax.plot(toa[:,0],toa[:,1],linewidth=1,label= \
+                  "top of atmosphere, nadir")
     line2=ax.plot(rrs[:,0],rrs[:,1],linewidth=1,label="ocean remote sensing")
-    line3=ax.plot(toam[:,0],toam[:,1],marker='o',markersize=2,linewidth=1,label="Sentinel 3, TOA, slant viewing")
+    line3=ax.plot(toam[:,0],toam[:,1],marker='o',markersize=2,linewidth=1,
+                  label="Sentinel 3, TOA, slant viewing")
     ax.grid()
     ax.set_ylabel("Nadir reflectance [sr$^{-1}$]")
     ax.set_xlabel("Wavelength [nm]")
@@ -121,8 +118,9 @@ def plot_reflectances(ax, toa, rrs, toam):
 time_utc = "2022 5 20 11 24 0"
 latitude = "59.878675"
 longitude = "5.655558"
-config_file_name = "config"
-solar_zenith_angle = flick.run("sun_position zenith_angle "+time_utc+" "+latitude+" "+longitude)
+config_file_name = ".tmp_flick_config"
+solar_zenith_angle = flick.run("sun_position zenith_angle "+time_utc+" "+
+                               latitude+" "+longitude)
 configure(config_file_name, solar_zenith_angle[0][0])
 
 a = ocean_radiance()

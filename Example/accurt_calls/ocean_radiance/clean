@@ -1,7 +1,10 @@
-rm tmp
-rm -fr tmpMaterials
-rm -fr tmpOutput
+rm -f .tmp_accurt
+rm -fr .tmp_accurtMaterials
+rm -fr .tmp_accurtOutput
+rm -f .tmp_logo.npy
+rm -f .tmp_flick_config
 rm -fr __pycache__
-rm config
-rm *~
-rm ./#*#
+rm -f *~
+rm -f ./#*#
+
+

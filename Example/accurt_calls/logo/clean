@@ -1,11 +1,12 @@
-rm tmp
-rm -fr tmpMaterials
-rm -fr tmpOutput
+rm -f .tmp_accurt
+rm -fr .tmp_accurtMaterials
+rm -fr .tmp_accurtOutput
+rm -f .tmp_logo.npy
+rm -f .tmp_flick_config
 rm -fr __pycache__
-rm logo_white.png
-rm logo_white.jpg
-rm logo_black.png
-rm logo_black.jpg
-rm logo.npy
-rm config
-rm *~
+rm -f *~
+rm -f ./#*#
+rm -f logo_white.png
+rm -f logo_white.jpg
+rm -f logo_black.png
+rm -f logo_black.jpg

@@ -143,7 +143,7 @@ reflection and '1' gives loamy sand reflection)");
   private:
     basic_configuration c_;
     std::shared_ptr<material::base> material_;
-    const std::string path_ = "./tmpOutput";
+    const std::string path_ = "./.tmp_accurtOutput";
     size_t n_detector_;
     size_t n_reference_;
     double max_height_ = 1;
@@ -278,14 +278,14 @@ reflection and '1' gives loamy sand reflection)");
       stdvector b = depths_to_boundaries(c_.get_vector<double>("layer_depths_upper_slab"));
       auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,n_terms);
       write(accurt_user_specified(layered_upper_slab, wavelengths_),
-       	    "./tmpMaterials/user_specified_upper_slab", precision_);
+       	    "./.tmp_accurtMaterials/user_specified_upper_slab", precision_);
 
       b = 0 - c_.get_vector<double>("layer_depths_lower_slab");
       std::reverse(b.begin(),b.end());
       b.push_back(0);
       auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
       write(accurt_user_specified(layered_lower_slab, wavelengths_),
-      	    "./tmpMaterials/user_specified_lower_slab", precision_);
+      	    "./.tmp_accurtMaterials/user_specified_lower_slab", precision_);
     }
     stdvector depths_to_boundaries(stdvector depths) {
       std::reverse(depths.begin(),depths.end());
@@ -473,11 +473,11 @@ reflection and '1' gives loamy sand reflection)");
     void run() {
       c_.set_text_qualifiers("#","##");
       c_.set_uppercase(true);
-      write(c_,"./tmp",precision_);
-      system("mkdir -p ./tmpMaterials");
-      system("mkdir -p ./tmpOutput");
+      write(c_,"./.tmp_accurt",precision_);
+      system("mkdir -p ./.tmp_accurtMaterials");
+      system("mkdir -p ./.tmp_accurtOutput");
       make_material_files();
-      int s=system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT tmp");
+      int s=system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT .tmp_accurt");
       if (s!=0)
 	throw std::runtime_error("accurt_api");
     }

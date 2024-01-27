@@ -5,16 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import subprocess
-import flick
+import sys
 from matplotlib import cm
 from matplotlib.colors import LightSource
+sys.path.append('../ocean_radiance')
+import flick
 
 recalculate = True
 black_background = False 
 
-f = "config"
-if not os.path.exists(f):
-    flick.run("accurt -g toa_reflectance "+f)
+f = ".tmp_flick_config"
+#if not os.path.exists(f):
+flick.run("accurt -g toa_reflectance "+f)
         
 n_angles = 100
 n_polar = 50;
@@ -38,12 +40,13 @@ flick.config(f,"detector_radiance_distribution_override",
 if (recalculate):
     print("Using Flick to find UVR distributon at 1 m depth ...")
     r = flick.run("accurt "+f)
-    np.save("logo",r)
+    np.save(".tmp_logo",r)
 else:
-    r = np.load("logo.npy")
+    r = np.load(".tmp_logo.npy")
 
 scaling_factor = 1.0    
-theta, phi = np.linspace(0, np.pi, n_polar),np.linspace(-np.pi, np.pi, n_azimuth)
+theta, phi = np.linspace(0, np.pi, n_polar),np.linspace(-np.pi, np.pi,
+                                                        n_azimuth)
 THETA, PHI = np.meshgrid(theta, phi)
 R = r.transpose()/r.max()*scaling_factor
 X = R * np.sin(THETA) * np.cos(PHI)
@@ -61,7 +64,8 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=rgb,
 font = {'fontname':'Arial'}
 ax.text(0,0.77,-0.35,"flick",fontsize=180,fontweight='heavy',**font)
 
-ax.plot(0,1.94,0.67,'o',color='black',markerfacecolor=[0.81,0,0],markeredgewidth=0,
+ax.plot(0,1.94,0.67,'o',color='black',markerfacecolor=[0.81,0,0],
+        markeredgewidth=0,
         markersize=35,zorder=10)
 ax.view_init(elev=0, azim=0, roll=0)
 
