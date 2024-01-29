@@ -47,7 +47,7 @@ def config(file_name, parameter_name, value):
         _to_string(value)+" > "+file_name+"_tmp"
     _run_os(command)
     _run_os("mv -f "+file_name+"_tmp "+ file_name)
-
+    
 def to_streams(n_angles):
     n_streams = np.floor(n_angles**(1/1.6))    
     if (n_streams % 2) != 0:
@@ -57,17 +57,14 @@ def to_streams(n_angles):
 class basic_radiation:
     _tmpdir = "flick_tmp"
     _config_name = _tmpdir+"/config"
-    def _ensure_config_exists(self):
-        if not os.path.isfile(self._config_name):
-            _run_os("mkdir -p "+self._tmpdir)
-            run("accurt -g toa_reflectance "+self._config_name)
+    def _generate_config(self, config_type):
+        _run_os("mkdir -p "+self._tmpdir)
+        run("accurt -g "+config_type+" "+self._config_name)
             
     def set(self, config_parameter, value):
-        self._ensure_config_exists()
         config(self._config_name, config_parameter, value)
         
     def _relative_spectrum(self):
-        self._ensure_config_exists()
         return run("accurt "+self._config_name)
 
     def toa_zenith_irradiance(self, time_point_utc):
@@ -119,6 +116,7 @@ class basic_radiation:
 
 class radiance_distribution(basic_radiation):
     def __init__(self, wl, n_polar, n_azimuth):
+        self._generate_config("toa_reflectance")
         self.wl = wl
         self.n_polar = n_polar
         self.n_azimuth = n_azimuth
@@ -160,6 +158,7 @@ class absolute_radiation(basic_radiation):
     
 class radiance(absolute_radiation):
     def __init__(self, polar_viewing_angle, azimuth_viewing_angle):
+        self._generate_config("toa_reflectance")
         self.set_n_angles(16**1.6)
         self.set("detector_orientation_override",[polar_viewing_angle,
                                                   azimuth_viewing_angle])
@@ -176,27 +175,23 @@ class toa_radiance(radiance):
 
 class ocean_nadir_radiance(radiance):
     def __init__(self):
-        self.set("detector_height", -0.5)
-        self.set("detector_orientation_override",[0,0])
+        self._generate_config("ocean_radiance")
 
         
 class remote_sensing_reflectance(relative_radiation):
     def __init__(self):
-        self.set("detector_height", 0.1)
-        self.set("subtract_specular_radiance", "true")
+        self._generate_config("rs_reflectance")
         self.set_n_angles(16**1.6)
 
         
 class surface_irradiance(absolute_radiation):
     def __init__(self):
-        self.set("detector_height", 0.1)
-        self.set("detector_orientaion", "up")
-        self.set("detector_type", "irradiance")
+        self._generate_config("boa_transmittance")
         self.set_n_angles(8**1.6)
 
     def to_W_per_m2_nm(self,spectrum):
         spectrum[:,0] = spectrum[:,0]*1e9
-        spectrum[:,1] = spectrum[:,1]*1e-3
+        spectrum[:,1] = spectrum[:,1]*1e-9
         return spectrum
     
 

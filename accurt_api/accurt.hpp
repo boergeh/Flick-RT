@@ -541,7 +541,7 @@ reflection and '1' gives loamy sand reflection)");
 
     struct toa_reflectance : public atmosphere_ocean {
       toa_reflectance() : atmosphere_ocean() {
-	set<double>("detector_height",toa_height_-0.2);
+	set<double>("detector_height",toa_height_);
 	set<std::string>("detector_orientation","down");
 	set<std::string>("detector_type","radiance");
       }
@@ -558,16 +558,16 @@ reflection and '1' gives loamy sand reflection)");
     struct boa_transmittance : public atmosphere {
       boa_transmittance() : atmosphere() {
 	set<std::string>("material_name","atmosphere");
-	set<double>("detector_height",0.2);
+	set<double>("detector_height",0.1);
 	set<std::string>("detector_orientation","up");
-	set<std::string>("detector_type","irradiance");
+	set<std::string>("detector_type","plane_irradiance");
       }
     };
       
     struct rs_reflectance : public atmosphere_ocean {
       rs_reflectance() : atmosphere_ocean() {
-	set<double>("reference_detector_height",0.4);
-	set<double>("detector_height",0.2);
+	set<double>("reference_detector_height",0.1);
+	set<double>("detector_height",0.1);
 	set<std::string>("detector_orientation","down");
 	set<std::string>("detector_type","radiance");
 	set<std::string>("subtract_specular_radiance","true");	

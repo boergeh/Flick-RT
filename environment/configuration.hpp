@@ -26,7 +26,6 @@ namespace flick {
 	is >> equal_sign;
 	if (is.eof() or current_name.empty()) {
 	  std::cerr << "Configuration parameter '"+ name +"' not found. Using a default which could be added to the configuration file:\n\n";
-	  print(std::cerr);
 	  std::cerr <<"\n"<<std::endl;
 	  found = true;
 	  is.clear();

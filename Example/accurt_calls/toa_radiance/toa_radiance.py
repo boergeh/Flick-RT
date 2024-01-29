@@ -19,8 +19,6 @@ wl_width = 10e-9
 f = flick.toa_radiance(polar_viewing_angle=0, azimuth_viewing_angle=0)
 
 f.set_n_angles(100)
-f.set("n_heights", 8)
-f.set("source_zenith_angle", 0)
 f.set("aerosol_od", 0)
 f.set("cloud_liquid", 0)
 f.set("nap_concentration", 0)
