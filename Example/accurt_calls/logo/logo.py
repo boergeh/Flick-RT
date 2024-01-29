@@ -7,7 +7,8 @@ degrees are used unless otherwise specified.
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('../../../python_script')
+import os
+sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 from matplotlib import cm
 from matplotlib.colors import LightSource
 import flick
@@ -17,7 +18,7 @@ black_background = False
 n_polar = 50
 n_azimuth = 150
 wl = 300e-9
-f = flick.radiance_distribution(wl,n_polar,n_azimuth)
+f = flick.radiance_distribution(n_polar,n_azimuth)
 
 f.set_n_angles(100)
 f.set("n_heights", 8)
@@ -31,7 +32,7 @@ f.set("cdom_440", 0)
 
 if (recalculate):
     print("Using Flick to find UVR distributon at 1 m depth ...")
-    r = f.values()
+    r = f.values(wl)
     np.save("flick_tmp/logo",r)
 else:
     r = np.load("flick_tmp/logo.npy")

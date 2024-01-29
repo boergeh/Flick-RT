@@ -64,7 +64,8 @@ class basic_radiation:
     def set(self, config_parameter, value):
         config(self._config_name, config_parameter, value)
         
-    def _relative_spectrum(self):
+    def _relative_spectrum(self, wl_grid):
+        self.set("detector_wavelengths", wl_grid)
         return run("accurt "+self._config_name)
 
     def toa_zenith_irradiance(self, time_point_utc):
@@ -80,8 +81,7 @@ class basic_radiation:
         
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
-        self.set("wavelengths", wl_grid)
-        L_r = self._relative_spectrum()
+        L_r = self._relative_spectrum(wl_grid)
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
         L_r = self._interpolate(L_r, wl)
@@ -115,18 +115,16 @@ class basic_radiation:
 
 
 class radiance_distribution(basic_radiation):
-    def __init__(self, wl, n_polar, n_azimuth):
+    def __init__(self, n_polar, n_azimuth):
         self._generate_config("toa_reflectance")
-        self.wl = wl
         self.n_polar = n_polar
         self.n_azimuth = n_azimuth
-        self.set("detector_wavelengths",self.wl)
         self.set("detector_radiance_distribution_override",
-                 [self.n_polar, self.n_azimuth])
+                 [n_polar, n_azimuth])
         self.set_n_angles(16**1.6)
         
-    def values(self):
-        return self._relative_spectrum().transpose()
+    def values(self, wl_grid):
+        return self._relative_spectrum(wl_grid).transpose()
 
     def polar_angles(self):
         return np.linspace(0, np.pi, self.n_polar)
@@ -145,8 +143,8 @@ class radiance_distribution(basic_radiation):
     
     
 class relative_radiation(basic_radiation):
-    def spectrum(self):
-        return self._relative_spectrum()
+    def spectrum(self, wl_grid):
+        return self._relative_spectrum(wl_grid)
 
 
 class absolute_radiation(basic_radiation):

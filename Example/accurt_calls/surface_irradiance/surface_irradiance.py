@@ -8,7 +8,8 @@ are used unless otherwise specified.
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('../../../python_script')
+import os
+sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 time_point_utc = "2022 5 20 11 24 0"

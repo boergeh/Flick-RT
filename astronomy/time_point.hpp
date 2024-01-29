@@ -2,6 +2,7 @@
 #define flick_time_point
 
 #include <iostream>
+#include <cmath>
 
 namespace flick {  
   class time_point

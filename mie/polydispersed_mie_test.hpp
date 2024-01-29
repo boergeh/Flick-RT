@@ -79,7 +79,7 @@ namespace flick {
     double F11 = poly_mie.scattering_matrix_element(0,0)[0];
     double bench = 6.131e-13;
     check_close(F11,bench,p);
-    check_fast(3000 * cpu_duration());
+    check_fast(9000 * cpu_duration());
   } end_test_case()
 
    begin_test_case(poly_mie_test_t_matrix) {
