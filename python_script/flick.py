@@ -55,9 +55,11 @@ def to_streams(n_angles):
     return str(n_streams).rstrip('0').rstrip('.');
 
 class basic_radiation:
-    _config_name = ".tmp_flick_config"
+    _tmpdir = "flick_tmp"
+    _config_name = _tmpdir+"/config"
     def _ensure_config_exists(self):
         if not os.path.isfile(self._config_name):
+            _run_os("mkdir -p "+self._tmpdir)
             run("accurt -g toa_reflectance "+self._config_name)
             
     def set(self, config_parameter, value):
@@ -68,7 +70,7 @@ class basic_radiation:
         self._ensure_config_exists()
         return run("accurt "+self._config_name)
 
-    def toa_zenith_irradiance(self,time_point_utc):
+    def toa_zenith_irradiance(self, time_point_utc):
         distance_au = run("sun_position distance "+time_point_utc)
         r = run("radiator toa-solar")
         r[:,1] = r[:,1] * (1/distance_au)**2
@@ -79,14 +81,17 @@ class basic_radiation:
                                latitude+" "+longitude)
         return a[0][0]
         
-    def _absolute_spectrum(self, time_point_utc, latitude, longitude):
+    def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
+                           latitude, longitude):
+        self.set("wavelengths", wl_grid)
         L_r = self._relative_spectrum()
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
         L_r = self._interpolate(L_r, wl)
         a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
-        s = L_r[:,1] * F_0[:,1] * np.cos(a*np.pi/180); 
-        return np.vstack((wl,s)).T
+        s = L_r[:,1] * F_0[:,1] * np.cos(a*np.pi/180);
+        points = np.vstack((wl,s)).T
+        return self.smooth(points, wl_grid[0], wl_grid[-1], wl_width)
 
     def _interpolate(self, points, x):       
          x0 = points[:,0] 
@@ -96,16 +101,15 @@ class basic_radiation:
          new_points[:,1] = np.interp(x,x0,y0)
          return new_points
 
-    def smooth(self, spectrum, from_wl, to_wl, width):
-        np.savetxt(".tmp_flick_spectrum", spectrum)
-        n_points = round(2*(to_wl - from_wl)/width)
-        wl = np.linspace(from_wl, to_wl, np)
+    def smooth(self, spectrum, from_wl, to_wl, wl_width):
+        np.savetxt(self._tmpdir+"/spectrum", spectrum)
+        n_points = round(2*(to_wl - from_wl)/wl_width)
+        wl = np.linspace(from_wl, to_wl, n_points)
         spectrum = np.empty([len(wl),2])
         spectrum[:,0] = wl
         for i in range(len(wl)):
-            spectrum[i,1] = 0
-            run("filter .tmp_flick_spectrum gaussian_mean "+ \
-                      str(wl[i])+" "+str(width))
+            spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum gaussian_mean "+ \
+                      str(wl[i])+" "+str(wl_width))
         return spectrum
 
     def set_n_angles(self,n_angles):
@@ -148,17 +152,17 @@ class relative_radiation(basic_radiation):
 
 
 class absolute_radiation(basic_radiation):
-    def spectrum(self):
-        return self._absolute_spectrum()
+    def spectrum(self,wl_grid, wl_width, time_point_utc,
+                                       latitude, longitude):
+        return self._absolute_spectrum(wl_grid, wl_width, time_point_utc,
+                                       latitude, longitude)
 
     
 class radiance(absolute_radiation):
-    def __init__(self, polar_angle, azimuth_angle):
-        self.polar_angle = polar_angle
-        self.azimuth_angle = azimuth_angle
+    def __init__(self, polar_viewing_angle, azimuth_viewing_angle):
         self.set_n_angles(16**1.6)
-        self.set("detector_orientation_override",[self.polar_angle,
-                                                  self.azimuth_angle])
+        self.set("detector_orientation_override",[polar_viewing_angle,
+                                                  azimuth_viewing_angle])
 
     def to_mW_per_m2_nm_sr(self,spectrum):
         spectrum[:,0] = spectrum[:,0]*1e9
@@ -168,8 +172,14 @@ class radiance(absolute_radiation):
     
 class toa_radiance(radiance):
     pass
-        
 
+
+class ocean_nadir_radiance(radiance):
+    def __init__(self):
+        self.set("detector_height", -0.5)
+        self.set("detector_orientation_override",[0,0])
+
+        
 class remote_sensing_reflectance(relative_radiation):
     def __init__(self):
         self.set("detector_height", 0.1)

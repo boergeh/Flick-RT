@@ -1,0 +1,229 @@
+#  ##
+
+ACCURACY = 0 
+
+#  ##
+
+BOTTOM_BOUNDARY_SURFACE = loamy_sand 
+
+# Darkness scaling of the bottom boundary, where '0' gives no bottom
+reflection and '1' gives loamy sand reflection ##
+
+BOTTOM_BOUNDARY_SURFACE_SCALING_FACTOR = 1 
+
+#  ##
+
+DELTA_FIT_TRUNCATION = 3 
+
+#  ##
+
+DETECTOR_AZIMUTH_ANGLES = nan 
+
+#  ##
+
+DETECTOR_DEPTHS_LOWER_SLAB = 5.00000023749e-05 199.99995 
+
+#  ##
+
+DETECTOR_DEPTHS_UPPER_SLAB = 0.00010000000475 0.199999999997 
+
+# Detector height relative to sea level [m], where a positive value
+gives height in atmosphere and a negative value gives depth in the
+ocean ##
+
+DETECTOR_HEIGHT = 119999.8 
+
+# Detector vertical orientation, looking 'up' or 'down' ##
+
+DETECTOR_ORIENTATION = down 
+
+# Polar and azimuth viewing angles override for slant radiance view
+[degrees]. Note that '0 0' will deactivate the override, and a
+radiance detector will still be looking vertically up when
+detector_orientation is set to 'up' and be looking vertically down
+when detector_orientations is set to 'down'. For other override
+angles, a polar angle less than 90 degrees will make the detector look
+towards the upper heimisphere, and zero degrees azimuth will make it
+look towards the azimuth position of the source. ##
+
+DETECTOR_ORIENTATION_OVERRIDE = 0 0 
+
+#  ##
+
+DETECTOR_POLAR_ANGLES = 0 180 
+
+# Number of polar and azimuth viewing angles override for detection of
+angular distributed radiance. Note that '0 0' will deactivate the
+override, and a radiance detector will still be looking vertically up
+when detector_orientation is set to 'up' and be looking vertically
+down when detector_orientations is set to 'down'. For other override
+number of angles, the first value gives number of polar viewing angles
+linearly spaced from 0 to 180 degrees, and the second value gives
+number of azimuth viewing angles linearly spaced from -180 to 180
+degrees. If detector_radiance_distribution_override is activated,
+Flick will return a 3D array with radiance values for each wavelength,
+polar angle, and azimuth angel, respectively. ##
+
+DETECTOR_RADIANCE_DISTRIBUTION_OVERRIDE = 0 0 
+
+# Type of radiation to be detected, which could be 'plane_irradiance',
+'scalar_irradiance', or 'radiance' ##
+
+DETECTOR_TYPE = radiance 
+
+#  ##
+
+DETECTOR_WAVELENGTH_BAND_WIDTHS = 270 0.01 4000 0.01 
+
+# Space-separated list of radiation wavelengths to be calculated and
+saved [m]. Note that a wavelength of e.g., 400 nm may be written as
+400e-9 m for clarity ##
+
+DETECTOR_WAVELENGTHS = 300 322.413793103 344.827586207 367.24137931 389.655172414 412.068965517 434.482758621 456.896551724 479.310344828 501.724137931 524.137931034 546.551724138 568.965517241 591.379310345 613.793103448 636.206896552 658.620689655 681.034482759 703.448275862 725.862068966 748.275862069 770.689655172 793.103448276 815.517241379 837.931034483 860.344827586 882.75862069 905.172413793 927.586206897 950 
+
+#  ##
+
+DO_2D_ROUGH_SEA_SURFACE = false 
+
+#  ##
+
+DO_DELTA_FIT = false 
+
+#  ##
+
+DO_OCEAN_PHASEMATRIX = false 
+
+#  ##
+
+DO_SPHERICAL_CORRECTION = true 
+
+#  ##
+
+LAYER_DEPTHS_LOWER_SLAB = 9.99993062578e-07 200 
+
+#  ##
+
+LAYER_DEPTHS_UPPER_SLAB = 35000 70000 87500 99000 106000 113000 120000 
+
+#  ##
+
+LPICK = 0 
+
+# Name of the material that gives inherent optical properties used in
+the radiative transfer calculations, which could be 'atmosphere' or
+'atmosphere_ocean' ##
+
+MATERIAL_NAME = atmosphere_ocean 
+
+#  ##
+
+MATERIALS_INCLUDED_LOWER_SLAB = user_specified_lower_slab 
+
+#  ##
+
+MATERIALS_INCLUDED_UPPER_SLAB = user_specified_upper_slab 
+
+#  ##
+
+MIE_CALCULATOR = 2 
+
+#  ##
+
+PRINT_PROGRESS_TO_SCREEN = false 
+
+#  ##
+
+PROFILE_OUTPUT_WAVELENGTH = 500 
+
+# Radiation is calculated relative to a reference plane
+irradiance at a given height [m]. For example, a reference
+detector height of 100e3 gives calculated radiation relative to the
+top-of-atmosphere irradiance ##
+
+REFERENCE_DETECTOR_HEIGHT = 120000 
+
+# Reference detector vertical orientation, looking 'up' or 'down' ##
+
+REFERENCE_DETECTOR_ORIENTATION = up 
+
+#  ##
+
+RELATIVE_WIND_DIRECTION = 0 
+
+#  ##
+
+REPEATED_RUN_SIZE = 1 
+
+#  ##
+
+RESPONSE_FUNCTION_TYPE = 1 
+
+#  ##
+
+SAVE_BOTTOM_BOUNDARY_SURFACE = false 
+
+#  ##
+
+SAVE_COSINE_IRRADIANCE = true 
+
+#  ##
+
+SAVE_IOPS = false 
+
+#  ##
+
+SAVE_MATERIAL_PROFILE = false 
+
+#  ##
+
+SAVE_RADIANCE = true 
+
+#  ##
+
+SAVE_SCALAR_IRRADIANCE = false 
+
+#  ##
+
+SAVE_SINE_IRRADIANCE = false 
+
+#  ##
+
+SOURCE_SCALING_FACTOR = 1 
+
+#  ##
+
+SOURCE_TYPE = constant_one 
+
+# Source zenith angle [degrees], where zero gives vertically
+downward-directed incident irradiance. The source is usually the solar
+beam. ##
+
+SOURCE_ZENITH_ANGLE = 0 
+
+#  ##
+
+STREAM_LOWER_SLAB_PARAMETERS = 1 2 
+
+# Number of streams used when solving the radiative transfer equation ##
+
+STREAM_UPPER_SLAB_SIZE = 18 
+
+# Possible subtraction the nadir radiance specularly reflected off the
+water surface, which could be 'true' or 'false'. Note that it should
+be set to 'true' when calculating remote sensing reflectance ##
+
+SUBTRACT_SPECULAR_RADIANCE = false 
+
+#  ##
+
+SURFACE_WIND_SPEED = 6 
+
+#  ##
+
+USE_POLARIZATION = false 
+
+#  ##
+
+USRANG = false 
+
+# end of file ##

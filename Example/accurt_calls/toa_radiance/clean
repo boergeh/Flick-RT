@@ -3,7 +3,7 @@ rm -fr __pycache__
 rm -f *~
 rm -f ./#*#
 rm -f fort.199
-rm -f ocean_radiance.pdf
+rm -f toa_radiance.pdf
 
 
 

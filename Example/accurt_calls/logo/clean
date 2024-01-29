@@ -1,11 +1,8 @@
-rm -f .tmp_accurt
-rm -fr .tmp_accurtMaterials
-rm -fr .tmp_accurtOutput
-rm -f .tmp_logo.npy
-rm -f .tmp_flick_config
+rm -fr flick_tmp
 rm -fr __pycache__
 rm -f *~
 rm -f ./#*#
+rm -f fort.199
 rm -f logo_white.png
 rm -f logo_white.jpg
 rm -f logo_black.png

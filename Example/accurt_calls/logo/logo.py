@@ -1,10 +1,13 @@
 """
-Make the Flick logo
+Make the Flick logo. See the flick_tmp/config file, which will be
+generated after the first run, for documentation on all variables that
+may be set with the set function used in this logo script. SI-units and
+degrees are used unless otherwise specified.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('../ocean_radiance')
+sys.path.append('../../../python_script')
 from matplotlib import cm
 from matplotlib.colors import LightSource
 import flick
@@ -29,9 +32,9 @@ f.set("cdom_440", 0)
 if (recalculate):
     print("Using Flick to find UVR distributon at 1 m depth ...")
     r = f.values()
-    np.save(".tmp_logo",r)
+    np.save("flick_tmp/logo",r)
 else:
-    r = np.load(".tmp_logo.npy")
+    r = np.load("flick_tmp/logo.npy")
 
 r = r/r.max()    
 x,y,z = f.radiance_surface(r)
@@ -51,7 +54,6 @@ ax.plot(0,1.94,0.67,'o',color='black',markerfacecolor=[0.81,0,0],
         markeredgewidth=0,
         markersize=35,zorder=10)
 ax.view_init(elev=0, azim=0, roll=0)
-
 
 ax.set_aspect('equal')
 fig.set_size_inches(9,3.5,forward=True)

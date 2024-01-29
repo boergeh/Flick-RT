@@ -143,7 +143,8 @@ reflection and '1' gives loamy sand reflection)");
   private:
     basic_configuration c_;
     std::shared_ptr<material::base> material_;
-    const std::string path_ = "./.tmp_accurtOutput";
+    const std::string tmpdir_= "flick_tmp";
+    const std::string output_ = "./"+tmpdir_+"/accurtOutput";
     size_t n_detector_;
     size_t n_reference_;
     double max_height_ = 1;
@@ -151,6 +152,7 @@ reflection and '1' gives loamy sand reflection)");
     stdvector wavelengths_;
     const size_t precision_ = 12;
     const double dh_ = 1e-4;
+    
   public:
     accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
@@ -224,7 +226,7 @@ reflection and '1' gives loamy sand reflection)");
       size_t n_azimuth = n_d.at(1);
       set_distributed_radiance(n_polar,n_azimuth);
       run();
-      grid_4d g = read_radiance(path_+"/radiance.txt");
+      grid_4d g = read_radiance(output_+"/radiance.txt");
       stdvector wls = g.x[1];
       std::vector<std::vector<std::vector<double>>> L;
       
@@ -276,16 +278,20 @@ reflection and '1' gives loamy sand reflection)");
       size_t n_terms = c_.get<size_t>("stream_upper_slab_size") + 1;
 
       stdvector b = depths_to_boundaries(c_.get_vector<double>("layer_depths_upper_slab"));
-      auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,n_terms);
+      auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,
+							       n_terms);
       write(accurt_user_specified(layered_upper_slab, wavelengths_),
-       	    "./.tmp_accurtMaterials/user_specified_upper_slab", precision_);
+       	    "./"+tmpdir_+"/accurtMaterials/user_specified_upper_slab",
+	    precision_);
 
       b = 0 - c_.get_vector<double>("layer_depths_lower_slab");
       std::reverse(b.begin(),b.end());
       b.push_back(0);
-      auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,n_terms);
+      auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,
+							       n_terms);
       write(accurt_user_specified(layered_lower_slab, wavelengths_),
-      	    "./.tmp_accurtMaterials/user_specified_lower_slab", precision_);
+      	    "./"+tmpdir_+"/accurtMaterials/user_specified_lower_slab",
+	    precision_);
     }
     stdvector depths_to_boundaries(stdvector depths) {
       std::reverse(depths.begin(),depths.end());
@@ -317,7 +323,7 @@ reflection and '1' gives loamy sand reflection)");
 	detector_radiance()/reference_detector_irradiance()};	  
     }
     stdvector detector_radiance() {
-      grid_4d g = read_radiance(path_+"/radiance.txt");
+      grid_4d g = read_radiance(output_+"/radiance.txt");
       stdvector wls = g.x[1]*1e-9;
       stdvector Lu(wls.size());
       stdvector Ld(wls.size());
@@ -346,9 +352,9 @@ reflection and '1' gives loamy sand reflection)");
     stdvector detector_plane_irradiance() {
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
-	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
+	t = read_irradiance(output_+"/cosine_irradiance_total_downward.txt");
       } else if (c_.get<std::string>("detector_orientation")=="down") {
-	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
+	t = read_irradiance(output_+"/cosine_irradiance_total_upward.txt");
       } else
 	throw std::runtime_error("detector_orientation");
       return t.row(n_detector_).y();
@@ -357,9 +363,9 @@ reflection and '1' gives loamy sand reflection)");
       c_.set<std::string>("SAVE_SCALAR_IRRADIANCE","true");      
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
-	t = read_irradiance(path_+"/scalar_irradiance_total_downward.txt");
+	t = read_irradiance(output_+"/scalar_irradiance_total_downward.txt");
       } else if (c_.get<std::string>("detector_orientation")=="down") {
-	t = read_irradiance(path_+"/scalar_irradiance_total_upward.txt");
+	t = read_irradiance(output_+"/scalar_irradiance_total_upward.txt");
       } else
 	throw std::runtime_error("detector_orientation");
       return t.row(n_detector_).y();
@@ -367,9 +373,9 @@ reflection and '1' gives loamy sand reflection)");
     stdvector reference_detector_irradiance() {
       pe_table t;
       if (c_.get<std::string>("reference_detector_orientation")=="up") {
-	t = read_irradiance(path_+"/cosine_irradiance_total_downward.txt");
+	t = read_irradiance(output_+"/cosine_irradiance_total_downward.txt");
       } else if (c_.get<std::string>("reference_detector_orientation")=="down") {
-	t = read_irradiance(path_+"/cosine_irradiance_total_upward.txt");
+	t = read_irradiance(output_+"/cosine_irradiance_total_upward.txt");
       } else
 	throw std::runtime_error("reference_detector_orientation");
       return t.row(n_reference_).y();
@@ -473,11 +479,13 @@ reflection and '1' gives loamy sand reflection)");
     void run() {
       c_.set_text_qualifiers("#","##");
       c_.set_uppercase(true);
-      write(c_,"./.tmp_accurt",precision_);
-      system("mkdir -p ./.tmp_accurtMaterials");
-      system("mkdir -p ./.tmp_accurtOutput");
+      system(("mkdir -p ./" + tmpdir_).c_str());      
+      write(c_,"./"+tmpdir_+"/accurt",precision_);
+      system(("mkdir -p ./"+tmpdir_+"/accurtMaterials").c_str());
+      system(("mkdir -p ./"+tmpdir_+"/accurtOutput").c_str());
       make_material_files();
-      int s=system("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT .tmp_accurt");
+      int s=system(("DYLD_LIBRARY_PATH=$ACCURT_PATH/lib AccuRT ./"+tmpdir_+
+		    "/accurt").c_str());
       if (s!=0)
 	throw std::runtime_error("accurt_api");
     }

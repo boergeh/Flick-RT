@@ -1,0 +1,6 @@
+Output results may be plotted with the Matlab .m plot scripts.
+
+Output file format information can be obtained either by inspecting
+the human readable output files which have names that ends with
+"_human", the HDF5 output files, or by inspecting the Matlab .m read
+files.
