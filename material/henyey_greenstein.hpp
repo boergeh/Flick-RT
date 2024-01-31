@@ -15,6 +15,7 @@ namespace material {
       return m;
     }
   };
+
   class white_isotropic : public henyey_greenstein {
   public:
     white_isotropic(double scat_coef)

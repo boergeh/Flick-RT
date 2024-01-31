@@ -29,7 +29,7 @@ namespace flick {
       is.read(&h[0], sz);
     } else
       is.seekg(start);
-    return h+"\n\n";
+    return h+"\n";
   }
 
   struct point {

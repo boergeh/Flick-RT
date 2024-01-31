@@ -9,6 +9,7 @@
 #include "../../material/water/cdom.hpp"
 #include "../../material/spheres.hpp"
 #include "../../material/henyey_greenstein.hpp"
+#include "../../material/fournier_forand.hpp"
 #include "../../material/tabulated.hpp"
 #include "../../material/ab_functions.hpp"
 #include "../../material/marine_particles/marine_particles.hpp"
@@ -114,6 +115,14 @@ namespace flick {
 	  material::henyey_greenstein m(abs,sca,g,real_refractive_index);
 	  stream_iops(m, a(1));
 	}
+	else if (a(5)=="fournier_forand") {
+	  absorption_coefficient abs{std::stod(a(6))};
+	  scattering_coefficient sca{std::stod(a(7))};
+	  asymmetry_factor g{std::stod(a(8))};
+	  double real_refractive_index{std::stod(a(9))};
+	  material::fournier_forand m(abs,sca,g,real_refractive_index);
+	  stream_iops(m, a(1));
+	}
 	else if (a(5)=="tabulated") {
 	  absorption_coefficient abs{std::stod(a(6))};
 	  scattering_coefficient sca{std::stod(a(7))};
@@ -158,7 +167,7 @@ namespace flick {
 			       const std::vector<std::vector<double>>& a,
 			       const std::vector<std::vector<double>>& b,
 			       const std::vector<double>& x) const {
-	std::cout << std::setprecision(8) << "\n";
+	std::cout << std::showpoint << std::setprecision(8) << "\n";
 	for (size_t i = 0; i < wls_.size(); ++i) {
 	  m.set_wavelength(wls_[i]);
 	  double k = m.scattering_coefficient();
@@ -195,7 +204,7 @@ namespace flick {
 	  size_t n_terms = n.at(0);
 	  std::optional<size_t> n_points = get_n_points(n);
 	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms,n_points);
-	  std::cout << std::setprecision(7);
+	  std::cout << std::showpoint << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set_wavelength(wls_[i]);
 	    double k = m.scattering_coefficient();
@@ -222,7 +231,8 @@ namespace flick {
 	      error();
 	      break;
 	    }
-	    std::cout << std::setprecision(6) << wl << " " << value << '\n';
+	    std::cout << std::showpoint << std::setprecision(6)
+		      << wl << " " << value << '\n';
 	  }
 	}
       }

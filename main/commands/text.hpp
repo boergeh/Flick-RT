@@ -21,9 +21,13 @@ namespace flick {
 	  size_t nx = std::stoi(a(3));
 	  size_t ny = std::stoi(a(4));
 	  auto f = read<pl_function>("./"+fname);
-	  std::cout << significant_digits(f,nx,ny);
+	  std::cout << std::setprecision(std::max(nx,ny)) << std::showpoint <<
+	    significant_digits(f,nx,ny);
+	  std::cout << std::setprecision(6);
 	}
 	else if (command=="xy-scale")  {
+	  if (size() > 5)
+	    std::cout << std::showpoint << std::setprecision(std::stoi(a(5)));
 	  double kx = std::stod(a(3));
 	  double ky = std::stod(a(4));
 	  auto f = read<pl_function>("./"+fname);
@@ -33,11 +37,22 @@ namespace flick {
 	    std::cout << kx*x[i] << " " << ky*y[i] << '\n';
 	}
 	else if (command=="xy")  {
+	  if (size() > 3)
+	    std::cout << std::showpoint << std::setprecision(std::stoi(a(3)));
 	  auto f = read<pl_function>("./"+fname);
 	  auto x = f.x();
 	  auto y = f.y();
 	  for (size_t i=0; i < x.size(); ++i)
 	    std::cout << x[i] << " " << y[i] << '\n';
+	}
+	else if (command=="matrix")  {
+	  using namespace linalg;
+	  auto f = read<pl_flist>("./"+fname);
+	  if (size() > 3) {
+	    std::cout << f.header();
+	    std::cout << std::showpoint << std::setprecision(std::stoi(a(3)));
+	  }
+	  std::cout << f.matrix();
 	}
 	else {
 	  error();

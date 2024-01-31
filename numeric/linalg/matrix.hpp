@@ -11,7 +11,6 @@ namespace flick {
     using vector = std::vector<double>;
     
     std::ostream& operator<<(std::ostream& os, const matrix& m) {
-      os << "\n";
       for (size_t i=0; i < m.size(); i++) {
 	for (size_t j=0; j < m.at(0).size(); j++) {
 	  os << m[i][j] << " ";

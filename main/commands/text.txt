@@ -1,6 +1,4 @@
 
-Command:
-
 flick text <file_name> <command> [command_specific_argument ...]
 
 Parameters:
@@ -15,10 +13,10 @@ Parameters:
     Replaces the value(s) following the a given parameter name. The
     intput file must have the following format.
 
-    # Description a ## 
+    /* Description a */ 
     parameter_name_a = value_0 value_1 ...
 
-    # Description b ## 
+    /* Description b */ 
     parameter_name_b = value_0 value_1 ...
 
 
@@ -30,16 +28,22 @@ Parameters:
     may include a header.
 
 
-    'xy-scale' <kx> <ky> file_with_tabulated_xy_data.txt
+    'xy-scale' <kx> <ky> [oputput_recision]
 
     Lists scaled xy-values, where 'kx' and 'ky' are the scaling
     factors for x and y columns, respectively. The input file must be
     a two-column text file, which may include a header.
 
 
-    'xy' file_with_tabulated_xy_data.txt
+    'xy' [output_precision]
 
     Lists xy-values without header.
+    
+    
+    'matrix' [output_precision]
+
+    Lists all values for a multicolumn input file. If
+    'output_precision' is given, the header is also listed.
 
 
   Examples:
@@ -53,3 +57,9 @@ Parameters:
   flick text file_with_tabulated_xy_data.txt xy-precision 4 4
 
   flick text file_with_tabulated_xy_data.txt xy-scale 1e-9 1e-4
+
+  flick text file_with_tabulated_xy_data.txt xy 14
+
+  flick text file_with_multicolumn_data.txt matrix
+
+  flick text file_with_multicolumn_data.txt matrix 6
