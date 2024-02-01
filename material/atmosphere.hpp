@@ -20,7 +20,7 @@ namespace material {
 	
 	add<double>("ozone", 0.003, R"(Ozone column thickness [m] at STP. Note that 100 DU = 0.001 m)");
 	
-	add<double>("aerosol_od", 0.01, R"(Aerosol vertical total optical thickness at 550 nm)");
+	add<double>("aerosol_od", 0, R"(Aerosol vertical total optical thickness at 550 nm)");
 	
 	add<double>("aerosol_ratio", 1, R"(Ratio of rural aerosol optical depth to total aerosol optical
 depth. Set to '1' for rural aerosols only and '0' for urban aerosols only)");
@@ -41,39 +41,50 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
       : mixture(angle_range(c.get<size_t>("n_angles")),
 		atmospheric_state(c.get<size_t>("n_heights")).height_grid()) {
       c_ = c;
+      auto_update_iops(false);
       add_air();
       add_aerosols();
       add_clouds();
-      //update_iops();
+      auto_update_iops(true);
     }
   private:
     void add_air() {
-      atmospheric_state s(c_.get<double>("temperature"),c_.get<double>("pressure"));
-      s.remove_all_gases();
-      for (size_t i=0; i<c_.size<std::string>("gases"); i++) {
-	s.add_gas(c_.get<std::string>("gases",i));
+      double p = c_.get<double>("pressure");
+      if (p > 0) {
+	atmospheric_state s(c_.get<double>("temperature"),p);
+	s.remove_all_gases();
+	for (size_t i=0; i<c_.size<std::string>("gases"); i++) {
+	  s.add_gas(c_.get<std::string>("gases",i));
+	}
+	s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
+	add_material<smooth_air>(s,"uv_vis");
       }
-      s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
-      add_material<smooth_air>(s,"uv_vis");
+      else
+	add_material<vacuum>();
     }
     void add_aerosols() {
-      double ratio = c_.get<double>("aerosol_ratio");
       double aod = c_.get<double>("aerosol_od");
-      double rh = c_.get<double>("relative_humidity");
-      add_material<rural_aerosols>(aod*ratio, rh);
-      add_material<urban_aerosols>(aod*(1-ratio), rh);
+      if (aod > 0) {
+	double ratio = c_.get<double>("aerosol_ratio");
+	double rh = c_.get<double>("relative_humidity");
+	add_material<rural_aerosols>(aod*ratio, rh);
+	add_material<urban_aerosols>(aod*(1-ratio), rh);
+      }
     }
     void add_clouds() {
-      size_t n_base = 1;
-      size_t n_top = 2;
-      double radius = 15e-6;
-      double dh = heights().at(n_top)-heights().at(n_base);
-      double volume_fraction = c_.get<double>("cloud_liquid")/dh;  
-      double mu = log(radius);
-      double sigma = 0;
-      using cloud = water_cloud<parameterized_monodispersed_mie>;
-      set_range<cloud>(n_base,n_top);
-      add_material<cloud>(volume_fraction,mu,sigma);
+      double liquid_depth = c_.get<double>("cloud_liquid");
+      if (liquid_depth > 0) {
+	size_t n_base = 1;
+	size_t n_top = 2;
+	double radius = 15e-6;
+	double dh = heights().at(n_top)-heights().at(n_base);
+	double volume_fraction = liquid_depth/dh;  
+	double mu = log(radius);
+	double sigma = 0;
+	using cloud = water_cloud<parameterized_monodispersed_mie>;
+	set_range<cloud>(n_base,n_top);
+	add_material<cloud>(volume_fraction,mu,sigma);
+      }
     }
   };
 }

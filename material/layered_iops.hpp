@@ -29,7 +29,7 @@ namespace flick {
 	throw std::runtime_error("boundary error in layered_iops");
       if (n_terms < 3)
 	throw std::runtime_error("number of terms error in layered_iops");
-      update();
+      //update();
     }
     void set_wavelength(double wl) {
       m_->set_wavelength(wl);

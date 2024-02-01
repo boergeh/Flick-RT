@@ -10,6 +10,7 @@ namespace flick {
     auto m = std::make_shared<material::white_isotropic>(1.0);
     check_throw(layered_iops(m,{0},4));
     layered_iops l(m,{0,1},4);
+    l.set_wavelength(500e-9);
     check_close(l.scattering_optical_depth()[0],1);
   } end_test_case()
  
@@ -17,6 +18,7 @@ namespace flick {
     using namespace constants;
     auto m = std::make_shared<material::white_isotropic>(1.0);
     layered_iops l(m,{0,1,9,19},4);
+    l.set_wavelength(500e-9);
     check_close(l.scattering_optical_depth()[0],1);
     check_close(l.scattering_optical_depth()[1],8);
     check_close(l.scattering_optical_depth()[2],10);
@@ -42,6 +44,7 @@ namespace flick {
     auto m = std::make_shared<material::henyey_greenstein>(1,1,g0);
     size_t n_terms = 20;
     layered_iops iops(m,{-10,-1e-6,0},n_terms);
+    iops.set_wavelength(500e-9);
     size_t ly = 0;
     double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;
     check_close(g0,g,0.1_pct);
@@ -59,6 +62,7 @@ namespace flick {
     m->set_wavelength(300e-9);
     size_t n_terms = 34;
     layered_iops iops(m, {-100, -99, -1.2e-6, -1e-6, 120e3}, n_terms);
+    iops.set_wavelength(500e-9);
     size_t ly = 0;
     double x0 = iops.alpha_terms(0)[ly][0]*4*std::numbers::pi;
     double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;

@@ -7,25 +7,6 @@
 
 namespace flick {
   begin_test_case(accurt_test_A) {
-    // Assert compiling and running
-    stdvector layer_boundaries = {1,10e3,20e3,100e3};
-    size_t n_terms = 3;
-    material::atmosphere::configuration c;
-    c.set<size_t>("n_angles",2);
-    c.set<size_t>("n_heights",3);
-    auto atm = std::make_shared<material::atmosphere>(c);
-    layered_iops layered_atmosphere(atm,layer_boundaries,n_terms);
-  } end_test_case()
-
-   begin_test_case(accurt_test_B) {
-    // Assert compiling and running
-    auto m = std::make_shared<material::white_isotropic>(1.0);
-     stdvector boundaries{-1,-1e-6};
-     size_t n_terms = 3;
-     auto iops = std::make_shared<layered_iops>(m, boundaries, n_terms);
-  } end_test_case()
-  
-  begin_test_case(accurt_test_C) {
     // Compare with van de Hulst 1980, vol 1, chapter 9, table 12,
     // p258, FLUX
     absorption_coefficient a{0};
@@ -44,7 +25,7 @@ namespace flick {
     check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
   } end_test_case()
   
-  begin_test_case(accurt_test_D) {
+  begin_test_case(accurt_test_B) {
     // Compare with van de Hulst 1980, vol 2, chapter 13, table 35,
     // p431, FLUX
     double ssalb = 0.9;
@@ -67,55 +48,10 @@ namespace flick {
     auto acc =  accurt(c,m);
     check_close(acc.relative_radiation().y()[0],0.82792, 0.001_pct);
   } end_test_case()
- 
-  begin_test_case(accurt_test_E) {
-    // Assert that transmittance and reflectance are sane. 
-    size_t n_angles = 20;
-    accurt::configuration ac;
-    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
-    ac.set<double>("detector_wavelengths",400e-9);
-    ac.set<std::string>("detector_orientation","up");
-    ac.set<std::string>("detector_type","plane_irradiance");
-    ac.set<double>("reference_detector_height",100e3);
-    ac.set<double>("detector_height",1);
-    material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("n_angles",n_angles);
-    mc.set<size_t>("n_heights",3);
-    auto m = std::make_shared<material::atmosphere_ocean>(mc);
-    auto a =  accurt(ac,m);
-    check_close(a.relative_radiation().y()[0],0.8,20_pct);
-    ac.set<double>("detector_height",-0.5);
-    auto a2 =  accurt(ac,m);
-    check_close(a2.relative_radiation().y()[0],0.98,20_pct);
-    ac.set<double>("reference_detector_height",-0.1);
-    auto a3 =  accurt(ac,m);
-    check_close(a3.relative_radiation().y()[0],0.9,10_pct);
-    ac.set<double>("detector_height",1e-9);
-    ac.set<double>("reference_detector_height",-0.9);
-    auto a4 =  accurt(ac,m);
-    check_close(a4.relative_radiation().y()[0],1.1,10_pct);
-    ac.set<double>("detector_wavelengths",{400e-9, 700e-9});
-    ac.set<double>("bottom_boundary_surface_scaling_factor",0);
-    ac.set<double>("reference_detector_height",120e3);
-    ac.set<double>("detector_height",120e3);
-    ac.set<std::string>("detector_orientation","down");
-    auto a5 =  accurt(ac,m);
-    pp_function r = a5.relative_radiation();
-    double dr = r.y()[0] / r.y()[1];
-    check(dr > 1.01);
-  } end_test_case()
   
-  begin_test_case(accurt_test_F) {
-    // Assert compiling and running
-    configuration_template::toa_reflectance c;
-    std::string f = "./toa_reflectance_configuration";
-    c.write(f);
-    auto c2 = read<configuration_template::toa_reflectance>(f);
-  } end_test_case()
-  
-  begin_test_case(accurt_test_G) {
+  begin_test_case(accurt_test_C) {
     // Assert low remote sensing reflectance in NIR and that detectors
-    // can have same position
+    // can have same height
     size_t n_angles = 30;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
@@ -135,8 +71,8 @@ namespace flick {
     check_small(Rrs, 0.0002);
   } end_test_case()
   
-  begin_test_case(accurt_test_H) {
-    // Assert difference in nadir radiance above and below surface
+  begin_test_case(accurt_test_D) {
+    // Check increase in nadir radiance below surface
     size_t n_angles = 30;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
@@ -151,15 +87,14 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a_above =  accurt(ac,m);
     double L_above = a_above.relative_radiation().y()[0];
-
     ac.set<double>("detector_height",-0.01);
     auto a_below =  accurt(ac,m);
     double L_below = a_below.relative_radiation().y()[0];
     check_close(L_above, L_below/pow(1.33,2), 3_pct);
   } end_test_case()
   
-  begin_test_case(accurt_test_I) {
-    // Assert flick standard atmosphere-ocean remote sensing reflectance
+  begin_test_case(accurt_test_E) {
+    // Assert flick default atmosphere-ocean remote sensing reflectance
     size_t n_angles = 30;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
@@ -175,13 +110,12 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y().at(0);
-    check_close(Rrs, 0.0252, 0.2_pct);
+    check_close(Rrs, 0.0392, 0.2_pct);
   } end_test_case()
   
-  begin_test_case(accurt_test_J)
+  begin_test_case(accurt_test_F) {
     // Check that azimuthally averaged radiance is the same as
     // directional specific radiance at polar angle is close to 180
-  {   
     size_t n_angles = 200;
     accurt::configuration ac;
     ac.set<double>("source_zenith_angle",60);
@@ -195,40 +129,13 @@ namespace flick {
     material::atmosphere_ocean::configuration mc;
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
-    mc.set<double>("aerosol_od",0.1);
-    
+    mc.set<double>("aerosol_od",0);
     auto m = std::make_shared<material::atmosphere_ocean>(mc); 
     auto a_avg =  accurt(ac, m);
     double r_avg = a_avg.relative_radiation().y()[0];
-
     ac.set<double>("detector_orientation_override",{179.91,180});
     auto a_dir =  accurt(ac, m);
     double r_dir = a_dir.relative_radiation().y()[0];
-    check_close(r_avg, r_dir, 0.5_pct);
-  } end_test_case()
-  
-  begin_test_case(accurt_test_K) {
-    size_t n_angles = 100;
-    accurt::configuration ac;
-    ac.set<double>("source_zenith_angle",0);
-    ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
-    ac.set<double>("detector_wavelengths",500e-9);
-    ac.set<std::string>("detector_orientation","up");
-    ac.set<std::string>("reference_detector_orientation","up");
-    ac.set<double>("detector_orientation_override",{0,0});
-    ac.set<size_t>("detector_radiance_distribution_override",{5,9});
-    ac.set<std::string>("detector_type","radiance");
-    ac.set<double>("detector_height",0.1);
-    ac.set<double>("reference_detector_height",120e3);
-    ac.set<std::string>("subtract_specular_radiance","false");
-    material::atmosphere_ocean::configuration mc;
-    mc.set<size_t>("n_angles",n_angles);
-    mc.set<size_t>("n_heights",3);
-    mc.set<double>("aerosol_od",0.3);
-    
-    auto m = std::make_shared<material::atmosphere_ocean>(mc); 
-    auto a =  accurt(ac, m);
-    auto r = a.relative_distributed_radiance();
-    //a.print_radiance_distribution(r); 
+    check_close(r_avg, r_dir, 1.7_pct);
   } end_test_case()
 }

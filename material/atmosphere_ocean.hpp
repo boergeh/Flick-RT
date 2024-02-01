@@ -19,11 +19,13 @@ namespace material {
 			   c.get<size_t>("n_heights"))) {
 
       size_t n_ocean_layers_ = 1;
+      auto_update_iops(false);
       add_material<ocean>(c);
       set_range<ocean>(0, n_ocean_layers_);
       add_material<atmosphere>(c);
       set_range<atmosphere>(n_ocean_layers_+1,
 			    c.get<size_t>("n_heights")+n_ocean_layers_);
+      auto_update_iops(true);
     }
   private:
     stdvector boundaries(double bottom_depth, size_t n_atm_heights) const {

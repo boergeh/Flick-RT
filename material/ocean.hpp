@@ -17,12 +17,12 @@ namespace material {
       configuration() {
 	add<double>("bottom_depth", 200, R"(Total depth of the water column [m])");
 	
-	add<double>("cdom_440", 0.01, R"(CDOM absorption coefficient at 440 nm [1/m])");
+	add<double>("cdom_440", 0.0, R"(CDOM absorption coefficient at 440 nm [1/m])");
 		    
 	add<double>("cdom_slope", 0.017, R"(Slope of the CDOM absorption spectrum [1/nm]. Note the exception from
 the SI unit convention)");
 		    
-	add<double>("chl_concentration", 1e-6, R"(Chlorophyll concentration in the water column [kg/m^3]. A
+	add<double>("chl_concentration", 0, R"(Chlorophyll concentration in the water column [kg/m^3]. A
 concentration of e.g., 10.0 mg/m^3 may be written as 10.0e-6 kg/m^3
 for clarity)");
 
@@ -30,7 +30,7 @@ for clarity)");
 [kg/m^3]. A concentration of e.g., 10.0 g/m^3 may be written as
 10.0e-3 kg/m^3 for clarity)");
 	
-	add<double>("bubble_volume_fraction", 1e-7, R"(Bubble volume fraction in the water column [unitless])");
+	add<double>("bubble_volume_fraction", 0, R"(Bubble volume fraction in the water column [unitless])");
 
 	add<double>("water_temperature", 290, R"(Temperature in the water column [K])");
 
@@ -55,41 +55,52 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       : mixture(angle_range(c.get<size_t>("n_angles")),
 		{-c.get<double>("bottom_depth"), -1e-6}) {
       c_ = c;
+      auto_update_iops(false);
       add_pure_water();
       add_cdom();
       add_phytoplankton();
       add_nap();
       add_bubbles();
       add_marine_particles();
+      auto_update_iops(true);
     }
   private:
     void add_pure_water() {
       add_material<pure_water>(c_.get<double>("water_salinity"),c_.get<double>("water_temperature"));
     }
     void add_cdom() {
-      add_material<cdom>(c_.get<double>("cdom_440"),c_.get<double>("cdom_slope"));
+      double a440 = c_.get<double>("cdom_440");
+      if (a440 > 0)
+	add_material<cdom>(a440,c_.get<double>("cdom_slope"));
     }
     void add_phytoplankton() {
-      add_material<phytoplankton>(c_.get<double>("chl_concentration"));
+      double chl = c_.get<double>("chl_concentration");
+      if (chl > 0)
+	add_material<phytoplankton>(chl);
     }
     void add_nap() {
-      add_material<nap>(c_.get<double>("nap_concentration"));
+      double con = c_.get<double>("nap_concentration");
+      if (con > 0)
+	add_material<nap>(con);
     }
     void add_bubbles() {
-      double effective_radius = 50e-6;
-      double volume_fraction = c_.get<double>("bubble_volume_fraction");  
-      double mu = log(effective_radius);
-      double sigma = 0;
-      using bubbles = bubbles_in_water<parameterized_monodispersed_mie>;
-      auto b = bubbles(volume_fraction,mu,sigma);
-      add_material<bubbles>(volume_fraction,mu,sigma);
+      double volume_fraction = c_.get<double>("bubble_volume_fraction");
+      if (volume_fraction > 0) {
+	double effective_radius = 50e-6;
+	double mu = log(effective_radius);
+	double sigma = 0;
+	using bubbles = bubbles_in_water<parameterized_monodispersed_mie>;
+	auto b = bubbles(volume_fraction,mu,sigma);
+	add_material<bubbles>(volume_fraction,mu,sigma);
+      }
     }
     void add_marine_particles() {
       std::vector<std::string> names = c_.get_vector<std::string>("mp_names");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
       for (size_t i = 0; i<names.size(); i++) {
 	name_extension(std::to_string(i));
-	add_material<marine_particles>(names.at(i), concentrations.at(i));
+	if (concentrations.at(i) > 0)
+	  add_material<marine_particles>(names.at(i), concentrations.at(i));
 	name_extension("");
       }
     }

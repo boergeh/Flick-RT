@@ -15,14 +15,13 @@ namespace material {
     struct configuration : basic_configuration {
       configuration() {
 	add<size_t>("n_angles", 300, R"(Number of grid points used to sample the volume scattering function)");
-	
 	add<size_t>("n_heights", 8, R"(Number of grid points used sample vertical atmospheric gas profiles)");
       }
     };
   private:
-    bool should_update_iops_ = true;
     stdvector angles_;
     stdvector heights_;
+    bool auto_update_iops_ = true;
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
     std::map<std::string, std::vector<size_t>> range_;
@@ -46,7 +45,8 @@ namespace material {
       materials_[key] = std::make_shared<Material>(a...);
       if (range_.find(key) == range_.end())
       	range_[key]={0, heights_.size()-1};
-      update_iops();
+      if (auto_update_iops_)
+	update_iops();
     }
     template<class Material>
     const Material& get_material() const {
@@ -56,15 +56,18 @@ namespace material {
     template<class Material>
     void set_range(size_t n_low, size_t n_high) {
       range_[id<Material>()] = {n_low, n_high};
-      update_iops();
+      if (auto_update_iops_)
+	update_iops();
     }
     stdvector angle_range(size_t n) const {
       stdvector a = range(0,constants::pi,n+1).linspace();
       a.erase(a.begin());
       return a;
     }
-    void should_update_iops(bool tf) {
-      should_update_iops_ = tf;
+    void auto_update_iops(bool b) {
+      auto_update_iops_ = b;
+      if (auto_update_iops_)
+	update_iops();	
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const override {
       mueller m;
@@ -86,20 +89,18 @@ namespace material {
 	material->set_wavelength(wl);
       }
       base::set_wavelength(wl);
-      update_iops();
+      if (auto_update_iops_)
+	update_iops();
     }
     void update_iops() {
-      should_update_iops_=true;
-      if (should_update_iops_) {
-	a_profile_.clear();
-	s_profile_.clear();
-	real_refractive_index_ = 1;
-	mueller_.clear();
-	mueller_.resize(heights_.size());
-	for (auto const& [key, material] : materials_) {
-	  std::vector<size_t> range = range_.at(key);
-	  add(*material, range[0], range[1]);
-	}
+      a_profile_.clear();
+      s_profile_.clear();
+      real_refractive_index_ = 1;
+      mueller_.clear();
+      mueller_.resize(heights_.size());
+      for (auto const& [key, material] : materials_) {
+	std::vector<size_t> range = range_.at(key);
+	add(*material, range[0], range[1]);
       }
     }
     std::vector<std::string> material_ids() const {
