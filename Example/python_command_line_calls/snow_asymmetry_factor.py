@@ -4,14 +4,18 @@ function expansion terms
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 import os
+sys.path.append(os.environ['FLICK_PATH']+"/python_script")
+from matplotlib import cm
+import flick
 
-n_terms = [64, 32, 16, 8]
-sub_command = " 500e-9 500e-9 0.2 snow fast_mie 0.2 1000e-6 0 > tmp.txt"
+n_terms = [10, 30]
+sub_command = " 500e-9 500e-9 1 snow full_mie 0.2 5e-6 0"
 m = [] 
 for i in range(len(n_terms)):
-    os.system("flick iop wigner_alpha_beta_" + str(n_terms[i])+sub_command)
-    m.append(np.loadtxt("tmp.txt"))
+    xy = flick.run("iop wigner_alpha_beta_" + str(n_terms[i])+sub_command)
+    m.append(xy)
 
 g = []
 for i in range(len(m)):
@@ -20,19 +24,23 @@ for i in range(len(m)):
 
 m = [] 
 for i in range(len(n_terms)):
-    os.system("flick iop scattering_ab_500_" + str(n_terms[i])+sub_command)
-    m.append(np.loadtxt("tmp.txt"))
+    xy = flick.run("iop scattering_ab_fitted_" + str(n_terms[i])+sub_command)
+    m.append(xy)
+
+exact = flick.run("iop scattering_ab_500_" + str(n_terms[i])+sub_command)
 
 fig, ax = plt.subplots() 
-line = []     
+line = []
+ax.semilogy(exact[:,0],exact[:,1], linewidth=2,label="exact")
 for i in range(len(m)):
     x = m[i][:,0]
     vsf = m[i][:,1]
-    ax.semilogy(x, vsf, linewidth=2,label="g="+f"{g[i]:.3f}"+", N="+str(n_terms[i]))
+    ax.semilogy(x, vsf, linewidth=1.5, label="N = "+ \
+                str(n_terms[i])+", g="+f"{g[i]:.3f}")
 
 ax.legend()
 ax.grid()
-ax.set_title("Snow grains with radius 1 mm and volume fraction 0.2  ")
+ax.set_title("Small snow grains with radius 0.05 mm and volume fraction 0.2")
 ax.set_xlabel("Cosine of scattering angle")
 ax.set_ylabel("Volume scattering function [m$^{-1}$sr$^{-1}$]")
 plt.show();

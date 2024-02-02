@@ -2,7 +2,7 @@
   flick time <epoch> <time_point|number_of_days>
 
   Converts back and forth between number of days since a given epoch
-  and a given time point.
+  and time point.
 
 Parameters:
 

@@ -6,7 +6,7 @@
 
 namespace flick {  
   class time_point
-  // See https://en.wikipedia.org/wiki/Julian_day
+  // https://en.wikipedia.org/wiki/Julian_day
   {
     int year_;
     int month_;
@@ -121,6 +121,16 @@ namespace flick {
     double se = (julian_date-time_point(Y,M,D,hr,mi,0).julian_date())*60*60*24;
     return time_point(Y,M,D,hr,mi,se);
   }
+  class time_converter {
+    const double delta_days_ = 64.184/60/60/24;
+  public:
+    time_point UTC_to_TT(const time_point& utc) {
+      return make_time_point(utc.julian_date()+delta_days_);
+    }
+    time_point TT_to_UTC(const time_point& tt) {
+      return make_time_point(tt.julian_date()-delta_days_);
+    }
+  };
 }
 
 #endif

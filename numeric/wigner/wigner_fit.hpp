@@ -5,6 +5,7 @@
 #include "../function.hpp"
 #include "../linalg/solve_with_eigen.hpp"
 #include "wigner_d.hpp"
+#include <numbers>
  
 namespace flick {
   enum class fit {
@@ -21,7 +22,7 @@ namespace flick {
     return pow(n_terms, 1.6);
   }
   double wigner_mu_max(size_t n_angles) {
-    return 1 - 1./pow(n_angles,2);
+    return cos(1./n_angles);
   }
   template<class Function>
   class wigner_fit {

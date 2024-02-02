@@ -9,18 +9,19 @@ namespace flick {
 	std::string epoch = a(1);
 	if (size()==3) {
 	  std::cout << std::fixed<<std::setprecision(0);
-	  double days = std::stod(a(2));
+	  double days_TT = std::stod(a(2));
 	  if (epoch=="julian_date")
-	    std::cout << make_time_point(days);
+	    std::cout << time_converter().TT_to_UTC(make_time_point(days_TT));
 	  else if (epoch=="datenum")
-	    std::cout << make_time_point(datenum_to_julian_date(days));
+	    std::cout <<  time_converter().TT_to_UTC(make_time_point(datenum_to_julian_date(days_TT)));
 	  else if (epoch=="J2000")
-	    std::cout << make_time_point(J2000_to_julian_date(days));
+	    std::cout <<  time_converter().TT_to_UTC(make_time_point(J2000_to_julian_date(days_TT)));
 	  else
 	    error();
 	} else if (size()==8) {
 	  std::cout << std::fixed<<std::setprecision(5);
-	  flick::time_point t = get_time_point();
+	  flick::time_point tp_utc = get_time_point();
+	  flick::time_point t = time_converter().UTC_to_TT(tp_utc); 
 	  if (epoch=="julian_date")
 	    std::cout << t.julian_date();
 	  else if (epoch=="datenum")
