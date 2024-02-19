@@ -1,0 +1,25 @@
+/*
+Hardangerfjord water sampling.
+
+Row 1:  Latitude [°]
+Row 2:  Longitude [°]
+Row 3:  Time point YYYYMMDDHHMM [UTC]
+Row 4:  Number of days since January 1, 2000, at 12:00 [Terrestrial Time] 
+Row 5:  Depth [m] 
+Row 6:  Temperature [ºC] 
+Row 7:  Salinity [psu] 
+Row 8:  SPM [g m-3] 
+Row 9:  Chla [mg m-3] 
+Row 10: POC [mg m-3] 
+*/
+
+1   59.878675
+2   5.655558
+3   202205201124
+4   8174.97574
+5   0.5
+6   -999
+7   -999
+8   20.13
+9   7.55
+10  -999

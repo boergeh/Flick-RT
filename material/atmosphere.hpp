@@ -20,6 +20,8 @@ namespace material {
 	
 	add<double>("ozone", 0.003, R"(Ozone column thickness [m] at STP. Note that 100 DU = 0.001 m)");
 	
+	add<double>("water_vapor", 17, R"(Vater vapor column thickness [m] at STP.)");
+	
 	add<double>("aerosol_od", 0, R"(Aerosol vertical total optical thickness at 550 nm)");
 	
 	add<double>("aerosol_ratio", 1, R"(Ratio of rural aerosol optical depth to total aerosol optical
@@ -30,6 +32,12 @@ depth. Set to '1' for rural aerosols only and '0' for urban aerosols only)");
 	add<double>("cloud_liquid", 0, R"(Liquid equivalent cloud thickness [m]. Typical values are in the range
 0 to 1e-4 m)");
 	
+	add<double>("snow_ice", 0, R"(Ice equivalent snow thickness [m], which is the thickness the snow
+layer would have if it was compressed into a layer of ice with no air
+between snow grains.)");
+	
+	add<double>("snow_radius", 100e-6, R"(Average snow grain radius [m].)");
+	
 	add<std::string>("gases", {"o3","o2","h2o"}, R"(Space-separated list of names of absorbing gases included in the
 atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
       }
@@ -38,14 +46,28 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
     basic_configuration c_;
   public:
     atmosphere(const basic_configuration& c=atmosphere::configuration())
-      : mixture(angle_range(c.get<size_t>("n_angles")),
-		atmospheric_state(c.get<size_t>("n_heights")).height_grid()) {
+      : mixture(angle_range(c.get<size_t>("n_angles")), height_grid(c)) {
       c_ = c;
       auto_update_iops(false);
       add_air();
       add_aerosols();
       add_clouds();
+      add_snow();
       auto_update_iops(true);
+    }
+    static stdvector height_grid(const basic_configuration& c) {
+      double d = c.get<double>("snow_ice");
+      //size_t n = 0;
+      //if (d > 0)
+      //	n = 2;
+      stdvector h = atmospheric_state(c.get<size_t>("n_heights")).height_grid();
+      if (d > 0) {
+	double epsilon = 1e-4;
+	double snow_depth = 1;
+	h.insert(h.begin()+1,snow_depth+epsilon); // include step-layer for snow
+	h.insert(h.begin()+1,snow_depth); // include layer for snow
+      }
+      return h;
     }
   private:
     void add_air() {
@@ -54,9 +76,14 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	atmospheric_state s(c_.get<double>("temperature"),p);
 	s.remove_all_gases();
 	for (size_t i=0; i<c_.size<std::string>("gases"); i++) {
-	  s.add_gas(c_.get<std::string>("gases",i));
+	  std::string gas = c_.get<std::string>("gases",i);    
+	  s.add_gas(gas);
+	  if (gas=="o3")	  
+	    s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
+	  if (gas=="h2o")	  
+	    s.scale_to_stp_thickness("h2o",c_.get<double>("water_vapor"));
 	}
-	s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
+	
 	add_material<smooth_air>(s,"uv_vis");
       }
       else
@@ -76,6 +103,10 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
       if (liquid_depth > 0) {
 	size_t n_base = 1;
 	size_t n_top = 2;
+	if (c_.get<double>("snow_ice") > 0) {
+	  n_base = 3;
+	  n_top = 4;
+	}
 	double radius = 15e-6;
 	double dh = heights().at(n_top)-heights().at(n_base);
 	double volume_fraction = liquid_depth/dh;  
@@ -84,6 +115,21 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	using cloud = water_cloud<parameterized_monodispersed_mie>;
 	set_range<cloud>(n_base,n_top);
 	add_material<cloud>(volume_fraction,mu,sigma);
+      }
+    }
+    void add_snow() {
+      double ice_depth = c_.get<double>("snow_ice");
+      if (ice_depth > 0) {
+	size_t n_base = 0;
+	size_t n_top = 1;
+	double radius = c_.get<double>("snow_radius");
+	double dh = heights().at(n_top)-heights().at(n_base);
+	double volume_fraction = ice_depth/dh;  
+	double mu = log(radius);
+	double sigma = 0;
+	using snow = ice_cloud<parameterized_monodispersed_mie>;
+	set_range<snow>(n_base,n_top);
+	add_material<snow>(volume_fraction,mu,sigma);
       }
     }
   };

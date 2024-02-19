@@ -1,0 +1,12 @@
+/*
+CDOM
+
+
+Column 1: wavelength [nm]
+Column 2: absorption coefficient [m-1]
+Column 3: std? [m-1]
+*/
+
+
+300 0.001
+900 0.001

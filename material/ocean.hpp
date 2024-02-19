@@ -6,6 +6,7 @@
 #include "water/phytoplankton.hpp"
 #include "water/nap.hpp"
 #include "marine_particles/marine_particles.hpp"
+#include "marine_cdom/marine_cdom.hpp"
 #include "mixture.hpp"
 #include "spheres.hpp"
 #include "../environment/configuration.hpp"
@@ -18,15 +19,15 @@ namespace material {
 	add<double>("bottom_depth", 200, R"(Total depth of the water column [m])");
 	
 	add<double>("cdom_440", 0.0, R"(CDOM absorption coefficient at 440 nm [1/m])");
-		    
+
 	add<double>("cdom_slope", 0.017, R"(Slope of the CDOM absorption spectrum [1/nm]. Note the exception from
 the SI unit convention)");
-		    
+		    	
 	add<double>("chl_concentration", 0, R"(Chlorophyll concentration in the water column [kg/m^3]. A
 concentration of e.g., 10.0 mg/m^3 may be written as 10.0e-6 kg/m^3
 for clarity)");
 
-	add<double>("nap_concentration", 1e-3, R"(Dry mass concentration of nonalgal particles in the water column
+	add<double>("nap_concentration", 0, R"(Dry mass concentration of nonalgal particles in the water column
 [kg/m^3]. A concentration of e.g., 10.0 g/m^3 may be written as
 10.0e-3 kg/m^3 for clarity)");
 	
@@ -36,24 +37,32 @@ for clarity)");
 
 	add<double>("water_salinity", 30, R"(Salinity of the water column [PSU])");
 
-	add<std::string>("mp_names", "SD16_VF17", R"(Space-separated list of names of included marine particle materials
-with inherent optical properties listed in separate ASCII files stored
+	add<std::string>("mp_names", "SD16_VF17", R"(Space-separated list of names of measured marine particles
+with inherent optical properties tabulated in separate ASCII files stored
 in the Flick directory material/marine_particles/iop_tables)");
 	
-	add<double>("mp_concentrations", 0, R"(Space-separated list of dry mass concentrations [kg/m^3] for included
-marine particle materials with inherent optical properties listed in
-separated ASCII files in the Flick directory
+	add<double>("mp_concentrations", 0, R"(Space-separated list of dry mass concentrations [kg/m^3] of measured
+marine particles with inherent optical properties tabulated
+in separated ASCII files in the Flick directory
 material/marine_particles/iop_table, one concentration value for each
 material given in mp_names. Note that a concentration of e.g., 10.0
 g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
+	
+	add<std::string>("mcdom_names", "HF22_D001", R"(Space-separated list of names of measured marine CDOM
+with absorption coefficients tabulated in separate ASCII files stored
+in the Flick directory material/marine_cdom/iop_tables)");
+	
+	add<double>("mcdom_scaling_factors", 0, R"(Space-separated list of scaling factor for measured marine CDOM
+absorption coefficients listed in separated ASCII files in the Flick
+directory material/marine_cdom/iop_table, one concentration value for
+each CDOM spectra given in mcdom_names.)");
       }
     };
   private:
     basic_configuration c_;
   public:
     ocean(const basic_configuration& c=ocean::configuration())
-      : mixture(angle_range(c.get<size_t>("n_angles")),
-		{-c.get<double>("bottom_depth"), -1e-6}) {
+      : mixture(angle_range(c.get<size_t>("n_angles")),height_grid(c)) {
       c_ = c;
       auto_update_iops(false);
       add_pure_water();
@@ -62,7 +71,11 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
       add_nap();
       add_bubbles();
       add_marine_particles();
+      add_marine_cdom();
       auto_update_iops(true);
+    }
+    static stdvector height_grid(const basic_configuration& c) {
+      return {-c.get<double>("bottom_depth"), -1e-6};
     }
   private:
     void add_pure_water() {
@@ -101,6 +114,16 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
 	name_extension(std::to_string(i));
 	if (concentrations.at(i) > 0)
 	  add_material<marine_particles>(names.at(i), concentrations.at(i));
+	name_extension("");
+      }
+    }
+    void add_marine_cdom() {
+      std::vector<std::string> names = c_.get_vector<std::string>("mcdom_names");
+      std::vector<double> scaling_factors = c_.get_vector<double>("mcdom_scaling_factors");
+      for (size_t i = 0; i<names.size(); i++) {
+	name_extension(std::to_string(i));
+	if (scaling_factors.at(i) > 0)
+	  add_material<marine_cdom>(names.at(i), scaling_factors.at(i));
 	name_extension("");
       }
     }

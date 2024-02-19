@@ -3,7 +3,7 @@
 
 namespace flick {
   using namespace units;
-  begin_test_case(atmospheric_state_test) {
+  begin_test_case(atmospheric_state_test_A) {
     atmospheric_state state_1(296_K, 1013_hPa, 1);
     atmospheric_state state(296_K, 1013_hPa, 50);
     check_close(state_1.stp_thickness("o3"), state.stp_thickness("o3"));
@@ -14,6 +14,10 @@ namespace flick {
     state.scale_to_stp_thickness("o3", 2.50_mm);
     check_close(state.stp_thickness("o3"), 2.50_mm);
     check_small(state.pressure(1000_km));
-    
+  } end_test_case()
+  
+  begin_test_case(atmospheric_state_test_B) {
+    atmospheric_state a(296_K, 1013_hPa, 8);
+    check_close(a.stp_thickness("h2o"), 17.9, 1_pct);
   } end_test_case()
 }

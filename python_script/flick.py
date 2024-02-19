@@ -9,12 +9,41 @@ example:
 import numpy as np
 import subprocess
 import os
+import sys
+sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 
 def run(arguments):
     flick_output = _run_os("flick "+arguments)
     if flick_output.stdout:
         return _to_matrix(flick_output)
 
+def table(file_name):
+    return run("text "+file_name+" matrix")
+    
+class ocean_meta:
+    latitude = 60
+    longitude = 5
+    time_point_utc = 20220520112400
+    n_days = 8174.97574
+    depth = 0
+    temperature = 290
+    salinity = 35
+    spm = 1e-3
+    chl = 1e-6
+    poc = 1e-3
+    def __init__(self, file_name):
+        m = run("text "+file_name+" xy 14")
+        self.latitude = m[0,1]
+        self.longitude = m[1,1]
+        self.time_point_utc = m[2,1]
+        self.n_days = m[3,1]
+        self.depth = m[4,1]
+        self.temperature = m[5,1]+273.15
+        self.salinity = m[6,1]
+        self.spm = m[7,1]*1e-3
+        self.chl = m[8,1]*1e-6
+        self.poc = m[9,1]*1e-3
+    
 def _run_os(command):
     c = subprocess.run(command, stdout=subprocess.PIPE, shell=True, check=True)
     return c
@@ -68,17 +97,24 @@ class basic_radiation:
         self.set("detector_wavelengths", wl_grid)
         return run("accurt "+self._config_name)
 
+    def _to_spaced_string(self,time_point):
+        s = str(time_point)
+        sec = "0"
+        if len(s) > 11:
+            sec = s[12:14]
+        return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec
+
     def toa_zenith_irradiance(self, time_point_utc):
-        distance_au = run("sun_position distance "+time_point_utc)
+        distance_au = run("sun_position distance "+self._to_spaced_string(time_point_utc))
         r = run("radiator toa-solar")
         r[:,1] = r[:,1] * (1/distance_au)**2
         return r
 
     def sun_zenith_angle(self,time_point_utc, latitude, longitude):
-        a = run("sun_position zenith_angle "+time_point_utc+" "+ \
-                               latitude+" "+longitude)
+        a = run("sun_position zenith_angle "+self._to_spaced_string(time_point_utc)+" "+ \
+                               str(latitude)+" "+str(longitude))
         return a[0][0]
-        
+    
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
         L_r = self._relative_spectrum(wl_grid)
@@ -191,6 +227,16 @@ class surface_irradiance(absolute_radiation):
         spectrum[:,0] = spectrum[:,0]*1e9
         spectrum[:,1] = spectrum[:,1]*1e-9
         return spectrum
+
+class snow_transmittance(relative_radiation):
+    def __init__(self, ice_depth, radius):
+        self.set("detector_height",0)
+        self.set("detector_orientation","up")
+        self.set("reference_detector_height", 1.01)
+        self.set("detector_type","plane_irradiance");
+        self.set("snow_ice",ice_depth);
+        self.set("snow_radius",radius);
+        
     
 
 

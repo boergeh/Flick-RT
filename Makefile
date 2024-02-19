@@ -20,6 +20,8 @@ build:
 	cd material/aerosols; make obj link
 	cd material/water; make obj link	
 	cd material/ice; make obj link	
+	cd material/marine_cdom; make obj link	
+	cd material/marine_particles; make obj link	
 	cd accurt_api; make obj link
 	cd transporter; make obj link
 	cd radiator; make obj link
@@ -41,6 +43,8 @@ test:
 	@cd material/aerosols; make test
 	@cd material/water; make test
 	@cd material/ice; make test
+	@cd material/marine_cdom; make test
+	@cd material/marine_particles; make test
 	@cd accurt_api; make test
 	@cd coating; make test
 	@cd transporter; make test
@@ -62,6 +66,8 @@ clean:
 	cd material/aerosols; make clean
 	cd material/water; make clean
 	cd material/ice; make clean
+	cd material/marine_particels; make clean
+	cd material/marine_cdom; make clean
 	cd accurt_api; make clean
 	cd coating; make clean
 	cd transporter; make clean

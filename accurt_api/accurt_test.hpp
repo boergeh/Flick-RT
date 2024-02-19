@@ -84,6 +84,7 @@ namespace flick {
     material::atmosphere_ocean::configuration mc;
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
+    mc.set<double>("nap_concentration",1e-3);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a_above =  accurt(ac,m);
     double L_above = a_above.relative_radiation().y()[0];
@@ -107,6 +108,7 @@ namespace flick {
     material::atmosphere_ocean::configuration mc;
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
+    mc.set<double>("nap_concentration",1e-3);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y().at(0);
@@ -130,6 +132,7 @@ namespace flick {
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
     mc.set<double>("aerosol_od",0);
+    mc.set<double>("nap_concentration",1e-3);
     auto m = std::make_shared<material::atmosphere_ocean>(mc); 
     auto a_avg =  accurt(ac, m);
     double r_avg = a_avg.relative_radiation().y()[0];
