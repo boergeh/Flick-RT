@@ -22,8 +22,11 @@ f.set_n_angles(100)
 f.set("aerosol_od", 0)
 f.set("cloud_liquid", 0)
 f.set("mp_names", "SD16_VF18") #To be replaced with Hardangerfjord sample
-f.set("mp_concentrations", 20e-3)
-f.set("detector_height", -0.5)
+f.set("mp_concentrations", meta.spm)
+#f.set("nap_concentration", 3e-3)
+f.set("detector_height", -0.75)
+f.set("mcdom_names", "ECOSENS_HF22_D1")
+f.set("mcdom_scaling_factors", 0)
 
 L = f.spectrum(wl_grid, wl_width, meta.time_point_utc, meta.latitude, meta.longitude)
 L = f.to_mW_per_m2_nm_sr(L)

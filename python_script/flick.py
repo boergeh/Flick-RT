@@ -9,8 +9,6 @@ example:
 import numpy as np
 import subprocess
 import os
-import sys
-sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 
 def run(arguments):
     flick_output = _run_os("flick "+arguments)
@@ -93,16 +91,19 @@ class basic_radiation:
     def set(self, config_parameter, value):
         config(self._config_name, config_parameter, value)
         
-    def _relative_spectrum(self, wl_grid):
+    def _relative_spectrum(self, wl_grid, source_zenith_angle):
+        self.set("source_zenith_angle", source_zenith_angle)
         self.set("detector_wavelengths", wl_grid)
         return run("accurt "+self._config_name)
 
     def _to_spaced_string(self,time_point):
+        if isinstance(time_point, str):
+            return time_point
         s = str(time_point)
         sec = "0"
-        if len(s) > 11:
+        if len(s) > 13:
             sec = s[12:14]
-        return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec
+        return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec     
 
     def toa_zenith_irradiance(self, time_point_utc):
         distance_au = run("sun_position distance "+self._to_spaced_string(time_point_utc))
@@ -111,17 +112,18 @@ class basic_radiation:
         return r
 
     def sun_zenith_angle(self,time_point_utc, latitude, longitude):
-        a = run("sun_position zenith_angle "+self._to_spaced_string(time_point_utc)+" "+ \
-                               str(latitude)+" "+str(longitude))
+        command = "sun_position zenith_angle "+self._to_spaced_string(time_point_utc)+" "+ \
+                               str(latitude)+" "+str(longitude)
+        a = run(command)
         return a[0][0]
     
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
-        L_r = self._relative_spectrum(wl_grid)
+        a = self.sun_zenith_angle(time_point_utc, latitude, longitude)        
+        L_r = self._relative_spectrum(wl_grid,a)
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
         L_r = self._interpolate(L_r, wl)
-        a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
         s = L_r[:,1] * F_0[:,1] * np.cos(a*np.pi/180);
         points = np.vstack((wl,s)).T
         return self.smooth(points, wl_grid[0], wl_grid[-1], wl_width)
@@ -159,8 +161,8 @@ class radiance_distribution(basic_radiation):
                  [n_polar, n_azimuth])
         self.set_n_angles(16**1.6)
         
-    def values(self, wl_grid):
-        return self._relative_spectrum(wl_grid).transpose()
+    def values(self, wl_grid, source_zenith_angle):
+        return self._relative_spectrum(wl_grid,source_zenith_angle).transpose()
 
     def polar_angles(self):
         return np.linspace(0, np.pi, self.n_polar)
@@ -179,8 +181,8 @@ class radiance_distribution(basic_radiation):
     
     
 class relative_radiation(basic_radiation):
-    def spectrum(self, wl_grid):
-        return self._relative_spectrum(wl_grid)
+    def spectrum(self, wl_grid, source_zenith_angle):
+        return self._relative_spectrum(wl_grid, source_zenith_angle)
 
 
 class absolute_radiation(basic_radiation):

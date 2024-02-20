@@ -23,6 +23,7 @@ f.set_n_angles(50)
 f.set("aerosol_od", 0)
 f.set("cloud_liquid", 0)
 f.set("ozone", 0.003)
+f.set("water_vapor", 10)
     
 E = f.spectrum(wl_grid, wl_width, time_point_utc, latitude, longitude)
 E = f.to_W_per_m2_nm(E)      

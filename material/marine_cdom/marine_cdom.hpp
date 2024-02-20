@@ -16,7 +16,8 @@ namespace material {
       a_.scale_y(scaling_factor);
     }
     double absorption_coefficient() const {
-      return a_.value(wavelength());
+      const double to_nm = 1e9;
+      return a_.value(wavelength()*to_nm);
     }
     double scattering_coefficient() const {
       return 0;

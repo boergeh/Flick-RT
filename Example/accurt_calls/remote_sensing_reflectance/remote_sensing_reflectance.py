@@ -13,6 +13,7 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 wl_grid = np.linspace(300e-9,950e-9,20);
+solar_zenith_angle = 60
 f = flick.remote_sensing_reflectance()
 
 f.set_n_angles(90)
@@ -22,7 +23,7 @@ f.set("nap_concentration", 3e-3)
 f.set("chl_concentration", 2e-6)
 f.set("cdom_440", 0.1)
     
-Rsr = f.spectrum(wl_grid)
+Rsr = f.spectrum(wl_grid, solar_zenith_angle)
 Rsr[:,0] = Rsr[:,0]*1e9 # to nm
 
 fig, ax = plt.subplots()
