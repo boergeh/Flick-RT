@@ -204,6 +204,18 @@ class radiance(absolute_radiation):
         spectrum[:,1] = spectrum[:,1]*1e-6
         return spectrum
 
+class plane_irradiance(absolute_radiation):
+    def __init__(self):
+        self._generate_config("ocean_radiance")
+        self.set("detector_type","plane_irradiance")
+        self.set("detector_orientation","up")
+        self.set_n_angles(16**1.6)
+        
+    def to_W_per_m2_nm(self,spectrum):
+        spectrum[:,0] = spectrum[:,0]*1e9
+        spectrum[:,1] = spectrum[:,1]*1e-9
+        return spectrum
+
     
 class toa_radiance(radiance):
     pass
@@ -212,6 +224,15 @@ class toa_radiance(radiance):
 class ocean_nadir_radiance(radiance):
     def __init__(self):
         self._generate_config("ocean_radiance")
+
+        
+class ocean_downward_plane_irradiance(plane_irradiance):
+    pass
+
+
+class ocean_upward_plane_irradiance(plane_irradiance):
+    def __init__(self):
+        self.set("detector_orientation","down")
 
         
 class remote_sensing_reflectance(relative_radiation):
@@ -230,14 +251,15 @@ class surface_irradiance(absolute_radiation):
         spectrum[:,1] = spectrum[:,1]*1e-9
         return spectrum
 
+    
 class snow_transmittance(relative_radiation):
     def __init__(self, ice_depth, radius):
         self.set("detector_height",0)
         self.set("detector_orientation","up")
         self.set("reference_detector_height", 1.01)
-        self.set("detector_type","plane_irradiance");
-        self.set("snow_ice",ice_depth);
-        self.set("snow_radius",radius);
+        self.set("detector_type","plane_irradiance")
+        self.set("snow_ice",ice_depth)
+        self.set("snow_radius",radius)
         
     
 

@@ -1,0 +1,9 @@
+rm -fr flick_tmp
+rm -fr __pycache__
+rm -f *~
+rm -f ./#*#
+rm -f fort.199
+rm -f ocean_radiation.pdf
+
+
+
