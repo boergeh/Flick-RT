@@ -234,7 +234,7 @@ namespace water {
     double absorption_coefficient() const {
       double delta_T = temperature() - pope_fry_temperature_;
       double delta_S = salinity();
-      double da_dT = temperature_correction_.value(wavelength());
+      double da_dT = temperature_correction();
       double da_dS = salinity_correction_.value(wavelength());
       double a0 = absorption_coefficient_.value(wavelength());
       return (a0 + da_dT * delta_T + da_dS * delta_S) * volume_fraction_;
@@ -261,6 +261,13 @@ namespace water {
       }
     }
   private:
+    double temperature_correction() const {
+      double noise_cutoff = 480e-9;
+      double wl = wavelength();
+      if (wl > noise_cutoff)
+	return temperature_correction_.value(wl);
+      return 0;
+    }
     double salinity() const {
       return salinity_psu_.value(pose().position().z());
     }

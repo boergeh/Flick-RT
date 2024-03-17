@@ -37,6 +37,6 @@ ax.set_xlim([0.8, 120])
 ax.set_ylim([0.65, 1])
 ax.set_xticks([1,3,10,30,100])
 plt.show();
-#fig.savefig("mie_asymmetry_factor.pdf", bbox_inches='tight')
+fig.savefig("mie_asymmetry_factor.pdf", bbox_inches='tight')
 
 

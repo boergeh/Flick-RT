@@ -67,7 +67,41 @@ namespace flick {
     check_close(pw.real_refractive_index(),1.31,0.2_pct);
   } end_test_case()
   
-   begin_test_case(pure_water_test_C) {
+  begin_test_case(pure_water_test_C) {
+    using namespace units;
+    material::pure_water pw;
+    pw.temperature({273.15_K});
+    pw.salinity(0_psu);
+    pw.set_wavelength(340e-9);
+    check(pw.absorption_coefficient() > 0);
+  } end_test_case()
+  
+  begin_test_case(pure_water_test_D) {
+    // Assert small noise in uv
+    using namespace units;
+    material::pure_water pw;
+    pw.temperature({273.15_K});
+    pw.salinity(0_psu);
+    size_t n = 100;
+    auto wl = range(340e-9,350e-9,n).linspace();
+    //auto wl = range(540e-9,550e-9,n).linspace();
+    double y = 0;
+    for (size_t i=0; i<wl.size(); i++) {
+      pw.set_wavelength(wl[i]);
+      y += pw.absorption_coefficient();
+      //std::cout << wl[i] << " " << y << std::endl; 
+    }
+    double mean = y/n;
+    y = 0;
+    for (size_t i=0; i<wl.size(); i++) {
+      pw.set_wavelength(wl[i]);
+      y += fabs(pw.absorption_coefficient()-mean);
+    }
+    double variation = y/n;
+    check_small(variation/mean, 0.1);
+  } end_test_case()
+  
+   begin_test_case(pure_water_test_E) {
     double S = 35;
     double T = constants::to_kelvin(0);
     material::pure_water pw(S,T);

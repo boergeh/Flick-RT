@@ -17,12 +17,14 @@ int main() {
   using namespace flick;
   unit_test t("numeric");
   //t.include<mks_units_test>("mks_units_test");
+  
   t.include<sorted_vector_test>();
   t.include<function_test_A>();
   t.include<function_test_B>();
   t.include<function_test_C>();
   t.include<function_test_D>();
-  t.include<function_test_E>();
+  t.include<function_test_E>(); 
+  t.include<function_test_F>();  
   t.include<direction_generator_test>();
   t.include<vector_test>();
   t.include<histogram_test>();
@@ -35,6 +37,7 @@ int main() {
   t.include<flist_test>();
   t.include<distribution_test>();
   t.include<value_collection_test>();
+ 
   t.run_test_cases();
   return 0;
 } 

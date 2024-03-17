@@ -57,15 +57,12 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
     }
     static stdvector height_grid(const basic_configuration& c) {
       double d = c.get<double>("snow_ice");
-      //size_t n = 0;
-      //if (d > 0)
-      //	n = 2;
       stdvector h = atmospheric_state(c.get<size_t>("n_heights")).height_grid();
       if (d > 0) {
 	double epsilon = 1e-4;
 	double snow_depth = 1;
 	h.insert(h.begin()+1,snow_depth+epsilon); // include step-layer for snow
-	h.insert(h.begin()+1,snow_depth); // include layer for snow
+	h.insert(h.begin()+1,snow_depth); // include one layer for snow
       }
       return h;
     }
@@ -82,8 +79,7 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	    s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));
 	  if (gas=="h2o")	  
 	    s.scale_to_stp_thickness("h2o",c_.get<double>("water_vapor"));
-	}
-	
+	}	
 	add_material<smooth_air>(s,"uv_vis");
       }
       else

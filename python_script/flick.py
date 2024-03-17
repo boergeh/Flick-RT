@@ -215,7 +215,7 @@ class plane_irradiance(absolute_radiation):
         spectrum[:,0] = spectrum[:,0]*1e9
         spectrum[:,1] = spectrum[:,1]*1e-9
         return spectrum
-
+    
     
 class toa_radiance(radiance):
     pass
@@ -253,13 +253,12 @@ class surface_irradiance(absolute_radiation):
 
     
 class snow_transmittance(relative_radiation):
-    def __init__(self, ice_depth, radius):
+    def __init__(self):
+        self._generate_config("toa_reflectance")
         self.set("detector_height",0)
         self.set("detector_orientation","up")
         self.set("reference_detector_height", 1.01)
         self.set("detector_type","plane_irradiance")
-        self.set("snow_ice",ice_depth)
-        self.set("snow_radius",radius)
         
     
 

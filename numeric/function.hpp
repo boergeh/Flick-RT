@@ -266,7 +266,6 @@ namespace flick {
       return *this;
     }   
     auto& scale_y(double factor) {
-      //ensure(factor > 0);
       for (size_t i=0; i<yv_.size(); ++i)
 	yv_[i] *= factor;
       return *this;
@@ -324,7 +323,8 @@ namespace flick {
       if (xv_.size()==1)
 	return yv_[0]*(limit_b-limit_a);
       std::shared_ptr<sorted_vector::iterator> it;
-      if (limit_a < limit_b) {
+      bool moving_right = (limit_a < limit_b); 
+      if (moving_right) {
 	it = std::make_shared<sorted_vector::ascending_iterator>(xv_);
       } else {
 	it = std::make_shared<sorted_vector::descending_iterator>(xv_);
@@ -336,8 +336,16 @@ namespace flick {
       while(true) {
 	p1 = previous_point(it.get());
 	p2 = next_point(it.get());
-	if(p2.x() > limit_b || it->is_in_end_bin())
+	bool outside = (p2.x() > limit_b);
+	if (not moving_right)
+	  outside = (p2.x() < limit_b);
+	//if (limit_a < limit_b) {
+	//if((limit_a < limit_b and p2.x() > limit_b) || it->is_in_end_bin()) {
+	//if(p2.x() > limit_b || it->is_in_end_bin())
+	//if(fabs(p2.x() - limit_b) > 0 || it->is_in_end_bin())
+	if (outside || it->is_in_end_bin()) {
 	  return area + I{p1,p2}.integral(limit_a, limit_b);
+	}
 	area += I{p1,p2}.integral(limit_a, p2.x());
 	limit_a = p2.x();
 	it->move_to_next_bin();

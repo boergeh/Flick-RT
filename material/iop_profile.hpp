@@ -88,9 +88,11 @@ namespace flick {
       if (fabs(mu) < epsilon_) {
 	double v = profile_.value(start.position().z());
 	return constant_iop(v).optical_depth(distance);
-      };
+      }
       double tau = profile_.integral(next_z(start,0),
 				     next_z(start,distance))/mu;
+      if (tau < 0)
+	throw std::runtime_error("iop_profile");
       return tau;
     }
     double distance(const pose& start, double optical_depth) const {

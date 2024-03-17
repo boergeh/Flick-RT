@@ -18,6 +18,9 @@ namespace material {
       configuration() {
 	add<double>("bottom_depth", 200, R"(Total depth of the water column [m])");
 	
+	add<double>("surface_depth_fraction", 1, R"(Fraction of water column filled by matter [unitless]. All column
+is filled with pure water and matter is added only to the upper layer.)");
+	
 	add<double>("cdom_440", 0.0, R"(CDOM absorption coefficient at 440 nm [1/m])");
 
 	add<double>("cdom_slope", 0.017, R"(Slope of the CDOM absorption spectrum [1/nm]. Note the exception from
@@ -60,6 +63,8 @@ each CDOM spectra given in mcdom_names.)");
     };
   private:
     basic_configuration c_;
+    size_t n_low_ = 2;
+    size_t n_high_ = 3;
   public:
     ocean(const basic_configuration& c=ocean::configuration())
       : mixture(angle_range(c.get<size_t>("n_angles")),height_grid(c)) {
@@ -75,7 +80,15 @@ each CDOM spectra given in mcdom_names.)");
       auto_update_iops(true);
     }
     static stdvector height_grid(const basic_configuration& c) {
-      return {-c.get<double>("bottom_depth"), -1e-6};
+      double epsilon = 1e-6;
+      double depth = c.get<double>("bottom_depth");
+      double surface_fraction = c.get<double>("surface_depth_fraction");
+      double z = -depth*surface_fraction;
+      if (z < -depth+2*epsilon)
+	z = -depth+2*epsilon;
+      if (z > -epsilon)
+	z = -2*epsilon;
+      return {-depth, z-epsilon, z, -epsilon};
     }
   private:
     void add_pure_water() {
@@ -83,18 +96,24 @@ each CDOM spectra given in mcdom_names.)");
     }
     void add_cdom() {
       double a440 = c_.get<double>("cdom_440");
-      if (a440 > 0)
+      if (a440 > 0) {
 	add_material<cdom>(a440,c_.get<double>("cdom_slope"));
+	set_range<cdom>(n_low_, n_high_);	
+      }
     }
     void add_phytoplankton() {
       double chl = c_.get<double>("chl_concentration");
-      if (chl > 0)
+      if (chl > 0) {
 	add_material<phytoplankton>(chl);
+	set_range<phytoplankton>(n_low_, n_high_);	
+      }
     }
     void add_nap() {
       double con = c_.get<double>("nap_concentration");
-      if (con > 0)
+      if (con > 0) {
 	add_material<nap>(con);
+	set_range<nap>(n_low_, n_high_);     
+      }
     }
     void add_bubbles() {
       double volume_fraction = c_.get<double>("bubble_volume_fraction");
@@ -105,6 +124,7 @@ each CDOM spectra given in mcdom_names.)");
 	using bubbles = bubbles_in_water<parameterized_monodispersed_mie>;
 	auto b = bubbles(volume_fraction,mu,sigma);
 	add_material<bubbles>(volume_fraction,mu,sigma);
+	set_range<bubbles>(n_low_, n_high_);
       }
     }
     void add_marine_particles() {
@@ -112,8 +132,10 @@ each CDOM spectra given in mcdom_names.)");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
       for (size_t i = 0; i<names.size(); i++) {
 	name_extension(std::to_string(i));
-	if (concentrations.at(i) > 0)
+	if (concentrations.at(i) > 0) {
 	  add_material<marine_particles>(names.at(i), concentrations.at(i));
+	  set_range<marine_particles>(n_low_, n_high_);
+	}
 	name_extension("");
       }
     }
@@ -122,8 +144,10 @@ each CDOM spectra given in mcdom_names.)");
       std::vector<double> scaling_factors = c_.get_vector<double>("mcdom_scaling_factors");
       for (size_t i = 0; i<names.size(); i++) {
 	name_extension(std::to_string(i));
-	if (scaling_factors.at(i) > 0)
+	if (scaling_factors.at(i) > 0) {
 	  add_material<marine_cdom>(names.at(i), scaling_factors.at(i));
+	  set_range<marine_cdom>(n_low_, n_high_);	
+	}
 	name_extension("");
       }
     }

@@ -184,4 +184,14 @@ namespace flick {
     s >> f;
     check_close(f.integral(0,10),50);
   } end_test_case()
+  
+  begin_test_case(function_test_F) {
+    // Integration in backward direction
+    std::vector<double> x = {-3, -2, -1, 0};
+    std::vector<double> y = {0.1, 0.1, 1, 1};
+    pl_function f(x,y);
+    check_close(f.integral(0,-1),-1);
+    pe_function g(x,y);
+    check_close(g.integral(0,-1),-1);
+  } end_test_case()
 }
