@@ -13,11 +13,12 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
-meta = flick.ocean_meta('HF22_D001_ocean_meta.txt')
-Lm = flick.table("HF22_D001_ocean_radiance.txt")
-#Em = flick.table("HF22_D001_ocean_irradiance.txt")
+station = "ECOSENS_HF22_D1"
+meta = flick.ocean_meta(station+"_meta.txt")
+Lm = flick.table(station+"_ocean_radiance.txt")
+Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(300e-9,800e-9,20);
+wl_grid = np.linspace(300e-9,800e-9,7);
 wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
@@ -25,35 +26,39 @@ f = [flick.ocean_downward_plane_irradiance(),
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
-        f.set("detector_height", -0.45)
+        f.set("detector_height", -0.2)
     else:
         f = flick.ocean_nadir_radiance()
-        f.set("detector_height", -0.75)
+        f.set("detector_height", -0.45)
 
     f.set_n_angles(100)
     f.set("aerosol_od", 0)
-    f.set("cloud_liquid", 0)
-    f.set("mp_names", "SD16_VF18") #To be replaced with Hardangerfjord sample
+    f.set("cloud_liquid", 1e-4)
+    f.set("bottom_depth",200)
+    f.set("mp_names", station) 
     f.set("mp_concentrations", meta.spm)
-    f.set("mcdom_names", "ECOSENS_HF22_D1")
-    f.set("mcdom_scaling_factors", 0)
+    f.set("mcdom_names", station)
+    f.set("mcdom_scaling_factors", 1)
+    f.set("concentration_relative_depths",[0,0.5,1])
+    f.set("concentration_scaling_factors",[1,1,1])
+    tp = meta.time_point_utc
     if i==0:
-        E = f.spectrum(wl_grid, wl_width, meta.time_point_utc, meta.latitude, meta.longitude)
+        E = f.spectrum(wl_grid, wl_width, tp, meta.latitude, meta.longitude)
         E = f.to_W_per_m2_nm(E)
     else:
-        L = f.spectrum(wl_grid, wl_width, meta.time_point_utc, meta.latitude, meta.longitude)
+        L = f.spectrum(wl_grid, wl_width, tp, meta.latitude, meta.longitude)
         L = f.to_mW_per_m2_nm_sr(L)
 
 fig, ax = plt.subplots(2,1,sharex=True)
 fig.set_size_inches(5,7)
 fig.tight_layout(pad=1.0)
-line1 = ax[0].plot(L[:,0],L[:,1],label='Modeled with SD16 marine particles')
-line2 = ax[0].plot(Lm[:,0],Lm[:,1],label='Measured in Hardangerfjorden')
+line1 = ax[0].plot(L[:,0],L[:,1],label='Modeled')
+line2 = ax[0].plot(Lm[:,0],Lm[:,1],label='Measured')
 ax[0].legend(loc='upper right')
 ax[0].set_ylabel('Nadir radiance [mW m$^{-2}$ nm$^{-1}$ sr$^{-1}$]')
 ax[0].grid()
-line1 = ax[1].plot(E[:,0],E[:,1],label='Modeled with SD16 marine particles')
-#line2 = ax[1].plot(Em[:,0],Em[:,1],label='Measured in Hardangerfjorden')
+line1 = ax[1].plot(E[:,0],E[:,1],label='Modeled')
+line2 = ax[1].plot(Em[:,0],Em[:,1]*1e-3,label='Measured')
 ax[1].legend(loc='upper right')
 ax[1].set_xlabel('Wavelength [nm]')
 ax[1].set_ylabel('Downward irradiance [W m$^{-2}$ nm$^{-1}$]')

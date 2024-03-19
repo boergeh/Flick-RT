@@ -14,21 +14,21 @@ namespace flick {
     check(oce.material_ids().size()==n1+2);
   } end_test_case()
   
-    begin_test_case(ocean_test_B) {
+  begin_test_case(ocean_test_B) {
     using namespace material;
     ocean::configuration c;
     double d = 200;
     double wl = 390e-9;
     double distance = d;
     c.set<double>("bottom_depth",d);
-    c.set<double>("surface_depth_fraction",1);
     c.set<double>("cdom_440",10);
     auto oce = ocean{c};
     oce.set_wavelength(wl);
     oce.set_position({0,0,0});
     oce.set_direction({0,0,-1});
     double od1 = oce.absorption_optical_depth(distance);
-    c.set<double>("surface_depth_fraction",0.5);
+    c.set<double>("concentration_relative_depths",{0,0.5,0.5001,1});
+    c.set<double>("concentration_scaling_factors",{0,0,1,1});
     oce = ocean{c};
     oce.set_wavelength(wl);
     oce.set_position({0,0,0});

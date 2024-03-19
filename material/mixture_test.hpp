@@ -41,11 +41,10 @@ namespace flick {
     check(p1 > 2/(4*pi));
     check(p2/p1 < 0.3);
     auto pf2 = material::phase_function(sky);
-    check_close(delta_fit(pf2,16).coefficients()[0]*4*pi,1,0.2_pct);
-    
+    check_close(delta_fit(pf2,16).coefficients()[0]*4*pi,1,0.2_pct);   
   } end_test_case()
   
-    begin_test_case(mixture_test_B) {
+  begin_test_case(mixture_test_B) {
     // Check that material adding order does not matter
     using namespace material;
     material::mixture<pe_function> m1({0,1,3.14},{-100,-1e-6,0,10e3,50e3,100e3});
@@ -63,9 +62,58 @@ namespace flick {
     double distance = 10;
     m1.set_position(p);
     m2.set_position(p);
-    check_close(m1.scattering_optical_depth(distance),m2.scattering_optical_depth(distance));
-    check_close(m1.absorption_optical_depth(distance),m2.absorption_optical_depth(distance));
+    check_close(m1.scattering_optical_depth(distance),
+		m2.scattering_optical_depth(distance));
+    check_close(m1.absorption_optical_depth(distance),
+		m2.absorption_optical_depth(distance));
     double mu = 0.1;
     check_close(phase_function(m1).value(mu),phase_function(m2).value(mu),1e-6);
+  } end_test_case()
+
+   begin_test_case(mixture_test_C) {
+    using namespace material;
+    stdvector angles = {0,1,3.14};
+    stdvector z = {-100, -50, -1e-6};
+    stdvector factor = {1,1,1};
+    unit_vector direction = {1,1,-1};
+    double distance = 30;
+    std::string name = "SD16_VF17";
+    double concentration = 1e-3;
+    double pos = -60;
+      
+    material::mixture<pe_function> m1(angles,z);
+    m1.add_material<marine_particles>(name, concentration);
+    m1.set_direction(direction);
+    m1.set_position({0,0,pos});
+
+    auto mat = std::make_shared<marine_particles>(name, concentration);
+    material::mixture<pe_function> m2(angles,z);
+    m2.add_material(mat, name);
+    m2.set_direction(direction);
+    m2.set_position({0,0,pos});
+
+    material::mixture<pe_function> m3(angles,z);
+    m3.add_material(make_scaled_z_profile<pl_function>(mat,z,factor),name);
+    m3.set_direction(direction);
+    m3.set_position({0,0,pos});
+
+    check_close(m1.scattering_coefficient(),
+		m3.scattering_coefficient());
+    check_close(m1.absorption_coefficient(),
+		m3.absorption_coefficient());
+    check_close(m1.mueller_matrix(direction).value(0,0),
+		m3.mueller_matrix(direction).value(0,0));  
+    
+    check_close(m1.absorption_optical_depth(distance),
+		m2.absorption_optical_depth(distance));
+    check_close(m2.absorption_optical_depth(distance),
+		m3.absorption_optical_depth(distance));
+    check_close(m1.scattering_optical_depth(distance),
+		m2.scattering_optical_depth(distance));
+    check_close(m2.scattering_optical_depth(distance),
+		m3.scattering_optical_depth(distance));
+
+
+     
   } end_test_case()
 }

@@ -109,8 +109,8 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	double mu = log(radius);
 	double sigma = 0;
 	using cloud = water_cloud<parameterized_monodispersed_mie>;
-	set_range<cloud>(n_base,n_top);
 	add_material<cloud>(volume_fraction,mu,sigma);
+	set_range<cloud>(n_base,n_top);
       }
     }
     void add_snow() {
@@ -124,8 +124,8 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	double mu = log(radius);
 	double sigma = 0;
 	using snow = ice_cloud<parameterized_monodispersed_mie>;
-	set_range<snow>(n_base,n_top);
 	add_material<snow>(volume_fraction,mu,sigma);
+	set_range<snow>(n_base,n_top);
       }
     }
   };

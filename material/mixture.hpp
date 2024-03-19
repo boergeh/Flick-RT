@@ -39,6 +39,10 @@ namespace material {
     }
     template<class Material, class... Args>
     void add_material(Args... a) {
+      auto m = std::make_shared<Material>(a...);
+      add_material(m, id<Material>());
+
+      /*
       std::string key = id<Material>();
       if (exists(key))
       	throw std::runtime_error("material add: " + key + " already exists");
@@ -47,18 +51,59 @@ namespace material {
       	range_[key]={0, heights_.size()-1};
       if (auto_update_iops_)
 	update_iops();
+      */
     }
+  
+    void add_material(const std::shared_ptr<base>& m, const std::string& unique_name) {
+      std::string key = unique_name;
+      if (exists(key))
+      	throw std::runtime_error("material add: " + key + " already exists");
+      materials_[key] = m;
+      if (range_.find(key) == range_.end())
+      	range_[key]={0, heights_.size()-1};
+      if (auto_update_iops_)
+	update_iops();
+    }
+    /*
+    template<class Material>
+    void add_material(const std::shared_ptr<Material>& m, const std::string& unique_name="") {
+      std::string key = id<Material>();
+      if (not unique_name.empty())
+	key = unique_name;
+      if (exists(key))
+      	throw std::runtime_error("material add: " + key + " already exists");
+      materials_[key] = m;
+      if (range_.find(key) == range_.end())
+      	range_[key]={0, heights_.size()-1};
+      if (auto_update_iops_)
+	update_iops();
+    }
+    */
+    
     template<class Material>
     const Material& get_material() const {
       auto ptr = materials_.at(id<Material>()).get();
       return *static_cast<Material*>(ptr);
     }
+    
     template<class Material>
     void set_range(size_t n_low, size_t n_high) {
+      set_range(n_low, n_high, id<Material>());
+      /*
       range_[id<Material>()] = {n_low, n_high};
       if (auto_update_iops_)
 	update_iops();
+      */
     }
+    
+    void set_range(size_t n_low, size_t n_high, const std::string& name) {
+      if (not exists(name))
+      	throw std::runtime_error("material set_range: " + name + " does not exists");
+      range_[name] = {n_low, n_high};
+      if (auto_update_iops_)
+	update_iops();
+    }
+    
     stdvector angle_range(size_t n) const {
       stdvector a = range(0,constants::pi,n+1).linspace();
       a.erase(a.begin());
@@ -192,6 +237,7 @@ namespace material {
       return am;
     }
   };
+  
 }
 }
 

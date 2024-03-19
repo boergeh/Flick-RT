@@ -1,5 +1,6 @@
 #include "../environment/unit_test.hpp"
 #include "material_test.hpp"
+
 #include "iop_profile_test.hpp"
 #include "spheres_test.hpp"
 #include "normalized_scattering_matrix_fit_test.hpp"
@@ -14,7 +15,9 @@
 int main() {
   using namespace flick;
   unit_test t("material");
+ 
   t.include<material_test_A>();
+  
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();
   t.include<spheres_test_B>();
@@ -29,10 +32,14 @@ int main() {
   t.include<z_profile_test>();
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
+  
+  t.include<mixture_test_C>();
+  
   t.include<atmosphere_test>();
   t.include<ocean_test_A>();
   t.include<ocean_test_B>();
   t.include<atmosphere_ocean_test>();
+  
   t.run_test_cases();
   return 0;
 }

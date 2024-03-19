@@ -1,0 +1,8 @@
+rm -fr __pycache__
+rm -f *~
+rm -f ./#*#
+rm -f *.pdf
+rm -f *.png
+
+
+

@@ -53,7 +53,7 @@ namespace material {
       return 1;
     }
   protected:
-    void make_iop_z_profile(const std::string& name) {
+    void make_iop_z_profiles(const std::string& name) {
       std::string path = "material/aerosols/";
       pl_table omega = read<pl_table>(path+name+"_ssalbedo.txt");
       pe_function d = read<pe_function>(path+"height_distribution.txt");
@@ -82,7 +82,11 @@ namespace material {
 		{1.433, 1.430, 1.421, 1.382, 1.371, 1.357, 1.221, 1.152}};
       make_alpha();
       asymmetry_factor_ = read<pl_table>("material/aerosols/rural_asymmetry.txt");
-      make_iop_z_profile("rural");
+      make_iop_z_profiles("rural");
+    }
+    void set_wavelength(double wl) override {
+      base::set_wavelength(wl);
+      make_iop_z_profiles("rural");
     }
   };
   
@@ -97,8 +101,12 @@ namespace material {
 		{1.198, 1.202, 1.202, 1.254, 1.265, 1.243, 1.164, 1.082}};
       make_alpha();
       asymmetry_factor_ = read<pl_table>("material/aerosols/urban_asymmetry.txt");
-      make_iop_z_profile("urban");
-    }    
+      make_iop_z_profiles("urban");
+    }
+    void set_wavelength(double wl) override {
+      base::set_wavelength(wl);
+      make_iop_z_profiles("urban");
+    }
   };
 }
 }

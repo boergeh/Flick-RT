@@ -15,19 +15,6 @@ namespace material {
     double real_refractive_index_{1};
   public:
     z_profile() = default;
-    z_profile(base& mat, const stdvector& z) {
-      stdvector a(z.size());
-      stdvector s(z.size());
-      for (size_t i=0; i<z.size(); i++) {
-	vector r = mat.pose().position();
-	r = {r.x(), r.y(), z[i]};
-	mat.set(mat.pose().move_to(r));
-	a[i] = mat.absorption_coefficient();
-	s[i] = mat.scattering_coefficient();
-      }
-      a_profile_ = iop_z_profile<Function>(pe_function(z,a));
-      s_profile_ = iop_z_profile<Function>(pe_function(z,s));
-    }
     const iop_z_profile<Function>& a_profile() const {
       return a_profile_;
     }
@@ -37,13 +24,7 @@ namespace material {
     const stdvector& height_grid() const {
       return a_profile_.height_grid();
     }
-    virtual mueller mueller_matrix(const unit_vector& scattering_direction) const {
-      mueller m;
-      double theta = angle(scattering_direction);
-      double g = 0;
-      m.add(0,0,flick::henyey_greenstein(g).phase_function(theta));
-      return m;
-    }
+    //virtual void set_wavelength() = 0;
     virtual double real_refractive_index() const {
       return real_refractive_index_;
     } 
@@ -75,6 +56,51 @@ namespace material {
       return os;
     }
   };
+
+  
+  template<class Function>
+  class scaled_z_profile : public z_profile<Function> {
+  private:
+    std::shared_ptr<base> m_;
+    stdvector z_;
+    stdvector scaling_factor_;
+  public:
+    scaled_z_profile(const std::shared_ptr<base>& m, const stdvector& z,
+		     const stdvector& scaling_factor)
+      : m_{m}, z_{z}, scaling_factor_{scaling_factor} {
+      if (z_.size() != scaling_factor_.size())
+	throw std::runtime_error("scaled_z_profile");
+      make_iop_profile();
+    } 
+    void set_wavelength(double wl) override {
+      m_->set_wavelength(wl);
+      make_iop_profile();
+    }
+    void make_iop_profile() {
+      z_profile<Function>::real_refractive_index_ = m_->real_refractive_index();
+      stdvector a(z_.size());
+      stdvector s(z_.size());
+      vector p0 = m_->pose().position();
+      for (size_t i=0; i<z_.size(); ++i) {
+	m_->set_position({p0.x(), p0.y(), z_[i]});
+	a[i] = m_->absorption_coefficient()*scaling_factor_[i];
+	s[i] = m_->scattering_coefficient()*scaling_factor_[i];
+      }
+      m_->set_position(p0);
+      z_profile<Function>::a_profile_ = iop_z_profile<Function>(Function(z_,a));
+      z_profile<Function>::s_profile_ = iop_z_profile<Function>(Function(z_,s));
+    }
+    mueller mueller_matrix(const unit_vector& scattering_direction) const override {
+      return m_->mueller_matrix(scattering_direction);
+    }
+  };
+ 
+  template<class Function>
+  std::shared_ptr<scaled_z_profile<Function>> make_scaled_z_profile(const std::shared_ptr<base>& m,
+								    const stdvector& z,
+								    const stdvector& scaling_factor) {
+    return std::make_shared<scaled_z_profile<Function>>(scaled_z_profile<Function>(m,z,scaling_factor));   
+  }
 }
 }
 
