@@ -23,7 +23,6 @@ namespace material {
     pl_table asymmetry_factor_;
     double rh_{0};
     double od550_{0.1};
-
     void make_alpha() {
       alpha_functions_.resize(2);
       for (size_t i=0; i<alpha_.size(); ++i)
@@ -61,7 +60,7 @@ namespace material {
       std::vector<double> h = d.x();
       std::vector<double> a, s;
       for (size_t i=0; i<h.size(); ++i) {
-	double att_coef = od550_ * d.value(h[i]);
+	double att_coef = toa_optical_depth() * d.value(h[i]);
 	double frequency = constants::c/wavelength();
 	s.push_back(omega.value(rh_,frequency) * att_coef);
 	a.push_back(att_coef - s.back());

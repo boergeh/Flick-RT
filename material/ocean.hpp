@@ -106,6 +106,7 @@ each CDOM spectra given in mcdom_names.)");
     }
     void add_profile(const std::shared_ptr<base>& m, const std::string& name) {
       stdvector factor = c_.get_vector<double>("concentration_scaling_factors");
+      std::reverse(factor.begin(),factor.end());
       stdvector z = absolute_depth(c_);
       add_material(make_scaled_z_profile<pl_function>(m,z,factor),name);
     }

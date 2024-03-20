@@ -7,6 +7,7 @@ int main() {
   unit_test t("aerosols");
   t.include<aerosols_test_A>();
   t.include<aerosols_test_B>();
+  t.include<aerosols_test_C>();
   t.run_test_cases();
   return 0;
 }

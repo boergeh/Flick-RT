@@ -1,5 +1,5 @@
 /* Height distribution of aerosol concentration. Integral from zero to
-infinity will be normalized to one, using exponential interpolation
+infinity is normalized to one, using exponential interpolation
 and extrapolation, which means that that probability density values
 cannot be zero.
 

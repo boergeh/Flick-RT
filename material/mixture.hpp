@@ -15,6 +15,7 @@ namespace material {
     struct configuration : basic_configuration {
       configuration() {
 	add<size_t>("n_angles", 300, R"(Number of grid points used to sample the volume scattering function)");
+	
 	add<size_t>("n_heights", 8, R"(Number of grid points used sample vertical atmospheric gas profiles)");
       }
     };
@@ -25,14 +26,10 @@ namespace material {
     std::vector<angular_mueller> mueller_;
     std::map<std::string, std::shared_ptr<material::base>> materials_;
     std::map<std::string, std::vector<size_t>> range_;
-    std::string name_extension_;
   public:
     mixture(const stdvector& angles, const stdvector& heights={-1,1})
       : angles_{angles}, heights_{heights} {
       mueller_.resize(heights.size());
-    }
-    void name_extension(const std::string& s) {
-      name_extension_ = s;
     }
     const stdvector& heights() const {
       return heights_;
@@ -41,19 +38,7 @@ namespace material {
     void add_material(Args... a) {
       auto m = std::make_shared<Material>(a...);
       add_material(m, id<Material>());
-
-      /*
-      std::string key = id<Material>();
-      if (exists(key))
-      	throw std::runtime_error("material add: " + key + " already exists");
-      materials_[key] = std::make_shared<Material>(a...);
-      if (range_.find(key) == range_.end())
-      	range_[key]={0, heights_.size()-1};
-      if (auto_update_iops_)
-	update_iops();
-      */
     }
-  
     void add_material(const std::shared_ptr<base>& m, const std::string& unique_name) {
       std::string key = unique_name;
       if (exists(key))
@@ -64,46 +49,22 @@ namespace material {
       if (auto_update_iops_)
 	update_iops();
     }
-    /*
-    template<class Material>
-    void add_material(const std::shared_ptr<Material>& m, const std::string& unique_name="") {
-      std::string key = id<Material>();
-      if (not unique_name.empty())
-	key = unique_name;
-      if (exists(key))
-      	throw std::runtime_error("material add: " + key + " already exists");
-      materials_[key] = m;
-      if (range_.find(key) == range_.end())
-      	range_[key]={0, heights_.size()-1};
-      if (auto_update_iops_)
-	update_iops();
-    }
-    */
-    
     template<class Material>
     const Material& get_material() const {
       auto ptr = materials_.at(id<Material>()).get();
       return *static_cast<Material*>(ptr);
     }
-    
-    template<class Material>
-    void set_range(size_t n_low, size_t n_high) {
-      set_range(n_low, n_high, id<Material>());
-      /*
-      range_[id<Material>()] = {n_low, n_high};
-      if (auto_update_iops_)
-	update_iops();
-      */
-    }
-    
     void set_range(size_t n_low, size_t n_high, const std::string& name) {
       if (not exists(name))
       	throw std::runtime_error("material set_range: " + name + " does not exists");
       range_[name] = {n_low, n_high};
       if (auto_update_iops_)
 	update_iops();
-    }
-    
+    }   
+    template<class Material>
+    void set_range(size_t n_low, size_t n_high) {
+      set_range(n_low, n_high, id<Material>());
+    }  
     stdvector angle_range(size_t n) const {
       stdvector a = range(0,constants::pi,n+1).linspace();
       a.erase(a.begin());
@@ -161,18 +122,7 @@ namespace material {
     }
     template<class Material>
     std::string id() const {
-      return typeid(Material).name() + name_extension_;
-    }
-    void add(base& material, size_t n_low, size_t n_high) {
-      if (n_low >= n_high or n_high >= heights_.size())
-	throw std::runtime_error("mixtrue");
-      flick::pose initial_pose = material.pose();
-      add_mueller(material,n_low,n_high);
-      add_absorption_and_scattering(material, n_low, n_high);
-      if (material.real_refractive_index() > real_refractive_index_) {
-	real_refractive_index_ = material.real_refractive_index();
-      }
-      material.set(initial_pose);
+      return typeid(Material).name();
     }
     void add_absorption_and_scattering(base& material, size_t n_low, size_t n_high) {
       stdvector zs = {heights_.begin()+n_low, heights_.begin()+n_high+1};
@@ -192,6 +142,20 @@ namespace material {
       a_profile_.add(iop_z_profile<Function>(a), heights_);
       s_profile_.add(iop_z_profile<Function>(s), heights_);
     }
+    void add(base& material, size_t n_low, size_t n_high) {
+      if (n_low >= n_high or n_high >= heights_.size())
+	throw std::runtime_error("mixtrue");
+      flick::pose initial_pose = material.pose();
+      add_mueller(material,n_low,n_high);
+      add_absorption_and_scattering(material, n_low, n_high);
+      if (material.real_refractive_index() > real_refractive_index_) {
+	real_refractive_index_ = material.real_refractive_index();
+      }
+      material.set(initial_pose);
+    }
+    void add(base& material) {
+      add(material, 0, heights_.size()-1);
+    }
     void add_mueller(base& material, size_t n_low, size_t n_high)
     // Must be run before adding scattering coefficients
     {
@@ -210,9 +174,6 @@ namespace material {
 	angular_mueller am = fill_angular_mueller(material);
 	mueller_[i].add(am, weight);
       }
-    }
-    void add(base& material) {
-      add(material, 0, heights_.size()-1);
     }
     Function add_extrapolation_points(Function f) const {
       double i0 = f.integral();
@@ -236,8 +197,7 @@ namespace material {
       }
       return am;
     }
-  };
-  
+  }; 
 }
 }
 
