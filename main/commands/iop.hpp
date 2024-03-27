@@ -135,7 +135,15 @@ namespace flick {
 	else if (a(5)=="marine_particles") {
 	  std::string name = a(6);
 	  double mass_concentration{std::stod(a(7))};
-	  material::marine_particles m(name,mass_concentration);
+	  double scattering_scaling_factor{std::stod(a(8))};
+	  material::marine_particles m(name,mass_concentration,
+				       scattering_scaling_factor);
+	  stream_iops(m, a(1));
+	}
+	else if (a(5)=="marine_cdom") {
+	  std::string name = a(6);
+	  double scaling_factor{std::stod(a(7))};
+	  material::marine_cdom m(name,scaling_factor);
 	  stream_iops(m, a(1));
 	}
 	else if (a(5)=="atmosphere_ocean") {

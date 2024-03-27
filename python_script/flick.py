@@ -17,18 +17,69 @@ def run(arguments):
 
 def table(file_name):
     return run("text "+file_name+" matrix")
+
+
+class marine_iops:
+    def __init__(self, name, spm, from_wl, to_wl, n_wls):
+        self._name = name
+        self._spm = spm
+        self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
+        
+    def a_water(self):
+        return self._coefficient("absorption","pure_water")
     
+    def a_spm(self):
+        return self._coefficient("absorption","marine_particles")
+    
+    def a_cdom(self):
+        return self._coefficient("absorption","marine_cdom")
+
+    def b_water(self):
+        return self._coefficient("scattering","pure_water")
+
+    def b_spm(self):
+        return self._coefficient("scattering","marine_particles")
+    
+    def set_b_scaling_factor(self,f):
+        self._b_scaling = f
+
+    def volume_scattering_function(self,n_terms):
+        p = run("iop scattering_ab_fitted_"+str(n_terms)+self._expansion_command())
+        p = np.flipud(p)
+        p[:,0] = np.arccos(p[:,0])*180/np.pi
+        return p
+
+    def asymmetry_factor(self,n_terms):
+        k = self._expansion_factors(n_terms)
+        return k[1,0]/k[0,0]/3
+     
+    def volume_scattering_scaling_factor(self,n_terms):
+        k = self._expansion_factors(n_terms)
+        l = run("iop scattering_length "+self._expansion_command())
+        b = 1/l[0,1]
+        f = k[0,0]/b/2*np.pi
+        return f
+
+    def _expansion_factors(self,n_terms):
+        return run("iop wigner_alpha_beta_"+str(n_terms)+self._expansion_command())
+        
+    def _expansion_command(self):
+        return " 550e-9 550e-9 1 marine_particles "+str(self._name)+" 1e-3 1"
+     
+    def _coefficient(self,length_type, material):
+        command = ""
+        if material=="marine_particles":
+            command = self._name +" "+str(self._spm)+" "+str(self._b_scaling)
+        elif material=="marine_cdom":
+            command = self._name +" 1"
+        elif material=="pure_water":
+            command = "280 30"
+        c = run("iop "+length_type+"_length "+self._wls+" "+material+" "+command)
+        c[:,1] = 1/c[:,1]
+        return c
+        
+        
 class ocean_meta:
-    latitude = 60
-    longitude = 5
-    time_point_utc = 20220520112400
-    n_days = 8174.97574
-    depth = 0
-    temperature = 290
-    salinity = 35
-    spm = 1e-3
-    chl = 1e-6
-    poc = 1e-3
     def __init__(self, file_name):
         m = run("text "+file_name+" xy 14")
         self.latitude = m[0,1]
@@ -41,6 +92,15 @@ class ocean_meta:
         self.spm = m[7,1]*1e-3
         self.chl = m[8,1]*1e-6
         self.poc = m[9,1]*1e-3
+
+class toa_meta:
+    def __init__(self, file_name):
+        m = run("text "+file_name+" xy 14")
+        self.observation_polar_angle = m[0,1]
+        self.observation_azimuth_angle = m[1,1]
+        self.solar_zenith_angle = m[2,1]
+        self.solar_azimuth_angle = m[3,1]
+        self.time_point_utc = m[4,1]
     
 def _run_os(command):
     c = subprocess.run(command, stdout=subprocess.PIPE, shell=True, check=True)

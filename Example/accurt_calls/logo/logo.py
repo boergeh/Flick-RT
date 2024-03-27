@@ -14,7 +14,7 @@ from matplotlib.colors import LightSource
 import flick
 
 recalculate = True
-black_background = False
+black_background = True
 n_polar = 50
 n_azimuth = 150
 wl = 300e-9
@@ -32,7 +32,7 @@ f.set("cdom_440", 0)
 
 if (recalculate):
     print("Using Flick to find UVR distributon at 1 m depth ...")
-    r = f.values(wl)
+    r = f.values(wl,source_zenith_angle=0)
     np.save("flick_tmp/logo",r)
 else:
     r = np.load("flick_tmp/logo.npy")
@@ -51,7 +51,7 @@ surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb,
 font = {'fontname':'Arial'}
 ax.text(0,0.77,-0.35,"flick",fontsize=180,fontweight='heavy',**font)
 
-ax.plot(0,1.94,0.67,'o',color='black',markerfacecolor=[0.81,0,0],
+ax.plot(0,1.93,0.67,'o',color='black',markerfacecolor=[0.81,0,0],
         markeredgewidth=0,
         markersize=35,zorder=10)
 ax.view_init(elev=0, azim=0, roll=0)

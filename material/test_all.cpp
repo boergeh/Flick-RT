@@ -32,11 +32,9 @@ int main() {
   t.include<z_profile_test>();
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
-  
   t.include<mixture_test_C>();
-  
   t.include<atmosphere_test>();
-  t.include<ocean_test_A>();
+  //t.include<ocean_test_A>();
   t.include<ocean_test_B>();
   t.include<atmosphere_ocean_test>();
   

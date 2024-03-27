@@ -1,0 +1,14 @@
+*.d
+*.o
+*~
+test_all
+.DS_Store
+__pycache__
+flick_tmp
+\#*\#
+*.png
+*.pdf
+*.jpg
+log
+tmp.txt
+flick

@@ -39,7 +39,7 @@ for i in range(2):
     f.set("mp_concentrations", meta.spm)
     f.set("mcdom_names", station)
     f.set("mcdom_scaling_factors", 1)
-    f.set("concentration_relative_depths",[0,0.007,0.0071,1])
+    f.set("concentration_relative_depths",[0,0.07,0.071,1])
     f.set("concentration_scaling_factors",[1,1,0,0])
     tp = meta.time_point_utc
     if i==0:

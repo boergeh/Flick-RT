@@ -1,0 +1,30 @@
+/* Hardangerfjord Water Sample.
+Mass concentrations of dry Suspended Particulate Matter (SPM) and Chlorophyll-a (Chla) 
+retained on 47 mm diameter glass fiber filters Whatman Grade GF/F. SPM was determined 
+following a gravimetric method using pre-washed and pre-weighted filters (van der Linde, 
+1998). Chla was determined fluorometrically with methanol extractions following Holm-Hansen and Riemann (1978).
+Instrument: Turner 10-AU Field Fluorometer
+Exciation/Emission: 436/680 nm 
+
+Row 1:  Latitude [°]
+Row 2:  Longitude [°]
+Row 3:  Time point YYYYMMDDHHMM [UTC]
+Row 4:  Number of days since January 1, 2000, at 12:00 [Terrestrial Time] 
+Row 5:  Depth [m] 
+Row 6:  Temperature [ºC] 
+Row 7:  Salinity [psu] 
+Row 8:  SPM [g m-3] 
+Row 9:  Chla [mg m-3] 
+Row 10: POC [mg m-3]
+*/
+
+1    59.878675 
+2    5.655558 
+3    202205201124 
+4    8174.97623 
+5    1 
+6    11.826833 
+7    29.093349 
+8    20.126 
+9    7.549174425 
+10   -999

@@ -1,0 +1,14 @@
+/*
+Sentinel-3
+Row 1: Observation polar angle [°]
+Row 2: Observation azimuth angle [°]
+Row 3: Solar zenith angle [°]
+Row 4: Solar azimuth angle [°]
+Row 5: Time point YYYYMMDDHHMMSS [UTC]
+*/
+
+1  14.09
+2  -67.86
+3  40.57
+4  164.61
+5  20220520112400

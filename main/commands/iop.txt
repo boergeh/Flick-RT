@@ -11,8 +11,8 @@ Parameters:
   <property>
 
     Select 'absorption_length', 'scattering_length',
-    'refractive_index', 'scattering_ab_10', 'scattering_ab_10',
-    'scattering_ab_fitted_10', 'wigner_alpha_beta_10', or 'AccuRT_1_8'
+    'refractive_index', 'scattering_ab_10', 'scattering_ab_fitted_10',
+    'wigner_alpha_beta_10', or 'AccuRT_1_8'
 
     The 'scattering_ab_10' property will for each wavelength list the
     a and b elements of the Mueller matrix multiplied with the
@@ -34,7 +34,7 @@ Parameters:
     normally smaller than the original one for a low number of
     expansion terms. This reduction has the effect of removing some of
     the forward scattered radiation and put it back into the incident
-    radiation. g = alpha[0][1]/alpha[0][0]/3 is the new asymmetry
+    radiation. g = alpha[1][0]/alpha[0][0]/3 is the new asymmetry
     factor.
     
     The 'AccuRT_1_8' property will list user specified material to be
@@ -81,6 +81,8 @@ Parameters:
       <phase_function_file_name> <refractive_index>
 
     'marine_particles' <name> <mass_concentration>
+    
+    'marine_cdom' <name> <scaling_factor>
 
     'atmosphere_ocean' <name_of_configuration_file> <heigth>
 
@@ -116,7 +118,7 @@ Examples:
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 henyey_greenstein 10 5 0.8 1.33
 
-  flick iop AccuRT_1_8 400e-9 400e-9 1 marine_particles MP21_PA61 1e-3 10 5 0.8 1.33
+  flick iop AccuRT_1_8 400e-9 400e-9 1 marine_particles ECOSENS_HF22_D1 1e-3 10 5 0.8 1.33
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 tabulated 10 5 petzold_phase_function.txt 1.33
 

@@ -54,6 +54,9 @@ material/marine_particles/iop_table, one concentration value for each
 material given in mp_names. Note that a concentration of e.g., 10.0
 g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
 	
+	add<double>("mp_scattering_scaling_factors", 1, R"(Space-separated list of scaling factors [unitless] for scaling of the
+scattering coefficient marine particles)");
+	
 	add<std::string>("mcdom_names", "HF22_D001", R"(Space-separated list of names of measured marine CDOM
 with absorption coefficients tabulated in separate ASCII files stored
 in the Flick directory material/marine_cdom/iop_tables)");
@@ -142,9 +145,10 @@ each CDOM spectra given in mcdom_names.)");
     void add_marine_particles() {
       std::vector<std::string> names = c_.get_vector<std::string>("mp_names");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
+      std::vector<double> scattering_scaling_factors = c_.get_vector<double>("mp_scattering_scaling_factors");
       for (size_t i = 0; i<names.size(); i++) {
 	if (concentrations.at(i) > 0) {
-	  auto m = std::make_shared<marine_particles>(names.at(i), concentrations.at(i));
+	  auto m = std::make_shared<marine_particles>(names.at(i), concentrations.at(i), scattering_scaling_factors.at(i));
 	  auto name = "marine_particles_"+names[i];
 	  add_profile(m,name);
 	}

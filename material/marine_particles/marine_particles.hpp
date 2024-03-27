@@ -15,7 +15,7 @@ namespace material {
     const double to_mg_ = 1e3; 
     const double to_nm_ = 1e9; 
   public:
-    marine_particles(const std::string& name, double mass_concentration=1e-3)
+    marine_particles(const std::string& name, double mass_concentration=1e-3, double scattering_scaling_factor=1)
       : mass_concentration_{mass_concentration} {
       const std::string path{"/material/marine_particles/iop_tables"};
       pe_flist pf = read<pe_flist>(path+"/"+name+"_pf.txt");
@@ -23,6 +23,7 @@ namespace material {
       pl_flist ab = read<pl_flist>(path+"/"+name+"_ap_bp.txt");
       a_star_ = ab(0);
       b_star_ = ab(2);
+      b_star_.scale_y(scattering_scaling_factor);
     }
     void mass_concentration(double c) {
       mass_concentration_ = c;
