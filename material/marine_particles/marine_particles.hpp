@@ -15,12 +15,13 @@ namespace material {
     const double to_mg_ = 1e3; 
     const double to_nm_ = 1e9; 
   public:
-    marine_particles(const std::string& name, double mass_concentration=1e-3, double scattering_scaling_factor=1)
+    marine_particles(const std::string& name, double mass_concentration=1e-3,
+		     double scattering_scaling_factor=1)
       : mass_concentration_{mass_concentration} {
-      const std::string path{"/material/marine_particles/iop_tables"};
-      pe_flist pf = read<pe_flist>(path+"/"+name+"_pf.txt");
+      std::string path = "/material/marine_particles/iop_tables";
+      pe_flist pf = read<pe_flist>(add_path(name+"_pf.txt",{"./",path}));
       p_ = pf(5);
-      pl_flist ab = read<pl_flist>(path+"/"+name+"_ap_bp.txt");
+      pl_flist ab = read<pl_flist>(add_path(name+"_ap_bp.txt",{"./",path}));
       a_star_ = ab(0);
       b_star_ = ab(2);
       b_star_.scale_y(scattering_scaling_factor);
@@ -41,6 +42,7 @@ namespace material {
       return m.add(0,0,p_.value(ang_deg));
     }
   };
+  
   template<int n>
   struct listable_marine_particles : public marine_particles {
     using marine_particles::marine_particles;

@@ -11,8 +11,8 @@ namespace material {
     double a440_;
   public:
     marine_cdom(const std::string& name, double scaling_factor) {
-      const std::string path{"/material/marine_cdom/iop_tables"};
-      a_ = read<pl_function>(path+"/"+name+"_a.txt");
+      const std::string path = "/material/marine_cdom/iop_tables";
+      a_ = read<pl_function>(add_path(name+"_a.txt",{"./",path}));
       a_.scale_y(scaling_factor);
     }
     double absorption_coefficient() const {
@@ -23,6 +23,7 @@ namespace material {
       return 0;
     }
   };
+  
   template<int n>
   struct listable_marine_cdom : public marine_cdom {
     using marine_cdom::marine_cdom;

@@ -125,7 +125,7 @@ namespace material {
   // Optical depth spectrum at a given distance from current position
   // and direction
   {    
-    material::base& mat_; //should be pointer
+    material::base& mat_; //should be pointer?
     double distance_;
     const stdvector& wavelengths_;
   public:
