@@ -70,22 +70,27 @@ namespace flick {
     }
   };
 
-  std::string add_path(const std::string& file_name,
+  std::string add_path(std::string file_name) {
+    if (file_name.substr(0,2)!="./")
+      file_name = path()+"/"+file_name;
+    return file_name;
+  }
+  
+  std::string add_path_if_exists(const std::string& file_name,
 		       const std::vector<std::string>& relative_path) {
     if (std::filesystem::exists(file_name))
       return file_name;
     for (size_t i = 0; i < relative_path.size(); ++i) {
-      std::string file = path()+"/"+relative_path[i]+"/"+file_name;
-      if (std::filesystem::exists(file))
+      std::string file = relative_path[i]+"/"+file_name;
+      if (std::filesystem::exists(path()+"/"+file))
 	return file;
     }
     throw std::runtime_error(file_name+" not found");
   }
 
   template<typename T>
-  T read(std::string file_name) {
-    file_name = add_path(file_name,{""});
-    std::ifstream ifs(file_name);
+  T read(const std::string& file_name) {
+    std::ifstream ifs(add_path(file_name));
     if (!ifs)
       throw std::invalid_argument(file_name+" not found");
     T t;
@@ -95,11 +100,10 @@ namespace flick {
   }  
 
   template<typename T>
-  void write(const T& t, std::string file_name, size_t precision=5) {
-    file_name = add_path(file_name,{""});
-    std::ofstream ofs(file_name);
+  void write(const T& t, const std::string& file_name, size_t precision=5) {
+    std::ofstream ofs(add_path(file_name));
     if (!ofs)
-      throw std::invalid_argument(file_name+" not found");
+      throw std::invalid_argument(file_name+" could not be opened");
     ofs << std::setprecision(precision) << t;
     ofs.close();
   }

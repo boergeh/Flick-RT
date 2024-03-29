@@ -12,7 +12,7 @@ namespace material {
   public:
     marine_cdom(const std::string& name, double scaling_factor) {
       const std::string path = "/material/marine_cdom/iop_tables";
-      a_ = read<pl_function>(add_path(name+"_a.txt",{"./",path}));
+      a_ = read<pl_function>(add_path_if_exists(name+"_a.txt",{"./",path}));
       a_.scale_y(scaling_factor);
     }
     double absorption_coefficient() const {

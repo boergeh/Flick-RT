@@ -34,10 +34,12 @@ very long description text.)");
     check_close(c_A1.get<double>("age"), c_A2.get<double>("age"));
     bool stream = true;
     if (stream) {
-      write(c_A1,"./tmp.txt");
-      c_A2 = read<my_config_A>("./tmp.txt");
+      std::string file = "./tmp.txt";
+      write(c_A1,file);
+      c_A2 = read<my_config_A>(file);
       check_close(c_A2.get<double>("age"),49);
       check_close(c_A2.get<double>("shoe"),42);
+      std::filesystem::remove(file);
     } 
   } end_test_case()
 

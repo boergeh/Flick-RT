@@ -19,9 +19,9 @@ namespace material {
 		     double scattering_scaling_factor=1)
       : mass_concentration_{mass_concentration} {
       std::string path = "/material/marine_particles/iop_tables";
-      pe_flist pf = read<pe_flist>(add_path(name+"_pf.txt",{"./",path}));
+      pe_flist pf = read<pe_flist>(add_path_if_exists(name+"_pf.txt",{"./",path}));
       p_ = pf(5);
-      pl_flist ab = read<pl_flist>(add_path(name+"_ap_bp.txt",{"./",path}));
+      pl_flist ab = read<pl_flist>(add_path_if_exists(name+"_ap_bp.txt",{"./",path}));
       a_star_ = ab(0);
       b_star_ = ab(2);
       b_star_.scale_y(scattering_scaling_factor);
