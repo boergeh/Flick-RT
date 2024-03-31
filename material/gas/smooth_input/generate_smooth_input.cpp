@@ -2,7 +2,9 @@
 #include "../../../numeric/units.hpp"
 #include "../../../numeric/distribution.hpp"
 
-int main() {
+int main(int argc, char* argv[]) {
+  const std::vector<std::string> arg(argv + 1, argv + argc);
+  int gas_number = std::stoi(arg.at(0));
   using namespace flick;  
   using namespace units;
 
@@ -31,19 +33,23 @@ int main() {
   meta_data m;
 
   m.short_name = "uv";
-  m.gas_names = atmospheric_state().gas_names();
+  m.gas_names = {atmospheric_state().gas_names().at(gas_number)};
   m.surface_T0 = constants::T_ntp;
   m.surface_P0 = constants::P_ntp;
   m.relative_TP_step = -0.1;
   m.from_wl = 280e-9;
   m.to_wl = 400e-9;
   m.band_width_sigma = log((300+0.1)/(300-0.1));
-  //m.band_width_sigma = log((300+3)/(300-3));
   m.accuracy = 0.005;
   //meta_data_vector.push_back(m);
 
   m.short_name = "uv_vis";
   m.to_wl = 950e-9;
+  //meta_data_vector.push_back(m);
+
+  m.short_name = "uv_vis_nir";
+  m.band_width_sigma = log((300+1)/(300-1));
+  m.to_wl = 1100e-9;
   meta_data_vector.push_back(m);
 
   m.short_name = "solar";

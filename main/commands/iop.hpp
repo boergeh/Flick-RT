@@ -13,7 +13,7 @@
 #include "../../material/tabulated.hpp"
 #include "../../material/ab_functions.hpp"
 #include "../../material/marine_particles/marine_particles.hpp"
-#include "../../material/ocean.hpp"
+#include "../../material/atmosphere_ocean.hpp"
 #include "../../numeric/legendre/delta_fit.hpp"
 #include "../../environment/input_output.hpp"
 
@@ -149,8 +149,8 @@ namespace flick {
 	else if (a(5)=="atmosphere_ocean") {
 	  std::string config_file = a(6);
 	  double height = stod(a(7));
-	   auto c = read<material::ocean::configuration>("./"+config_file);
-	  material::ocean m(c);
+	   auto c = read<material::atmosphere_ocean::configuration>("./"+config_file);
+	  material::atmosphere_ocean m(c);
 	  m.set_position({0,0,height});
 	  stream_iops(m, a(1));
 	}
@@ -235,6 +235,10 @@ namespace flick {
 	      value = 1/m.scattering_coefficient();
 	    else if (p=="refractive_index")
 	      value = m.real_refractive_index();
+	    else if (p.substr(0,28)=="absorption_optical_thickness") {
+	      auto n = sub_script_numbers(p.substr(28));
+	      value = m.absorption_optical_depth(n.at(0)); 
+	    }
 	    else {
 	      error();
 	      break;

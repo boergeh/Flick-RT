@@ -11,5 +11,6 @@ flick_tmp
 *.pdf
 *.jpg
 log
-tmp.txt
+tmp*.txt
 flick
+generate_smooth_input

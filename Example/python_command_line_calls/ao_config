@@ -1,0 +1,240 @@
+/* Aerosol vertical total optical thickness at 550 nm */
+
+aerosol_od = 0.17 
+
+/* Ratio of rural aerosol optical depth to total aerosol optical
+depth. Set to '1' for rural aerosols only and '0' for urban aerosols only */
+
+aerosol_ratio = 1 
+
+/* Darkness scaling of the bottom boundary, where '0' gives no bottom
+reflection and '1' gives loamy sand reflection */
+
+bottom_boundary_surface_scaling_factor = 1 
+
+/* Total depth of the water column [m] */
+
+bottom_depth = 200 
+
+/* Bubble volume fraction in the water column [unitless] */
+
+bubble_volume_fraction = 0 
+
+/* CDOM absorption coefficient at 440 nm [1/m] */
+
+cdom_440 = 0 
+
+/* Slope of the CDOM absorption spectrum [1/nm]. Note the exception from
+the SI unit convention */
+
+cdom_slope = 0.017 
+
+/* Chlorophyll concentration in the water column [kg/m^3]. A
+concentration of e.g., 10.0 mg/m^3 may be written as 10.0e-6 kg/m^3
+for clarity */
+
+chl_concentration = 0 
+
+/* Liquid equivalent cloud thickness [m]. Typical values are in the range
+0 to 1e-4 m */
+
+cloud_liquid = 0.0 
+
+/* Space-separated list of depth fractions, df, from surface (df=0) to bottom (df=1)
+defining a material scaling factor profile. */
+
+concentration_relative_depths = 0 0.7 0.71 1 
+
+/* Space-separated list of scaling factors which scale the concentration
+of all ocean materials except pure water. */
+
+concentration_scaling_factors = 1 1 1 1 
+
+/* Detector height relative to sea level [m], where a positive value
+gives height in atmosphere and a negative value gives depth in the
+ocean */
+
+detector_height = 120000 
+
+/* Detector vertical orientation, looking 'up' or 'down' */
+
+detector_orientation = down 
+
+/* Polar and azimuth viewing angles override for slant radiance view
+[degrees]. Note that '0 0' will deactivate the override, and a
+radiance detector will still be looking vertically up when
+detector_orientation is set to 'up' and be looking vertically down
+when detector_orientations is set to 'down'. For other override
+angles, a polar angle less than 90 degrees will make the detector look
+towards the upper heimisphere, and zero degrees azimuth will make it
+look towards the azimuth position of the source. */
+
+detector_orientation_override = 165.91 -67.86 
+
+/* Number of polar and azimuth viewing angles override for detection of
+angular distributed radiance. Note that '0 0' will deactivate the
+override, and a radiance detector will still be looking vertically up
+when detector_orientation is set to 'up' and be looking vertically
+down when detector_orientations is set to 'down'. For other override
+number of angles, the first value gives number of polar viewing angles
+linearly spaced from 0 to 180 degrees, and the second value gives
+number of azimuth viewing angles linearly spaced from -180 to 180
+degrees. If detector_radiance_distribution_override is activated,
+Flick will return a 3D array with radiance values for each wavelength,
+polar angle, and azimuth angel, respectively. */
+
+detector_radiance_distribution_override = 0 0 
+
+/* Type of radiation to be detected, which could be 'plane_irradiance',
+'scalar_irradiance', or 'radiance' */
+
+detector_type = radiance 
+
+/* Space-separated list of radiation wavelengths to be calculated and
+saved [m]. Note that a wavelength of e.g., 400 nm may be written as
+400e-9 m for clarity */
+
+detector_wavelengths = 3.9e-07 4.115151515151515e-07 4.330303030303031e-07 4.5454545454545457e-07 4.7606060606060607e-07 4.975757575757576e-07 5.190909090909091e-07 5.406060606060607e-07 5.621212121212122e-07 5.836363636363637e-07 6.051515151515152e-07 6.266666666666667e-07 6.481818181818183e-07 6.696969696969697e-07 6.912121212121213e-07 7.127272727272728e-07 7.342424242424243e-07 7.557575757575758e-07 7.772727272727273e-07 7.987878787878789e-07 8.203030303030303e-07 8.418181818181819e-07 8.633333333333334e-07 8.848484848484849e-07 9.063636363636365e-07 9.278787878787879e-07 9.493939393939395e-07 9.709090909090909e-07 9.924242424242425e-07 1.013939393939394e-06 1.0354545454545455e-06 1.056969696969697e-06 1.0784848484848485e-06 1.1e-06 
+
+/* Space-separated list of names of absorbing gases included in the
+atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2' */
+
+gases = o3 o2 h2o 
+
+/* Name of the material that gives inherent optical properties used in
+the radiative transfer calculations, which could be 'atmosphere' or
+'atmosphere_ocean' */
+
+material_name = atmosphere_ocean 
+
+/* Space-separated list of names of measured marine CDOM with absorption
+coefficients tabulated in separate ASCII files stored in the Flick
+directory material/marine_cdom/iop_tables */
+
+mcdom_names = ECOSENS_HF22_D1 
+
+/* Space-separated list of scaling factor for measured marine CDOM
+absorption coefficients listed in separated ASCII files in the Flick
+directory material/marine_cdom/iop_table, one concentration value for
+each CDOM spectra given in mcdom_names. */
+
+mcdom_scaling_factors = 0.8 
+
+/* Space-separated list of dry mass concentrations [kg/m^3] of measured
+marine particles with inherent optical properties tabulated
+in separated ASCII files in the Flick directory
+material/marine_particles/iop_table, one concentration value for each
+material given in mp_names. Note that a concentration of e.g., 10.0
+g/m^3 may be written as 10.0e-3 kg/m^3 for clarity */
+
+mp_concentrations = 0.020126 
+
+/* Space-separated list of names of measured marine particles
+with inherent optical properties tabulated in separate ASCII files stored
+in the Flick directory material/marine_particles/iop_tables */
+
+mp_names = ECOSENS_HF22_D1 
+
+/* Space-separated list of scaling factors [unitless] for manual scaling of the
+scattering coefficient marine particles, one scaling factor for each listed marine particles name. */
+
+mp_scattering_scaling_factors = 0.12 
+
+/* Number of grid points used to sample the volume scattering function */
+
+n_angles = 100 
+
+/* Number of grid points used sample vertical atmospheric gas profiles */
+
+n_heights = 8 
+
+/* Dry mass concentration of nonalgal particles in the water column
+[kg/m^3]. A concentration of e.g., 10.0 g/m^3 may be written as
+10.0e-3 kg/m^3 for clarity */
+
+nap_concentration = 0 
+
+/* Ozone column thickness [m] at STP. Note that 100 DU = 0.001 m */
+
+ozone = 0.003 
+
+/* Atmosphere ground pressure [Pa] */
+
+pressure = 105000.0 
+
+/* Radiation is calculated relative to a reference plane
+irradiance at a given height [m]. For example, a reference
+detector height of 100e3 gives calculated radiation relative to the
+top-of-atmosphere irradiance */
+
+reference_detector_height = 120000 
+
+/* Reference detector vertical orientation, looking 'up' or 'down' */
+
+reference_detector_orientation = up 
+
+/* Relative humidity ratio of the atmosphere at the ground */
+
+relative_humidity = 0.5 
+
+/* Ice equivalent snow thickness [m], which is the thickness the snow
+layer would have if it was compressed into a layer of ice with no air
+between snow grains. */
+
+snow_ice = 0 
+
+/* Average snow grain radius [m]. */
+
+snow_radius = 0.0001 
+
+/* Source zenith angle [degrees], where zero gives vertically
+downward-directed incident irradiance. The source is usually the solar
+beam. */
+
+source_zenith_angle = 40.0129 
+
+/* Number of streams used when solving the radiative transfer equation */
+
+stream_upper_slab_size = 18 
+
+/* Possible subtraction the nadir radiance specularly reflected off the
+water surface, which could be 'true' or 'false'. Note that it should
+be set to 'true' when calculating remote sensing reflectance */
+
+subtract_specular_radiance = false 
+
+/* Atmosphere ground temperature [K] */
+
+temperature = 290 
+
+/* Salinity of the water column [PSU] */
+
+water_salinity = 30 
+
+/* Temperature in the water column [K] */
+
+water_temperature = 290 
+
+/* Vater vapor column thickness [m] at STP. */
+
+water_vapor = 2 
+
+/* end of file */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

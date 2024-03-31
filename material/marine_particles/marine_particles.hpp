@@ -33,6 +33,11 @@ namespace material {
       return a_star_.value(wavelength()*to_nm_) * mass_concentration_*to_mg_;
     }
     double scattering_coefficient() const {
+      /*
+	double wl = wavelength()*to_nm_;
+      double wl0 = 515;
+      return b_star_.value(wl0)*pow(wl/wl0,-2.5)*mass_concentration_*to_mg_; 
+      */
       return b_star_.value(wavelength()*to_nm_) * mass_concentration_*to_mg_; 
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {

@@ -12,7 +12,8 @@ Parameters:
 
     Select 'absorption_length', 'scattering_length',
     'refractive_index', 'scattering_ab_10', 'scattering_ab_fitted_10',
-    'wigner_alpha_beta_10', or 'AccuRT_1_8'
+    'wigner_alpha_beta_10', or 'AccuRT_1_8',
+    absorption_optical_thickness_100
 
     The 'scattering_ab_10' property will for each wavelength list the
     a and b elements of the Mueller matrix multiplied with the
@@ -41,6 +42,10 @@ Parameters:
     used as input for the AccuRT radiative transfer code. The two
     changeable sub-numbers '_1' and '_8' give input for layer 1 with 8
     phase function expansion terms.
+
+    The 'absorption_optical_thickness_100' property will list optical
+    thickness for each wavelength from current height through a
+    vertical 100 m path.
     
   <material_name> [material_specific_parameters]...
 
@@ -122,6 +127,7 @@ Examples:
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 tabulated 10 5 petzold_phase_function.txt 1.33
 
+  flick iop absorption_optical_thickness_100000 400e-9 700e-9 10 atmosphere_ocean config 0  
 
 Remember: unless other units are explicitly stated, Flick is always
 using SI units (m, kg, s) for input and output of physical values, see

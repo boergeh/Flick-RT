@@ -35,10 +35,10 @@ namespace flick {
     }
     double cross_section(const distribution::basic_distribution& d, double accuracy=0.01) {
       value_collection collection(accuracy);
-      collection.noise_floor(1e-30);
+      collection.noise_floor(1e-31);
       collection.initial_set(8);
       size_t n = 2;
-      double max_duration = 5;
+      double max_duration = 15;
       double duration = 0;
       if (print_progress_) {
 	std::cout << "Center wavelenth: "<< std::setprecision(4)

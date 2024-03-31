@@ -19,6 +19,16 @@ def table(file_name):
     return run("text "+file_name+" matrix")
 
 
+class absorption_optical_thickness:
+    def __init__(self, ao_config, from_wl, to_wl, n_wls):
+        self._ao_config = ao_config
+        self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
+
+    def atmosphere(self):
+        command = "iop absorption_optical_thickness_120000 "+self._wls+" atmosphere_ocean "+self._ao_config+" 0"
+        return run(command)
+    
+        
 class marine_iops:
     def __init__(self, name, spm, from_wl, to_wl, n_wls):
         self._name = name

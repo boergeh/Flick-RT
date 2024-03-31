@@ -3,7 +3,7 @@ OBJ      = $(SRC:.cpp=.o)
 DEP      = $(patsubst %.cpp,%.d,$(SRC))
 NAME     = $(SRC:.cpp=)
 
-all:	obj link test
+all:	obj link
 
 clean:
 	@rm -f $(OBJ) $(DEP) ./$(NAME) ./*~ ./obj ./tmp.txt

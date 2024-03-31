@@ -25,7 +25,8 @@ namespace flick {
       noise_floor_ = value;
     }
     bool accurate() const {      
-      if (values_.size() > initial_set_ and std::isfinite(mean()) and std::isfinite(std()) and not std::isfinite(accuracy()))
+      if (values_.size() > initial_set_ and std::isfinite(mean())
+	  and std::isfinite(std()) and not std::isfinite(accuracy()))
 	return true;
       if (values_.size() < initial_set_ or not std::isfinite(accuracy()))
 	return false;

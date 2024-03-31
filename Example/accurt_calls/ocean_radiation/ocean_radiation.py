@@ -23,25 +23,28 @@ wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
+top_sensor_depth = 0.15
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
-        f.set("detector_height", -0.05)
+        f.set("detector_height", -top_sensor_depth)
     else:
         f = flick.ocean_nadir_radiance()
-        f.set("detector_height", -0.55)
+        f.set("detector_height", -top_sensor_depth-0.3)
 
     f.set_n_angles(100)
-    f.set("aerosol_od", 0.0)
-    f.set("cloud_liquid", 2e-4)
+    f.set("aerosol_od", 0.15)
+    f.set("cloud_liquid", 0)
     f.set("bottom_depth",200)
     f.set("mp_names", station) 
     f.set("mp_concentrations", meta.spm)
+    f.set("mp_scattering_scaling_factors", 0.1)
     f.set("mcdom_names", station)
-    f.set("mcdom_scaling_factors", 1)
+    f.set("mcdom_scaling_factors", 0.35)
     f.set("concentration_relative_depths",[0,0.07,0.071,1])
     f.set("concentration_scaling_factors",[1,1,0,0])
     tp = meta.time_point_utc
+    #tp = 20220520150000
     if i==0:
         E = f.spectrum(wl_grid, wl_width, tp, meta.latitude, meta.longitude)
         E = f.to_W_per_m2_nm(E)
