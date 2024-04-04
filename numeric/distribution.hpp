@@ -31,7 +31,6 @@ namespace distribution {
 	previous_error = error;
 	n++;
       }
-      //std::cout << n-1 << std::endl;
       return x;
     }
   };
@@ -71,6 +70,19 @@ namespace distribution {
     virtual double pdf(double x) const = 0;
     virtual double cdf(double x) const = 0;
     virtual double quantile(double x) const = 0;
+    virtual stdvec quantiles(size_t n_points) const {
+      return limited_quantiles(n_points, 0.1);
+    }
+  protected:
+    stdvec limited_quantiles(size_t n_points, double limit_factor) const {
+    double dx = limit_factor/(n_points+2);
+    stdvec p = range(dx,1-dx,n_points).linspace();
+    stdvec x(n_points);
+    for (size_t i=0; i < n_points; ++i) {
+      x[i] = quantile(p[i]);
+    }
+    return x;
+    }
   };
   
   class normal : public basic_distribution
@@ -93,7 +105,7 @@ namespace distribution {
     }
   };
 
-   class log_normal : public basic_distribution
+  class log_normal : public basic_distribution
   // https://en.wikipedia.org/wiki/Log-normal_distribution
   {
     double mu_;
@@ -111,20 +123,46 @@ namespace distribution {
     double quantile(double p) const {
       return exp(mu_+sqrt(2*pow(sigma_,2))*erf_inv_(2*p-1));
     }
+    
   };
-
-  // henyey_greenstein etc here with mu as input x?
-  // rieman zeta function for planck. or just planck. yes.
   
-  stdvec quantiles(const basic_distribution& d, size_t n_points) {
-    double dx = 0.1/(n_points+2);
-    stdvec p = range(dx,1-dx,n_points).linspace();
-    stdvec x(n_points);
-    for (size_t i=0; i < n_points; ++i) {
-      x[i] = d.quantile(p[i]);
+  class triangular : public basic_distribution
+  // https://en.wikipedia.org/wiki/Triangular_distribution
+  {
+    double a;
+    double b;
+    double c;
+  public:
+    triangular(double x_low, double x_high, double x_mode)
+      : a{x_low}, b{x_high}, c{x_mode} {
     }
-    return x;
-  }
+    double pdf(double x) const {
+      if (x < a)
+	return 0;
+      if (x >= a and x < c)
+	return 2*(x-a)/((b-a)*(c-a));
+      if (x > c and x <= b)
+	return 2*(b-x)/((b-a)*(b-c));
+      return 0;
+    }
+    double cdf(double x) const {
+      if (x <= a)
+	return 0;
+      if (x > a and x <= c)
+	return pow(x-a,2)/((b-a)*(c-a));
+      if (x > c and x < b)
+	return pow(b-x,2)/((b-a)*(b-c));
+      return 1;
+    }
+    double quantile(double p) const {
+      if (p < (c-a)/(b-a))
+	return a + sqrt((b-a)*(c-a)*p);
+      return b - sqrt((b-a)*(b-c)*(1-p));
+    }
+    stdvec quantiles(size_t n_points) const {
+      return limited_quantiles(n_points, 0);
+    }
+  };
 }
 }
 

@@ -113,7 +113,7 @@ class toa_meta:
         self.time_point_utc = m[4,1]
     
 def _run_os(command):
-    c = subprocess.run(command, stdout=subprocess.PIPE, shell=True, check=True)
+    c = subprocess.run("nice "+command, stdout=subprocess.PIPE, shell=True, check=True)
     return c
 
 def _to_matrix(flick_output):
@@ -208,7 +208,7 @@ class basic_radiation:
 
     def smooth(self, spectrum, from_wl, to_wl, wl_width):
         np.savetxt(self._tmpdir+"/spectrum", spectrum)
-        n_points = round(2*(to_wl - from_wl)/wl_width)
+        n_points = round(3*(to_wl - from_wl)/wl_width)
         wl = np.linspace(from_wl, to_wl, n_points)
         spectrum = np.empty([len(wl),2])
         spectrum[:,0] = wl

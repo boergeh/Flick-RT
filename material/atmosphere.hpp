@@ -40,6 +40,9 @@ between snow grains.)");
 	
 	add<std::string>("gases", {"o3","o2","h2o"}, R"(Space-separated list of names of absorbing gases included in the
 atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
+	
+	add<std::string>("gas_spectral_region", "uv_vis", R"(Atmospheric spectral region for pre-calculated smoothed gas absorption
+spectra, selected among 'uv' and 'uv_vis')");
       }
     };
   private:
@@ -80,7 +83,7 @@ atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	  if (gas=="h2o")	  
 	    s.scale_to_stp_thickness("h2o",c_.get<double>("water_vapor"));
 	}	
-	add_material<smooth_air>(s,"uv_vis");
+	add_material<smooth_air>(s,c_.get<std::string>("gas_spectral_region"));
       }
       else
 	add_material<vacuum>();

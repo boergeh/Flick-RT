@@ -11,13 +11,10 @@
 #include "flist_test.hpp"
 #include "distribution_test.hpp"
 #include "value_collection_test.hpp"
-//#include "mks_units_test.hpp"
 
 int main() {
   using namespace flick;
   unit_test t("numeric");
-  //t.include<mks_units_test>("mks_units_test");
-  
   t.include<sorted_vector_test>();
   t.include<function_test_A>();
   t.include<function_test_B>();
@@ -35,7 +32,8 @@ int main() {
   t.include<physics_function_test_C>();
   t.include<table_test>();
   t.include<flist_test>();
-  t.include<distribution_test>();
+  t.include<distribution_test_A>();
+  t.include<distribution_test_B>();
   t.include<value_collection_test>();
  
   t.run_test_cases();

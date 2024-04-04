@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     double band_width_sigma;
     double accuracy;
     size_t number_of_wls() const {
-      return log(to_wl / from_wl) / band_width_sigma;
+      return 2*log(to_wl / from_wl) / band_width_sigma;
     }
     stdvector center_wls() const {
       return range(from_wl,to_wl,number_of_wls()).logspace();
@@ -27,6 +27,9 @@ int main(int argc, char* argv[]) {
     std::string full_name(size_t gas_number) const {
       return gas_names.at(gas_number)+"_"+short_name;
     }
+    double get_band_width_sigma(double wl0, double delta_wl) {
+      return log((wl0+delta_wl/2)/(wl0-delta_wl/2));
+    } 
   };
 
   std::vector<meta_data> meta_data_vector;
@@ -39,27 +42,24 @@ int main(int argc, char* argv[]) {
   m.relative_TP_step = -0.1;
   m.from_wl = 280e-9;
   m.to_wl = 400e-9;
-  m.band_width_sigma = log((300+0.1)/(300-0.1));
-  m.accuracy = 0.005;
+  m.band_width_sigma = m.get_band_width_sigma(300,0.2);
+  m.accuracy = 0.01;
   //meta_data_vector.push_back(m);
 
   m.short_name = "uv_vis";
-  m.to_wl = 950e-9;
-  //meta_data_vector.push_back(m);
-
-  m.short_name = "uv_vis_nir";
-  m.band_width_sigma = log((300+1)/(300-1));
-  m.to_wl = 1100e-9;
+  m.band_width_sigma = m.get_band_width_sigma(300,0.5);
+  m.to_wl = 1030e-9;
   meta_data_vector.push_back(m);
 
   m.short_name = "solar";
+  m.band_width_sigma = m.get_band_width_sigma(300,5);
   m.to_wl = 2500e-9;
   //meta_data_vector.push_back(m);
 
   m.short_name = "terrestrial";
+  m.band_width_sigma = m.get_band_width_sigma(4000,10);
   m.from_wl = 4e-6;
   m.to_wl = 100e-6;
-  //m.band_width_sigma = log((4+0.1)/(4-0.1));
   //meta_data_vector.push_back(m);
 
   struct source {
@@ -87,7 +87,13 @@ int main(int argc, char* argv[]) {
 	std::cout << v[i].gas_names[j] << ":" << std::endl;
 	auto as = absorption_smoother(source(), state, v[i].gas_names[j]);
 	as.print_progress(true);
+	/*
 	stdvector c = gaussian_smooth_cross_section(as,
+						    v[i].center_wls(),
+						    v[i].band_width_sigma,
+						    v[i].accuracy);
+	*/
+	stdvector c = triangular_smooth_cross_section(as,
 						    v[i].center_wls(),
 						    v[i].band_width_sigma,
 						    v[i].accuracy);

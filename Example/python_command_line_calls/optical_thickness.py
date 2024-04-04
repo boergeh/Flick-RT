@@ -9,8 +9,8 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 
-ot = flick.absorption_optical_thickness("ao_config",300e-9,950e-9,400).atmosphere()
-print(ot)
+ot = flick.absorption_optical_thickness("ao_config",750e-9,790e-9,300).atmosphere()
+#print(ot)
 fig, ax = plt.subplots(1,1)
 fig.set_size_inches(6,5)
 ax.semilogy(ot[:,0]*1e6,ot[:,1])

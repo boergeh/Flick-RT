@@ -1,7 +1,6 @@
-# Run make before this script 
+make
 generate_smooth_input 0 > tmp0.txt &
 generate_smooth_input 1 > tmp1.txt &
 generate_smooth_input 2 > tmp2.txt &
 generate_smooth_input 3 > tmp3.txt &
 generate_smooth_input 4 > tmp4.txt &
-generate_smooth_input 5 > tmp5.txt &

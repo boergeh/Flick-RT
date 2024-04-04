@@ -99,7 +99,12 @@ detector_wavelengths = 3.9e-07 4.115151515151515e-07 4.330303030303031e-07 4.545
 /* Space-separated list of names of absorbing gases included in the
 atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2' */
 
-gases = o3 o2 h2o 
+gas_spectral_region = uv_vis
+
+/* Atmospheric spectral region for pre-calculated smoothed gas
+absorption spectra, selected among 'uv' and 'uv_vis' */
+
+gases = o3 o2 h2o
 
 /* Name of the material that gives inherent optical properties used in
 the radiative transfer calculations, which could be 'atmosphere' or
