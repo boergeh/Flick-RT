@@ -16,6 +16,7 @@ namespace flick {
     Source_spectrum source_spectrum_;
     std::shared_ptr<material::hitran_air> air_all_;
     std::shared_ptr<material::hitran_air> air_rest_;
+    double length_factor_ = 1.5; // Slant solar angle or toa calculations
     bool print_progress_ = false;
   public:
     absorption_smoother(Source_spectrum s, atmospheric_state a,
@@ -30,6 +31,9 @@ namespace flick {
       air_all_->set_position(p);
       air_rest_->set_direction(d);
       air_rest_->set_position(p);
+    }
+    void set_length_factor(double f) {
+      length_factor_ = f;
     }
     void print_progress(bool tf) {
       print_progress_ = tf;
@@ -54,7 +58,7 @@ namespace flick {
 	double T_rest = transmittance(wls,d,*air_rest_);
 	double T_all = transmittance(wls,d,*air_all_);
 	double optical_depth = -log(T_all/T_rest);
-	double cross_sec = optical_depth / atm_.per_area(gas_);
+	double cross_sec = optical_depth / (atm_.per_area(gas_)*length_factor_);
 	collection.add(cross_sec,n);
 	n *= 2;
 	auto time1 = std::chrono::system_clock::now();
@@ -75,7 +79,7 @@ namespace flick {
 	double F = source_spectrum_.value(wl);
 	a.set_wavelength(wl);
 	double tau = a.absorption_optical_depth(atmosphere_thickness_);
-	f.append({wl,R*F*exp(-tau)});
+	f.append({wl,R*F*exp(-length_factor_*tau)});
       }
       return f.integral();
     }

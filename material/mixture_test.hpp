@@ -34,7 +34,10 @@ namespace flick {
     sky.add_material<material::rural_aerosols>();
     sky.update_iops();
     sky.set_position({0,0,0});
+    
     double od_ae = sky.get_material<material::rural_aerosols>().optical_depth(toa);
+    std::cout <<std::setprecision(4) << od_ae << " "<< od_cl_bench << " " << sky.optical_depth(toa) << std::endl;
+    
     check_close(sky.optical_depth(toa),od_ae+od_cl_bench);
     auto p1 = sky.mueller_matrix(unit_vector{0,0}).value(0,0);
     auto p2 = sky.mueller_matrix(unit_vector{pi,0}).value(0,0);

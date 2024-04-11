@@ -96,15 +96,15 @@ saved [m]. Note that a wavelength of e.g., 400 nm may be written as
 
 detector_wavelengths = 3.9e-07 4.115151515151515e-07 4.330303030303031e-07 4.5454545454545457e-07 4.7606060606060607e-07 4.975757575757576e-07 5.190909090909091e-07 5.406060606060607e-07 5.621212121212122e-07 5.836363636363637e-07 6.051515151515152e-07 6.266666666666667e-07 6.481818181818183e-07 6.696969696969697e-07 6.912121212121213e-07 7.127272727272728e-07 7.342424242424243e-07 7.557575757575758e-07 7.772727272727273e-07 7.987878787878789e-07 8.203030303030303e-07 8.418181818181819e-07 8.633333333333334e-07 8.848484848484849e-07 9.063636363636365e-07 9.278787878787879e-07 9.493939393939395e-07 9.709090909090909e-07 9.924242424242425e-07 1.013939393939394e-06 1.0354545454545455e-06 1.056969696969697e-06 1.0784848484848485e-06 1.1e-06 
 
-/* Space-separated list of names of absorbing gases included in the
-atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2' */
-
-gas_spectral_region = uv_vis
-
 /* Atmospheric spectral region for pre-calculated smoothed gas
 absorption spectra, selected among 'uv' and 'uv_vis' */
 
-gases = o3 o2 h2o
+gas_spectral_region = uv_vis
+
+/* Space-separated list of names of absorbing gases included in the
+atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2' */
+
+gases = o2 h2o o3 co2
 
 /* Name of the material that gives inherent optical properties used in
 the radiative transfer calculations, which could be 'atmosphere' or

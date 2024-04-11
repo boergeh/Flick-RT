@@ -85,7 +85,7 @@ namespace material {
 	stdvector x{heights_[n],heights_[n+1]};
 	stdvector y{mueller_[n].value(row,col,theta),
 	  mueller_[n+1].value(row,col,theta)};
-	pe_function f{x,y};
+	Function f{x,y};
 	m.add(row,col,f.value(z_profile<Function>::pose().position().z()));
       }
       return m;

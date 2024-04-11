@@ -42,11 +42,13 @@ between snow grains.)");
 atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2')");
 	
 	add<std::string>("gas_spectral_region", "uv_vis", R"(Atmospheric spectral region for pre-calculated smoothed gas absorption
-spectra, selected among 'uv' and 'uv_vis')");
+spectra. Select 'uv_vis' or 'uv_vis_toa', where 'uv_vis_toa' is
+optimized for TOA radiation.)");
       }
     };
   private:
     basic_configuration c_;
+    static const size_t n_cloud_base_ = 1;
   public:
     atmosphere(const basic_configuration& c=atmosphere::configuration())
       : mixture(angle_range(c.get<size_t>("n_angles")), height_grid(c)) {
@@ -59,13 +61,20 @@ spectra, selected among 'uv' and 'uv_vis')");
       auto_update_iops(true);
     }
     static stdvector height_grid(const basic_configuration& c) {
-      double d = c.get<double>("snow_ice");
+      double epsilon = 1e-4; // m
       stdvector h = atmospheric_state(c.get<size_t>("n_heights")).height_grid();
-      if (d > 0) {
-	double epsilon = 1e-4;
+      double cl = c.get<double>("cloud_liquid");
+      if (cl > 0) { 
+	double h_cloud_top = h.at(n_cloud_base_+1);
+	double h_cloud_base = h.at(n_cloud_base_);
+	h.insert(h.begin()+n_cloud_base_,h_cloud_base-epsilon); 
+	h.insert(h.begin()+n_cloud_base_+3,h_cloud_top+epsilon); 
+      }
+      double si = c.get<double>("snow_ice");     
+      if (si > 0) { // layer and step layer for snow
 	double snow_depth = 1;
-	h.insert(h.begin()+1,snow_depth+epsilon); // include step-layer for snow
-	h.insert(h.begin()+1,snow_depth); // include one layer for snow
+	h.insert(h.begin()+1,snow_depth+epsilon); 
+	h.insert(h.begin()+1,snow_depth); 
       }
       return h;
     }
@@ -100,11 +109,11 @@ spectra, selected among 'uv' and 'uv_vis')");
     void add_clouds() {
       double liquid_depth = c_.get<double>("cloud_liquid");
       if (liquid_depth > 0) {
-	size_t n_base = 1;
-	size_t n_top = 2;
+	size_t n_base = n_cloud_base_ + 1;
+	size_t n_top = n_base + 1; 
 	if (c_.get<double>("snow_ice") > 0) {
-	  n_base = 3;
-	  n_top = 4;
+	  n_base += 2;
+	  n_top += 2;
 	}
 	double radius = 15e-6;
 	double dh = heights().at(n_top)-heights().at(n_base);

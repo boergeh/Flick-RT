@@ -1,6 +1,14 @@
 make
-generate_smooth_input 0 > tmp0.txt &
-generate_smooth_input 1 > tmp1.txt &
-generate_smooth_input 2 > tmp2.txt &
-generate_smooth_input 3 > tmp3.txt &
-generate_smooth_input 4 > tmp4.txt &
+#generate_smooth_input uv_vis_toa o2 > tmp_uv_vis_toa_o2.txt &
+#generate_smooth_input uv_vis_toa h2o > tmp_uv_vis_toa_h2o.txt &
+#generate_smooth_input uv_vis_toa o3 > tmp_uv_vis_toa_o3.txt &
+generate_smooth_input uv_vis_toa no2 > tmp_uv_vis_toa_no2.txt &
+generate_smooth_input uv_vis_toa co2 > tmp_uv_vis_toa_co2.txt &
+
+#generate_smooth_input uv_vis o2 > tmp_uv_vis_o2.txt &
+#generate_smooth_input uv_vis h2o > tmp_uv_vis_h2o.txt &
+#generate_smooth_input uv_vis o3 > tmp_uv_vis_o3.txt &
+#generate_smooth_input uv_vis no2 > tmp_uv_vis_no2.txt &
+#generate_smooth_input uv_vis co2 > tmp_uv_vis_co2.txt &
+
+

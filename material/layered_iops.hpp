@@ -29,7 +29,6 @@ namespace flick {
 	throw std::runtime_error("boundary error in layered_iops");
       if (n_terms < 3)
 	throw std::runtime_error("number of terms error in layered_iops");
-      //update();
     }
     void set_wavelength(double wl) {
       m_->set_wavelength(wl);
@@ -76,13 +75,33 @@ namespace flick {
       m_->set_direction({0,0});
       m_->set_position({0,0,boundaries_[0]});
       for (size_t i=0; i < n_layers(); i++) {
-	move(layer_thickness(i)/2);
+	double h = layer_thickness(i);
+	double dh = average_scattering_height(boundaries_[i],boundaries_[i+1])-boundaries_[i];
+	move(dh);
 	set_alpha_beta(i);
 	refidx_[i] = m_->real_refractive_index();
-	move(-layer_thickness(i)/2);
+	move(-dh);
 	set_optical_depth(i);
-	move(layer_thickness(i));
+	move(h);
       }
+    }
+    double average_scattering_height(double h_low, double h_high) {
+      stdvector h = range(h_low,h_high,100).linspace();
+      stdvector s(h.size());
+      stdvector sh(h.size());
+      vector p0 = m_->pose().position();
+      for (size_t i=0; i<sh.size(); i++) {
+	m_->set_position({0,0,h[i]});
+	s[i] = m_->scattering_coefficient();
+	sh[i] = s[i]*h[i];
+      }
+      m_->set_position(p0);
+      pl_function shf(h,sh);
+      pl_function sf(h,s);
+      double h_avg = shf.integral()/sf.integral();
+      if (isfinite(h_avg))
+	return h_avg;
+      return h_low + (h_high-h_low)/2;
     }
     void set_alpha_beta(size_t i) {
       auto [alpha, beta] = material::fitted_mueller_alpha_beta(*m_,n_terms_);

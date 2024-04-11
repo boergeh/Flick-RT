@@ -339,10 +339,6 @@ namespace flick {
 	bool outside = (p2.x() > limit_b);
 	if (not moving_right)
 	  outside = (p2.x() < limit_b);
-	//if (limit_a < limit_b) {
-	//if((limit_a < limit_b and p2.x() > limit_b) || it->is_in_end_bin()) {
-	//if(p2.x() > limit_b || it->is_in_end_bin())
-	//if(fabs(p2.x() - limit_b) > 0 || it->is_in_end_bin())
 	if (outside || it->is_in_end_bin()) {
 	  return area + I{p1,p2}.integral(limit_a, limit_b);
 	}
@@ -439,11 +435,20 @@ namespace flick {
       return f.scale_y(integral_value/fi);
     return f;
   }
-
+  
   template<class I>
   function<I> integral_conservative_add(const function<I>& fa, const function<I>& fb, const stdvec& xv) {
-    function<I> f = add(fa,fb,xv);
+    function<I> f = add(integral_conservative_rebin(fa,xv),integral_conservative_rebin(fb,xv),xv);
     return scale_to_integral(f, fa.integral()+fb.integral());
+  }
+  
+  template<class I>
+  function<I> integral_conservative_rebin(const function<I>& f, const stdvec& xv) {
+    stdvec yv(xv.size());
+    for (size_t i=0; i < xv.size(); ++i)
+      yv[i] = f.value(xv[i]);
+    function<I> f2{xv,yv};
+    return scale_to_integral(f2, f.integral());
   }
 
   template<class I>
