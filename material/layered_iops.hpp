@@ -99,7 +99,7 @@ namespace flick {
       pl_function shf(h,sh);
       pl_function sf(h,s);
       double h_avg = shf.integral()/sf.integral();
-      if (isfinite(h_avg))
+      if (std::isfinite(h_avg))
 	return h_avg;
       return h_low + (h_high-h_low)/2;
     }
