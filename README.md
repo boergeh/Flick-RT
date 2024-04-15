@@ -1,16 +1,16 @@
 
 Flick is a general radiative transfer modeling framework  
 
-Clone from GitHub with:  
- git clone https://github.com/boergeh/Flick-RT.git  
+Clone from GitLab with:  
+ git clone git clone https://git.app.uib.no/Borge.Hamre/flick.git  
 
 For macOS and Linux:
 
- cd Flick-RT -- to enter the Flick-RT directory  
+ enter the flick directory  
 
- make -- to compile and test  
+ run 'make' to compile, build, and test  
 
- flick help -- for further documentation and usage examples  
+ run 'flick help' for further documentation and usage examples  
 
 You will need to have a c++ compiler (e.g. clang++ or g++) already installed.  
 
