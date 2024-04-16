@@ -34,6 +34,8 @@ namespace flick {
       for (auto& wl:u.wls_)
 	os << wl*1e9 << " ";
       os << "#\n\n";
+      os << "CHECK_FORMAT = false";
+      os << "#\n\n";
       std::vector<stdvector> n(u.wls_.size());
       std::vector<stdvector> a(u.wls_.size());
       std::vector<stdvector> s(u.wls_.size());

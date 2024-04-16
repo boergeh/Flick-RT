@@ -24,7 +24,6 @@ namespace material {
     const stdvector& height_grid() const {
       return a_profile_.height_grid();
     }
-    //virtual void set_wavelength() = 0;
     virtual double real_refractive_index() const {
       return real_refractive_index_;
     } 

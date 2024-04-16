@@ -18,30 +18,35 @@ meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(300e-9,800e-9,47);
+wl_grid = np.linspace(300e-9,800e-9,67);
 wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
-top_sensor_depth = 0.1
+top_sensor_depth = 0.15
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
         f.set("detector_height", -top_sensor_depth)
     else:
         f = flick.ocean_nadir_radiance()
-        f.set("detector_height", -top_sensor_depth-0.35)
+        f.set("detector_height", -top_sensor_depth-0.4)
 
     f.set_n_angles(100)
-    f.set("aerosol_od", 0.15)
-    f.set("cloud_liquid", 4e-5)
+    f.set("aerosol_od", 0.28)
+    f.set("aerosol_ratio", 1)
+    f.set("cloud_liquid", 2e-5)
+    f.set("ozone", 0.003)
+    f.set("pressure", 1010e2)
+    f.set("temperature", 273+15)
+    f.set("water_vapor",30)
     f.set("bottom_depth",200)
     f.set("mp_names", station) 
-    abs_scale = 0.8
+    abs_scale = 1
     f.set("mp_concentrations", meta.spm*abs_scale)
-    f.set("mp_scattering_scaling_factors", 0.12/abs_scale)
+    f.set("mp_scattering_scaling_factors", 1/abs_scale)
     f.set("mcdom_names", station)
-    f.set("mcdom_scaling_factors", 1.0)
+    f.set("mcdom_scaling_factors", 1)
     f.set("concentration_relative_depths",[0,0.07,0.071,1])
     f.set("concentration_scaling_factors",[1,1,1,1])
     tp = meta.time_point_utc
