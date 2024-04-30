@@ -186,9 +186,10 @@ reflection and '1' gives loamy sand reflection)");
       c_.add<std::string>("do_delta_fit","false");
       c_.add<double>("delta_fit_truncation",3.0);
       c_.add<double>("response_function_type",1);
-      c_.add<std::string>("do_spherical_correction","true");
+      c_.add<std::string>("do_spherical_correction","false");
+      c_.add<std::string>("do_1d_rough_sea_surface","false");
       c_.add<std::string>("do_2d_rough_sea_surface","false");
-      c_.add<double>("surface_wind_speed",6);
+      c_.add<double>("surface_wind_speed",6);      
       c_.add<double>("relative_wind_direction",0);
       c_.add<std::string>("usrang","false");
       c_.add<double>("lpick",0);
@@ -277,8 +278,7 @@ reflection and '1' gives loamy sand reflection)");
       return s;
     }
     void make_material_files() {        
-      size_t n_terms = c_.get<size_t>("stream_upper_slab_size") + 1;
-
+      size_t n_terms = c_.get<size_t>("stream_upper_slab_size");
       stdvector b = depths_to_boundaries(c_.get_vector<double>("layer_depths_upper_slab"));
       auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,
 							       n_terms);

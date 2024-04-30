@@ -9,6 +9,8 @@ example:
 import numpy as np
 import subprocess
 import os
+#from scipy.special import legendre
+import scipy.special
 
 def run(arguments):
     flick_output = _run_os("flick "+arguments)
@@ -53,12 +55,43 @@ class marine_iops:
     def set_b_scaling_factor(self,f):
         self._b_scaling = f
 
-    def volume_scattering_function(self,n_terms):
-        p = run("iop scattering_ab_fitted_"+str(n_terms)+self._expansion_command())
+    def volume_scattering_function(self,n_terms,use_cutoff_angle=0):
+        p = []
+        if n_terms == 0:
+            n_points = 1000
+            p = run("iop scattering_ab_"+str(n_points)+self._expansion_command())
+        else:
+            n_points = 200+n_terms**1.6
+            p = run("iop scattering_ab_fitted_"+str(n_terms)+"_"+str(n_points)+"_"+str(use_cutoff_angle)+self._expansion_command())
         p = np.flipud(p)
         p[:,0] = np.arccos(p[:,0])*180/np.pi
         return p
 
+    def back_scattering_coefficient(self, n_terms):
+        k = self._expansion_factors(n_terms)
+        bb = 0;
+        for i in range(len(k)):
+            bb += 2*np.pi*k[i,0]*self._legendre_first_half_integral(i)
+        return bb
+
+    def _legendre_both_halfs_integral(self,term_number):
+        i = term_number
+        return self._legendre_first_half_integral(i) + self._legendre_second_half_integral(i)
+
+    def _legendre_second_half_integral(self,term_number):
+        # https://math.stackexchange.com/questions/35804/integrating-legendre-polynomials-over-half-range
+        l = term_number
+        if l == 0:
+            return 1
+        if l % 2 == 0:
+            return 0
+        else: # odd terms
+            n = (l-1)/2
+            return (-1)**n/(2**(2*n+1)*(n+1))*scipy.special.comb(2*n, n)
+        
+    def _legendre_first_half_integral(self,term_number):
+        return (-1)**term_number * self._legendre_second_half_integral(term_number)
+        
     def asymmetry_factor(self,n_terms):
         k = self._expansion_factors(n_terms)
         return k[1,0]/k[0,0]/3
@@ -67,14 +100,14 @@ class marine_iops:
         k = self._expansion_factors(n_terms)
         l = run("iop scattering_length "+self._expansion_command())
         b = 1/l[0,1]
-        f = k[0,0]/b/2*np.pi
+        f = k[0,0]/b*4*np.pi
         return f
 
     def _expansion_factors(self,n_terms):
         return run("iop wigner_alpha_beta_"+str(n_terms)+self._expansion_command())
         
     def _expansion_command(self):
-        return " 550e-9 550e-9 1 marine_particles "+str(self._name)+" 1e-3 1"
+        return " 515e-9 515e-9 1 marine_particles "+str(self._name)+" "+str(self._spm)+" "+str(self._b_scaling)
      
     def _coefficient(self,length_type, material):
         command = ""

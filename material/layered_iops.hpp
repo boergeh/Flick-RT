@@ -24,7 +24,7 @@ namespace flick {
 	beta_(2, std::vector<stdvector>(n_layers(), stdvector(n_terms))),
 	refidx_(n_layers())
     {
-      if (boundaries.size()< 2 or boundaries[1] < boundaries[0] or
+      if (boundaries.size() < 2 or boundaries[1] < boundaries[0] or
 	  (not std::is_sorted(boundaries.begin(), boundaries.end())))
 	throw std::runtime_error("boundary error in layered_iops");
       if (n_terms < 3)
@@ -76,7 +76,8 @@ namespace flick {
       m_->set_position({0,0,boundaries_[0]});
       for (size_t i=0; i < n_layers(); i++) {
 	double h = layer_thickness(i);
-	double dh = average_scattering_height(boundaries_[i],boundaries_[i+1])-boundaries_[i];
+	double dh = average_scattering_height(boundaries_[i],boundaries_[i+1])
+	  -boundaries_[i];
 	move(dh);
 	set_alpha_beta(i);
 	refidx_[i] = m_->real_refractive_index();

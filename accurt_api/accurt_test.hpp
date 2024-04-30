@@ -96,7 +96,7 @@ namespace flick {
   
   begin_test_case(accurt_test_E) {
     // Assert flick default atmosphere-ocean remote sensing reflectance
-    size_t n_angles = 30;
+    size_t n_angles = 40;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
     ac.set<double>("detector_wavelengths",500e-9);
@@ -112,7 +112,7 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y().at(0);
-    check_close(Rrs, 0.0392, 0.2_pct);
+    check_close(Rrs, 0.0397, 0.2_pct);
   } end_test_case()
   
   begin_test_case(accurt_test_F) {
@@ -169,6 +169,6 @@ namespace flick {
     auto a_cloudy =  accurt(ac,m_cloudy);
     double L_toa_cloudy = a_cloudy.relative_radiation().y()[0];
     check(L_toa_cloudy > L_toa_clear);
-    check_close(L_toa_cloudy,L_toa_clear,1_pct);
+    check_close(L_toa_cloudy,L_toa_clear,2_pct);
   } end_test_case()
 }

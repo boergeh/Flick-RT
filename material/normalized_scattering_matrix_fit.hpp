@@ -20,12 +20,12 @@ namespace flick {
     normalized_scattering_matrix_fit(const std::vector<stdvector>& a,
 				     const std::vector<stdvector>& b,
 				     const stdvector& x,
-				     size_t n_terms)
+				     size_t n_terms, fit phase_function_fit = fit::relative)
       : a_{a}, b_{b}, x_{x}, alpha_(4), beta_(2) { 
       if (not (a_.size()==4 && b_.size()==2))
 	throw std::runtime_error("normalized_scattering_matrix");
       pe_function a0(x_,a_[0]);
-      wigner_fit wf_a0(a0,0,0,n_terms,fit::relative);
+      wigner_fit wf_a0(a0,0,0,n_terms,phase_function_fit);
       alpha_[0] = wf_a0.coefficients();
       pe_function scaling_function{x_,1/a_[0]};
       stdvector alpha2p3 = wigner_fit(pl_function{x_,a_[1]+a_[2]},2,2,n_terms,fit::scaling,

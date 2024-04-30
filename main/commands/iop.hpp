@@ -198,8 +198,11 @@ namespace flick {
 	else if (p.substr(0,20)=="scattering_ab_fitted") {
 	  auto n = sub_script_numbers(p.substr(20));
 	  size_t n_terms = n.at(0);
+	  fit phase_function_fit = fit::relative;
+	  if (n.size() == 3 && n.at(2)==1)
+	    phase_function_fit = fit::relative_and_cutoff;
 	  std::optional<size_t> n_points = get_n_points(n);
-	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms,n_points);
+	  auto [a,b,x] = material::fitted_mueller_ab_functions(m,n_terms,n_points,phase_function_fit);
 	  stream_ab_functions(m,a,b,x);
 	}
 	else if (p.substr(0,13)=="scattering_ab") {
@@ -210,8 +213,12 @@ namespace flick {
 	else if (p.substr(0,17)=="wigner_alpha_beta") {
 	  auto n = sub_script_numbers(p.substr(17));
 	  size_t n_terms = n.at(0);
+	  fit phase_function_fit = fit::relative;
+	  if (n.size() == 3 && n.at(2)==1) {
+	    phase_function_fit = fit::relative_and_cutoff;
+	  }
 	  std::optional<size_t> n_points = get_n_points(n);
-	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms,n_points);
+	  auto [alpha,beta] = material::fitted_mueller_alpha_beta(m,n_terms,n_points,phase_function_fit);
 	  std::cout << std::showpoint << std::setprecision(7);
 	  for (size_t i = 0; i < wls_.size(); ++i) {
 	    m.set_wavelength(wls_[i]);

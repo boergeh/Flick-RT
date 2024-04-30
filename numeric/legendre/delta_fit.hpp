@@ -14,8 +14,7 @@ namespace flick {
     delta_fit(const Function& f, int n_terms)
       : coefficients_(n_terms) {
       int n_angles = wigner_n_sampling_points(n_terms);
-      double forward_max = wigner_mu_max(n_angles);
-      std::vector<double> x = range(-1,forward_max,n_angles).linspace();
+      std::vector<double> x = wigner_x_values(n_angles);
       linalg::matrix m(x.size(), std::vector<double>(n_terms));
       legendre p(n_terms, x);
       for (size_t i=0; i<x.size(); ++i) {

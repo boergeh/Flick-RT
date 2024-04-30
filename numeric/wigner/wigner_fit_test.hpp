@@ -1,19 +1,11 @@
 #include "wigner_fit.hpp"
 #include "../physics_function.hpp"
+#include "../constants.hpp"
 
 namespace flick {
-  stdvector make_henyey_greenstein(const stdvector& x, double g) {
-    henyey_greenstein hg(g);
-    std::vector<double> y(x.size());
-    for (size_t i=0; i<y.size(); i++) {
-      y[i] = hg.value(x[i]); 
-    }
-    return y;
-  }
-  
   begin_test_case(wigner_fit_test_A) {
     double x = -1;
-    size_t n_terms = 32;
+    size_t n_terms = 33;
     auto f = henyey_greenstein(0.6);
     wigner_fit wf(f,0,0,n_terms,fit::relative);
     check_close(2*wf.coefficients().at(0),1/(2*constants::pi),0.1_pct);
@@ -33,7 +25,6 @@ namespace flick {
     double x = -0.5;
     check_close(wf.value(x),f().value(x));
     stdvector v = wigner_evaluate(wf.coefficients(),{x},m,n);
-    check_close(wf.value(x),v[0]);
-    
+    check_close(wf.value(x),v[0]); 
   } end_test_case()
 }

@@ -47,18 +47,21 @@ ax[1,0].grid()
 ax[1,0].set_xlabel('Wavelength [nm]')
 ax[1,0].set_ylabel('Scattering coefficient [m$^{-1}$]')
 
+p = iops.volume_scattering_function(0)
+ax[0,1].semilogy(p[:,0],p[:,1],label="original")    
 terms = [4,16,64]
 for i in range(len(terms)):
     n = terms[i]
     g = iops.asymmetry_factor(n)
     f = iops.volume_scattering_scaling_factor(n)
+    bb = iops.back_scattering_coefficient(n)
     p = iops.volume_scattering_function(n)
-    l = "n="+str(n)+", g="+str(round(g,2))+", f="+str(round(f,2))
+    l = "n="+str(n)+", g="+"{:.2f}".format(g)+", f="+"{:.2f}".format(f)+", b$_b$="+"{:.2f}".format(bb)
     ax[0,1].semilogy(p[:,0],p[:,1],label=l)    
 ax[0,1].grid()
 ax[0,1].legend()
-ax[0,1].set_xlabel('Scattering angle [Degrees]')
-ax[0,1].set_ylabel('Volume scattering function [m$^{-1}$sr$^{-1}$]')
+ax[0,1].set_xlabel('Scattering angle [$\degree$]')
+ax[0,1].set_ylabel('VSF at 515 nm [m$^{-1}$sr$^{-1}$]')
 ax[0,1].set_xticks([0,45,90,135,180])
 
 ax[1,1].axis("off")

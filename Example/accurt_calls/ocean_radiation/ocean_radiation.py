@@ -18,25 +18,25 @@ meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(300e-9,800e-9,67);
+wl_grid = np.linspace(320e-9,800e-9,37);
 wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
-top_sensor_depth = 0.15
+top_sensor_depth = 0.2
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
         f.set("detector_height", -top_sensor_depth)
     else:
         f = flick.ocean_nadir_radiance()
-        f.set("detector_height", -top_sensor_depth-0.4)
+        f.set("detector_height", -top_sensor_depth-0.25)
 
     f.set_n_angles(100)
     f.set("aerosol_od", 0.28)
     f.set("aerosol_ratio", 1)
-    f.set("cloud_liquid", 2e-5)
-    f.set("ozone", 0.003)
+    f.set("cloud_liquid", 0e-5)
+    f.set("ozone", 0.004)
     f.set("pressure", 1010e2)
     f.set("temperature", 273+15)
     f.set("water_vapor",30)
@@ -60,13 +60,13 @@ for i in range(2):
 fig, ax = plt.subplots(2,1,sharex=True)
 fig.set_size_inches(5,7)
 fig.tight_layout(pad=1.0)
-line1 = ax[0].plot(L[:,0],L[:,1],label='Modeled')
-line2 = ax[0].plot(Lm[:,0],Lm[:,1],label='Measured')
+line1 = ax[0].semilogy(L[:,0],L[:,1],label='Modeled')
+line2 = ax[0].semilogy(Lm[:,0],Lm[:,1],label='Measured')
 ax[0].legend(loc='upper right')
 ax[0].set_ylabel('Nadir radiance [mW m$^{-2}$ nm$^{-1}$ sr$^{-1}$]')
 ax[0].grid()
-line1 = ax[1].plot(E[:,0],E[:,1],label='Modeled')
-line2 = ax[1].plot(Em[:,0],Em[:,1]*1e-3,label='Measured')
+line1 = ax[1].semilogy(E[:,0],E[:,1],label='Modeled')
+line2 = ax[1].semilogy(Em[:,0],Em[:,1]*1e-3,label='Measured')
 ax[1].legend(loc='upper right')
 ax[1].set_xlabel('Wavelength [nm]')
 ax[1].set_ylabel('Downward irradiance [W m$^{-2}$ nm$^{-1}$]')

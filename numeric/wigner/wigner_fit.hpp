@@ -3,6 +3,7 @@
 
 #include "../std_operators.hpp"
 #include "../function.hpp"
+#include "../constants.hpp"
 #include "../linalg/solve_with_eigen.hpp"
 #include "wigner_d.hpp"
 #include <numbers>
@@ -11,7 +12,8 @@ namespace flick {
   enum class fit {
     absolute,
     relative,
-    scaling
+    scaling,
+    relative_and_cutoff
   };
   struct default_scaling_function {
     double value() {
@@ -21,19 +23,33 @@ namespace flick {
   size_t wigner_n_sampling_points(size_t n_terms) {
     return pow(n_terms, 1.6);
   }
-  double wigner_mu_max(size_t n_angles) {
-    return cos(1./n_angles);
+  double wigner_theta_min(size_t n_angles) {
+    return 1./n_angles;
   }
+  stdvector wigner_x_uniform_angle(size_t n_angles) {
+    double theta_min = wigner_theta_min(n_angles);
+    stdvector theta = range(theta_min, std::numbers::pi, n_angles).linspace();
+    return -1*vec::cos(theta);
+  }
+  stdvector wigner_uniform_x(size_t n_angles) {
+    double x_max = cos(wigner_theta_min(n_angles));
+    return range(-1, x_max, n_angles).linspace();
+  }
+  stdvector wigner_x_values(size_t n_angles) {
+    return wigner_uniform_x(n_angles);
+  }  
   template<class Function>
   class wigner_fit {
     stdvector coefficients_;
     int m_, n_;
+    double x_cutoff_;
   public:
     wigner_fit(const Function& f, int m, int n, int n_terms, fit fit,
 	       const pe_function& scaling_function = pe_function{{-1,1},{1,1}})
       : m_{m}, n_{n}, coefficients_(n_terms) {
+      x_cutoff_ = cos(3./180*constants::pi);
       size_t n_angles = wigner_n_sampling_points(n_terms);
-      stdvector x = range(-1,wigner_mu_max(n_angles), n_angles).linspace();   
+      stdvector x = wigner_x_values(n_angles);
       linalg::matrix mat(x.size(), std::vector<double>(n_terms));
       linalg::vector v(x.size());
       for (size_t i=0; i<x.size(); ++i) {
@@ -44,7 +60,12 @@ namespace flick {
 	  v[i] = 1;
 	else if (fit == fit::scaling)
 	  v[i] = f.value(x[i])*scaling_function.value(x[i]);
-	  
+	else if (fit == fit::relative_and_cutoff) {
+	  v[i] = 1;
+	  if (x[i]>x_cutoff_) {
+	    v[i] = 0;
+	  }
+	}  
 	for (size_t j=0; j<n_terms; ++j) {
 	  if (fit == fit::absolute)
 	    mat[i][j] = d[j];
@@ -52,6 +73,12 @@ namespace flick {
 	    mat[i][j] = d[j]/f.value(x[i]);
 	  else if (fit == fit::scaling)
 	    mat[i][j] = d[j]*scaling_function.value(x[i]);
+	  else if (fit == fit::relative_and_cutoff) {
+	    mat[i][j] = d[j]/f.value(x[i]);
+	    if (x[i]>x_cutoff_) {
+	      mat[i][j] = 0;
+	    }
+	  }
 	}
       }
       size_t n_zeros = wigner_d::leading_zeros(m_,n_);

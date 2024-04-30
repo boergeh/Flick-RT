@@ -85,7 +85,7 @@ Parameters:
     'tabulated' <absorption_coefficient> <scattering_coefficient>
       <phase_function_file_name> <refractive_index>
 
-    'marine_particles' <name> <mass_concentration>
+    'marine_particles' <name> <mass_concentration> <scattering_scaling_factor>
     
     'marine_cdom' <name> <scaling_factor>
 
@@ -123,7 +123,7 @@ Examples:
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 henyey_greenstein 10 5 0.8 1.33
 
-  flick iop AccuRT_1_8 400e-9 400e-9 1 marine_particles ECOSENS_HF22_D1 1e-3 10 5 0.8 1.33
+  flick iop AccuRT_1_8 400e-9 400e-9 1 marine_particles ECOSENS_HF22_D1 1e-3 1
 
   flick iop AccuRT_1_8 400e-9 400e-9 1 tabulated 10 5 petzold_phase_function.txt 1.33
 
