@@ -2,10 +2,8 @@
 #include "../numeric/units.hpp"
 
 namespace flick {
-  begin_test_case(atmosphere_ocean_test) {
-    using namespace units;
-    using namespace material;
-   
+  begin_test_case(atmosphere_ocean_test_A) {
+    using namespace material;   
     atmosphere_ocean::configuration c;
     double depth = 100;
     c.set<size_t>("n_angles",50);
@@ -27,6 +25,5 @@ namespace flick {
     layered_all.set_wavelength(800e-9);
     check(layered_all.absorption_coefficient()[0]>1);
     check(layered_all.absorption_coefficient()[1]>1);
-
   } end_test_case()
 }

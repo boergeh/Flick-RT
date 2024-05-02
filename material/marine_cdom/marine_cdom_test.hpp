@@ -6,7 +6,10 @@ namespace flick {
     using namespace units;
     material::marine_cdom mcdom("ECOSENS_HF22_D1",1);
     mcdom.set_wavelength(301e-9);
-    check_close(mcdom.absorption_coefficient(),1.724295,0.001_pct);
+    check_close(mcdom.absorption_coefficient(),1.724);
+    check_small(mcdom.scattering_coefficient());
+    mcdom.set_wavelength(780e-9);
+    check_close(mcdom.absorption_coefficient(),-0.0118, 0.1_pct);
     check_small(mcdom.scattering_coefficient());
   } end_test_case()
 }

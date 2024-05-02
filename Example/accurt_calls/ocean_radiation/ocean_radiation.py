@@ -18,7 +18,7 @@ meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(320e-9,800e-9,37);
+wl_grid = np.linspace(320e-9,920e-9,50);
 wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
@@ -71,7 +71,7 @@ ax[1].legend(loc='upper right')
 ax[1].set_xlabel('Wavelength [nm]')
 ax[1].set_ylabel('Downward irradiance [W m$^{-2}$ nm$^{-1}$]')
 ax[1].grid()
-plt.subplots_adjust(left=0.12, bottom=0.07, right=0.98, top=0.98,
+plt.subplots_adjust(left=0.15, bottom=0.07, right=0.98, top=0.98,
                     wspace=0, hspace=0.04)
 plt.show()
 fig.savefig("ocean_radiation.pdf", bbox_inches='tight')

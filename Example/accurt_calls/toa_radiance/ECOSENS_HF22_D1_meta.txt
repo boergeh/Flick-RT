@@ -6,6 +6,8 @@ following a gravimetric method using pre-washed and pre-weighted filters (van de
 Instrument: Turner 10-AU Field Fluorometer
 Exciation/Emission: 436/680 nm 
 
+Time point (Row 3) and Number of days (Row 4) are times of Ramses TriOS radiance and irradiance measurements.
+
 Row 1:  Latitude [°]
 Row 2:  Longitude [°]
 Row 3:  Time point YYYYMMDDHHMM [UTC]
@@ -18,13 +20,13 @@ Row 9:  Chla [mg m-3]
 Row 10: POC [mg m-3]
 */
 
-1    59.878675 
-2    5.655558 
-3    202205201124 
+1    59.8787 
+2    5.65556 
+3    20220520112442 
 4    8174.97623 
 5    1 
-6    11.826833 
-7    29.093349 
-8    20.126 
-9    7.549174425 
+6    11.86 
+7    29.08 
+8    20.13 
+9    7.549 
 10   -999

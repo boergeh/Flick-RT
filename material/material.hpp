@@ -57,15 +57,15 @@ namespace material {
       return 1;
     }
     virtual double absorption_distance(double absorption_optical_depth) const {
-      double ac = absorption_coefficient();
-      if (ac > 0)
-	return absorption_optical_depth/ac;
+      double l = absorption_optical_depth/absorption_coefficient();
+      if (std::isfinite(l))
+	return l;
       return std::numeric_limits<double>::max(); 
     }
     virtual double scattering_distance(double scattering_optical_depth) const {
-      double sc = scattering_coefficient();
-      if (sc > 0)
-	return scattering_optical_depth/sc;
+      double l = scattering_optical_depth/scattering_coefficient();
+      if (std::isfinite(l))
+	return l;
       return std::numeric_limits<double>::max(); 
     }
     friend std::ostream& operator<<(std::ostream &os, const base& b) {

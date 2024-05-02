@@ -8,15 +8,15 @@
 namespace flick {
   class constant_iop {
     double value_;
-    const double epsilon_ = std::numeric_limits<double>::epsilon()*10;
   public:
     constant_iop(double value) : value_{value} {}
     double optical_depth(double distance) const {
       return value_ * distance;
     }
     double distance(double optical_depth) const {
-      if (value_ >  epsilon_)
-	return optical_depth / value_;
+      double l = optical_depth / value_; 
+      if (std::isfinite(l))
+	return l;
       return std::numeric_limits<double>::max(); 
     }
     double value(double height) {
@@ -89,11 +89,7 @@ namespace flick {
 	double v = profile_.value(start.position().z());
 	return constant_iop(v).optical_depth(distance);
       }
-      double tau = profile_.integral(next_z(start,0),
-				     next_z(start,distance))/mu;
-      if (tau < 0)
-	throw std::runtime_error("iop_profile");
-      return tau;
+      return profile_.integral(next_z(start,0),next_z(start,distance))/mu;
     }
     double distance(const pose& start, double optical_depth) const {
       double mu = zk(start);

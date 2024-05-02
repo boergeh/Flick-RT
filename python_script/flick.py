@@ -9,7 +9,6 @@ example:
 import numpy as np
 import subprocess
 import os
-#from scipy.special import legendre
 import scipy.special
 
 def run(arguments):
@@ -135,6 +134,24 @@ class ocean_meta:
         self.spm = m[7,1]*1e-3
         self.chl = m[8,1]*1e-6
         self.poc = m[9,1]*1e-3
+
+    def to_string(self):
+        s = (
+        r"$\bf{Metadata}$" + "\n" +    
+        "latitude: " + str(self.latitude) + " $\degree$"+"\n" +
+        "longitude: " + str(self.longitude) + " $\degree$"+"\n" +
+        "UTC time point: " + str(round(self.time_point_utc)) + "\n" +
+        "days since year 2000: " + str(self.n_days) + "\n" +
+        "depth: " + str(self.depth) + " m\n" +
+        "temperature: " + str(round(self.temperature-273.15,1)) + " $\degree$C\n" +
+        "salinity: " + str(self.salinity) + " psu\n" +
+        "SPM: " + str(self.spm*1e3) + " g m$^{-3}$\n" +
+        "CHL: " + str(self.chl*1e6) + " mg m$^{-3}$\n" +
+        "POC: " + str(self.poc*1e3) + " g m$^{-3}$\n" +
+            ""
+        )
+        return s
+            
 
 class toa_meta:
     def __init__(self, file_name):

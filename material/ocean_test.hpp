@@ -37,4 +37,15 @@ namespace flick {
     double od2 = oce.absorption_optical_depth(distance);
     check_close(od1/od2,2,0.1_pct);
   } end_test_case()
+  
+   begin_test_case(ocean_test_C) {
+    // Check no throw for negative abs coefs. at 760 nm
+    using namespace material;
+    ocean::configuration c;
+    c.set<size_t>("n_angles",50);
+    c.set<std::string>("mp_names","ECOSENS_HF22_D1");
+    c.set<double>("mp_concentrations",1e-3);
+    auto oc = std::make_shared<ocean>(c);
+    oc->set_wavelength(760e-9);
+  } end_test_case()
 }
