@@ -29,5 +29,15 @@ namespace flick {
     double b_700 = ra.scattering_coefficient();
     check_close(b_400/b_700, 2, 10_pct);
   } end_test_case()
+  
+  begin_test_case(aerosols_test_D) {
+    // Check that scattering slope change with humidity
+    material::rural_aerosols low_rh(0.1,0);
+    low_rh.set_wavelength(400e-9);
+    material::rural_aerosols high_rh(0.1,1);
+    high_rh.set_wavelength(400e-9);
+    double r = low_rh.scattering_coefficient()/high_rh.scattering_coefficient();
+    check(r > 1.01);
+  } end_test_case()
 
 }

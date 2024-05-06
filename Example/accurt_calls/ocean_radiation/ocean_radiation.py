@@ -18,23 +18,24 @@ meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(320e-9,920e-9,50);
+wl_grid = np.linspace(320e-9,1020e-9,50);
 wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
-top_sensor_depth = 0.2
+top_sensor_depth = 0.3
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
         f.set("detector_height", -top_sensor_depth)
     else:
         f = flick.ocean_nadir_radiance()
-        f.set("detector_height", -top_sensor_depth-0.25)
+        f.set("detector_height", -top_sensor_depth-0.37)
 
     f.set_n_angles(100)
     f.set("aerosol_od", 0.28)
     f.set("aerosol_ratio", 1)
+    f.set("relative_humidity", 0.5)
     f.set("cloud_liquid", 0e-5)
     f.set("ozone", 0.004)
     f.set("pressure", 1010e2)

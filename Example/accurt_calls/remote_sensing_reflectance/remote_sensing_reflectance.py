@@ -12,13 +12,26 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
-wl_grid = np.linspace(300e-9,950e-9,20);
-solar_zenith_angle = 60
+station = "ECOSENS_HF22_D1"
+#meta = flick.ocean_meta(station+"_meta.txt")
+#meta_path = "../../../material/marine_particles/iop_tables"
+#meta = flick.ocean_meta(meta_path+"/"+station+"_meta.txt")
+
+wl_grid = np.linspace(300e-9,700e-9,20);
+solar_zenith_angle = 45
 f = flick.remote_sensing_reflectance()
 
-f.set_n_angles(90)
-f.set("aerosol_od", 0)
+f.set_n_angles(100)
+f.set("aerosol_od", 0.28)
+f.set("ozone", 0.004)
+f.set("temperature", 273+15)
+f.set("water_vapor",30)
+f.set("bottom_depth",200)
+#f.set("mp_names", station) 
+#f.set("mp_concentrations", meta.spm)
+#f.set("mcdom_names", station)
 f.set("cloud_liquid", 0)
+
 f.set("nap_concentration", 3e-3)
 f.set("chl_concentration", 2e-6)
 f.set("cdom_440", 0.1)
