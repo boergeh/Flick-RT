@@ -339,9 +339,14 @@ reflection and '1' gives loamy sand reflection)");
       } else if (subtract != "false") {
 	throw std::runtime_error("subtract_specular_radiance");
       }
-      //if (detector_orientation_override()) {
-      //	return Ld;
-      //}
+      if (detector_orientation_override()) {
+	auto view = c_.get_vector<double>("detector_orientation_override");
+	if (view.at(0) < 90) {
+	  return Ld;
+	} else {
+	  return Lu;
+	}  
+      }
       std::string ori = c_.get<std::string>("detector_orientation");
       if (ori=="up") {
 	return Ld;

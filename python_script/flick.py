@@ -263,8 +263,10 @@ class basic_radiation:
         spectrum = np.empty([len(wl),2])
         spectrum[:,0] = wl
         for i in range(len(wl)):
-            spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum gaussian_mean "+ \
+            spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
                       str(wl[i])+" "+str(wl_width))
+            #spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum gaussian_mean "+ \
+            #          str(wl[i])+" "+str(wl_width))
         return spectrum
 
     def set_n_angles(self,n_angles):

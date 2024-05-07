@@ -18,8 +18,15 @@ meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-wl_grid = np.linspace(320e-9,1020e-9,50);
+from_wl = 650e-9
+to_wl = 800e-9
+#wl_grid = np.linspace(from_wl,to_wl,10);
+wl_grid_L = Lm[:,0]*1e-9 
+wl_grid_E = Em[:,0]*1e-9 
+wl_grid_L = wl_grid_L[np.where((wl_grid_L > from_wl) & (wl_grid_L < to_wl))]
+wl_grid_E = wl_grid_E[np.where((wl_grid_E > from_wl) & (wl_grid_E < to_wl))]
 wl_width = 10e-9
+
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
@@ -32,7 +39,7 @@ for i in range(2):
         f = flick.ocean_nadir_radiance()
         f.set("detector_height", -top_sensor_depth-0.37)
 
-    f.set_n_angles(100)
+    f.set_n_angles(200)
     f.set("aerosol_od", 0.28)
     f.set("aerosol_ratio", 1)
     f.set("relative_humidity", 0.5)
@@ -52,10 +59,10 @@ for i in range(2):
     f.set("concentration_scaling_factors",[1,1,1,1])
     tp = meta.time_point_utc
     if i==0:
-        E = f.spectrum(wl_grid, wl_width, tp, meta.latitude, meta.longitude)
+        E = f.spectrum(wl_grid_E, wl_width, tp, meta.latitude, meta.longitude)
         E = f.to_W_per_m2_nm(E)
     else:
-        L = f.spectrum(wl_grid, wl_width, tp, meta.latitude, meta.longitude)
+        L = f.spectrum(wl_grid_L, wl_width, tp, meta.latitude, meta.longitude)
         L = f.to_mW_per_m2_nm_sr(L)
 
 fig, ax = plt.subplots(2,1,sharex=True)

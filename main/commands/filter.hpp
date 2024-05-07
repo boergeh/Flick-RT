@@ -25,6 +25,11 @@ namespace flick {
 	  double fwhm = std::stod(a(4));
 	  std::cout << flick::gaussian_mean(f,wl0,fwhm);
 	}
+	else if (a(2)=="triangular") {
+	  double wl0 = std::stod(a(3));
+	  double fwhm = std::stod(a(4));
+	  std::cout << flick::triangular(f,wl0,fwhm);
+	}
 	else if (a(2)=="weighted_integral") {
 	  std::string fname = a(3);
 	  auto f2 = flick::read<flick::pl_function>("./"+fname);
