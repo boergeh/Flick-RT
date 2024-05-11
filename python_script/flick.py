@@ -137,7 +137,7 @@ class ocean_meta:
 
     def to_string(self):
         s = (
-        r"$\bf{Metadata}$" + "\n" +    
+        r"$\it{metadata}$" + "\n" +    
         "latitude: " + str(self.latitude) + " $\degree$"+"\n" +
         "longitude: " + str(self.longitude) + " $\degree$"+"\n" +
         "UTC time point: " + str(round(self.time_point_utc)) + "\n" +

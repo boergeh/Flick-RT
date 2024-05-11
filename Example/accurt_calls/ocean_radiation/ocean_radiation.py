@@ -14,13 +14,15 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 station = "ECOSENS_HF22_D1"
+#station = "ECOSENS_HF22_B1"
 meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
-from_wl = 650e-9
+from_wl = 320e-9
 to_wl = 800e-9
-#wl_grid = np.linspace(from_wl,to_wl,10);
+#wl_grid_E = np.linspace(from_wl,to_wl,10);
+#wl_grid_L = np.linspace(from_wl,to_wl,10);
 wl_grid_L = Lm[:,0]*1e-9 
 wl_grid_E = Em[:,0]*1e-9 
 wl_grid_L = wl_grid_L[np.where((wl_grid_L > from_wl) & (wl_grid_L < to_wl))]

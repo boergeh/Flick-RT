@@ -14,9 +14,9 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 station = "ECOSENS_HF22_D1"
-from_wl = 300e-9
-to_wl = 800e-9
-wl_grid = np.linspace(from_wl,to_wl,200);
+from_wl = 200e-9
+to_wl = 1050e-9
+wl_grid = np.linspace(from_wl,to_wl,300);
 wl_width = 10e-9
 
 meta_path = "../../material/marine_particles/iop_tables"
@@ -30,8 +30,8 @@ a_cdom = iops.a_cdom()
 fig, ax = plt.subplots(2,2)
 fig.set_size_inches(7.5,6)
 ax[0,0].plot(a_w[:,0]*1e9,a_w[:,1],'-',label="water")
-ax[0,0].plot(a_spm[:,0]*1e9,a_spm[:,1],'-',label="spm")
-ax[0,0].plot(a_cdom[:,0]*1e9,a_cdom[:,1],'-',label="cdom")
+ax[0,0].plot(a_spm[:,0]*1e9,a_spm[:,1],'-',label="SPM")
+ax[0,0].plot(a_cdom[:,0]*1e9,a_cdom[:,1],'-',label="CDOM")
 ax[0,0].legend()
 ax[0,0].grid()
 ax[0,0].set_xlabel('Wavelength [nm]')
@@ -42,7 +42,7 @@ ax[0,0].set_ylim([-0.05*ymax,1.05*ymax])
 b_w = iops.b_water()
 b_spm = iops.b_spm()
 ax[1,0].plot(b_w[:,0]*1e9,b_w[:,1],'-',label="water")
-ax[1,0].plot(b_spm[:,0]*1e9,b_spm[:,1],'-',label="spm")
+ax[1,0].plot(b_spm[:,0]*1e9,b_spm[:,1],'-',label="SPM")
 ax[1,0].legend()
 ax[1,0].grid()
 ax[1,0].set_xlabel('Wavelength [nm]')
@@ -66,7 +66,7 @@ ax[0,1].set_ylabel('VSF at 515 nm [m$^{-1}$sr$^{-1}$]')
 ax[0,1].set_xticks([0,45,90,135,180])
 
 ax[1,1].axis("off")
-ax[1,1].text(0.0,0.0,meta.to_string())
+ax[1,1].text(0.0,0.0,station+" - "+meta.to_string())
 
 plt.subplots_adjust(left=0.09, bottom=0.08, right=0.98, top=0.98,
                     wspace=0.3, hspace=0.2)
