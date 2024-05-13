@@ -14,15 +14,17 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 station = "ECOSENS_HF22_D1"
-#station = "ECOSENS_HF22_B1"
+#station = "ECOSENS_HF23_D1"
 meta = flick.ocean_meta(station+"_meta.txt")
 Lm = flick.table(station+"_ocean_radiance.txt")
 Em = flick.table(station+"_ocean_irradiance.txt")
 
 from_wl = 320e-9
-to_wl = 800e-9
-#wl_grid_E = np.linspace(from_wl,to_wl,10);
-#wl_grid_L = np.linspace(from_wl,to_wl,10);
+to_wl = 850e-9
+#from_wl = 700e-9
+#to_wl = 800e-9
+#wl_grid_E = np.linspace(from_wl,to_wl,50);
+#wl_grid_L = np.linspace(from_wl,to_wl,50);
 wl_grid_L = Lm[:,0]*1e-9 
 wl_grid_E = Em[:,0]*1e-9 
 wl_grid_L = wl_grid_L[np.where((wl_grid_L > from_wl) & (wl_grid_L < to_wl))]
@@ -32,7 +34,7 @@ wl_width = 10e-9
 f = [flick.ocean_downward_plane_irradiance(),
       flick.ocean_nadir_radiance()]
 
-top_sensor_depth = 0.3
+top_sensor_depth = 0.30
 for i in range(2):
     if i==0:
         f = flick.ocean_downward_plane_irradiance()
@@ -45,7 +47,8 @@ for i in range(2):
     f.set("aerosol_od", 0.28)
     f.set("aerosol_ratio", 1)
     f.set("relative_humidity", 0.5)
-    f.set("cloud_liquid", 0e-5)
+    #f.set("cloud_liquid", 7e-4)
+    f.set("cloud_liquid", 0)
     f.set("ozone", 0.004)
     f.set("pressure", 1010e2)
     f.set("temperature", 273+15)
@@ -56,7 +59,7 @@ for i in range(2):
     f.set("mp_concentrations", meta.spm*abs_scale)
     f.set("mp_scattering_scaling_factors", 1/abs_scale)
     f.set("mcdom_names", station)
-    f.set("mcdom_scaling_factors", 1)
+    f.set("mcdom_scaling_factors", 0.8)
     f.set("concentration_relative_depths",[0,0.07,0.071,1])
     f.set("concentration_scaling_factors",[1,1,1,1])
     tp = meta.time_point_utc

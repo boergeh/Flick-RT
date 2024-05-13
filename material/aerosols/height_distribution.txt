@@ -9,5 +9,6 @@ column 2: probability density [1/m]
 
 0   1
 500 1
-501 1e-9
+5000 1
+5001 1e-9
 100e3 1e-9

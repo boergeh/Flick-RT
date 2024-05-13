@@ -48,12 +48,17 @@ namespace material {
       	range_[key]={0, heights_.size()-1};
       if (auto_update_iops_)
 	update_iops();
-    }
+    }  
     template<class Material>
     const Material& get_material() const {
-      auto ptr = materials_.at(id<Material>()).get();
+      return get_material<Material>(id<Material>());
+    }
+    template<class Material>
+    const Material& get_material(const std::string& unique_name) {
+      auto ptr = materials_.at(unique_name).get();
       return *static_cast<Material*>(ptr);
     }
+
     void set_range(size_t n_low, size_t n_high, const std::string& name) {
       if (not exists(name))
       	throw std::runtime_error("material set_range: " + name + " does not exists");

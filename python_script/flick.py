@@ -26,7 +26,8 @@ class absorption_optical_thickness:
         self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
 
     def atmosphere(self):
-        command = "iop absorption_optical_thickness_120000 "+self._wls+" atmosphere_ocean "+self._ao_config+" 0"
+        command = "iop absorption_optical_thickness_120000 "+self._wls+ \
+            " atmosphere_ocean "+self._ao_config+" 0"
         return run(command)
     
         
@@ -61,7 +62,9 @@ class marine_iops:
             p = run("iop scattering_ab_"+str(n_points)+self._expansion_command())
         else:
             n_points = 200+n_terms**1.6
-            p = run("iop scattering_ab_fitted_"+str(n_terms)+"_"+str(n_points)+"_"+str(use_cutoff_angle)+self._expansion_command())
+            p = run("iop scattering_ab_fitted_"+str(n_terms)+"_"+ \
+                    str(n_points)+"_"+str(use_cutoff_angle)+ \
+                    self._expansion_command())
         p = np.flipud(p)
         p[:,0] = np.arccos(p[:,0])*180/np.pi
         return p
@@ -75,10 +78,12 @@ class marine_iops:
 
     def _legendre_both_halfs_integral(self,term_number):
         i = term_number
-        return self._legendre_first_half_integral(i) + self._legendre_second_half_integral(i)
+        return self._legendre_first_half_integral(i) + \
+            self._legendre_second_half_integral(i)
 
     def _legendre_second_half_integral(self,term_number):
-        # https://math.stackexchange.com/questions/35804/integrating-legendre-polynomials-over-half-range
+        # https://math.stackexchange.com/questions/35804/
+        # integrating-legendre-polynomials-over-half-range
         l = term_number
         if l == 0:
             return 1
@@ -103,10 +108,12 @@ class marine_iops:
         return f
 
     def _expansion_factors(self,n_terms):
-        return run("iop wigner_alpha_beta_"+str(n_terms)+self._expansion_command())
+        return run("iop wigner_alpha_beta_"+str(n_terms)+ \
+                   self._expansion_command())
         
     def _expansion_command(self):
-        return " 515e-9 515e-9 1 marine_particles "+str(self._name)+" "+str(self._spm)+" "+str(self._b_scaling)
+        return " 515e-9 515e-9 1 marine_particles "+str(self._name)+" "+ \
+            str(self._spm)+" "+str(self._b_scaling)
      
     def _coefficient(self,length_type, material):
         command = ""
@@ -226,20 +233,23 @@ class basic_radiation:
         return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec     
 
     def toa_zenith_irradiance(self, time_point_utc):
-        distance_au = run("sun_position distance "+self._to_spaced_string(time_point_utc))
+        distance_au = run("sun_position distance "+ \
+                          self._to_spaced_string(time_point_utc))
         r = run("radiator toa-solar")
         r[:,1] = r[:,1] * (1/distance_au)**2
         return r
 
     def sun_zenith_angle(self,time_point_utc, latitude, longitude):
-        command = "sun_position zenith_angle "+self._to_spaced_string(time_point_utc)+" "+ \
-                               str(latitude)+" "+str(longitude)
+        command = "sun_position zenith_angle "+ \
+        self._to_spaced_string(time_point_utc)+" "+ \
+        str(latitude)+" "+str(longitude)
         a = run(command)
         return a[0][0]
     
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
-        a = self.sun_zenith_angle(time_point_utc, latitude, longitude)        
+        a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
+        #print('angle',a)
         L_r = self._relative_spectrum(wl_grid,a)
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];

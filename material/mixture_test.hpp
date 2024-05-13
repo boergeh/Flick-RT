@@ -31,13 +31,11 @@ namespace flick {
     
     auto pf = material::phase_function(sky);
     check_close(delta_fit(pf,8).coefficients()[0]*4*pi,1,1e-7_pct);
-    sky.add_material<material::rural_aerosols>();
+    sky.add_material(std::make_shared<material::rural_aerosols>(300,0.1,0.5),"rural_aerosols");
     sky.update_iops();
     sky.set_position({0,0,0});
-    
-    double od_ae = sky.get_material<material::rural_aerosols>().optical_depth(toa);
-    std::cout <<std::setprecision(4) << od_ae << " "<< od_cl_bench << " " << sky.optical_depth(toa) << std::endl;
-    
+
+    double od_ae = sky.get_material<material::rural_aerosols>("rural_aerosols").optical_depth(toa);
     check_close(sky.optical_depth(toa),od_ae+od_cl_bench);
     auto p1 = sky.mueller_matrix(unit_vector{0,0}).value(0,0);
     auto p2 = sky.mueller_matrix(unit_vector{pi,0}).value(0,0);

@@ -64,7 +64,8 @@ optimized for TOA radiation.)");
       double epsilon = 1e-4; // m
       stdvector h = atmospheric_state(c.get<size_t>("n_heights")).height_grid();
       double cl = c.get<double>("cloud_liquid");
-      if (cl > 0) { 
+      double aod = c.get<double>("aerosol_od");
+      if (cl > 0 or aod > 0) { 
 	double h_cloud_top = h.at(n_cloud_base_+1);
 	double h_cloud_base = h.at(n_cloud_base_);
 	h.insert(h.begin()+n_cloud_base_,h_cloud_base-epsilon); 
@@ -79,6 +80,16 @@ optimized for TOA radiation.)");
       return h;
     }
   private:
+    size_t cloud_base_above_step() {
+      size_t n = n_cloud_base_ + 1;
+      if (c_.get<double>("snow_ice") > 0) {
+	return n + 2;
+      }
+      return n;
+    }
+    double layer_thickness(size_t n_base, size_t n_top) {
+    	return heights().at(n_top)-heights().at(n_base);
+    }
     void add_air() {
       double p = c_.get<double>("pressure");
       if (p > 0) {
@@ -100,23 +111,24 @@ optimized for TOA radiation.)");
     void add_aerosols() {
       double aod = c_.get<double>("aerosol_od");
       if (aod > 0) {
+	size_t n_base = 0;
+	size_t n_top = cloud_base_above_step()-1;     
 	double ratio = c_.get<double>("aerosol_ratio");
 	double rh = c_.get<double>("relative_humidity");
-	add_material<rural_aerosols>(aod*ratio, rh);
-	add_material<urban_aerosols>(aod*(1-ratio), rh);
+	double dh = layer_thickness(n_base,n_top);
+	add_material<rural_aerosols>(dh, aod*ratio, rh);
+	add_material<urban_aerosols>(dh, aod*(1-ratio), rh);
+	set_range<rural_aerosols>(n_base,n_top);
+	set_range<urban_aerosols>(n_base,n_top);
       }
     }
     void add_clouds() {
       double liquid_depth = c_.get<double>("cloud_liquid");
       if (liquid_depth > 0) {
-	size_t n_base = n_cloud_base_ + 1;
+	size_t n_base = cloud_base_above_step();
 	size_t n_top = n_base + 1; 
-	if (c_.get<double>("snow_ice") > 0) {
-	  n_base += 2;
-	  n_top += 2;
-	}
 	double radius = 15e-6;
-	double dh = heights().at(n_top)-heights().at(n_base);
+	double dh = layer_thickness(n_base,n_top);
 	double volume_fraction = liquid_depth/dh;  
 	double mu = log(radius);
 	double sigma = 0;

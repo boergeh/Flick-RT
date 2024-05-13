@@ -14,7 +14,7 @@ sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
 station = "ECOSENS_HF22_D1"
-from_wl = 200e-9
+from_wl = 300e-9
 to_wl = 1050e-9
 wl_grid = np.linspace(from_wl,to_wl,300);
 wl_width = 10e-9
