@@ -141,7 +141,7 @@ namespace distribution {
 	return 0;
       if (x >= a and x < c)
 	return 2*(x-a)/((b-a)*(c-a));
-      if (x > c and x <= b)
+      if (x >= c and x <= b)
 	return 2*(b-x)/((b-a)*(b-c));
       return 0;
     }

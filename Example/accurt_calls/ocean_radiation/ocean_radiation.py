@@ -59,7 +59,7 @@ for i in range(2):
     f.set("mp_concentrations", meta.spm*abs_scale)
     f.set("mp_scattering_scaling_factors", 1/abs_scale)
     f.set("mcdom_names", station)
-    f.set("mcdom_scaling_factors", 0.8)
+    f.set("mcdom_scaling_factors", 1.0)
     f.set("concentration_relative_depths",[0,0.07,0.071,1])
     f.set("concentration_scaling_factors",[1,1,1,1])
     tp = meta.time_point_utc

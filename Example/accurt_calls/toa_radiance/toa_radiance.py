@@ -21,25 +21,27 @@ toa_meta = flick.toa_meta(station+"_toa_meta.txt")
 Lm = flick.table(station+"_toa_radiance.txt")
 wl_grid_m = Lm[:,0]*1e-9
 #wl_grid = np.linspace(from_wl,to_wl,10);
-wl_grid = wl_grid_m[np.where((wl_grid_m > from_wl) & (wl_grid_m < to_wl))]
+wl_grid = wl_grid_m[np.where((wl_grid_m >= from_wl) & (wl_grid_m <= to_wl))]
 wl_grid = np.insert(wl_grid, 0, wl_grid[0]*0.95, axis=0)
-wl_grid = np.insert(wl_grid, len(wl_grid), wl_grid[-1]*1.01, axis=0)
+wl_grid = np.insert(wl_grid, len(wl_grid), wl_grid[-1]*1.02, axis=0)
 wl_width = 3e-9
-polar_viewing_angle = 180-toa_meta.observation_polar_angle # check this
-azimuth_viewing_angle = toa_meta.observation_azimuth_angle # check this
+polar_viewing_angle = 180
+azimuth_viewing_angle = 0
+#polar_viewing_angle = 180-toa_meta.observation_polar_angle # check this
+#azimuth_viewing_angle = toa_meta.observation_azimuth_angle # check this
 f = flick.toa_radiance(polar_viewing_angle, azimuth_viewing_angle)
 
 f.set_n_angles(200)
-f.set("n_heights",10)
+f.set("n_heights",20)
 f.set("gas_spectral_region","uv_vis_toa")
 f.set("aerosol_od", 0.2)
 f.set("aerosol_ratio", 1)
-f.set("relative_humidity", 0.)
-f.set("cloud_liquid", 0e-6)
+f.set("relative_humidity", 0.5)
+f.set("cloud_liquid", 0*2.5e-6)
 f.set("ozone", 0.0045)
-f.set("pressure", 1010e2)
-f.set("temperature", 273-0)
-f.set("water_vapor",25)
+f.set("pressure", 1020e2)
+f.set("temperature", 273)
+f.set("water_vapor",30)
 f.set("mp_names", station)
 abs_scale = 1
 f.set("mp_concentrations", meta.spm*abs_scale)

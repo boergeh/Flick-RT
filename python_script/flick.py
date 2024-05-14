@@ -249,7 +249,6 @@ class basic_radiation:
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
         a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
-        #print('angle',a)
         L_r = self._relative_spectrum(wl_grid,a)
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
@@ -274,9 +273,9 @@ class basic_radiation:
         spectrum[:,0] = wl
         for i in range(len(wl)):
             spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
-                      str(wl[i])+" "+str(wl_width))
+                                str(wl[i])+" "+str(wl_width))
             #spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum gaussian_mean "+ \
-            #          str(wl[i])+" "+str(wl_width))
+             #         str(wl[i])+" "+str(wl_width))
         return spectrum
 
     def set_n_angles(self,n_angles):
