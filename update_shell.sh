@@ -13,13 +13,13 @@ if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
     exit 1
     
 elif [ -n "$($SHELL -c 'echo $BASH_VERSION')" ]; then
-    echo 'export FLICK_PATH='$FLICK_FOLDER >> ~/.profile
-    echo 'export FLICK_COMPILER="g++ -std=c++20"' >> ~/.profile
-    echo 'export PATH=$FLICK_PATH/main:$PATH' >> ~/.profile
-    echo 'Three lines have been added to your ~/.profile'
+    echo 'export FLICK_PATH='$FLICK_FOLDER >> ~/.bashrc
+    echo 'export FLICK_COMPILER="g++ -std=c++20"' >> ~/.bashrc
+    echo 'export PATH=$FLICK_PATH/main:$PATH' >> ~/.bashrc
+    echo 'Three lines have been added to your ~/.bashrc'
     echo 'Now, run the command'
     echo ''
-    echo '  source ~/.profile'
+    echo '  source ~/.bashrc'
     echo ''
     echo 'and then rerun make'
     echo ''
