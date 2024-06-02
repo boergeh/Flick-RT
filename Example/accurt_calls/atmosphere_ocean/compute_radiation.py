@@ -54,9 +54,9 @@ def radiation(f, detector_height, wavelengths):
     f.set('pressure', 1000e2)
     f.set('temperature', 273+15)
     f.set('water_vapor',30)
-    f.set('mp_names', station) 
+    f.set('mp_names', './input/'+station) 
     f.set('mp_concentrations', meta.spm)
-    f.set('mcdom_names', station)
+    f.set('mcdom_names', './input/'+station)
     f.set('mcdom_scaling_factors', 1.0)
     f.set('subtract_specular_radiance','false')
     return f.spectrum(wavelengths, band_width, meta.time_point_utc,
@@ -66,9 +66,9 @@ wl = np.linspace(first_wavelength, last_wavelength, n_wavelengths)
 
 
 if compute_at_satellite_wavelengths:
-    instrument_wl = flick.table('input/'+station+"_toa_radiance.txt")[:,0]
+    instrument_wl = flick.table('input/'+station+'_toa_radiance.txt')[:,0]
 else:
-    instrument_wl = flick.table('input/'+station+"_ocean_irradiance.txt")[:,0]
+    instrument_wl = flick.table('input/'+station+'_ocean_irradiance.txt')[:,0]
 wl = flick.move_closest_values_in_a_to_those_in_b(wl,instrument_wl)
 
 height = irradiance_height
@@ -80,9 +80,9 @@ np.savetxt(file_name, E, fmt=['%6.2f ','%8.3e'])
 
 
 if compute_at_satellite_wavelengths:
-    instrument_wl = flick.table('input/'+station+"_toa_radiance.txt")[:,0]
+    instrument_wl = flick.table('input/'+station+'_toa_radiance.txt')[:,0]
 else:
-    instrument_wl = flick.table('input/'+station+"_ocean_radiance.txt")[:,0]
+    instrument_wl = flick.table('input/'+station+'_ocean_radiance.txt')[:,0]
 
 wl = flick.move_closest_values_in_a_to_those_in_b(wl,instrument_wl)
 height = irradiance_height-detector_separation
