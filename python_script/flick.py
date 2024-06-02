@@ -19,6 +19,18 @@ def run(arguments):
 def table(file_name):
     return run("text "+file_name+" matrix")
 
+def move_closest_values_in_a_to_those_in_b(a,b):
+    i = 0
+    j = 0
+    while i < len(a)-1 and j < len(b):
+        if (a[i] < b[j] and a[i+1] > b[j]):
+            if (abs(a[i]-b[j]) < abs(a[i+1]-b[j])):
+                a[i] = b[j]
+            else:
+                a[i+1] = b[j] 
+            j += 1
+        i += 1
+    return a
 
 class absorption_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):

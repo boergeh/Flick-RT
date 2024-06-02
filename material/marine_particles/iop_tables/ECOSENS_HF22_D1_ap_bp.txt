@@ -1,7 +1,9 @@
 /*
-Particulate absorption and scattering spectra, normalized by SPM 
-Scattering spectra estimated from LISST-VSF PSD power-function fit (see Boss et al. 2013) scaled by LISST-VSF scattering coefficient at 515 nm 
-Total (a_p) and bleached (a_d) absorption spectra from UV/VIS spectrophotometer measurements with GF/F filter.
+Particulate absorption and scattering spectra, normalized by SPM
+Scattering spectra estimated from LISST-VSF PSD power-function fit
+(see Boss et al. 2013) scaled by LISST-VSF scattering coefficient at
+515 nm Total (a_p) and bleached (a_d) absorption spectra from UV/VIS
+spectrophotometer measurements with GF/F filter.
 
 Lat, Lon =  59.8787 ,  5.65556 
 Date Time UTC =  20-May-2022 11:32:00 
@@ -18,6 +20,7 @@ Column 2: a_p [m^2/g]
 Column 3: a_d [m^2/g]
 Column 4: b_p [m^2/g]
 */
+
 300	   0.01128	   0.009896	   0.922
 301	   0.01101	   0.009747	   0.917
 302	   0.01074	   0.009598	   0.911

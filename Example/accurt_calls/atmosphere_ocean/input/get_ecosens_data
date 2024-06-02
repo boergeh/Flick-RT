@@ -1,0 +1,19 @@
+# Example
+# ./get_ecosens_data HF22_D1
+
+dir0="/Users/borgehamre/ift_optikk/data/fieldWork/2024_EcoSens_collected/flick_materials"
+dir1="radiance"
+dir2="irradiance"
+dir3="insitu_meta"
+dir4="toa_radiance"
+
+file="ECOSENS_$1_*"
+from1="$dir0/$dir1/$file"
+from2="$dir0/$dir2/$file"
+from3="$dir0/$dir3/$file"
+from4="$dir0/$dir4/$file"
+to="."
+cp $from1 $to
+cp $from2 $to
+cp $from3 $to
+cp $from4 $to

@@ -1,21 +1,20 @@
 """
-Computes upward nadir radiance and downward irradiance
-spectra. See the flick_tmp/config file that will be generated after
-the first run for documentation on all variables that may be set with
-the 'set' function used in this script. SI-units and degrees are used
-unless otherwise specified. Two text files containing the computed
-spectra will be created.
+Computes upward nadir radiance and downward irradiance spectra. See
+the flick_tmp/config file that will be generated after the first run
+for documentation on all variables that may be set with the 'set'
+function used in this script. SI-units and degrees are used unless
+otherwise specified. Two text files containing the computed spectra
+will be created.
 
 """
 import numpy as np
-#import matplotlib.pyplot as plt
 import os
 import sys
 sys.path.append(os.environ['FLICK_PATH']+'/python_script')
 import flick
 
 station = 'ECOSENS_HF22_D1'
-irradiance_height = -0.3
+irradiance_height = 1.3
 detector_separation = 0.37
 first_wavelength = 320e-9
 last_wavelength = 850e-9

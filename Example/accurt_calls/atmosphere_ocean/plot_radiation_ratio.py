@@ -1,5 +1,6 @@
 """
-Plot ratio of nadir radiance to downward irradiance
+Plot ratio of nadir radiance to downward irradiance.
+Run compute_radiation.py first.
 """
 from scipy.interpolate import interp1d
 import matplotlib.ticker as mticker
@@ -9,15 +10,10 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
-compute_spectra = True
+station = "ECOSENS_HF22_D1"
 
-if compute_spectra:
-    exec(open("compute_radiation.py").read())
-else:
-    station = "ECOSENS_HF22_D1"
-
-E = flick.table(station+"_computed_irradiance_W_per_m2_nm.txt")
-L = flick.table(station+"_computed_radiance_mW_per_m2_nm_sr.txt")
+E = flick.table('output/'+station+"_computed_irradiance_W_per_m2_nm.txt")
+L = flick.table('output/'+station+"_computed_radiance_mW_per_m2_nm_sr.txt")
 L[:,1] = interp1d(L[:,0], L[:,1])(E[:,0])
 to_watts = 1e-3;
 fig, ax = plt.subplots()
@@ -35,10 +31,12 @@ ax.tick_params(axis='both', which='minor', labelsize=9)
 ax.yaxis.set_minor_formatter(mticker.FormatStrFormatter("%3.3g"))
 ax.minorticks_on()
 ax.grid(True, which='both')
+for label in ax.yaxis.get_ticklabels('minor')[1::2]:
+        label.set_visible(False)
 
 plt.subplots_adjust(left=0.15, bottom=0.09, right=0.98, top=0.98)
 plt.show()
-fig.savefig(station+'_plotted_radiation_ratio.pdf')
+fig.savefig('output/'+station+'_plotted_radiation_ratio.pdf')
 
 
 

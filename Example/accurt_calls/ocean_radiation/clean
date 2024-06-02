@@ -3,7 +3,7 @@ rm -fr __pycache__
 rm -f *~
 rm -f ./#*#
 rm -f fort.199
-rm -f ocean_radiation.pdf
-
+rm -f *_plotted_radiation*.pdf
+rm -f *_computed_*.txt
 
 

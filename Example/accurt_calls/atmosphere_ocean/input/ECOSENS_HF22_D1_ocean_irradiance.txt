@@ -1,10 +1,8 @@
 /*
 Trios Ramses irradiance sensor 5016
-In-water upward looking.
-
 Column 1: Wavelength [nm]
-Column 2: Geometric mean irradiance [mW m-2 nm-1]
-Column 3: Geometric standard deviation of repeated measurements
+Column 2: Mean nadir irradiance [mW m-2 nm-1]
+Column 3: Mean absolute error of repeated measurements
 */
 318.4	   82.04	   1.102
 321.8	   106	   1.102

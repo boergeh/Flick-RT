@@ -1,4 +1,7 @@
 /* Sentinel-3A 
+Observation polar angle, observation azimuth angle, solar zenith angle, solar azimuth angle
+and acquisition time of central pixel in 9 x 9 matchup window.
+
 Row 1: Observation polar angle [°]
 
 Row 2: Observation azimuth angle [°]
@@ -11,8 +14,8 @@ Row 5: Time point YYYYMMDDHHMMSS [UTC]
 */
 
 
-1    14.094934 
-2    -67.862785 
-3    40.56514 
-4    164.60558 
-5    20220520105123
+1    14.09 
+2    -67.86 
+3    40.57 
+4    164.6 
+5    20220520105153
