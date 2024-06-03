@@ -1,30 +1,35 @@
 """
-Computes upward nadir radiance and downward irradiance spectra. See
-the flick_tmp/config file that will be generated after the first run
-for documentation on all variables that may be set with the 'set'
-function used in this script. SI-units and degrees are used unless
-otherwise specified. Two text files containing computed radiance and
-irradiance spectra will be created in the output directory.
+Compute upward nadir radiance and downward irradiance spectra in the
+atmosphere-ocean system. See the flick_tmp/config file that will be
+generated after the first run for documentation on all variables that
+may be set with the 'set' function used in this script. SI-units (mks)
+and degrees are used unless otherwise specified. Two text files
+containing computed radiance and irradiance spectra will be created
+and stored in the output directory.
 
-Fieldwork acquired data files should be added to the input directory. 
+User generated data files may be added to the input directory. 
 
 Default settings gives output radiation spectra inside the water
-column.
+column with negative irradiance_height, but spectra from any height in
+the atmosphere and water column may be generated. For example can
+top-of-atmosphere radiation be computed by setting irradiance_height =
+120e3.
 
-Top-of-atmosphere radiance and irradiance can be computed by setting
-irradiance_height = 120e3
+Generated radiance and irradiance spectra can be viewed afterwards by
+running plot_radiation.py.
 
-Remote sensing reflectance can be computed by assigning a positive
-value to irradiance_height to get irradiances in the atmosphere. Make
-sure to set it higher than the detector separation to ensure also
-atmospheric radiance. irradiance_height = 1 should be sufficient. To
-remove surface specular reflections, set
-f.set('subtract_specular_radiance','true'). Running with these
-settings, it will be possible to plot the remote sensing reflectance
-afterwards with plot_radiation_ratio.py
+Remote sensing reflectance can be obtained by setting the
+irradiance_height just above the water surface, and set it higher than
+the detector separation to ensure atmospheric radiance, and to remove
+surface specular reflections, set
+f.set('subtract_specular_radiance','true'). The remote sensing
+reflectance can the be viewed afterwards with plot_radiation_ratio.py
 
-Computed radiance and irradiance spectra can be viewed by running
-plot_radiation.py afterwards.
+The n_wavelengths variable gives number of wavelength used to generate
+the transmittance from top of the atmosphere to the position of the
+radiation output. A high resolution solar spectrum is then multiplied
+in and the resulting spectrum is smoothed with a triangular function
+with a given band_width.
 
 """
 import numpy as np
@@ -33,6 +38,7 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+'/python_script')
 import flick
 
+# - begin user input -
 station = 'ECOSENS_HF22_D1'
 irradiance_height = -0.3
 detector_separation = 0.37
@@ -41,11 +47,12 @@ last_wavelength = 850e-9
 n_wavelengths = 60
 band_width = 10e-9
 compute_at_satellite_wavelengths = False
+# - end user input -
 
 meta = flick.ocean_meta('input/'+station+'_meta.txt')
 
 def radiation(f, detector_height, wavelengths):
-    f.set('detector_height', detector_height)
+    # - begin user input -
     f.set('aerosol_od', 0.28)
     f.set('aerosol_ratio', 1)
     f.set('relative_humidity', 0.5)
@@ -59,6 +66,8 @@ def radiation(f, detector_height, wavelengths):
     f.set('mcdom_names', './input/'+station)
     f.set('mcdom_scaling_factors', 1.0)
     f.set('subtract_specular_radiance','false')
+    # - end user input -
+    f.set('detector_height', detector_height)
     return f.spectrum(wavelengths, band_width, meta.time_point_utc,
                       meta.latitude, meta.longitude)
 

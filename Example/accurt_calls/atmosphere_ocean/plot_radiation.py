@@ -1,6 +1,7 @@
 """
-Plot measured and computed downward irradiance and nadir radiance.
+Plot computed and measured radiation.
 Run compute_radiation.py first.
+
 """
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -9,10 +10,12 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
+# - begin user input -
 show_computed_data = True
 show_satellite_data = False
 show_ramses_data = True
 station = "ECOSENS_HF22_D1"
+# - end user input -
 
 fig, ax = plt.subplots(2,1,sharex=True)
 fig.set_size_inches(4.4,7.5)
