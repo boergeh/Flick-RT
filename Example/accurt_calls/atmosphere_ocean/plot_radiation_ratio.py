@@ -10,9 +10,7 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
-# - begin user input -
 station = "ECOSENS_HF22_D1"
-# - end user input -
 
 E = flick.table('output/'+station+"_computed_irradiance_W_per_m2_nm.txt")
 L = flick.table('output/'+station+"_computed_radiance_mW_per_m2_nm_sr.txt")

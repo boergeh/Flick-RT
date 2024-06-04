@@ -19,18 +19,21 @@ def run(arguments):
 def table(file_name):
     return run("text "+file_name+" matrix")
 
-def move_closest_values_in_a_to_those_in_b(a,b):
+def include_given_values(lower_limit,upper_limit,n,v):
+    v = [x for x in v if lower_limit < x < upper_limit]
+    v = np.insert(v,0,lower_limit)
+    v = np.insert(v,len(v),upper_limit)
+    if len(v) >= n:
+        step = round(len(v)/n)
+        return v[::step] 
+    
     i = 0
-    j = 0
-    while i < len(a)-1 and j < len(b):
-        if (a[i] < b[j] and a[i+1] > b[j]):
-            if (abs(a[i]-b[j]) < abs(a[i+1]-b[j])):
-                a[i] = b[j]
-            else:
-                a[i+1] = b[j] 
-            j += 1
-        i += 1
-    return a
+    while len(v) < n:
+        if i > len(v)-2:
+            i = 0
+        v = np.insert(v,i+1, v[i]+(v[i+1]-v[i])/2)
+        i += 2
+    return v
 
 class absorption_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):
@@ -156,7 +159,7 @@ class ocean_meta:
 
     def to_string(self):
         s = (
-        r"$\it{metadata}$" + "\n" +    
+        rf"$\it{metadata}$" + "\n" +    
         "latitude: " + str(self.latitude) + " $\degree$"+"\n" +
         "longitude: " + str(self.longitude) + " $\degree$"+"\n" +
         "UTC time point: " + str(round(self.time_point_utc)) + "\n" +

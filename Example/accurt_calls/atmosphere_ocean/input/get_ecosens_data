@@ -6,14 +6,26 @@ dir1="radiance"
 dir2="irradiance"
 dir3="insitu_meta"
 dir4="toa_radiance"
+dir5="ap_bp_lisstvsf"
+dir6="pf"
+dir7="a_cdom"
+dir8="toa_meta"
 
 file="ECOSENS_$1_*"
 from1="$dir0/$dir1/$file"
 from2="$dir0/$dir2/$file"
 from3="$dir0/$dir3/$file"
 from4="$dir0/$dir4/$file"
+from5="$dir0/$dir5/$file"
+from6="$dir0/$dir6/$file"
+from7="$dir0/$dir7/$file"
+from8="$dir0/$dir8/$file"
 to="."
 cp $from1 $to
 cp $from2 $to
 cp $from3 $to
 cp $from4 $to
+cp $from5 $to
+cp $from6 $to
+cp $from7 $to
+cp $from8 $to

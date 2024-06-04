@@ -1,15 +1,18 @@
 /* Hardangerfjord Water Sample.
-Mass concentrations of dry Suspended Particulate Matter (SPM) and Chlorophyll-a (Chla) 
-retained on 47 mm diameter glass fiber filters Whatman Grade GF/F. SPM was determined 
-following a gravimetric method using pre-washed and pre-weighted filters (van der Linde, 
-1998). Chla was determined fluorometrically with methanol extractions following Holm-Hansen and Riemann (1978).
+Mass concentrations of dry Suspended Particulate Matter (SPM) 
+and Chlorophyll-a (Chla) retained on 47 mm diameter glass fiber 
+filters Whatman Grade GF/F. SPM was determined following a 
+gravimetric method using pre-washed and pre-weighted filters 
+(van der Linde, 1998). Chla was determined fluorometrically 
+with methanol extractions following Holm-Hansen and Riemann (1978).
 Instrument: Turner 10-AU Field Fluorometer
 Exciation/Emission: 436/680 nm 
 
-Time point (Row 3) and Number of days (Row 4) are times of Ramses TriOS radiance and irradiance measurements.
+Time point (Row 3) and Number of days (Row 4) are times of Ramses 
+TriOS radiance and irradiance measurements.
 
-Row 1:  Latitude [°]
-Row 2:  Longitude [°]
+Row 1:  Latitude [deg]
+Row 2:  Longitude [deg]
 Row 3:  Time point YYYYMMDDHHMM [UTC]
 Row 4:  Number of days since January 1, 2000, at 12:00 [Terrestrial Time] 
 Row 5:  Depth [m] 
@@ -22,8 +25,8 @@ Row 10: POC [mg m-3]
 
 1    59.8787 
 2    5.65556 
-3    20220520112442 
-4    8174.97623 
+3    20220520112445 
+4    8174.97626 
 5    1 
 6    11.86 
 7    29.08 
