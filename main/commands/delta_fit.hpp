@@ -11,7 +11,7 @@ namespace flick {
       void run() {
 	size_t n_terms = std::stoi(a(1));
 	std::string fname = a(3);
-	auto f = flick::read<flick::pe_function>("./"+fname);
+	auto f = flick::read<flick::pe_function>(fname);
 	if (a(2)=="coefficients") {
 	   std::cout << flick::delta_fit(f,n_terms).coefficients();
 	}

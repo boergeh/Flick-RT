@@ -12,8 +12,8 @@ namespace material {
     const double constant = 1;
   public:
     marine_cdom(const std::string& name, double scaling_factor) {
-      const std::string path = "/material/marine_cdom/iop_tables";
-      a_ = read<pl_function>(add_path_if_exists(name+"_a.txt",{"./",path}));
+      std::string p = path()+"/material/marine_cdom/iop_tables";
+      a_ = read<pl_function>(name+"_a.txt", p);
       a_.scale_y(scaling_factor);
       a_.add_extrapolation_points(constant);
     }

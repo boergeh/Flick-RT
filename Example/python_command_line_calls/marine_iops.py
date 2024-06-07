@@ -1,9 +1,6 @@
 """
-Plots inherent optical properties of ocean materials. See the
-flick_tmp/config file, which will be generated after the first run,
-for documentation on all variables that may be set with the set
-function used in this example. SI-units and degrees are used unless
-otherwise specified.
+Plot inherent optical properties of ocean materials. SI-units and
+degrees are used unless otherwise specified.
 
 """
 import numpy as np
@@ -61,7 +58,7 @@ for i in range(len(terms)):
     ax[0,1].semilogy(p[:,0],p[:,1],label=l)    
 ax[0,1].grid()
 ax[0,1].legend()
-ax[0,1].set_xlabel('Scattering angle [$\degree$]')
+ax[0,1].set_xlabel(r'Scattering angle [$\degree$]')
 ax[0,1].set_ylabel('VSF at 515 nm [m$^{-1}$sr$^{-1}$]')
 ax[0,1].set_xticks([0,45,90,135,180])
 

@@ -10,7 +10,7 @@ namespace flick {
       filter():basic_command("filter"){};
       void run() {
 	std::string fname = a(1);
-	auto f = flick::read<flick::pl_function>("./"+fname);
+	auto f = flick::read<flick::pl_function>(fname);
 	if (a(2)=="uv_index") {
 	  std::cout << flick::uv_index(f);
 	}
@@ -32,7 +32,7 @@ namespace flick {
 	}
 	else if (a(2)=="weighted_integral") {
 	  std::string fname = a(3);
-	  auto f2 = flick::read<flick::pl_function>("./"+fname);
+	  auto f2 = flick::read<flick::pl_function>(fname);
 	  std::cout << flick::weighted_integral(f,f2);
 	}
 	else

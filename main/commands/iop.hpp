@@ -128,7 +128,7 @@ namespace flick {
 	  scattering_coefficient sca{std::stod(a(7))};
 	  std::string  file_name{a(8)};
 	  double real_refractive_index{std::stod(a(9))};
-	  tabulated_phase_function p = read<pe_function>("./"+file_name);
+	  tabulated_phase_function p = read<pe_function>(file_name);
 	  material::tabulated m(abs,sca,p,real_refractive_index);
 	  stream_iops(m, a(1));
 	}
@@ -149,7 +149,7 @@ namespace flick {
 	else if (a(5)=="atmosphere_ocean") {
 	  std::string config_file = a(6);
 	  double height = stod(a(7));
-	   auto c = read<material::atmosphere_ocean::configuration>("./"+config_file);
+	   auto c = read<material::atmosphere_ocean::configuration>(config_file);
 	  material::atmosphere_ocean m(c);
 	  m.set_position({0,0,height});
 	  stream_iops(m, a(1));

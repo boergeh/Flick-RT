@@ -48,6 +48,7 @@ class absorption_optical_thickness:
         
 class marine_iops:
     def __init__(self, name, spm, from_wl, to_wl, n_wls):
+        self._b_scaling = 1
         self._name = name
         self._spm = spm
         self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
@@ -159,7 +160,7 @@ class ocean_meta:
 
     def to_string(self):
         s = (
-        rf"$\it{metadata}$" + "\n" +    
+        r"$\it{metadata}$" + "\n" +    
         "latitude: " + str(self.latitude) + " $\degree$"+"\n" +
         "longitude: " + str(self.longitude) + " $\degree$"+"\n" +
         "UTC time point: " + str(round(self.time_point_utc)) + "\n" +

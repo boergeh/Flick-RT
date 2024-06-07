@@ -20,10 +20,10 @@ namespace material {
     marine_particles(const std::string& name, double mass_concentration=1e-3,
 		     double scattering_scaling_factor=1)
       : mass_concentration_{mass_concentration} {
-      std::string path = "/material/marine_particles/iop_tables";
-      pe_flist pf = read<pe_flist>(add_path_if_exists(name+"_pf.txt",{"./",path}));
+      std::string p = path()+"/material/marine_particles/iop_tables";
+      pe_flist pf = read<pe_flist>(name+"_pf.txt", p);
       p_ = pf(percentile_50th);
-      pl_flist ab = read<pl_flist>(add_path_if_exists(name+"_ap_bp.txt",{"./",path}));
+      pl_flist ab = read<pl_flist>(name+"_ap_bp.txt", p);
       a_star_ = ab(0);
       b_star_ = ab(2);
       b_star_.scale_y(scattering_scaling_factor);

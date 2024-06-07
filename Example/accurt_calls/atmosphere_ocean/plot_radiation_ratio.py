@@ -20,7 +20,7 @@ fig, ax = plt.subplots()
 fig.set_size_inches(4,5)
 ax.plot(E[:,0],to_watts*L[:,1]/E[:,1]*1000)
 ax.set_xlabel('Wavelength [nm]')
-ax.set_ylabel(r'Radiance to irradiance ratio $\times$ 1000 [sr$^{-1}$]')
+ax.set_ylabel(r'Remote sensing reflectance $\times$ 1000 [sr$^{-1}$]')
 
 ax.set_xscale('log')
 ax.set_yscale('log')

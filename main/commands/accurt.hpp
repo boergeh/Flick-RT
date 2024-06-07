@@ -31,15 +31,15 @@ namespace flick {
 	  }
 	}
 	else if (size() == 2) {
-	  auto c0 = read<configuration_template::basic_accurt>("./"+a(1));
+	  auto c0 = read<configuration_template::basic_accurt>(a(1));
 	  std::string name = c0.get<std::string>("material_name");
 	  std::shared_ptr<material::base> m;
 	  if (name == "atmosphere") {
-	    auto c = read<configuration_template::atmosphere>("./"+a(1));
+	    auto c = read<configuration_template::atmosphere>(a(1));
 	    m = std::make_shared<material::atmosphere>(c);
 	  }
 	  else if(name == "atmosphere_ocean") {
-	    auto c = read<configuration_template::atmosphere_ocean>("./"+a(1));
+	    auto c = read<configuration_template::atmosphere_ocean>(a(1));
 	    m = std::make_shared<material::atmosphere_ocean>(c);
 	  }
 	  else {
