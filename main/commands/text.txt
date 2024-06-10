@@ -54,12 +54,20 @@ Parameters:
 
   flick text my_config.txt set gases "o2 o3" > my_new_config.txt
 
-  flick text file_with_tabulated_xy_data.txt xy-precision 4 4
+  flick text xy_columns.txt xy-precision 4 4
 
-  flick text file_with_tabulated_xy_data.txt xy-scale 1e-9 1e-4
+  flick text xy_columns.txt xy-scale 1e-9 1e-4
 
-  flick text file_with_tabulated_xy_data.txt xy 14
+  flick text xy_columns.txt xy 14
 
-  flick text file_with_multicolumn_data.txt matrix
+  flick text xy_columns_1.txt add xy_columns_2.txt
+  
+  flick text xy_columns_1.txt subtract xy_columns_2.txt
 
-  flick text file_with_multicolumn_data.txt matrix 6
+  flick text multicolumn.txt matrix
+
+  flick text multicolumn.txt matrix 6
+
+  flick text multicolumn.txt extract_xy 0
+
+  flick text multicolumn.txt append xy_columns.txt

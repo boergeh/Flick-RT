@@ -66,7 +66,7 @@ clean:
 	cd material/aerosols; make clean
 	cd material/water; make clean
 	cd material/ice; make clean
-	cd material/marine_particels; make clean
+	cd material/marine_particles; make clean
 	cd material/marine_cdom; make clean
 	cd accurt_api; make clean
 	cd coating; make clean

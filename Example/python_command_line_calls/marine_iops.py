@@ -13,12 +13,10 @@ import flick
 station = "ECOSENS_HF22_D1"
 from_wl = 300e-9
 to_wl = 1050e-9
-wl_grid = np.linspace(from_wl,to_wl,300);
-wl_width = 10e-9
 
 meta_path = "../../material/marine_particles/iop_tables"
 meta = flick.ocean_meta(meta_path+"/"+station+"_meta.txt")
-iops = flick.marine_iops(station,meta.spm,from_wl,to_wl,200)
+iops = flick.marine_iops(station,meta.spm,from_wl,to_wl,900)
 iops.set_b_scaling_factor(1)
 a_w = iops.a_water()
 a_spm = iops.a_spm()

@@ -28,11 +28,11 @@ Parameters:
 
 Examples:
 
-  flick filter ./toa_solar.txt uv_index
+  flick filter toa_solar.txt uv_index
 
-  flick filter ./toa_solar.txt gaussian_mean 500e-9 10e-9
+  flick filter toa_solar.txt gaussian_mean 500e-9 10e-9
   
-  flick filter ./toa_solar.txt weighted_integral ./my_transmittance.txt
+  flick filter toa_solar.txt weighted_integral my_transmittance.txt
 
 
 Remember: unless other units are explicitly stated, Flick is always
