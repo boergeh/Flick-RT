@@ -13,10 +13,11 @@
 #include "commands/text.hpp"
 #include "commands/accurt.hpp"
 
+
 int main(int argc, char* argv[]) {
   using namespace flick;
   try {
-    const std::vector<std::string> a(argv + 1, argv + argc);  
+    const std::vector<std::string> a(argv + 1, argv + argc);
     if (a.empty()) {run<command::help>({"help"}); return 0;}
     if (run<command::help>(a)) return 0;
     if (run<command::radiator>(a)) return 0;

@@ -57,7 +57,7 @@ def radiation(f, time_point, detector_height, wavelengths):
     f.set('pressure', 1000e2)
     f.set('temperature', 273+15)
     f.set('water_vapor',30)
-    f.set('mp_names', 'input/'+station) 
+    f.set('mp_names', 'input/'+station)
     f.set('mp_concentrations', meta.spm)
     f.set('mcdom_names', 'input/'+station)
     f.set('mcdom_scaling_factors', 1.0)
