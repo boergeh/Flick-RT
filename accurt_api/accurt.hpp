@@ -335,7 +335,7 @@ reflection and '1' gives loamy sand reflection)");
       }
       std::string subtract = c_.get<std::string>("subtract_specular_radiance"); 
       if (subtract=="true") {
-	Lu =  Lu - Ld * nadir_fresnel_coefficient(wls);
+	Lu = Lu - Ld * nadir_fresnel_coefficient(wls);
       } else if (subtract != "false") {
 	throw std::runtime_error("subtract_specular_radiance");
       }
