@@ -13,7 +13,7 @@ Parameters:
     Select 'absorption_length', 'scattering_length',
     'refractive_index', 'scattering_ab_10', 'scattering_ab_fitted_10',
     'wigner_alpha_beta_10', or 'AccuRT_1_8',
-    absorption_optical_thickness_100
+    'absorption_optical_thickness_100'
 
     The 'scattering_ab_10' property will for each wavelength list the
     a and b elements of the Mueller matrix multiplied with the

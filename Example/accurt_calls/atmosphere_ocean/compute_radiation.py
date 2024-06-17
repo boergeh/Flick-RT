@@ -39,14 +39,14 @@ sys.path.append(os.environ['FLICK_PATH']+'/python_script')
 import flick
 
 station = 'ECOSENS_HF22_D1'
-irradiance_height = -0.3
+irradiance_height = 120e3
 detector_separation = 0.37
 first_wavelength = 380e-9
 last_wavelength = 750e-9
 n_wavelengths = 15
 band_width = 10e-9
-use_satellite_wavelengths = False
-use_satellite_time_point = False
+use_satellite_wavelengths = True
+use_satellite_time_point = True
 
 meta = flick.ocean_meta('input/'+station+'_meta.txt')
 
@@ -67,7 +67,7 @@ def radiation(f, time_point, detector_height, wavelengths):
                       meta.latitude, meta.longitude)
 
 if use_satellite_time_point:
-    toa_meta = flick.ocean_meta('input/'+station+'_toa_meta.txt')
+    toa_meta = flick.toa_meta('input/'+station+'_toa_meta.txt')
     time_point = toa_meta.time_point_utc
 else:
     time_point = meta.time_point_utc
@@ -95,7 +95,9 @@ np.savetxt(file_name, E, fmt=['%6.2f ','%8.3e'])
 
 height = irradiance_height-detector_separation
 file_name = 'output/'+station+'_computed_radiance_mW_per_m2_nm_sr.txt'
-f = flick.ocean_nadir_radiance()
+polar_viewing_angle = 180-toa_meta.observation_polar_angle
+azimuth_viewing_angle = toa_meta.observation_azimuth_angle # check this
+f = flick.toa_radiance(polar_viewing_angle, azimuth_viewing_angle)
 wl = get_wavelengths('radiance')
 L = radiation(f, time_point, height, wl)
 L = f.to_mW_per_m2_nm_sr(L)
