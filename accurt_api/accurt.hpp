@@ -342,9 +342,9 @@ reflection and '1' gives loamy sand reflection)");
       if (detector_orientation_override()) {
 	auto view = c_.get_vector<double>("detector_orientation_override");
 	if (view.at(0) < 90) {
-	  return Ld;
-	} else {
 	  return Lu;
+	} else {
+	  return Ld;
 	}  
       }
       std::string ori = c_.get<std::string>("detector_orientation");
