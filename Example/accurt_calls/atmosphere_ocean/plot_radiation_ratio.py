@@ -2,7 +2,8 @@
 Plot ratio of nadir radiance to downward irradiance.
 Run compute_radiation.py first.
 """
-from scipy.interpolate import interp1d
+#from scipy.interpolate import interp1d
+import numpy as np
 import matplotlib.ticker as mticker
 import matplotlib.pyplot as plt
 import os
@@ -14,11 +15,12 @@ station = "ECOSENS_HF22_D1"
 
 E = flick.table('output/'+station+"_computed_irradiance_W_per_m2_nm.txt")
 L = flick.table('output/'+station+"_computed_radiance_mW_per_m2_nm_sr.txt")
-L[:,1] = interp1d(L[:,0], L[:,1])(E[:,0])
+wls = L[:,0]
+E_new = np.interp(wls,E[:,0],E[:,1])
 to_watts = 1e-3;
 fig, ax = plt.subplots()
 fig.set_size_inches(4,5)
-ax.plot(E[:,0],to_watts*L[:,1]/E[:,1]*1000)
+ax.plot(wls,to_watts*L[:,1]/E_new*1000)
 ax.set_xlabel('Wavelength [nm]')
 ax.set_ylabel(r'Remote sensing reflectance $\times$ 1000 [sr$^{-1}$]')
 
