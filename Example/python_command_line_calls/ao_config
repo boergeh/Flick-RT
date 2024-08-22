@@ -104,7 +104,7 @@ gas_spectral_region = uv_vis
 /* Space-separated list of names of absorbing gases included in the
 atmosphere, selected among 'o3', 'o2', 'h2o', 'no2', and 'co2' */
 
-gases = o2 h2o o3 co2
+gases = o2 h2o o3 co2 no2
 
 /* Name of the material that gives inherent optical properties used in
 the radiative transfer calculations, which could be 'atmosphere' or

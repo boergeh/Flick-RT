@@ -2,7 +2,6 @@
 Plot ratio of nadir radiance to downward irradiance.
 Run compute_radiation.py first.
 """
-#from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.ticker as mticker
 import matplotlib.pyplot as plt
