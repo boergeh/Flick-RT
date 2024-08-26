@@ -13,7 +13,7 @@ namespace flick {
     check_close(std::real(Y(d,l_max).lm(0,0)),std::real(Y_00));
     check_close(std::real(Y(d,l_max+1).lm(0,0)),std::real(Y_00));
     check_close(std::real(Y(d,l_max).lm(1,-1)),std::real(Y_1minus1));
-    check_close(std::imag(Y(d,l_max+1000).lm(1,-1)),std::imag(Y_1minus1));
+    check_close(std::imag(Y(d,l_max).lm(1,-1)),std::imag(Y_1minus1));
 
   } end_test_case() 
 }

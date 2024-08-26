@@ -10,6 +10,7 @@ build:
 	cd numeric; make obj link
 	cd numeric/legendre; make obj link
 	cd numeric/wigner; make obj link
+	cd numeric/spherical_harmonics; make obj link
 	cd mie; make obj link
 	cd geometry; make obj link
 	cd polarization; make obj link
@@ -34,6 +35,7 @@ test:
 	@cd numeric; make test
 	@cd numeric/legendre; make test
 	@cd numeric/wigner; make test
+	@cd numeric/spherical_harmonics; make test
 	@cd mie; make test
 	@cd geometry; make test
 	@cd polarization; make test
@@ -57,6 +59,7 @@ clean:
 	cd numeric; make clean
 	cd numeric/legendre; make clean
 	cd numeric/wigner; make clean
+	cd numeric/spherical_harmonics; make clean
 	cd mie; make clean
 	cd geometry; make clean
 	cd polarization; make clean

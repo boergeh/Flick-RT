@@ -30,6 +30,50 @@ namespace flick {
       return yml_[m+l_max_][l];
     }
   };
+
+  class associated_legendre {
+    spherical_harmonics sh_;
+  public:
+    associated_legendre(double theta, int l_max)
+      : sh_(direction{theta,0},l_max) {}
+    double lm(size_t l, int m) {
+      return std::real(sh_.lm(l,m)) / sqrt((2*l+1)*factorial(l-m)/(4*std::numbers::pi*factorial(l+m)));
+    }
+  private:
+    double factorial(int n) {
+      return std::tgamma(n+1);
+    }
+  };
+  
+  class associated_legendre_curve {
+    std::vector<associated_legendre> al_;
+  public:
+    associated_legendre_curve(size_t n_theta, int l_max) {
+      auto theta = linspace(0,std::numbers::pi,n_theta);
+      for (size_t i=0; i<n_theta; ++i) {
+	al_.push_back(associated_legendre(theta[i],l_max));
+      }
+    }
+    std::vector<double> lm(size_t l, int m) {
+      std::vector<double> v;
+      for (size_t i=0; i<al_.size(); ++i) {
+	v.push_back(al_[i].lm(l,m));
+      }
+      return v;
+    }
+  private:
+    double factorial(int n) {
+      return std::tgamma(n+1);
+    }
+    std::vector<double> linspace(double from, double to, size_t n) {
+      double step = (to-from)/n;
+      std::vector<double> v(n);
+      v[0] = from;
+      for (size_t i=1; i<v.size(); i++)
+	v[i] = v[i-1] + step;
+      return v;
+    }
+  };
 }
 
 #endif
