@@ -21,8 +21,9 @@ Parameters:
     'azimuth_angle' <year> <month> <day> <hour> <minute>
     <seconds> <latitude> <longitude>
 
-    Gives solar azimuth angle in degrees, where 'latitude' and
-    'longitude' should also be given in degrees.
+    Gives solar azimuth angle [-180,180] degrees, relative to North,
+    where 'latitude' and 'longitude' should be given in
+    degrees. Returns zero when the sun is in South.
 
 Examples:
     

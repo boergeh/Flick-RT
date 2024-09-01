@@ -227,6 +227,7 @@ def to_streams(n_angles):
 class basic_radiation:
     _tmpdir = "flick_tmp"
     _config_name = _tmpdir+"/config"
+        
     def _generate_config(self, config_type):
         _run_os("mkdir -p "+self._tmpdir)
         run("accurt -g "+config_type+" "+self._config_name)
@@ -261,7 +262,14 @@ class basic_radiation:
         str(latitude)+" "+str(longitude)
         a = run(command)
         return a[0][0]
-    
+
+    def sun_azimuth_angle(self, time_point_utc, latitude, longitude):
+        command = "sun_position azimuth_angle "+ \
+            self._to_spaced_string(time_point_utc)+" "+ \
+            str(latitude)+" "+str(longitude)
+        a = run(command)
+        return a[0][0]
+
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
         a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
