@@ -48,29 +48,40 @@ band_width = 10e-9
 use_satellite_wavelengths = False
 use_satellite_time_point = False
 
-meta = flick.ocean_meta('input/'+station+'_meta.txt')
+toa_meta = flick.toa_meta('input/'+station+'_toa_meta.txt')
+ocean_meta = flick.ocean_meta('input/'+station+'_meta.txt')
+
+def solar_relative_azimuth_angle():
+    br = flick.basic_radiation()
+    theta_sun = br.sun_zenith_angle(toa_meta.time_point_utc,
+                                    ocean_meta.latitude,
+                                    ocean_meta.longitude)
+    phi_sun = br.sun_azimuth_angle(toa_meta.time_point_utc,
+                                   ocean_meta.latitude,
+                                   ocean_meta.longitude)
+    return phi_sun-toa_meta.observation_azimuth_angle
 
 def radiation(f, time_point, detector_height, wavelengths):
     f.set('aerosol_od', 0.28)
     f.set('cloud_liquid', 0)
     f.set('ozone', 0.004)
     f.set('pressure', 1000e2)
-    f.set('temperature', 273+15)
+    f.set('temperature', 273)
     f.set('water_vapor',30)
     f.set('mp_names', 'input/'+station)
-    f.set('mp_concentrations', meta.spm)
+    f.set('mp_concentrations', ocean_meta.spm*1)
+    f.set('mp_scattering_scaling_factors', 1)    
     f.set('mcdom_names', 'input/'+station)
-    f.set('mcdom_scaling_factors', 1.0)
+    f.set('mcdom_scaling_factors', 1)
     f.set('subtract_specular_radiance','false')
     f.set('detector_height', detector_height)
     return f.spectrum(wavelengths, band_width, time_point,
-                      meta.latitude, meta.longitude)
+                      ocean_meta.latitude, ocean_meta.longitude)
 
 if use_satellite_time_point:
-    toa_meta = flick.toa_meta('input/'+station+'_toa_meta.txt')
     time_point = toa_meta.time_point_utc
 else:
-    time_point = meta.time_point_utc
+    time_point = ocean_meta.time_point_utc
 
 def get_wavelengths(radiation_type):
     to_m = 1e-9
@@ -97,7 +108,7 @@ height = irradiance_height-detector_separation
 file_name = 'output/'+station+'_computed_radiance_mW_per_m2_nm_sr.txt'
 if use_satellite_wavelengths:
     polar_viewing_angle = 180-toa_meta.observation_polar_angle
-    azimuth_viewing_angle = toa_meta.observation_azimuth_angle # check this
+    azimuth_viewing_angle = solar_relative_azimuth_angle()
     f = flick.toa_radiance(polar_viewing_angle, azimuth_viewing_angle)
 else:
     f = flick.ocean_nadir_radiance()
