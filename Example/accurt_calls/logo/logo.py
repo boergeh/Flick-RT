@@ -43,7 +43,7 @@ x,y,z = f.radiance_surface(r)
 if black_background:
     plt.style.use('dark_background')
 ls = LightSource(azdeg=0, altdeg=55)
-rgb = ls.shade(r, cmap=cm.hot, vert_exag=0, blend_mode='soft')
+rgb = ls.shade(np.transpose(r), cmap=cm.hot, vert_exag=0, blend_mode='soft')
 fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb,
                        linewidth=0, antialiased=False, shade=False,alpha=1)

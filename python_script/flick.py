@@ -298,8 +298,6 @@ class basic_radiation:
         for i in range(len(wl)):
             spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
                                 str(wl[i])+" "+str(wl_width))
-            #spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum gaussian_mean "+ \
-             #         str(wl[i])+" "+str(wl_width))
         return spectrum
 
     def set_n_angles(self,n_angles):
@@ -317,7 +315,7 @@ class radiance_distribution(basic_radiation):
         self.set_n_angles(16**1.6)
         
     def values(self, wl_grid, source_zenith_angle):
-        return self._relative_spectrum(wl_grid,source_zenith_angle).transpose()
+        return self._relative_spectrum(wl_grid,source_zenith_angle)
 
     def polar_angles(self):
         return np.linspace(0, np.pi, self.n_polar)
@@ -328,10 +326,11 @@ class radiance_distribution(basic_radiation):
     def radiance_surface(self,r):
         theta = self.polar_angles()
         phi = self.azimuth_angles()
+        rt = r.transpose() 
         t, p = np.meshgrid(theta, phi)
-        x = r * np.sin(t) * np.cos(p)
-        y = r * np.sin(t) * np.sin(p)
-        z = r * np.cos(t)
+        x = rt * np.sin(t) * np.cos(p)
+        y = rt * np.sin(t) * np.sin(p)
+        z = rt * np.cos(t)
         return x,y,z
     
     
