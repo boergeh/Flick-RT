@@ -152,9 +152,7 @@ namespace flick {
   }
   double sentinel3(const pl_function& radiation_spectrum, double wl0) {
     return transmit(radiation_spectrum, filter::sentinel3(wl0)).integral();
-  }
-
-  
+  }  
 }
 
 #endif

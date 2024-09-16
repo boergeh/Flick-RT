@@ -46,6 +46,8 @@ last_wavelength = 750e-9
 n_wavelengths = 25
 band_width = 10e-9
 use_satellite_wavelengths = False
+use_satellite_viewing_angles = False
+use_satellite_response_functions = False
 use_satellite_time_point = False
 
 toa_meta = flick.toa_meta('input/'+station+'_toa_meta.txt')
@@ -66,8 +68,8 @@ def radiation(f, time_point, detector_height, wavelengths):
     f.set('cloud_liquid', 0)
     f.set('ozone', 0.004)
     f.set('pressure', 1000e2)
-    f.set('temperature', 273)
-    f.set('water_vapor',30)
+    f.set('temperature', 273+15)
+    f.set('water_vapor',20)
     f.set('mp_names', 'input/'+station)
     f.set('mp_concentrations', ocean_meta.spm*1)
     f.set('mp_scattering_scaling_factors', 1)    
@@ -99,6 +101,8 @@ if not os.path.exists('output'):
 height = irradiance_height
 file_name = 'output/'+station+'_computed_irradiance_W_per_m2_nm.txt'
 f = flick.ocean_downward_plane_irradiance()
+if use_satellite_response_functions:
+    f.use_sentinel3_srf(True)
 wl = get_wavelengths('irradiance')
 E = radiation(f, time_point, height, wl)
 E = f.to_W_per_m2_nm(E)
@@ -106,12 +110,16 @@ np.savetxt(file_name, E, fmt=['%6.2f ','%8.3e'])
 
 height = irradiance_height-detector_separation
 file_name = 'output/'+station+'_computed_radiance_mW_per_m2_nm_sr.txt'
-if use_satellite_wavelengths:
+if use_satellite_viewing_angles:
     polar_viewing_angle = 180-toa_meta.observation_polar_angle
     azimuth_viewing_angle = solar_relative_azimuth_angle()
     f = flick.toa_radiance(polar_viewing_angle, azimuth_viewing_angle)
 else:
     f = flick.ocean_nadir_radiance()
+
+if use_satellite_response_functions:
+    f.use_sentinel3_srf(True)
+
 wl = get_wavelengths('radiance')
 L = radiation(f, time_point, height, wl)
 L = f.to_mW_per_m2_nm_sr(L)
