@@ -73,12 +73,48 @@ namespace flick {
     
     class tabulated : public filter {
       pl_function t_;
+      double wavelength_shift_ = 0;
     public:
       tabulated(const pl_function& filter_transmittance)
 	: t_{filter_transmittance} {
       }
       double transmittance(double wavelength) const {
-	return t_.value(wavelength);
+	return t_.value(wavelength-wavelength_shift_);
+      }
+      void shift(double wavelength) {
+	wavelength_shift_ = wavelength;
+      }
+    };
+
+    class sentinel3 : public filter
+    // Use closest normalized sentinel3 OLIC spectral response
+    // function around a given user wavelength
+    {
+      pl_function centers_;
+      std::shared_ptr<tabulated> srf_;
+      double user_center_wavelength_;
+    public:
+      sentinel3(double user_center_wavelength)
+	: user_center_wavelength_{user_center_wavelength} {
+	std::string p = path()+"/radiator/filter_data/sentinel3/srf";
+	centers_ = read<pl_function>(p+"/center_wavelength.txt");
+	centers_.scale_x(1e-9);
+	size_t n = closest_srf();
+	pl_function f = read<pl_function>(p+"/band_"+std::to_string(n)+".txt");
+	f.scale_x(1e-9);
+	f.scale_y(1/f.integral());
+	f.add_extrapolation_points(0);
+	srf_ = std::make_shared<tabulated>(tabulated(f));
+	srf_->shift(user_center_wavelength_-centers_.x()[n]);
+      }
+      double transmittance(double wavelength) const {
+	return srf_->transmittance(wavelength);
+      }
+      size_t closest_srf() {
+	size_t n = std::round(centers_.value(user_center_wavelength_));
+	if (n >= centers_.size())
+	  return centers_.size()-1;
+	return std::round(centers_.value(user_center_wavelength_));
       }
     };
   }
@@ -114,6 +150,11 @@ namespace flick {
 			  const pl_function& filter_transmittance) {
     return transmit(radiation_spectrum, filter::tabulated(filter_transmittance)).integral();
   }
+  double sentinel3(const pl_function& radiation_spectrum, double wl0) {
+    return transmit(radiation_spectrum, filter::sentinel3(wl0)).integral();
+  }
+
+  
 }
 
 #endif

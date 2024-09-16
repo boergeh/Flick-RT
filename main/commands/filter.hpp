@@ -35,6 +35,10 @@ namespace flick {
 	  auto f2 = flick::read<flick::pl_function>(fname);
 	  std::cout << flick::weighted_integral(f,f2);
 	}
+	else if (a(2)=="sentinel3") {
+	  double wl0 = std::stod(a(3));
+	  std::cout << flick::sentinel3(f,wl0);
+	}
 	else
 	  error();
       }

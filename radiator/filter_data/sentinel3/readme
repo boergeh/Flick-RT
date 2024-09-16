@@ -1,0 +1,5 @@
+The sentinel-3 OLCI netCDF4 spectral response functions (srf) are from
+https://sentiwiki.copernicus.eu/web/sentiwiki
+
+The Python script will generate srf text files that can be read by
+Flick.

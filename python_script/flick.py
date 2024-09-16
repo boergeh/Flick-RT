@@ -227,6 +227,7 @@ def to_streams(n_angles):
 class basic_radiation:
     _tmpdir = "flick_tmp"
     _config_name = _tmpdir+"/config"
+    _use_sentinel3_srf = False
         
     def _generate_config(self, config_type):
         _run_os("mkdir -p "+self._tmpdir)
@@ -234,6 +235,9 @@ class basic_radiation:
             
     def set(self, config_parameter, value):
         config(self._config_name, config_parameter, value)
+
+    def use_sentinel3_srf(self,tf):
+        self._use_sentinel3_srf = tf
         
     def _relative_spectrum(self, wl_grid, source_zenith_angle):
         self.set("source_zenith_angle", source_zenith_angle)
@@ -288,16 +292,21 @@ class basic_radiation:
          new_points[:,0] = x
          new_points[:,1] = np.interp(x,x0,y0)
          return new_points
-
+     
     def smooth(self, spectrum, from_wl, to_wl, wl_width):
         np.savetxt(self._tmpdir+"/spectrum", spectrum)
-        n_points = round(3*(to_wl - from_wl)/wl_width)
+        n_points = round(5*(to_wl - from_wl)/wl_width)
         wl = np.linspace(from_wl, to_wl, n_points)
         spectrum = np.empty([len(wl),2])
         spectrum[:,0] = wl
         for i in range(len(wl)):
-            spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
-                                str(wl[i])+" "+str(wl_width))
+            if self._use_sentinel3_srf == True:
+                spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum sentinel3 "+ \
+                                str(wl[i]))
+            else:
+                spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
+                                    str(wl[i])+" "+str(wl_width))
+                
         return spectrum
 
     def set_n_angles(self,n_angles):
