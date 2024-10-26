@@ -50,12 +50,13 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(accurt_test_C) {
-    // Assert low remote sensing reflectance in NIR and that detectors
+    // Assert low remote sensing reflectance in red and that detectors
     // can have same height
-    size_t n_angles = 30;
+    size_t n_angles = 40;
+    double wl = 620e-9;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
-    ac.set<double>("detector_wavelengths",950e-9);
+    ac.set<double>("detector_wavelengths",wl);
     ac.set<std::string>("detector_orientation","down");
     ac.set<std::string>("detector_type","radiance");
     ac.set<double>("detector_height",0.1);
@@ -64,11 +65,15 @@ namespace flick {
     material::atmosphere_ocean::configuration mc;
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",3);
-    mc.set<double>("aerosol_od",1);
+    mc.set<double>("aerosol_od",0);
+    mc.set<double>("water_salinity",35);
+    mc.set<double>("water_temperature",273+15);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
+    m->set_wavelength(wl);
+    std::cout << "refindex: " << m->real_refractive_index() << std::endl;
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y()[0];
-    check_small(Rrs, 0.0002);
+    check_close(Rrs, 0.11e-3, 5_pct);
   } end_test_case()
   
   begin_test_case(accurt_test_D) {

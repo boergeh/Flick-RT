@@ -92,6 +92,15 @@ class marine_iops:
             bb += 2*np.pi*k[i,0]*self._legendre_first_half_integral(i)
         return bb
 
+    def back_scattering_fraction(self,n_terms):
+        k = self._expansion_factors(n_terms)
+        bb = 0;
+        for i in range(len(k)):
+            bb += 2*np.pi*k[i,0]*self._legendre_first_half_integral(i)
+        l = run("iop scattering_length "+self._expansion_command())
+        b = 1/l[0,1]
+        return bb/b
+
     def _legendre_both_halfs_integral(self,term_number):
         i = term_number
         return self._legendre_first_half_integral(i) + \
@@ -228,6 +237,7 @@ class basic_radiation:
     _tmpdir = "flick_tmp"
     _config_name = _tmpdir+"/config"
     _use_sentinel3_srf = False
+    _override_sun_zenith_angle = np.nan
         
     def _generate_config(self, config_type):
         _run_os("mkdir -p "+self._tmpdir)
@@ -274,9 +284,16 @@ class basic_radiation:
         a = run(command)
         return a[0][0]
 
+    def set_override_sun_zenith_angle(self, angle):
+        self._override_sun_zenith_angle = angle
+        
     def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
                            latitude, longitude):
-        a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
+        if np.isnan(self._override_sun_zenith_angle):
+            a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
+        else:
+            a = self._override_sun_zenith_angle
+
         L_r = self._relative_spectrum(wl_grid,a)
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];

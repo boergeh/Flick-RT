@@ -12,10 +12,12 @@ import flick
 
 station = "ECOSENS_HF22_D1"
 user_path = "../accurt_calls/atmosphere_ocean/input"
+#user_path = "/Users/borgehamre/m0/figures/radiation/input"
 from_wl = 300e-9
 to_wl = 1050e-9
 
 meta_path = "../../material/marine_particles/iop_tables"
+#meta_path = "/Users/borgehamre/m0/figures/radiation/input"
 if user_path != "":
     meta_path = user_path
 meta = flick.ocean_meta(meta_path+"/"+station+"_meta.txt")
@@ -54,6 +56,7 @@ for i in range(len(terms)):
     g = iops.asymmetry_factor(n)
     f = iops.volume_scattering_scaling_factor(n)
     bb = iops.back_scattering_coefficient(n)
+    print(bb)
     p = iops.volume_scattering_function(n)
     l = "n="+str(n)+", g="+"{:.2f}".format(g)+", f="+"{:.2f}".format(f)+", b$_b$="+"{:.2f}".format(bb)
     ax[0,1].semilogy(p[:,0],p[:,1],label=l)    

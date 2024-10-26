@@ -64,7 +64,7 @@ def solar_relative_azimuth_angle():
     return phi_sun-toa_meta.observation_azimuth_angle
 
 def radiation(f, time_point, detector_height, wavelengths):
-    f.set('aerosol_od', 0.28)
+    f.set('aerosol_od', 0.1)
     f.set('cloud_liquid', 0)
     f.set('ozone', 0.004)
     f.set('pressure', 1000e2)
@@ -77,6 +77,7 @@ def radiation(f, time_point, detector_height, wavelengths):
     f.set('mcdom_scaling_factors', 1)
     f.set('subtract_specular_radiance','false')
     f.set('detector_height', detector_height)
+    #f.set_override_sun_zenith_angle(79)
     return f.spectrum(wavelengths, band_width, time_point,
                       ocean_meta.latitude, ocean_meta.longitude)
 

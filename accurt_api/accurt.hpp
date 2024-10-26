@@ -8,7 +8,6 @@
 #include "../numeric/table.hpp"
 #include "../numeric/grid.hpp"
 #include "../material/material.hpp"
-#include "../material/water/pure_water.hpp"
 #include "../material/layered_iops.hpp"
 #include "../material/z_profile.hpp"
 
@@ -17,7 +16,8 @@ namespace flick {
     std::shared_ptr<layered_iops> iops_;
     stdvector wls_;
   public:
-    accurt_user_specified(std::shared_ptr<layered_iops> iops, const stdvector& wavelengths)
+    accurt_user_specified(std::shared_ptr<layered_iops> iops,
+			  const stdvector& wavelengths)
       : iops_{iops}, wls_{wavelengths} {
     }
     friend std::ostream& operator<<(std::ostream &os,
@@ -189,7 +189,7 @@ reflection and '1' gives loamy sand reflection)");
       c_.add<std::string>("do_spherical_correction","false");
       c_.add<std::string>("do_1d_rough_sea_surface","false");
       c_.add<std::string>("do_2d_rough_sea_surface","false");
-      c_.add<double>("surface_wind_speed",6);      
+      c_.add<double>("surface_wind_speed",0);      
       c_.add<double>("relative_wind_direction",0);
       c_.add<std::string>("usrang","false");
       c_.add<double>("lpick",0);
@@ -388,12 +388,11 @@ reflection and '1' gives loamy sand reflection)");
       return t.row(n_reference_).y();
     }
     stdvector nadir_fresnel_coefficient(const stdvector& wls) {
-      material::pure_water pw;
       stdvector c(wls.size());
       for (size_t i=0; i<wls.size(); i++) {
+	material_->set_wavelength(wls[i]);
 	double n1 = 1;
-	pw.set_wavelength(wls[i]);
-	double n2 = pw.real_refractive_index(); 
+	double n2 = material_->real_refractive_index();
 	c[i] = pow((n1 - n2) / (n1 + n2),2); 
       }
       return c;

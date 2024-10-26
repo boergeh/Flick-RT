@@ -8,6 +8,7 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
+#include <format>
 
 namespace flick {
   constexpr long double operator""_pct(long double p)
@@ -28,12 +29,12 @@ namespace flick {
   void show_time_1() {
     auto time = std::chrono::system_clock::now();
     std::chrono::duration<double> duration = time - time_1;
-    std::cout <<" - "<< std::setprecision(2) << duration.count() << " s\n";
+    std::cout <<" - "<< std::format("{:.2}",duration.count()) << " s\n";
   }
   void show_time_2() {
     auto time = std::chrono::system_clock::now();
     std::chrono::duration<double> duration = time - time_2;
-    std::cout << std::setprecision(1) << 1000*duration.count() << " ms";
+    std::cout << std::format("{:.1}",1000*duration.count()) << " ms";
   }
   double cpu_duration() {
     auto t0 = std::chrono::system_clock::now();
@@ -124,7 +125,7 @@ namespace flick {
       if (duration > std::chrono::duration<double>(max_time)) {
 	write_begin(s);
 	std::cout << "Runtime of "
-		  << std::setprecision(2) << duration.count()
+		  << std::format("{:.2}", duration.count())
 		  << " s is slower than the accepted " << max_time
 		  << " s";
 	write_end();
