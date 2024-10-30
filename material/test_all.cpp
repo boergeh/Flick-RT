@@ -30,7 +30,9 @@ int main() {
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
   t.include<mixture_test_C>();
-  t.include<atmosphere_test>();
+  t.include<atmosphere_test_A>();
+  t.include<atmosphere_test_B>();
+  t.include<atmosphere_test_C>();
   t.include<ocean_test_A>();
   t.include<ocean_test_B>();
   t.include<ocean_test_C>();

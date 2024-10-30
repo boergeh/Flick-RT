@@ -113,12 +113,9 @@ optimized for TOA radiation.)");
       if (aod > 0) {
 	size_t n_base = 0;
 	size_t n_top = cloud_base_above_step()-1;     
-	//size_t n_base = 0;
-	//size_t n_top = 3; 
 	double ratio = c_.get<double>("aerosol_ratio");
 	double rh = c_.get<double>("relative_humidity");
 	double dh = layer_thickness(n_base,n_top);
-	//std::cout << "aerosol thickness: " << dh << std::endl;
 	add_material<rural_aerosols>(dh, aod*ratio, rh);
 	add_material<urban_aerosols>(dh, aod*(1-ratio), rh);
 	set_range<rural_aerosols>(n_base,n_top);

@@ -49,6 +49,8 @@ class absorption_optical_thickness:
 class marine_iops:
     def __init__(self, name, spm, from_wl, to_wl, n_wls):
         self._b_scaling = 1
+        self._salinity = 30
+        self._temperature = 290
         self._name = name
         self._spm = spm
         self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
@@ -70,6 +72,12 @@ class marine_iops:
     
     def set_b_scaling_factor(self,f):
         self._b_scaling = f
+
+    def set_salinity(self, s):
+        self._salinity = s
+
+    def set_temperature(self, t):
+        self._temperature = t
 
     def volume_scattering_function(self,n_terms,use_cutoff_angle=0):
         p = []
@@ -147,7 +155,7 @@ class marine_iops:
         elif material=="marine_cdom":
             command = self._name +" 1"
         elif material=="pure_water":
-            command = "280 30"
+            command = str(self._temperature) +" "+str(self._salinity)
         c = run("iop "+length_type+"_length "+self._wls+" "+material+" "+command)
         c[:,1] = 1/c[:,1]
         return c
