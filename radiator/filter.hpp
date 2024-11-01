@@ -111,10 +111,12 @@ namespace flick {
 	return srf_->transmittance(wavelength);
       }
       size_t closest_srf() {
-	size_t n = std::round(centers_.value(user_center_wavelength_));
-	if (n >= centers_.size())
+	double n = centers_.value(user_center_wavelength_);
+	if (n > centers_.size()-1)
 	  return centers_.size()-1;
-	return std::round(centers_.value(user_center_wavelength_));
+	if (n < 0)
+	  return 0;
+	return std::round(n);
       }
     };
   }
