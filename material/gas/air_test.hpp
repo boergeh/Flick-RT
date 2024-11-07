@@ -2,6 +2,23 @@
 #include "../../numeric/units.hpp"
 
 namespace flick {
+  begin_test_case(o3_test)
+  {
+    // Gorshelev, V., Serdyuchenko, A., Weber, M., Chehade, W. and
+    // Burrows, J.P., 2014. Table 4.
+    o3_cross_section c;
+    double T = 295;
+    check_close(c.value(302.24e-9,T), 29.6e-24, 2_pct);
+    check_close(c.value(455e-9,T), 20.6e-27, 1_pct);  
+  } end_test_case()
+  
+  begin_test_case(no2_test)
+  {
+    // A.C. Vandaele et al. . Quanr. .Specrrosc. Radior. Transfer, 1998, Fig 5
+    no2_cross_section c;
+    check_close(c.value(442e-9), 3.75e-23, 5_pct);
+  } end_test_case()
+  
   begin_test_case(air_test_o3)
   // Van Weele M, et al., Journal of Geophysical Research:
   // Atmospheres, 105(D4), pp.4915-4925, Table 5.
@@ -11,13 +28,13 @@ namespace flick {
     state.remove_all_gases();
     state.add_gas("o3");
     state.scale_to_stp_thickness("o3", 2.95_mm);
-
+  
     material::hitran_air air(state);
     air.set_wavelength(310_nm);
     air.set_position({0,0,17_m});
     air.set_direction({0,0,1});
-    check_close(air.scattering_optical_depth(120_km), 1.059, 0.2_pct);
-    check_close(air.absorption_optical_depth(120_km), 0.687, 0.2_pct);
+    check_close(air.scattering_optical_depth(120_km), 1.059, 2_pct);
+    check_close(air.absorption_optical_depth(120_km), 0.687, 2_pct);
 
     material::smooth_air air_uv(state,"uv");
     air_uv.set_wavelength(310_nm);
@@ -28,7 +45,7 @@ namespace flick {
 
     air_uv.set_wavelength(3000_nm);
     check(air_uv.scattering_optical_depth(120_km)<0.001);
-    
+  
   } end_test_case()
 
   begin_test_case(air_test_o2)

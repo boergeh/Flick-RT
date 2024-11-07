@@ -6,42 +6,30 @@
 namespace flick {
   class basic_cross_section {
   protected:
-    std::vector<pp_function> cross_sections_;
     const std::string data_path = "material/gas/cross_section_input/";
-  public:
-    double longest() {
-      return cross_sections_[0].x().back();
-    }
-  protected:
-    void add_spectrum(const std::string& file_name) {
-      cross_sections_.emplace_back(read<pp_function>(data_path+file_name));
-    }
   };
   
   class no2_cross_section : public basic_cross_section {
+     pp_function c = read<pp_function>(data_path+"cross_section_no2.txt");
   public:
-    no2_cross_section() {
-      add_spectrum("cross_section_no2.txt");
-    }
     double value(double wavelength) {
-      return cross_sections_[0].value(wavelength);
+      return c.value(wavelength);
+    }
+    double longest() {
+      return c.x().back();
     }
   };
   
   class o3_cross_section : public basic_cross_section {
-    std::vector<int> temperatures_{221,241,273};
+    pp_function c0 = read<pp_function>(data_path+"ozone_cross_section_293K.txt");
+    pl_function s = read<pl_function>(data_path+"ozone_temperature_dependence.txt");
+    double T0 = 293;
   public:
-    o3_cross_section() {
-      for (size_t i=0; i<temperatures_.size(); ++i) {
-	add_spectrum("cross_section_o3_"+ std::to_string(temperatures_[i])+"K.txt");
-      }
-    }
     double value(double wavelength, double temperature) {
-      pp_function f;
-      for (size_t i=0; i<cross_sections_.size(); ++i) {
-	f.append({static_cast<double>(temperatures_[i]), cross_sections_[i].value(wavelength)});
-      }
-      return f.value(temperature); 
+      return c0.value(wavelength)*exp(s.value(wavelength)*(temperature-T0));
+    }
+    double longest() {
+      return c0.x().back();
     }
   };
 }

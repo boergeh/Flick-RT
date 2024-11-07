@@ -18,7 +18,7 @@ namespace flick {
     auto as = absorption_smoother(source(), state, "o3");
 
     stdvector center_wls = {280e-9};
-    std::cout << gaussian_smooth_cross_section(as, center_wls, 0.01, 0.1) << std::endl;
+    //std::cout << gaussian_smooth_cross_section(as, center_wls, 0.01, 0.1) << std::endl;
     
   } end_test_case()
 }

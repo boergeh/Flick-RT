@@ -36,7 +36,7 @@ namespace flick {
     sky.set_position({0,0,0});
 
     double od_ae = sky.get_material<material::rural_aerosols>("rural_aerosols").optical_depth(toa);
-    check_close(sky.optical_depth(toa),od_ae+od_cl_bench);
+    check_close(sky.optical_depth(toa),od_ae+od_cl_bench,1e-11);
     auto p1 = sky.mueller_matrix(unit_vector{0,0}).value(0,0);
     auto p2 = sky.mueller_matrix(unit_vector{pi,0}).value(0,0);
     check(p1 > 2/(4*pi));

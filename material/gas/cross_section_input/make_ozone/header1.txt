@@ -1,0 +1,15 @@
+/*
+Ozone molecular absorption cross section spectra compressed and
+temperature smoothed based on original extensive measurements by:
+
+Gorshelev, V., Serdyuchenko, A., Weber, M., Chehade, W. and Burrows,
+J.P., 2014. High spectral resolution ozone absorption
+cross-sections–Part 1: Measurements, data analysis and comparison with
+previous measurements around 293 K. Atmospheric Measurement
+Techniques, 7(2), pp.609-624.
+
+Original data: https://doi.org/10.5281/zenodo.5793207
+
+Column 1: Wavelength [m]
+Column 2: Absorption cross section at 293 K [m^2]
+*/
