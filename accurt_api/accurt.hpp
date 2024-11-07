@@ -307,6 +307,7 @@ reflection and '1' gives loamy sand reflection)");
 	detector_plane_irradiance()/reference_detector_irradiance()};	  
     }
     pp_function relative_scalar_irradiance() {
+      c_.set<std::string>("save_scalar_irradiance","true");  
       run();
       return pp_function{wavelengths_,
 	detector_scalar_irradiance()/reference_detector_irradiance()};	  
@@ -367,7 +368,6 @@ reflection and '1' gives loamy sand reflection)");
       return t.row(n_detector_).y();
     }
     stdvector detector_scalar_irradiance() {
-      c_.set<std::string>("SAVE_SCALAR_IRRADIANCE","true");      
       pe_table t;
       if (c_.get<std::string>("detector_orientation")=="up") {
 	t = read_irradiance(output_+"/scalar_irradiance_total_downward.txt");

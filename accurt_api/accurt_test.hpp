@@ -8,7 +8,7 @@
 namespace flick {
   begin_test_case(accurt_test_A) {
     // Compare with van de Hulst 1980, vol 1, chapter 9, table 12,
-    // p258, FLUX
+    // p258, FLUX U and AVERAGE N for mu_0 = 1.0
     absorption_coefficient a{0};
     scattering_coefficient b{0.5};
     asymmetry_factor g{0};
@@ -17,12 +17,17 @@ namespace flick {
     c.set<std::string>("detector_type","plane_irradiance");
     c.set<double>("detector_height",1);
     c.set<double>("reference_detector_height",1);
-    c.set<size_t>("stream_upper_slab_size",8);
+    c.set<size_t>("stream_upper_slab_size",12);
     c.set<double>("bottom_boundary_surface_scaling_factor",0);
     c.set<double>("detector_wavelengths",400e-9);
     auto m = std::make_shared<material::henyey_greenstein>(a,b,g);
     auto ac =  accurt(c,m);
-    check_close(ac.relative_radiation().y()[0],0.34133, 0.005_pct);
+    double FLUX_U = 0.34133;
+    check_close(ac.relative_radiation().y()[0],FLUX_U, 0.01_pct);
+    c.set<std::string>("detector_type","scalar_irradiance");
+    auto ac2 =  accurt(c,m);
+    double AVERAGE_N = 0.37869;
+    check_close(ac2.relative_radiation().y()[0]/2,AVERAGE_N, 0.01_pct);
   } end_test_case()
   
   begin_test_case(accurt_test_B) {
@@ -70,7 +75,6 @@ namespace flick {
     mc.set<double>("water_temperature",273+15);
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     m->set_wavelength(wl);
-    std::cout << "refindex: " << m->real_refractive_index() << std::endl;
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y()[0];
     check_close(Rrs, 0.11e-3, 5_pct);
