@@ -9,6 +9,7 @@ int main() {
   t.include<toa_solar_test>();
   t.include<filter_test_A>();
   t.include<filter_test_B>();
+  t.include<filter_test_C>();
   t.run_test_cases();
   return 0;
 }

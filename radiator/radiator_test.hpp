@@ -6,7 +6,7 @@ namespace flick {
     double T = 5800;
     auto p = radiator::planck(T);
     check_close(p.irradiance(500e-9),8.5e13,10.0_pct);
-    check_close(p.spectrum(100).integral(),constants::sigma*pow(T,4),1.0_pct);
+    check_close(p.spectrum(400).integral(),constants::sigma*pow(T,4),0.1_pct);
   } end_test_case()
 
   begin_test_case(toa_solar_test) {

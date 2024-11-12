@@ -9,9 +9,40 @@ namespace flick {
     struct filter : public basic_command {
       filter():basic_command("filter"){};
       void run() {
+	if (a(1)=="cone_L") {
+	  std::cout << flick::filter::cone_L();
+	  return;
+	}
+	if (a(1)=="cone_M") {
+	  std::cout << flick::filter::cone_M();
+	  return;
+	}
+	if (a(1)=="cone_S") {
+	  std::cout << flick::filter::cone_S();
+	  return;
+	}
+	if (a(1)=="tristimulus_x") {
+	  std::cout << flick::filter::tristimulus_x();
+	  return;
+	}
+	if (a(1)=="tristimulus_y") {
+	  std::cout << flick::filter::tristimulus_y();
+	  return;
+	}
+	if (a(1)=="tristimulus_z") {
+	  std::cout << flick::filter::tristimulus_z();
+	  return;
+	}
+
 	std::string fname = a(1);
 	auto f = flick::read<flick::pl_function>(fname);
-	if (a(2)=="uv_index") {
+	if (a(2)=="tristimulus") {
+	  std::cout << flick::tristimulus(f);
+	}
+	else if (a(2)=="rgb") {
+	  std::cout << flick::rgb(f);
+	}
+	else if (a(2)=="uv_index") {
 	  std::cout << flick::uv_index(f);
 	}
 	else if (a(2)=="uva_index") {

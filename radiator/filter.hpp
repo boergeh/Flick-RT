@@ -2,7 +2,9 @@
 #define flick_filter
 
 #include "../environment/input_output.hpp"
+#include "../numeric/linalg/matrix.hpp"
 #include "../numeric/function.hpp"
+#include "../numeric/flist.hpp"
 #include "../numeric/range.hpp"
 #include "../numeric/distribution.hpp"
 #include "../environment/exception.hpp"
@@ -86,6 +88,75 @@ namespace flick {
       }
     };
 
+    template<int Lms_no>
+    class cone_lms : public filter
+    // Normalized human cone cell spectral sensitivity
+    {
+      std::string p = path()+"/radiator/filter_data/cie_photometry";
+      pl_flist flist = read<pl_flist>(p+"/cie_lms_cf_2deg_1nm.txt");
+      pl_function f = flist(Lms_no);
+    public:
+      cone_lms() {
+	f.scale_x(1e-9);
+	//f.scale_y(1/f.integral(380e-9,780e-9));
+      }
+      const std::vector<double>& wavelength_grid() const {
+	return f.x();
+      }
+      double transmittance(double wavelength) const {
+	return f.value(wavelength);
+      }
+      friend std::ostream& operator<<(std::ostream &os, const cone_lms<Lms_no>& c) {
+	os << c.f;
+      return os;
+      }
+    };
+    using cone_L = cone_lms<0>;
+    using cone_M = cone_lms<1>;
+    using cone_S = cone_lms<2>;
+    
+    template<int Xyz_no>
+    class tristimulus_xyz : public filter
+    // Normalized xyz bar tristimulus color matching functions
+    {
+      pl_function f;
+      cone_L L;
+      cone_M M;
+      cone_S S;
+      //std::vector<std::vector<double>> m = {{1.91929, -1.11212, 0.20191},
+      //					    {0.37095, 0.62905, 0},
+      //					    {0, 0, 1}};
+      // std::vector<std::vector<double>> m = {{1.91020, -1.11212, 0.20191},
+      //				    {0.37095, 0.62905, 0},
+      //				    {0, 0, 1}};
+      std::vector<std::vector<double>> m = {{1.94735469, -1.41445123, 0.36476327},
+      					    {0.68990272, 0.34832189, 0},
+      					    {0, 0, 1.93485343}};
+    
+    public:
+      tristimulus_xyz() {
+	const std::vector<double>& x = L.wavelength_grid();
+	for (size_t i = 0; i < x.size(); i++) {
+	  double y = L.transmittance(x[i]) * m[Xyz_no][0] +
+	  M.transmittance(x[i]) * m[Xyz_no][1] +
+	  S.transmittance(x[i]) * m[Xyz_no][2];
+	  f.append(point(x[i],y));
+	}
+	//std::cout <<"integral: "<< f.integral(380e-9,780e-9)/1.13044e-07 << std::endl;
+	f.scale_y(1.13044e-07/f.integral(380e-9,780e-9));
+      }
+      double transmittance(double wavelength) const {
+	return f.value(wavelength);
+      }
+      friend std::ostream& operator<<(std::ostream &os, const tristimulus_xyz<Xyz_no>& c) {
+	os << c.f;
+	return os;
+      }
+    };
+    using tristimulus_x = tristimulus_xyz<0>;
+    using tristimulus_y = tristimulus_xyz<1>;
+    using tristimulus_z = tristimulus_xyz<2>;
+
     class sentinel3 : public filter
     // Use closest normalized sentinel3 OLIC spectral response
     // function around a given user wavelength
@@ -120,16 +191,18 @@ namespace flick {
       }
     };
   }
-  
-  pl_function transmit(const pl_function& radiation_spectrum, const filter::filter &f) {
-    const std::vector<double>& wl = radiation_spectrum.x();
-    const std::vector<double>& rs = radiation_spectrum.y();
+
+  template<typename Function>
+  pl_function transmit(const Function& radiation_spectrum, const filter::filter &f,
+		    const std::vector<double>& wavelengths={}) {
+    std::vector<double> wl = wavelengths;
+    if (wl.empty())
+      wl = radiation_spectrum.x();
     pl_function new_rs;
-    for (size_t i=0; i<rs.size(); ++i)
-      new_rs.append({wl[i], rs[i]*f.transmittance(wl[i])});
+    for (size_t i=0; i < wl.size(); ++i)
+      new_rs.append({wl[i], radiation_spectrum.value(wl[i])*f.transmittance(wl[i])});
     return new_rs;
   }
-
   double uv_index(const pl_function& radiation_spectrum) {
     return 40*transmit(radiation_spectrum, filter::erythema()).integral();
   }
@@ -138,6 +211,37 @@ namespace flick {
   }
   double uvb_index(const pl_function& radiation_spectrum) {
     return 40*transmit(radiation_spectrum, filter::erythema()).integral(280e-9,315e-9);
+  }
+  template<typename Function>
+  std::vector<double> tristimulus(const Function& radiation_spectrum) {
+    double wl1 = 380e-9;
+    double wl2 = 780e-9;
+    const Function& s = radiation_spectrum;
+    std::vector<double> xyz(3);
+    xyz[0] = transmit(s, filter::tristimulus_xyz<0>()).integral(wl1,wl2);
+    xyz[1] = transmit(s, filter::tristimulus_xyz<1>()).integral(wl1,wl2);
+    xyz[2] = transmit(s, filter::tristimulus_xyz<2>()).integral(wl1,wl2);
+    double sum = std::reduce(xyz.begin(), xyz.end()); 
+    for (int i = 0; i < xyz.size(); i++) {
+      xyz[i] = xyz[i]/sum;
+    }
+    return xyz;
+  }
+  template<typename Function>
+  std::vector<double> rgb(const Function& radiation_spectrum) {
+    // White at 6500 K black-body radiation. 
+    using namespace linalg;
+    linalg::matrix sRGB_D65 = {{3.2404542,-1.5371385,-0.4985314},
+		{-0.9692669,1.8760108,0.0415560},
+		{0.0556434,-0.2040259,1.0572252}};
+
+    linalg::matrix xyz = {tristimulus(radiation_spectrum)};
+    std::vector<double> rgb = linalg::t(sRGB_D65*linalg::t(xyz))[0];
+    double max = *std::max_element(rgb.begin(), rgb.end());
+    for (int i = 0; i < 3; i++) {
+      rgb[i] = rgb[i]/max; 
+    }
+    return rgb;
   }
   double gaussian_mean(const pl_function& radiation_spectrum, double wl0, double fwhm) {
     return transmit(radiation_spectrum, filter::gaussian(wl0,fwhm)).integral();

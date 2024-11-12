@@ -23,4 +23,23 @@ namespace flick {
     check(filter::sentinel3(1090e-9).closest_srf()==20);
     check(filter::sentinel3(938e-9).closest_srf()==19);
   } end_test_case()
+  
+  begin_test_case(filter_test_C) {
+    check_close(filter::cone_L().transmittance(600e-9),0.83399,0.1_pct);
+    check_close(filter::tristimulus_y().transmittance(550e-9),0.989023,0.01_pct);
+    size_t n = 500;
+    pp_function E(range(380e-9,800e-9,n).linspace(),std::vector<double>(n,1e14));
+    for (size_t i = 0; i<3; i++) {
+      check_close(tristimulus(E)[i], 1./3, 0.001_pct);
+    }
+    // https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
+    pp_function A = radiator::planck(2856).spectrum(2000);
+    check_close(tristimulus(A)[0], 0.44758, 1.2_pct);
+    check_close(tristimulus(A)[1], 0.40745, 1.2_pct);
+    
+    // https://www.oceanopticsbook.info/view/photometry-and-visibility/from-xyz-to-rgb
+    check_close(rgb(E)[0],255./255,0.2_pct);
+    check_close(rgb(E)[1],201./255,0.2_pct);
+    check_close(rgb(E)[2],192./255,0.3_pct);
+  } end_test_case()
 }

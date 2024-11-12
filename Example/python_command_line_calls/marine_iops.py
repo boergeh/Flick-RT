@@ -29,6 +29,7 @@ a_cdom = iops.a_cdom()
 
 fig, ax = plt.subplots(2,2)
 fig.set_size_inches(7.5,6)
+fig.tight_layout()
 ax[0,0].plot(a_w[:,0]*1e9,a_w[:,1],'-',label="water")
 ax[0,0].plot(a_spm[:,0]*1e9,a_spm[:,1],'-',label="SPM")
 ax[0,0].plot(a_cdom[:,0]*1e9,a_cdom[:,1],'-',label="CDOM")
