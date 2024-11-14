@@ -16,18 +16,24 @@ Parameters:
 
     'planck' <temperature> <number_of_points>
 
-    Gives black-body spectrum from a surface with a given temperature.
+    gives black-body spectrum from a surface with a given temperature.
     
-    'toa-solar' 
+    'toa_solar' 
 
-    Gives top-of-atmosphere solar irradiance spectrum at normal incidence at
+    gives top-of-atmosphere solar irradiance spectrum at normal incidence at
     average Sun-Earth distance.
+
+    'cie_a' or 'cie_d65'
+
+    for the CIE standard illuminant spectra A and D65. 
 
 Examples:
     
   flick radiator planck 6000 20
 
-  flick radiator toa-solar 
+  flick radiator toa_solar
+
+  flick radiator cie_d65 
 
 
 Remember: unless other units are explicitly stated, Flick is always

@@ -10,34 +10,34 @@ namespace flick {
       filter():basic_command("filter"){};
       void run() {
 	if (a(1)=="cone_L") {
-	  std::cout << flick::filter::cone_L();
+	  std::cout << flick::filter::cone_lms<0>();
 	  return;
 	}
 	if (a(1)=="cone_M") {
-	  std::cout << flick::filter::cone_M();
+	  std::cout << flick::filter::cone_lms<1>();
 	  return;
 	}
 	if (a(1)=="cone_S") {
-	  std::cout << flick::filter::cone_S();
+	  std::cout << flick::filter::cone_lms<2>();
 	  return;
 	}
-	if (a(1)=="tristimulus_x") {
-	  std::cout << flick::filter::tristimulus_x();
+	if (a(1)=="x_bar") {
+	  std::cout << flick::filter::xyz_bar<0>();
 	  return;
 	}
-	if (a(1)=="tristimulus_y") {
-	  std::cout << flick::filter::tristimulus_y();
+	if (a(1)=="y_bar") {
+	  std::cout << flick::filter::xyz_bar<1>();
 	  return;
 	}
-	if (a(1)=="tristimulus_z") {
-	  std::cout << flick::filter::tristimulus_z();
+	if (a(1)=="z_bar") {
+	  std::cout << flick::filter::xyz_bar<2>();
 	  return;
 	}
 
 	std::string fname = a(1);
 	auto f = flick::read<flick::pl_function>(fname);
-	if (a(2)=="tristimulus") {
-	  std::cout << flick::tristimulus(f);
+	if (a(2)=="chromaticity") {
+	  std::cout << flick::chromaticity(f);
 	}
 	else if (a(2)=="rgb") {
 	  std::cout << flick::rgb(f);

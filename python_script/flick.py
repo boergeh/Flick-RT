@@ -11,7 +11,9 @@ import subprocess
 import os
 import scipy.special
 
-def run(arguments):
+def run(arguments, to_txt_file="", data=[]):
+    if to_txt_file != "":
+        np.savetxt(to_txt_file, data)
     flick_output = _run_os("flick "+arguments)
     if flick_output.stdout:
         return _to_matrix(flick_output)
@@ -25,8 +27,7 @@ def include_given_values(lower_limit,upper_limit,n,v):
     v = np.insert(v,len(v),upper_limit)
     if len(v) >= n:
         step = round(len(v)/n)
-        return v[::step] 
-    
+        return v[::step]   
     i = 0
     while len(v) < n:
         if i > len(v)-2:
@@ -178,16 +179,16 @@ class ocean_meta:
     def to_string(self):
         s = (
         r"$\it{metadata}$" + "\n" +    
-        "latitude: " + str(self.latitude) + " $\degree$"+"\n" +
-        "longitude: " + str(self.longitude) + " $\degree$"+"\n" +
+        "latitude: " + str(self.latitude) + r" $\degree$"+"\n" +
+        "longitude: " + str(self.longitude) + r" $\degree$"+"\n" +
         "UTC time point: " + str(round(self.time_point_utc)) + "\n" +
         "days since year 2000: " + str(self.n_days) + "\n" +
         "depth: " + str(self.depth) + " m\n" +
-        "temperature: " + str(round(self.temperature-273.15,1)) + " $\degree$C\n" +
+        "temperature: " + str(round(self.temperature-273.15,1)) + r" $\degree$C"+"\n" +
         "salinity: " + str(self.salinity) + " psu\n" +
-        "SPM: " + str(self.spm*1e3) + " g m$^{-3}$\n" +
-        "CHL: " + str(self.chl*1e6) + " mg m$^{-3}$\n" +
-        "POC: " + str(self.poc*1e3) + " g m$^{-3}$\n" +
+        "SPM: " + str(self.spm*1e3) + r" g m$^{-3}$"+"\n" +
+        "CHL: " + str(self.chl*1e6) + r" mg m$^{-3}$"+"\n" +
+        "POC: " + str(self.poc*1e3) + r" g m$^{-3}$"+"\n" +
             ""
         )
         return s

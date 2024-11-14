@@ -6,6 +6,7 @@
 #include "../numeric/function.hpp"
 #include "../numeric/range.hpp"
 #include "../numeric/constants.hpp"
+#include "../numeric/std_operators.hpp"
 
 namespace flick {
   namespace radiator {
@@ -19,7 +20,7 @@ namespace flick {
       const pp_function& spectrum() const {
 	return spectrum_;
       }
-      pp_function spectrum(size_t n_points) const {	
+      pp_function importance_spectrum(size_t n_points) const {	
 	return importance_sampled(spectrum_, n_points);
       }
     };

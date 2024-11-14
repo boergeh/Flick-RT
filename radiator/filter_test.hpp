@@ -1,4 +1,6 @@
 #include "filter.hpp"
+#include "cie_d65.hpp"
+#include "cie_a.hpp"
 #include "../environment/input_output.hpp"
 
 namespace flick {
@@ -25,21 +27,21 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(filter_test_C) {
-    check_close(filter::cone_L().transmittance(600e-9),0.83399,0.1_pct);
-    check_close(filter::tristimulus_y().transmittance(550e-9),0.989023,0.01_pct);
+    // https://en.wikipedia.org/wiki/Standard_illuminant
     size_t n = 500;
-    pp_function E(range(380e-9,800e-9,n).linspace(),std::vector<double>(n,1e14));
+    pp_function E(range(380e-9,800e-9,n).linspace(),std::vector<double>(n,1));
     for (size_t i = 0; i<3; i++) {
-      check_close(tristimulus(E)[i], 1./3, 0.001_pct);
+      check_close(chromaticity(E)[i], 1./3, 0.01_pct);
     }
-    // https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
-    pp_function A = radiator::planck(2856).spectrum(2000);
-    check_close(tristimulus(A)[0], 0.44758, 1.2_pct);
-    check_close(tristimulus(A)[1], 0.40745, 1.2_pct);
-    
-    // https://www.oceanopticsbook.info/view/photometry-and-visibility/from-xyz-to-rgb
-    check_close(rgb(E)[0],255./255,0.2_pct);
-    check_close(rgb(E)[1],201./255,0.2_pct);
-    check_close(rgb(E)[2],192./255,0.3_pct);
+    pp_function A = radiator::cie_a().spectrum();
+    check_close(chromaticity(A)[0], 0.44758, 0.01_pct);
+    check_close(chromaticity(A)[1], 0.40745, 0.01_pct);
+
+    pp_function D65 = radiator::cie_d65().spectrum();
+    check_close(chromaticity(D65)[0], 0.31272, 0.01_pct);
+    check_close(chromaticity(D65)[1], 0.32903, 0.01_pct);
+    for (size_t i = 0; i<3; i++) {
+      check_close(rgb(D65)[i], 1, 0.02_pct);
+    }
   } end_test_case()
 }

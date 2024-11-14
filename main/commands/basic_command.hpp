@@ -5,6 +5,7 @@
 #include <vector>
 #include "../../environment/input_output.hpp"
 #include "../../environment/exception.hpp"
+#include "../../numeric/std_operators.hpp"
 
 namespace flick {
   namespace command {

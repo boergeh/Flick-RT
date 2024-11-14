@@ -7,6 +7,7 @@ int main() {
   unit_test t("radiator");
   t.include<planck_test>();
   t.include<toa_solar_test>();
+  t.include<cie_d65_test>();
   t.include<filter_test_A>();
   t.include<filter_test_B>();
   t.include<filter_test_C>();

@@ -57,7 +57,6 @@ for i in range(len(terms)):
     g = iops.asymmetry_factor(n)
     f = iops.volume_scattering_scaling_factor(n)
     bb = iops.back_scattering_coefficient(n)
-    print(bb)
     p = iops.volume_scattering_function(n)
     l = "n="+str(n)+", g="+"{:.2f}".format(g)+", f="+"{:.2f}".format(f)+", b$_b$="+"{:.2f}".format(bb)
     ax[0,1].semilogy(p[:,0],p[:,1],label=l)    

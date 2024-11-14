@@ -10,23 +10,43 @@ namespace flick {
     {
       double T_{5800};
     public:
-      planck(double temperature) : T_{temperature} {
-	size_t n_points = 500;
-	auto x = range(0.01,20,n_points).linspace();
-	auto y = std::vector<double>(n_points);
-	for (size_t i=0; i < n_points; ++i) {
-	  y[i] = pow(x[i],5)/(exp(x[i])-1);
+      planck(double temperature)
+	: T_{temperature} {
+	initialize(0.01, 20, 500);
+      }
+      planck(double temperature, double wl_low, double wl_high, size_t n_points)
+	: T_{temperature} {
+	initialize(x(wl_high), x(wl_low), n_points);
+      }
+      double value(double wavelength) {
+	return f(x(wavelength));
+      }
+    private:
+      void initialize(double x_low, double x_high, size_t n_points) {
+	std::vector<double> xv = range(x_low, x_high, n_points).linspace();
+	for (int i=n_points-1; i >= 0; i--) {
+	  point p(wavelength(xv[i]),f(xv[i]));
+	  spectrum_.append(p);
 	}
-	auto wl = std::vector<double>(n_points);
-	auto pl = std::vector<double>(n_points);
+      }
+      double kernel(double x) {
+	return pow(x,5)/(exp(x)-1);
+      }
+      double k() {
 	using namespace constants;
-	double kx = h*c/(k_B*T_);
-	double ky = 2*pi*pow(k_B*T_,5)/(pow(h,4)*pow(c,3));
-	for (size_t i=0; i < n_points; ++i) {
-	  wl[i] = kx / x[n_points-i-1];
-	  pl[i] = ky * y[n_points-i-1];
-	}
-	spectrum_ = pp_function{wl,pl};
+	return h*c/(k_B*T_);
+      }
+      double wavelength(double x) {
+	return k()/x;
+      }
+      double x(double wavelength) {
+	return k()/wavelength;
+      }
+      double f(double x) {
+	using namespace constants;
+	double kf = 2*pi*pow(k_B*T_,5)/(pow(h,4)*pow(c,3));
+        return kf*kernel(x);
+	
       }
     };
   }

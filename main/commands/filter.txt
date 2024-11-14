@@ -22,7 +22,7 @@ Parameters:
 
     'uvb_index'
 
-    'tristimulus'
+    'chromaticity'
 
     'rgb'
 
@@ -32,8 +32,9 @@ Parameters:
 
     'sentinel3' <user_center_wavelength>
 
-  The 'sentinel3' option applies the OLCI spectral response function
-  that is closest to the given user center wavelength.
+  Chromaticity gives the CIE 1931 2deg xyz values. The 'sentinel3'
+  option applies the OLCI spectral response function that is closest
+  to the given user center wavelength.
 
 Examples:
 
@@ -49,11 +50,10 @@ Examples:
 
   flick filter toa_solar.txt sentinel3 400e-9
 
-  flick filter cone_L
-
-  flick filter tristimulus_x
-
-
+  flick filter toa_solar.txt rgb
+  
+  flick filter toa_solar.txt chromaticity
+  
 Remember: unless other units are explicitly stated, Flick is always
 using SI units (m, kg, s) for input and output of physical values, see
 https://en.wikipedia.org/wiki/International_System_of_Units.

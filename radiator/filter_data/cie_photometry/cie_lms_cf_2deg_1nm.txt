@@ -1,5 +1,5 @@
 /*
-One of CIE's open access data sets: CIE 2006, CIE 2006 LMS cone
+From CIE's open access data sets: CIE 2006, CIE 2006 LMS cone
 fundamentals for 2° field size in terms of energy, International
 Commission on Illumination (CIE), Vienna, Austria, DOI:
 10.25039/CIE.DS.tijidesg
