@@ -1,5 +1,5 @@
 """
-Shows the pure water and ice absorption coefficient
+Pure water and ice absorption coefficient
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,4 +26,4 @@ ax.set_xlabel("Wavelength [nm]")
 ax.set_ylabel("Absorption coefficient [m$^{-1}$]")
 ax.set_ylim([4e-4, 1])
 plt.show();
-fig.savefig("water_and_ice_absorption.png", dpi=300)
+

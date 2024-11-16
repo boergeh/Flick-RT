@@ -37,15 +37,19 @@ for i in range(len(data2)):
     ax[0][1].plot(x, y,'-', linewidth=1.5, label=xyz[i],color=colors[i])
 ax[0][1].set_title(r"CIE color matching functions, 1931 2$\degree$",fontsize=9)
 ax[1][0].plot(data3[:,0]*1e9,data3[:,1],label="CIE standard illuminant D65")
-xyz = flick.run('filter tmp.txt chromaticity', 'tmp.txt', data3)[0]
-rgb = flick.run('filter tmp.txt rgb', 'tmp.txt', data3)[0]
+xyz = flick.chromaticity(data3)
+print(xyz)
+
+
+rgb = flick.rgb(data3) 
 ax[1][0].set_facecolor(rgb)
 ax[1][0].set_title('xy = '+str(np.round(xyz[0:2],3))+',  RGB = '+str(np.round(rgb,3)),fontsize=9)
 
 ax[1][1].plot(data4[:,0]*1e9,data4[:,1],'-',
               label="CIE standard illuminant A")
-xyz = flick.run('filter tmp.txt chromaticity', 'tmp.txt', data4)[0]
-rgb = flick.run('filter tmp.txt rgb', 'tmp.txt', data4)[0]
+xyz = flick.chromaticity(data4) 
+rgb = flick.rgb(data4) 
+
 ax[1][1].set_facecolor(rgb)
 ax[1][1].set_title('xy = '+str(np.round(xyz[0:2],3))+',  RGB = '+str(np.round(rgb,3)),fontsize=9)
 for i in range(2):
@@ -54,6 +58,7 @@ for i in range(2):
         ax[i][j].grid()
         ax[i][j].set_xlabel("Wavelength [nm]")
         ax[i][j].set_xlim([375,730])
-plt.savefig('photometry.png',dpi=300)
 plt.show();
+
+#plt.savefig('colorimetry.png',dpi=300)
 

@@ -1,5 +1,5 @@
 """
-Shows wavelength-dependent phase function
+Wavelength-dependent phase function of spheres
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,6 +28,5 @@ for i in range(3):
     ax.semilogy(x, y, color=c[i][:],linewidth=2)
 ax.grid()
 ax.set_xlabel("angle [degrees]")
-ax.set_ylabel("differential scattering cross section [m$^2$sr$^{-1}$]")
+ax.set_ylabel(r"differential scattering cross section [m$^2$$\,$sr$^{-1}$]")
 plt.show();
-fig.savefig("material_phase_function.pdf", bbox_inches='tight')

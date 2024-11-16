@@ -72,7 +72,6 @@ ax[1,1].text(0.0,0.0,station+" - "+meta.to_string())
 plt.subplots_adjust(left=0.09, bottom=0.08, right=0.98, top=0.98,
                     wspace=0.3, hspace=0.2)
 plt.show()
-fig.savefig("marine_iops_"+station+".png",dpi=300)
 
 
 

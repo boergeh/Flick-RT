@@ -40,8 +40,7 @@ for i in range(len(m)):
 
 ax.legend()
 ax.grid()
-ax.set_title("Small snow grains with radius 0.05 mm and volume fraction 0.2")
+ax.set_title("Small snow grains with radius 0.05 mm and volume fraction 0.2",fontsize=10)
 ax.set_xlabel("Cosine of scattering angle")
-ax.set_ylabel("Volume scattering function [m$^{-1}$sr$^{-1}$]")
+ax.set_ylabel(r"Volume scattering function [m$^{-1}$$\,$sr$^{-1}$]")
 plt.show();
-fig.savefig("snow_asymmetry_factor.pdf", bbox_inches='tight')

@@ -40,4 +40,4 @@ for i in range(2):
         ax[i,j].set_xlabel("Scattering angle")
 
 plt.show()
-#fig.savefig("plot_data.pdf", bbox_inches='tight')
+

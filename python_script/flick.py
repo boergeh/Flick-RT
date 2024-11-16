@@ -11,13 +11,24 @@ import subprocess
 import os
 import scipy.special
 
-def run(arguments, to_txt_file="", data=[]):
-    if to_txt_file != "":
-        np.savetxt(to_txt_file, data)
+def run(arguments):
     flick_output = _run_os("flick "+arguments)
     if flick_output.stdout:
         return _to_matrix(flick_output)
 
+def _run(pre_arg, data, post_arg):
+    file_name = 'flick_python_run_tmp.txt'
+    np.savetxt(file_name, data)
+    matrix = run(pre_arg+' '+file_name+' '+post_arg)
+    os.remove(file_name)
+    return matrix
+
+def chromaticity(spectrum):
+    return _run('filter',spectrum,'chromaticity')
+
+def rgb(spectrum):
+    return _run('filter',spectrum,'rgb')
+    
 def table(file_name):
     return run("text "+file_name+" matrix")
 
@@ -107,7 +118,7 @@ class marine_iops:
         for i in range(len(k)):
             bb += 2*np.pi*k[i,0]*self._legendre_first_half_integral(i)
         l = run("iop scattering_length "+self._expansion_command())
-        b = 1/l[0,1]
+        b = 1/l[1]
         return bb/b
 
     def _legendre_both_halfs_integral(self,term_number):
@@ -137,7 +148,7 @@ class marine_iops:
     def volume_scattering_scaling_factor(self,n_terms):
         k = self._expansion_factors(n_terms)
         l = run("iop scattering_length "+self._expansion_command())
-        b = 1/l[0,1]
+        b = 1/l[1]
         f = k[0,0]/b*4*np.pi
         return f
 
@@ -221,6 +232,9 @@ def _to_matrix(flick_output):
         for i in range(rows):
             floats = [float(x) for x in l[i].split()]
             matrix[i] = floats
+        num_rows, num_cols = matrix.shape
+        if num_rows == 1:
+            return matrix[0]
         return matrix
     except Exception as e:
         raise Exception(flick_output.stdout.decode('utf-8')) 
