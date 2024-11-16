@@ -1,5 +1,5 @@
 """
-Wavelength-dependent phase function of spheres
+Wavelength dependent differential scattering cross section of spheres
 """
 import numpy as np
 import matplotlib.pyplot as plt
