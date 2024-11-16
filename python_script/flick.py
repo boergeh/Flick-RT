@@ -289,7 +289,7 @@ class basic_radiation:
     def toa_zenith_irradiance(self, time_point_utc):
         distance_au = run("sun_position distance "+ \
                           self._to_spaced_string(time_point_utc))
-        r = run("radiator toa-solar")
+        r = run("radiator toa_solar")
         r[:,1] = r[:,1] * (1/distance_au)**2
         return r
 
@@ -298,14 +298,14 @@ class basic_radiation:
         self._to_spaced_string(time_point_utc)+" "+ \
         str(latitude)+" "+str(longitude)
         a = run(command)
-        return a[0][0]
+        return a[0]
 
     def sun_azimuth_angle(self, time_point_utc, latitude, longitude):
         command = "sun_position azimuth_angle "+ \
             self._to_spaced_string(time_point_utc)+" "+ \
             str(latitude)+" "+str(longitude)
         a = run(command)
-        return a[0][0]
+        return a[0]
 
     def set_override_sun_zenith_angle(self, angle):
         self._override_sun_zenith_angle = angle
