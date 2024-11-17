@@ -234,10 +234,10 @@ def _to_matrix(flick_output):
             floats = [float(x) for x in l[i].split()]
             matrix[i] = floats
         num_rows, num_cols = matrix.shape
-        if num_rows == 1:
-            return matrix[0]
         if num_rows == 1 and num_cols == 1:
             return matrix[0][0]
+        if num_rows == 1:
+            return matrix[0]
         return matrix
     except Exception as e:
         raise Exception(flick_output.stdout.decode('utf-8')) 
@@ -301,14 +301,14 @@ class basic_radiation:
         self._to_spaced_string(time_point_utc)+" "+ \
         str(latitude)+" "+str(longitude)
         a = run(command)
-        return a[0]
+        return a
 
     def sun_azimuth_angle(self, time_point_utc, latitude, longitude):
         command = "sun_position azimuth_angle "+ \
             self._to_spaced_string(time_point_utc)+" "+ \
             str(latitude)+" "+str(longitude)
         a = run(command)
-        return a[0]
+        return a
 
     def set_override_sun_zenith_angle(self, angle):
         self._override_sun_zenith_angle = angle
