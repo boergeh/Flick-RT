@@ -11,6 +11,9 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
+path = os.environ['FLICK_PATH']+"/Example/accurt_calls/atmosphere_ocean"
+os.chdir(path)
+
 station = "ECOSENS_HF22_D1"
 show_computed_data = True
 show_satellite_data = False
@@ -63,8 +66,12 @@ for i in range(2):
     
 plt.subplots_adjust(left=0.15, bottom=0.07, right=0.97, top=0.98,
                     wspace=0, hspace=0.04)
-plt.show()
+
 fig.savefig('output/'+station+'_plotted_radiation.pdf')
+
+if __name__ == "__main__":
+    plt.show()
+
 
 
 

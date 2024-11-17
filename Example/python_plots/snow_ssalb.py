@@ -23,4 +23,5 @@ ax.semilogy(wl,a, linewidth=1)
 ax.grid()
 ax.set_xlabel("Wavelength [nm]")
 ax.set_ylabel("Single scattering albedo of snow")
-plt.show();
+if __name__ == "__main__":
+    plt.show()

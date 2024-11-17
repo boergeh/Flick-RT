@@ -12,7 +12,6 @@ import flick
 
 n_points = 1e4
 radius = np.logspace(np.log10(1e-6), np.log10(50e-6), 30)
-print("radius [m]:")
 g = []
 for r in radius:
     s = "mie 500e-9 1.0 1.33 "+str(r)+ \
@@ -23,7 +22,6 @@ for r in radius:
     x = mu[::-1]
     f = s00[::-1]
     g.append(integrate.simpson(x*f,x=x)/integrate.simpson(f,x=x))
-    print(r)
 
 fig, ax = plt.subplots()
 ax.semilogx(radius*1e6, g,'b-')
@@ -34,7 +32,8 @@ ax.set_ylabel("asymmetry factor")
 ax.set_xlim([0.8, 120])
 ax.set_ylim([0.65, 1])
 ax.set_xticks([1,3,10,30,100])
-plt.show();
+if __name__ == "__main__":
+    plt.show()
 
 
 

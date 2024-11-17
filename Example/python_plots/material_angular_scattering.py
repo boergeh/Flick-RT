@@ -29,4 +29,5 @@ for i in range(3):
 ax.grid()
 ax.set_xlabel("angle [degrees]")
 ax.set_ylabel(r"differential scattering cross section [m$^2$$\,$sr$^{-1}$]")
-plt.show();
+if __name__ == "__main__":
+    plt.show()

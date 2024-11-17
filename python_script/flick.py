@@ -47,6 +47,7 @@ def include_given_values(lower_limit,upper_limit,n,v):
         i += 2
     return v
 
+
 class absorption_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):
         self._ao_config = ao_config
@@ -235,6 +236,8 @@ def _to_matrix(flick_output):
         num_rows, num_cols = matrix.shape
         if num_rows == 1:
             return matrix[0]
+        if num_rows == 1 and num_cols == 1:
+            return matrix[0][0]
         return matrix
     except Exception as e:
         raise Exception(flick_output.stdout.decode('utf-8')) 
@@ -345,8 +348,7 @@ class basic_radiation:
                                 str(wl[i]))
             else:
                 spectrum[i,1] = run("filter "+self._tmpdir+"/spectrum triangular "+ \
-                                    str(wl[i])+" "+str(wl_width))
-                
+                                    str(wl[i])+" "+str(wl_width))     
         return spectrum
 
     def set_n_angles(self,n_angles):

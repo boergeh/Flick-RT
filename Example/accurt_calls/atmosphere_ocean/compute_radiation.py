@@ -38,6 +38,9 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+'/python_script')
 import flick
 
+path = os.environ['FLICK_PATH']+"/Example/accurt_calls/atmosphere_ocean"
+os.chdir(path)
+
 station = 'ECOSENS_HF22_D1'
 irradiance_height = -0.5
 detector_separation = 0.37
@@ -49,6 +52,7 @@ use_satellite_wavelengths = False
 use_satellite_viewing_angles = False
 use_satellite_response_functions = False
 use_satellite_time_point = False
+
 
 toa_meta = flick.toa_meta('input/'+station+'_toa_meta.txt')
 ocean_meta = flick.ocean_meta('input/'+station+'_meta.txt')

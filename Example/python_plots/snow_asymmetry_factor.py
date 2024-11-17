@@ -2,12 +2,10 @@
 Shows how the asymmetry factor of snow varies with number of volume scattering
 function expansion terms
 """
-import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
-from matplotlib import cm
 import flick
 
 n_terms = [10, 30]
@@ -43,4 +41,5 @@ ax.grid()
 ax.set_title("Small snow grains with radius 0.05 mm and volume fraction 0.2",fontsize=10)
 ax.set_xlabel("Cosine of scattering angle")
 ax.set_ylabel(r"Volume scattering function [m$^{-1}$$\,$sr$^{-1}$]")
-plt.show();
+if __name__ == "__main__":
+    plt.show()

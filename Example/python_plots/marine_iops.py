@@ -1,7 +1,6 @@
 """
-Plot inherent optical properties of ocean materials. SI-units and
+Inherent optical properties of ocean materials. SI-units and
 degrees are used unless otherwise specified.
-
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,14 +9,14 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
+path = os.environ['FLICK_PATH']+"/Example/python_plots"
+os.chdir(path)
+
 station = "ECOSENS_HF22_D1"
 user_path = "../accurt_calls/atmosphere_ocean/input"
-#user_path = "/Users/borgehamre/m0/figures/radiation/input"
 from_wl = 300e-9
 to_wl = 1050e-9
-
 meta_path = "../../material/marine_particles/iop_tables"
-#meta_path = "/Users/borgehamre/m0/figures/radiation/input"
 if user_path != "":
     meta_path = user_path
 meta = flick.ocean_meta(meta_path+"/"+station+"_meta.txt")
@@ -50,7 +49,7 @@ ax[1,0].set_xlabel('Wavelength [nm]')
 ax[1,0].set_ylabel('Scattering coefficient [m$^{-1}$]')
 
 p = iops.volume_scattering_function(0)
-ax[0,1].semilogy(p[:,0],p[:,1],label="measured")    
+ax[0,1].semilogy(p[:,0],p[:,1],label="measured")
 terms = [4,16,64]
 for i in range(len(terms)):
     n = terms[i]
@@ -58,7 +57,8 @@ for i in range(len(terms)):
     f = iops.volume_scattering_scaling_factor(n)
     bb = iops.back_scattering_coefficient(n)
     p = iops.volume_scattering_function(n)
-    l = "n="+str(n)+", g="+"{:.2f}".format(g)+", f="+"{:.2f}".format(f)+", b$_b$="+"{:.2f}".format(bb)
+    l = "n="+str(n)+", g="+"{:.2f}".format(g)+", f="+"{:.2f}".format(f)+\
+        ", b$_b$="+"{:.2f}".format(bb)
     ax[0,1].semilogy(p[:,0],p[:,1],label=l)    
 ax[0,1].grid()
 ax[0,1].legend()
@@ -71,7 +71,9 @@ ax[1,1].text(0.0,0.0,station+" - "+meta.to_string())
 
 plt.subplots_adjust(left=0.09, bottom=0.08, right=0.98, top=0.98,
                     wspace=0.3, hspace=0.2)
-plt.show()
+
+if __name__ == "__main__":
+    plt.show()
 
 
 

@@ -10,6 +10,9 @@ import sys
 sys.path.append(os.environ['FLICK_PATH']+"/python_script")
 import flick
 
+path = os.environ['FLICK_PATH']+"/Example/accurt_calls/atmosphere_ocean"
+os.chdir(path)
+
 station = "ECOSENS_HF22_D1"
 
 E = flick.table('output/'+station+"_computed_irradiance_W_per_m2_nm.txt")
@@ -36,8 +39,12 @@ for label in ax.yaxis.get_ticklabels('minor')[1::2]:
         label.set_visible(False)
 
 plt.subplots_adjust(left=0.15, bottom=0.09, right=0.98, top=0.98)
-plt.show()
+
 fig.savefig('output/'+station+'_plotted_radiation_ratio.pdf')
+
+if __name__ == "__main__":
+    plt.show()
+
 
 
 

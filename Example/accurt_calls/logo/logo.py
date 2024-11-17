@@ -31,7 +31,6 @@ f.set("chl_concentration", 0)
 f.set("cdom_440", 0)
 
 if (recalculate):
-    print("Using Flick to find UVR distributon at 1 m depth ...")
     r = f.values(wl,source_zenith_angle=0)
     np.save("flick_tmp/logo",r)
 else:
@@ -63,11 +62,12 @@ plt.subplots_adjust(left=-0.3,
                     right=0.9,
                     top=1.28)
 plt.axis('off')
-plt.show()
 
-if black_background:
-    fig.savefig("logo_black.png",dpi=500)
-    fig.savefig("logo_black.jpg",dpi=500)
-else:
-    fig.savefig("logo_white.png",dpi=500)
-    fig.savefig("logo_white.jpg",dpi=500)
+if __name__ == "__main__":
+    plt.show()
+    if black_background:
+        fig.savefig("logo_black.png",dpi=500)
+        fig.savefig("logo_black.jpg",dpi=500)
+    else:
+        fig.savefig("logo_white.png",dpi=500)
+        fig.savefig("logo_white.jpg",dpi=500)

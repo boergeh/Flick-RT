@@ -39,5 +39,6 @@ for i in range(2):
         ax[i,j].set_xticks([0, 45, 90, 135, 180])
         ax[i,j].set_xlabel("Scattering angle")
 
-plt.show()
+if __name__ == "__main__":
+    plt.show()
 

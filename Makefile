@@ -1,6 +1,8 @@
 
 # Read README.md for information on compilation and running
 
+with_python_test:	all python_test
+
 all:	check-env build test
 
 build:
@@ -78,6 +80,12 @@ clean:
 	cd model; make clean
 	cd main; make clean
 	rm -f *~
+python_test:
+	@echo ''
+	@echo 'Testing all python scripts. May take an hour ...'
+	cd Example/python_plots; python3 test_all.py
+	cd Example/accurt_calls/logo; python3 test_all.py
+	cd Example/accurt_calls/atmosphere_ocean; python3 test_all.py
 check-env:
 ifndef FLICK_PATH
 	./update_shell.sh
