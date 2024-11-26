@@ -143,24 +143,12 @@ namespace flick {
     mc.set<double>("aerosol_od",0);
     mc.set<double>("nap_concentration",1e-3);
     auto m = std::make_shared<material::atmosphere_ocean>(mc); 
-    
     auto a_avg =  accurt(ac, m);
     double r_avg = a_avg.relative_radiation().y()[0];
     ac.set<double>("detector_orientation_override",{179.91,180});
     auto a_dir =  accurt(ac, m);
     double r_dir = a_dir.relative_radiation().y()[0];
     check_close(r_avg, r_dir, 1.7_pct);
-    /*
-    ac.set<double>("detector_height",1);
-    ac.set<double>("detector_orientation_override",{0,0});
-    ac.set<std::string>("detector_orientation","up");
-    auto a_avg2 =  accurt(ac, m);
-    double r_avg2 = a_avg2.relative_radiation().y()[0];
-    ac.set<double>("detector_orientation_override",{0.01,180});
-    auto a_dir2 =  accurt(ac, m);
-    double r_dir2 = a_dir2.relative_radiation().y()[0];
-    check_close(r_avg2, r_dir2, 1.7_pct);
-    */
   } end_test_case()
 
    begin_test_case(accurt_test_G) {

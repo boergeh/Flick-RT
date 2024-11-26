@@ -11,6 +11,7 @@ int main() {
   t.include<filter_test_A>();
   t.include<filter_test_B>();
   t.include<filter_test_C>();
+  t.include<filter_test_D>();
   t.run_test_cases();
   return 0;
 }

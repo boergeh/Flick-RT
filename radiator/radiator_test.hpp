@@ -17,6 +17,6 @@ namespace flick {
   
   begin_test_case(cie_d65_test) {
     radiator::cie_d65 s;
-    check_close(s.spectrum().integral(),40852.20400e-9,0.1_pct);
+    check_close(s.spectrum().integral(),40852.20400,0.1_pct);
   } end_test_case()
 }

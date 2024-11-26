@@ -16,7 +16,7 @@ def run(arguments):
     if flick_output.stdout:
         return _to_matrix(flick_output)
 
-def _run(pre_arg, data, post_arg):
+def save_and_run(pre_arg, data, post_arg):
     file_name = 'flick_python_run_tmp.txt'
     np.savetxt(file_name, data)
     matrix = run(pre_arg+' '+file_name+' '+post_arg)
@@ -24,11 +24,11 @@ def _run(pre_arg, data, post_arg):
     return matrix
 
 def chromaticity(spectrum):
-    return _run('filter',spectrum,'chromaticity')
+    return save_and_run('filter',spectrum,'chromaticity')
 
 def rgb(spectrum):
-    return _run('filter',spectrum,'rgb')
-    
+    return save_and_run('filter',spectrum,'rgb')
+
 def table(file_name):
     return run("text "+file_name+" matrix")
 
@@ -313,8 +313,8 @@ class basic_radiation:
     def set_override_sun_zenith_angle(self, angle):
         self._override_sun_zenith_angle = angle
         
-    def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc,
-                           latitude, longitude):
+    def _absolute_spectrum(self, wl_grid, wl_width, time_point_utc=0,
+                           latitude=0, longitude=0):
         if np.isnan(self._override_sun_zenith_angle):
             a = self.sun_zenith_angle(time_point_utc, latitude, longitude)
         else:
@@ -391,8 +391,8 @@ class relative_radiation(basic_radiation):
 
 
 class absolute_radiation(basic_radiation):
-    def spectrum(self,wl_grid, wl_width, time_point_utc,
-                                       latitude, longitude):
+    def spectrum(self,wl_grid, wl_width, time_point_utc=0,
+                                       latitude=0, longitude=0):
         return self._absolute_spectrum(wl_grid, wl_width, time_point_utc,
                                        latitude, longitude)
 

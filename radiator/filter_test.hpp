@@ -44,4 +44,10 @@ namespace flick {
       check_close(rgb(D65)[i], 1, 0.02_pct);
     }
   } end_test_case()
+
+  begin_test_case(filter_test_D) {
+    pl_function f = read<pl_function>("./toa_solar.txt");
+    check_close(n_photons(f,400e-9,700e-9),1.4e21,5_pct);
+  } end_test_case()
+
 }

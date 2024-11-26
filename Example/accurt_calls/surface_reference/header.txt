@@ -1,0 +1,11 @@
+/*
+Flick reference spectrum for downward plane irradiance just above
+the ocean surface under a cloud-free sky and and with a US standard
+atmosphere. See
+flick/Example/accurt_calls/reference_spectrum/make_reference_spectrum.py
+for further specifications of solar zenith angle, aerosols, spectral
+width, etc.
+
+Column 1: Wavelength [nm]
+Column 2: Irradiance [W/m2/nm]
+*/

@@ -26,6 +26,8 @@ Parameters:
 
     'rgb'
 
+    'n_photons' <from_wavelength> <to_wavelength>
+
     'gaussian_mean' <center_wavelength> <full_width_half_maximum>
 
     'weighted_integral' <file_name_of_tabulated_filter_transmittance>
@@ -53,6 +55,8 @@ Examples:
   flick filter toa_solar.txt rgb
   
   flick filter toa_solar.txt chromaticity
+  
+  flick filter toa_solar.txt n_photons 400e-9 700e-9
   
 Remember: unless other units are explicitly stated, Flick is always
 using SI units (m, kg, s) for input and output of physical values, see

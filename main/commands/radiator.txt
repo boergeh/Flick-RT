@@ -23,6 +23,11 @@ Parameters:
     gives top-of-atmosphere solar irradiance spectrum at normal incidence at
     average Sun-Earth distance.
 
+    'flick_reference'
+
+    gives downward irradiance for 60 degree solar zenith angle and US
+    standard atmosphere just above ocean surface
+
     'cie_a' or 'cie_d65'
 
     for the CIE standard illuminant spectra A and D65. 
@@ -32,6 +37,8 @@ Examples:
   flick radiator planck 6000 20
 
   flick radiator toa_solar
+
+  flick radiator surface_reference
 
   flick radiator cie_d65 
 

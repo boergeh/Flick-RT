@@ -10,6 +10,7 @@ class test_all_python_plots(unittest.TestCase):
             import mie_asymmetry_factor
             import mie_scattering_matrix
             import optical_thickness
+            import photon_counting
             import snow_asymmetry_factor
             import snow_ssalb
         except Exception as e:

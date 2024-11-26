@@ -1,15 +1,15 @@
-#ifndef flick_radiator_cie_d65
-#define flick_radiator_cie_d65
+#ifndef flick_radiator_surface_reference
+#define flick_radiator_surface_reference
 
 #include "radiator.hpp"
 
 namespace flick {
   namespace radiator {
-    class cie_d65 : public radiator {
+    class surface_reference : public radiator {
       const std::string path_{"/radiator"};
     public:
-      cie_d65() {
-	spectrum_ = read<pp_function>(path_+"/cie_d65.txt");
+      surface_reference() {
+	spectrum_ = read<pp_function>(path_+"/surface_reference.txt");
 	spectrum_.scale_x(1e-9);
 	spectrum_.scale_y(1e9);
       }

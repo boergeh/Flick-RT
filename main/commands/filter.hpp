@@ -51,6 +51,9 @@ namespace flick {
 	else if (a(2)=="uvb_index") {
 	  std::cout << flick::uvb_index(f);
 	}
+	else if (a(2)=="n_photons") {
+	  std::cout << flick::n_photons(f,std::stod(a(3)),std::stod(a(4)));
+	}
 	else if (a(2)=="gaussian_mean") {
 	  double wl0 = std::stod(a(3));
 	  double fwhm = std::stod(a(4));

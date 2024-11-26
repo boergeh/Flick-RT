@@ -1,6 +1,7 @@
 #include "basic_command.hpp"
 #include "../../radiator/planck.hpp"
 #include "../../radiator/toa_solar.hpp"
+#include "../../radiator/surface_reference.hpp"
 #include "../../radiator/cie_d65.hpp"
 #include "../../radiator/cie_a.hpp"
 
@@ -16,6 +17,10 @@ namespace flick {
 	}
 	else if (a(1)=="toa_solar") {
 	  auto s = flick::radiator::toa_solar().spectrum();
+	  std::cout << s.header("");
+	}
+	else if (a(1)=="surface_reference") {
+	  auto s = flick::radiator::surface_reference().spectrum();
 	  std::cout << s.header("");
 	}
 	else if (a(1)=="cie_d65") {

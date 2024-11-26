@@ -72,6 +72,16 @@ namespace flick {
 	  return pow(10, 0.015*(140-wavelength*1e9));
       }
     };
+
+    class photons : public filter
+    // Converts to number of photons per wavelength
+    {
+    public:
+      double transmittance(double wavelength) const {
+	using namespace constants;
+	return wavelength / (h * c);
+      }
+    };
     
     class tabulated : public filter {
       pl_function t_;
@@ -193,6 +203,11 @@ namespace flick {
     for (size_t i=0; i < wl.size(); ++i)
       new_rs.append({wl[i], radiation_spectrum.value(wl[i])*f.transmittance(wl[i])});
     return new_rs;
+  }
+
+  template<typename Function>
+  double n_photons(const Function& radiation_spectrum, double wl_low, double wl_high) {
+    return transmit(radiation_spectrum, filter::photons()).integral(wl_low, wl_high);
   }
   double uv_index(const pl_function& radiation_spectrum) {
     return 40*transmit(radiation_spectrum, filter::erythema()).integral();
