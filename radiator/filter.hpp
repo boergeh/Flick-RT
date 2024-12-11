@@ -175,7 +175,7 @@ namespace flick {
 	pl_function f = read<pl_function>(p+"/band_"+std::to_string(n)+".txt");
 	f.scale_x(1e-9);
 	f.scale_y(1/f.integral());
-	f.add_extrapolation_points(0);
+	f.add_zero_extrapolation();
 	srf_ = std::make_shared<tabulated>(tabulated(f));
 	srf_->shift(user_center_wavelength_-centers_.x()[n]);
       }

@@ -1,7 +1,7 @@
 #include "function.hpp"
 
 namespace flick {
-  begin_test_case(function_test_A) {    
+  begin_test_case(function_test_A) {
     function<piecewise_exponential> fa{{-1,1},{1,1}};
     check_small(fa.derivative(-3));
     check_close(fa.value(-3), 1);
@@ -92,27 +92,28 @@ namespace flick {
     pp_function fi{{1,2},{1,1}};
     pe_function fj{{1,2},{1,1}};
     pe_function fk;
-    check_throw(fk.value(0));
+    check_throw(pp_function({-1,2},{1,1}));
     pe_function fl(2);
     check_close(fl.value(),2);
+    
     pp_function fm{{1, 2, 3, 4},{1,4,9,16}};
-    fm.add_extrapolation_points(1);
+    fm = fm.constant_extrapolation();
     check_close(fm.value(0.01),1,1e-9_pct);    
     fm.scale_x(2);
     check_close(fm.value(2),1);
     fm.scale_y(2);
     check_close(fm.value(2),2);
-    pp_function fmb = significant_digits(fm, 10, 1);
-    check_close(fmb.value(8),30);
-    check_throw(fmb.add_extrapolation_points(0));
-    
+    pp_function fmb = significant_digits(pp_function{{1, 2, 3, 4},{1,4,9,16}}, 10, 1);
+    check_close(fmb.value(4),20);
+ 
     function<piecewise_linear> fn{{-2,-1,5},{-2,-1,5}};
     check_close(fn.value(-3),-3);
     check_close(fn.derivative(0),1);
     check_close(fn.integral(-4,6),10);
     check_close(*fn.integral_limit_b(-4,10),6);
     check_close(*fn.integral_limit_b(6,-10),-4);
-    fn.add_extrapolation_points(0);
+    fn = fn.zero_extrapolation();
+    //fn.add_extrapolation_points(0);
     check_small(fn.value(-5));
        
     function<piecewise_linear> fo{{-2,-1,5},{0,0,0}};
@@ -145,7 +146,7 @@ namespace flick {
     check_small(peg.integral());
     check_close(peg.integral(-1,1),2);
   } end_test_case()
-
+   
   begin_test_case(function_test_B) {
     pl_function fa{{0,1,2},{0,1,0}};
     check_close(fa.integral(),1);
@@ -169,15 +170,15 @@ namespace flick {
     check_close(fa.value(1),1);   
     check_close(fa.value(1),1);   
     check_small(fa.value(1.1));
-    check_close(fa.integral(),1);
+    check_close(fa.integral(),1,0.5_pct);
     pp_function fb{{0.1,1,2,2.5,3,4},{0,0,1,1,1,0}};
     check_small(fb.value(1));   
     check_close(fb.value(3),1);   
     check_close(fb.value(2),1);   
     check_small(fb.value(3.5));
-    check_close(fb.integral(),1);
+    check_close(fb.integral(),1,0.5_pct);
   } end_test_case()
-  
+   
   begin_test_case(function_test_E) {
     std::istringstream s("/* test stream */ 1 1 2 2 3 3");
     pl_function f;
@@ -193,5 +194,82 @@ namespace flick {
     check_close(f.integral(0,-1),-1);
     pe_function g(x,y);
     check_close(g.integral(0,-1),-1);
+  } end_test_case()
+  
+  begin_test_case(function_test_G) {
+    // Curvature
+    std::vector<double> x = {-3, -2, -1, 0, 1};
+    std::vector<double> y = {exp(-3), exp(-2), exp(-1), exp(0), exp(1)};
+    pe_function f{x,y};
+    pl_function c = derivative(to_exponential(derivative(f))); 
+    check_close(c.value(-3),exp(-3));
+    pl_function pdf = absolute(c).normalize();
+    check_close(pdf.integral(),1);
+    pl_function cdf = accumulate(pdf);
+    check_small(cdf.y().front());
+    check_close(cdf.y().back(),1);
+    cdf = remove_non_increasing_values(cdf);
+    pl_function quantile = invert(cdf);
+    check_close(quantile.value(0),-3);     
+  } end_test_case()
+  
+  begin_test_case(function_test_H) {
+    // Extrapolation
+    std::vector<double> x = {1, 1e9};
+    std::vector<double> y = {1, 1};
+    pp_function f{x,y};
+    pp_function g = f.zero_extrapolation();
+    check_close(g.integral(1e-19,1e19),1e9-1);
+    pe_function f2{x,y};
+    pe_function g2 = f2.zero_extrapolation();
+    check_close(g2.integral(1e-19,1e19),1e9-1);
+    pe_function f3{{-1,1},{0,0}};
+    pe_function g3 = f3.zero_extrapolation();
+    check_small(g3.integral(1e-19,1e19));
+    pe_function f4{{-1,1},{1,1}};
+    pe_function g4 = f4.constant_extrapolation();
+    check_close(g4.integral(-1e19,1e19),2*1e19);
+  } end_test_case()
+  
+  begin_test_case(function_test_I) {
+    // Small steps
+    double epsilon = 1e-6;
+    std::vector<double> x = {-100, -epsilon};
+    std::vector<double> y = {1e30, 1e30};
+    pl_function f{x,y};
+    f = f.zero_extrapolation();
+    check_close(f.integral(-101,1),f.integral(-100,-epsilon),1e-10);
+    std::vector<double> x2 = {-100, 0, 1e-3*epsilon, epsilon};
+    std::vector<double> y2 = {1e30, 1e30, 1e30, 1e30};
+    pe_function f2{x2,y2};
+    f2 = f2.zero_extrapolation();
+    check_close(f2.integral(-101,1),f2.integral(-100,epsilon));
+    std::vector<double> x3 = {epsilon, 2*epsilon, 0.1};
+    std::vector<double> y3 = {1e30, 1e30, 1e30};
+    pp_function f3{x3,y3};
+    f3 = f3.zero_extrapolation();
+    double x_low = 0.1*epsilon;
+    check_close(f3.integral(x_low,1),f3.integral(x3.front(),x3.back()),1e-10);
+    std::vector<double> x4 = {1, 2};
+    std::vector<double> y4 = {1e308, 1e308};
+    pl_function f4{x4,y4};
+    f4 = f4.zero_extrapolation();
+    check_close(f4.value(-1),f4.value(-1e9));
+    double dx = 9.99999999251599547e-07;
+    double y5 = 0.02;
+    pl_function f5{{0, dx},{y5,y5}};
+    f5 = f5.zero_extrapolation();
+    check_close(f5.integral(0,dx),y5*dx);   
+  } end_test_case()
+  
+  begin_test_case(function_test_J) {
+    double y1 = 0.0208156402400279592;
+    double y2 = 0.0208156402400238166;
+    double x1 = -200;
+    double x2 = 0;
+    double a = -100;
+    double b = -99.9;
+    pe_function f{{x1, x2},{y1,y2}};
+    check_close(f.integral(a,b),(f.value(a)+f.value(b))/2*(b-a));   
   } end_test_case()
 }

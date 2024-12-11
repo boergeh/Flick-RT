@@ -9,6 +9,7 @@ namespace flick {
     check_small(hg.inverted_accumulated_angle(0));
     check_close(hg.inverted_accumulated_angle(1), pi);
     hg = henyey_greenstein{0.9};
+    check(hg.value(0) > 0);
     check_small(hg.inverted_accumulated_angle(0),1e-7);
     check_close(hg.inverted_accumulated_angle(1), pi,1e-6_pct);
   } end_test_case()

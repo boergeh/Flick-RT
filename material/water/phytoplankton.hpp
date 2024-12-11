@@ -20,8 +20,8 @@ namespace material {
       pl_flist AB = read<pl_flist>(path_+"/phytoplankton.txt");
       A_ = AB(0);
       B_ = AB(1);
-      A_.add_extrapolation_points();
-      B_.add_extrapolation_points();
+      A_.add_constant_extrapolation();
+      B_.add_constant_extrapolation();
     }
     void chl_concentration(double c) {
       chl_concentration_ = c;

@@ -3,6 +3,7 @@
 
 #include "../numeric/constants.hpp"
 #include "../numeric/physics_function.hpp"
+#include "../numeric/function.hpp"
 #include "../numeric/pose.hpp"
 
 namespace flick {

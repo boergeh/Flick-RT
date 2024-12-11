@@ -13,13 +13,13 @@ namespace material {
 	      const flick::scattering_coefficient& sc,
 	      const tabulated_phase_function& p,
 	      double real_refractive_index = 1)
-      : monocrome_iop{ac,sc,flick::asymmetry_factor{p.asymmetry_factor()},
+      : monocrome_iop{ac, sc, flick::asymmetry_factor{p.asymmetry_factor()},
       real_refractive_index}, p_{p} {
     }
     mueller mueller_matrix(const unit_vector& scattering_direction) const {
       mueller m;
       double theta = angle(scattering_direction);
-      m.add(0,0,p_.value(theta));
+      m.add(0,0,p_.value(cos(theta)));
       return m;
     }
   };

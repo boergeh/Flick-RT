@@ -15,7 +15,7 @@ namespace material {
     const double to_g_ = 1e3; 
     const double to_nm_ = 1e9;
     const size_t percentile_50th = 2;
-    const double constant_ = 1;
+    //const double constant_ = 1;
   public:
     marine_particles(const std::string& name, double mass_concentration=1e-3,
 		     double scattering_scaling_factor=1)
@@ -27,9 +27,12 @@ namespace material {
       a_star_ = ab(0);
       b_star_ = ab(2);
       b_star_.scale_y(scattering_scaling_factor);
-      p_.add_extrapolation_points(constant_);
-      a_star_.add_extrapolation_points(constant_);
-      b_star_.add_extrapolation_points(constant_);
+      p_.add_constant_extrapolation();
+      a_star_.add_constant_extrapolation();
+      b_star_.add_constant_extrapolation();
+      //      p_.add_extrapolation_points(constant_);
+      //a_star_.add_extrapolation_points(constant_);
+      //b_star_.add_extrapolation_points(constant_);
     }
     void mass_concentration(double c) {
       mass_concentration_ = c;

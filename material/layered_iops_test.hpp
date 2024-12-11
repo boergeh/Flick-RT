@@ -51,32 +51,34 @@ namespace flick {
   } end_test_case()
   
   begin_test_case(layered_iops_test_E) {
+    double epsilon = 4e-5;
+    double wl = 400e-9;
     auto c = material::atmosphere_ocean::configuration();
-    c.set<double>("aerosol_od",10);
+    c.set<double>("aerosol_od",0);
+    c.set<double>("cloud_liquid",0.1);
+    c.set<double>("pressure",1000e2);
     c.set<double>("cdom_440",0);
     c.set<double>("chl_concentration",0);
     c.set<double>("nap_concentration",0);
     c.set<double>("bubble_volume_fraction",0);
-    c.set<double>("bottom_depth",101);
+    c.set<double>("bottom_depth",200);
     auto m = std::make_shared<material::atmosphere_ocean>(c);
-    m->set_wavelength(300e-9);
-    size_t n_terms = 34;
-    layered_iops iops(m, {-100, -99, -1.2e-6, -1e-6, 120e3}, n_terms);
-    iops.set_wavelength(500e-9);
+    m->set_wavelength(wl);
+    size_t n_terms = 32;
+    layered_iops iops(m, {-100, -99, -1.2e-6, -1e-6,0,7000,14000,14100}, n_terms);
+    iops.set_wavelength(wl);
     size_t ly = 0;
     double x0 = iops.alpha_terms(0)[ly][0]*4*std::numbers::pi;
     double g = iops.alpha_terms(0)[ly][1]*4*std::numbers::pi/3;
     double x2 = iops.alpha_terms(0)[ly][2];
     double x3 = iops.alpha_terms(0)[ly][3];
-    double epsilon = 1e-5;
     check_close(x0,1,0.01_pct);
     check_small(g,epsilon);
     check(x2>epsilon);
     check_small(x3,epsilon);
-
     check_close(iops.scattering_coefficient()[0],
-		iops.scattering_coefficient()[2]);
+		iops.scattering_coefficient()[2],epsilon);
     check_close(iops.absorption_coefficient()[0],
-		iops.absorption_coefficient()[2]);
+		iops.absorption_coefficient()[2],epsilon);
   } end_test_case()
 }

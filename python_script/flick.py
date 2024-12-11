@@ -47,6 +47,9 @@ def include_given_values(lower_limit,upper_limit,n,v):
         i += 2
     return v
 
+def atmosphere_wavelengths(wl_low, wl_high, n_wls):
+    T = absorption_optical_thickness("flick_tmp/config",wl_low,wl_high,n_wls*10).atmosphere()
+    return save_and_run('filter',T,'curvature_sampled '+str(n_wls))[:,0]
 
 class absorption_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):

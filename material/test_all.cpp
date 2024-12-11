@@ -14,6 +14,7 @@
 int main() {
   using namespace flick;
   unit_test t("material");
+  
   t.include<material_test_A>();
   t.include<iop_profile_test>();
   t.include<spheres_test_A>();
@@ -24,8 +25,10 @@ int main() {
   t.include<layered_iops_test_A>();
   t.include<layered_iops_test_B>();
   t.include<layered_iops_test_C>(); 
-  t.include<layered_iops_test_D>(); 
+  t.include<layered_iops_test_D>();
+  
   t.include<layered_iops_test_E>();
+  
   t.include<z_profile_test>();
   t.include<mixture_test_A>();
   t.include<mixture_test_B>();
@@ -37,6 +40,8 @@ int main() {
   t.include<ocean_test_B>();
   t.include<ocean_test_C>();
   t.include<atmosphere_ocean_test_A>();
+  t.include<atmosphere_ocean_test_B>();
+  
   t.run_test_cases();
   return 0;
 }

@@ -22,6 +22,10 @@ int main() {
   t.include<function_test_D>();
   t.include<function_test_E>(); 
   t.include<function_test_F>();  
+  t.include<function_test_G>();  
+  t.include<function_test_H>(); 
+  t.include<function_test_I>();
+  t.include<function_test_J>();
   t.include<direction_generator_test>();
   t.include<vector_test>();
   t.include<histogram_test>();
@@ -34,8 +38,8 @@ int main() {
   t.include<flist_test>();
   t.include<distribution_test_A>();
   t.include<distribution_test_B>();
+  t.include<distribution_test_C>();
   t.include<value_collection_test>();
- 
   t.run_test_cases();
   return 0;
 } 

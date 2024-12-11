@@ -26,4 +26,17 @@ namespace flick {
     check(layered_all.absorption_coefficient()[0]>1);
     check(layered_all.absorption_coefficient()[1]>1);
   } end_test_case()
+  
+  begin_test_case(atmosphere_ocean_test_B) {
+    // Check handling of small negative spectral input
+    using namespace material;   
+    atmosphere_ocean::configuration c;
+    c.set<std::string>("gases","co2");
+    auto ao = std::make_shared<atmosphere_ocean>(c);
+    std::cout << ao->absorption_coefficient();
+
+    ao->set_wavelength(5.08309e-07);
+    
+    ao->absorption_optical_depth(120e3);
+  } end_test_case()  
 }

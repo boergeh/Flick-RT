@@ -96,7 +96,7 @@ optimized for TOA radiation.)");
 	atmospheric_state s(c_.get<double>("temperature"),p);
 	s.remove_all_gases();
 	for (size_t i=0; i<c_.size<std::string>("gases"); i++) {
-	  std::string gas = c_.get<std::string>("gases",i);    
+	  std::string gas = c_.get<std::string>("gases",i);
 	  s.add_gas(gas);
 	  if (gas=="o3")	  
 	    s.scale_to_stp_thickness("o3",c_.get<double>("ozone"));

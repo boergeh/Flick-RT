@@ -131,6 +131,10 @@ namespace flick {
       y_ /= r;
       z_ /= r;
     }
+    // unit_vector(double mu) {
+    //  vector{sqrt(fabs(1-mu*mu)), 0, mu};
+    // }
+
     double mu() const {
       return z_/r();
     }

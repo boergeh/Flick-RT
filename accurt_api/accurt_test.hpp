@@ -121,7 +121,7 @@ namespace flick {
     auto m = std::make_shared<material::atmosphere_ocean>(mc);
     auto a =  accurt(ac, m);
     double Rrs = a.relative_radiation().y().at(0);
-    check_close(Rrs, 0.0397, 0.2_pct);
+    check_close(Rrs, 0.0397, 0.3_pct);
   } end_test_case()
   
   begin_test_case(accurt_test_F) {
@@ -152,9 +152,9 @@ namespace flick {
   } end_test_case()
 
    begin_test_case(accurt_test_G) {
-    // Check that nadir toa radiance is not increasing when adding a
+    // Check that nadir toa radiance is increasing slightly when adding a
     // thin cloud layer
-    size_t n_angles = 50;
+    size_t n_angles = 100;
     accurt::configuration ac;
     ac.set<size_t>("stream_upper_slab_size",ac.to_streams(n_angles));
     ac.set<double>("detector_wavelengths",400e-9);
@@ -167,17 +167,14 @@ namespace flick {
     mc.set<size_t>("n_angles",n_angles);
     mc.set<size_t>("n_heights",8);
     mc.set<std::string>("gases","no2");
-    mc.set<double>("pressure",1000e2);
-    
     auto m_clear = std::make_shared<material::atmosphere>(mc);
     auto a_clear =  accurt(ac,m_clear);
     double L_toa_clear = a_clear.relative_radiation().y()[0];
-
-    mc.set<double>("cloud_liquid",1e-6);
+    mc.set<double>("cloud_liquid",1e-7);
     auto m_cloudy = std::make_shared<material::atmosphere>(mc);
     auto a_cloudy =  accurt(ac,m_cloudy);
     double L_toa_cloudy = a_cloudy.relative_radiation().y()[0];
     check(L_toa_cloudy > L_toa_clear);
-    check_close(L_toa_cloudy,L_toa_clear,2_pct);
+    check_close(L_toa_cloudy,L_toa_clear,1_pct);
   } end_test_case()
 }

@@ -2,6 +2,7 @@
 #define flick_physics_functions
 
 #include "constants.hpp"
+#include <algorithm>
 
 namespace flick {
   class henyey_greenstein
@@ -9,7 +10,9 @@ namespace flick {
   {
     double asymmetry_factor_{0};
   public:
-    henyey_greenstein(double g) : asymmetry_factor_{g} {}
+    henyey_greenstein(double g) : asymmetry_factor_{g} {
+      ensure(g >= -1 && g <= 1);
+    }
     double phase_function(double theta) const
     {
       return value(cos(theta)); 
@@ -17,8 +20,8 @@ namespace flick {
     double value(double mu) const
     // Note that integral over 4*pi equals one 
     {
-      if (mu >1 or mu<-1)
-	throw std::out_of_range("henyey greenstein function mu out of range");
+      double epsilon = 1e-6;
+      ensure(mu > -1-epsilon && mu < 1+epsilon);
       double g = asymmetry_factor_;
       double arg = 1+pow(g,2)-2*g*mu;
       return 1/(4*constants::pi)*(1-pow(g,2))/pow(arg,3./2);
@@ -29,10 +32,14 @@ namespace flick {
     {
       double g = asymmetry_factor_;
       if (fabs(g) < 1e-9) // isotropic scattering
-	return acos(1-2*fraction);
+	return acos(std::clamp<double>(1-2*fraction,-1,1));
       double arg = (1-pow(g,2))/(1-g+2*g*(1-fraction));
       double mu = (1+pow(g,2)-pow(arg,2))/(2*g);
-      return acos(mu); 
+      return acos(std::clamp<double>(mu,-1,1)); 
+    }
+    void ensure(bool b) const {
+      if (!b)
+	throw std::runtime_error("numeric physics_functions henyeye_greenstein");
     }
   };
 

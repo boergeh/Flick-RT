@@ -54,6 +54,30 @@ namespace flick {
 	else if (a(2)=="n_photons") {
 	  std::cout << flick::n_photons(f,std::stod(a(3)),std::stod(a(4)));
 	}
+	else if (a(2)=="curvature_sampled") {
+	  int n = std::stoi(a(3));
+	  pl_function pdf = absolute(derivative(derivative(f))).normalize();
+	  std::vector<double> fx = pdf.x();
+	  std::vector<double> fy = pdf.y();
+	  double delta_x = fx.back()-fx.front();
+	  for (size_t i=0; i<fx.size(); i++) {
+	    fy[i] = 1-exp(-fy[i]*delta_x);
+	  }
+	  pdf = pl_function{fx,fy};
+	  pdf.normalize();
+	  pl_function cdf = accumulate(pdf);
+	  pl_function g = remove_non_increasing_values(cdf);
+	  pl_function quantile = invert(g);
+	  std::vector<double> x(n);
+	  std::vector<double> y(n);
+	  std::vector<double> p = range(0,1,n).linspace();
+	  for (size_t i=0; i<y.size(); i++) {
+	    double wl = quantile.value(p[i]);
+	    x[i] = wl;
+	    y[i] = f.value(wl);
+	  }
+	  std::cout << pl_function{x,y};	  
+	}
 	else if (a(2)=="gaussian_mean") {
 	  double wl0 = std::stod(a(3));
 	  double fwhm = std::stod(a(4));

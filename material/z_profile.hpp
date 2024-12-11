@@ -46,12 +46,26 @@ namespace material {
       return s_profile_.distance(pose(),scattering_optical_depth);
     }
   private:
-    friend std::ostream& operator<<(std::ostream &os, const z_profile& p) {
-      os << "\n";
-      os << "Absorption coefficient profile" << "\n";
-      os << p.a_profile_;
-      os << "Scattering coefficient profile" << "\n";
-      os << p.s_profile_;
+    friend std::ostream& operator<<(std::ostream &os, z_profile& p) {
+      vector initial_position = p.pose().position(); 
+      auto& h = p.height_grid();
+      os << std::scientific << "\n";
+      os << "column 1: Height" << "\n";
+      os << "column 2: Absorption coefficient" << "\n";
+      os << "column 3: Scattering coefficient" << "\n";
+      os << "column 4: Real refractive index" << "\n";
+      os << "column 5: Asymmetry factor" << "\n";
+      for (size_t i = 0; i<h.size(); i++) {
+	p.set_position({0,0,h[i]});
+	phase_function pf(p);
+	os << h[i] << "  " << p.absorption_coefficient() << "  "
+	   << p.scattering_coefficient() << "  "
+	   << p.real_refractive_index() << "  "
+	   << pf.asymmetry_factor()
+	   << std::endl;
+      }
+      p.set_position(initial_position);
+      std::cout << std::fixed;
       return os;
     }
   };

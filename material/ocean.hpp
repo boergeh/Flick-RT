@@ -80,7 +80,7 @@ each CDOM spectra given in mcdom_names.)");
       add_nap();
       add_bubbles();
       add_marine_particles();
-      add_marine_cdom();
+      add_marine_cdom(); 
       auto_update_iops(true);
     }
     static stdvector height_grid(const basic_configuration& c) {

@@ -11,7 +11,9 @@ int main() {
   t.include<algorithm_test>();
   t.include<fresnel_test_A>();
   t.include<fresnel_test_B>();
-  t.include<mueller_test>();
+  t.include<mueller_test_A>();
+  t.include<mueller_test_B>();
+  t.include<mueller_test_C>();
   t.run_test_cases();
   return 0;
 }

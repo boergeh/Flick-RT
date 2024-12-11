@@ -35,7 +35,9 @@ namespace distribution {
     }
   };
 
-  class erf {
+  class erf
+  // Error function
+  {
   public:
     double value(double x) const {
       return std::erf(x);
@@ -64,8 +66,6 @@ namespace distribution {
   };
   
   class basic_distribution {
-  protected:
-    const double pi_ = constants::pi;
   public:
     virtual double pdf(double x) const = 0;
     virtual double cdf(double x) const = 0;
@@ -75,13 +75,13 @@ namespace distribution {
     }
   protected:
     stdvec limited_quantiles(size_t n_points, double limit_factor) const {
-    double dx = limit_factor/(n_points+2);
-    stdvec p = range(dx,1-dx,n_points).linspace();
-    stdvec x(n_points);
-    for (size_t i=0; i < n_points; ++i) {
-      x[i] = quantile(p[i]);
-    }
-    return x;
+      double dx = limit_factor/(n_points+2);
+      stdvec p = range(dx,1-dx,n_points).linspace();
+      stdvec x(n_points);
+      for (size_t i=0; i < n_points; ++i) {
+	x[i] = quantile(p[i]);
+      }
+      return x;
     }
   };
   
@@ -95,7 +95,8 @@ namespace distribution {
     normal(double mu, double sigma)
       : mu_{mu}, sigma_{sigma} {}
     double pdf(double x) const {
-      return 1/(sigma_*sqrt(2*pi_))*exp(-0.5*pow((x-mu_)/sigma_,2));
+      using namespace constants;
+      return 1/(sigma_*sqrt(2*pi))*exp(-0.5*pow((x-mu_)/sigma_,2));
     }
     double cdf(double x) const {
       return 0.5*(1+std::erf((x-mu_)/(sigma_*sqrt(2))));
@@ -115,7 +116,8 @@ namespace distribution {
     log_normal(double mu, double sigma)
       : mu_{mu}, sigma_{sigma} {}
     double pdf(double x) const {
-      return 1/(x*sigma_*sqrt(2*pi_))*exp(-pow(log(x)-mu_,2)/(2*pow(sigma_,2)));
+      using namespace constants;
+      return 1/(x*sigma_*sqrt(2*pi))*exp(-pow(log(x)-mu_,2)/(2*pow(sigma_,2)));
     }
     double cdf(double x) const {
       return 0.5*(1+std::erf((log(x)-mu_)/(sigma_*sqrt(2))));
@@ -123,7 +125,6 @@ namespace distribution {
     double quantile(double p) const {
       return exp(mu_+sqrt(2*pow(sigma_,2))*erf_inv_(2*p-1));
     }
-    
   };
   
   class triangular : public basic_distribution
@@ -158,6 +159,35 @@ namespace distribution {
       if (p < (c-a)/(b-a))
 	return a + sqrt((b-a)*(c-a)*p);
       return b - sqrt((b-a)*(b-c)*(1-p));
+    }
+    stdvec quantiles(size_t n_points) const {
+      return limited_quantiles(n_points, 0);
+    }
+  };
+
+  template<class Function>
+  class curvature : public basic_distribution
+  // Second derivative distribution. Can be used to sample peaked
+  // functions
+  {
+    pl_function pdf_;
+    pl_function cdf_;
+    pl_function quantile_;
+  public:
+    curvature(const Function& f) {
+      pdf_ = absolute(derivative(derivative(logarithm(f)))).normalize();
+      cdf_ = accumulate(pdf_);
+      quantile_ = invert(remove_non_increasing_values(cdf_));
+      cdf_.add_constant_extrapolation();
+    }
+    double pdf(double x) const {
+      return pdf_.value(x);
+    }
+    double cdf(double x) const {
+      return cdf_.value(x);
+    }
+    double quantile(double p) const {
+      return quantile_.value(p);
     }
     stdvec quantiles(size_t n_points) const {
       return limited_quantiles(n_points, 0);

@@ -1,8 +1,6 @@
 #ifndef flick_sorted_vector
 #define flick_sorted_vector
 
-#include "../environment/exception.hpp"
-
 namespace flick {
   enum class step_type{linear, exponential};
   class sorted_vector
@@ -75,13 +73,12 @@ namespace flick {
       values_.clear();
     }
     void set_step_type(step_type st) {
-      if (st == step_type::exponential)
-	ensure(values_.at(0) > 0);
       step_type_ = st;
     }
     void append(double v) {
-      if (values_.size() > 0)
+      if (values_.size() > 0) {
 	ensure(v > values_.back());
+      }
       values_.push_back(v);
     } 
     void scale(double factor) {
@@ -145,15 +142,12 @@ namespace flick {
   private:
     void ensure(bool b) const {
       if (!b)
-	throw exception("sorted_vector");
+	throw std::runtime_error("numeric sorted_vector");
     }
     double estimate_number_of_bins_to_skip(size_t n, double value) const {
-      if (step_type_ == step_type::linear)
-	 return (value - values_[n]) / (values_[n+1]-values_[n]);
-      else if (step_type_ == step_type::exponential && value > 0)
+      if (step_type_ == step_type::exponential && value > 0)
 	return log(value/values_[n]) / log(values_[n+1]/values_[n]);
-      else
-	throw std::invalid_argument("sorted_vector");
+      return (value - values_[n]) / (values_[n+1]-values_[n]);
     }   
     bool inside_bin(double value, size_t n) const {
       if (value >= values_[n] && value < values_[n+1]) {

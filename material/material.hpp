@@ -91,7 +91,7 @@ namespace material {
   // azimuth angle equal to zero
   {    
     material::base& mat_;
-    const size_t n_integration_points_ = 5000;
+    const size_t n_integration_points_ = 2000;
   public:
     phase_function(material::base& mat)
       : mat_{mat} {}
@@ -102,22 +102,24 @@ namespace material {
       return m.value(0,0);
     }
     double integral_4pi() {
-      return 2*constants::pi*tabulate().integral();
+      return tabulate().integral_4pi();
     }
     double asymmetry_factor() {
       return tabulate().asymmetry_factor();
     }
   private:
     tabulated_phase_function tabulate() {
-      using namespace constants;
-      size_t n_points = n_integration_points_;
-      std::vector<double> theta = range(0,pi,n_points+1).linspace();
-      theta.erase(theta.begin());
-      std::vector<double> p(theta.size());
+      //size_t n_points = n_integration_points_;
+      //std::vector<double> theta = range(0,pi,n_points+1).linspace();
+      //theta.erase(theta.begin());
+      //std::vector<double> p(theta.size());
+      std::vector<double> angles = hg_importance_sampling(0.7, n_integration_points_+1);
+      angles.erase(angles.begin());
+      std::vector<double> p(angles.size());
       for (size_t i = 0; i<p.size(); i++) {
-	p[i] = value(cos(theta[i])); 
-      }      
-      return tabulated_phase_function(pe_function(theta,p));
+	p[i] = value(cos(angles[i])); 
+      }
+      return tabulated_phase_function(to_cos_x(pe_function{angles,p}));
     }
   };
 

@@ -15,7 +15,8 @@ namespace flick {
     std::vector<std::vector<stdvector>> beta_;
     stdvector refidx_;
   public:
-    layered_iops(std::shared_ptr<material::base> m, const stdvector& boundaries, size_t n_terms)
+    layered_iops(std::shared_ptr<material::base> m,
+		 const stdvector& boundaries, size_t n_terms)
       : m_{m}, boundaries_{boundaries},
 	n_terms_{n_terms},
 	oda_(n_layers()),
@@ -63,18 +64,34 @@ namespace flick {
     }
     friend std::ostream& operator<<(std::ostream &os,
 				    const layered_iops& iops) {
-      os << "Scattering optical depth: " << iops.scattering_optical_depth()
-	 << "\n";
-      os << "Absorption optical depth: " << iops.absorption_optical_depth()
-	 << "\n";
-      os << "Phase function terms: " << iops.alpha_terms(0)[0] << "\n";
+      auto h = iops.boundaries_;
+      auto oda = iops.absorption_optical_depth();
+      auto ods = iops.scattering_optical_depth();
+      auto real_n = iops.refractive_index();
+      auto g = iops.alpha_terms(0)[0];
+      os << std::scientific << "\n";
+      os << "column 1: Layer bottom height" << "\n";
+      os << "column 2: Layer geometrical thickness" << "\n";
+      os << "column 3: Absorption optical thickness" << "\n";
+      os << "column 4: Unscaled scattering optical thickness" << "\n";
+      os << "column 5: Real refractive index" << "\n";
+      os << "column 6: Scattering delta-fit scaling factor" << "\n";
+      os << "column 7: Asymmetry factor" << "\n";
+      for (size_t i = 0; i<oda.size(); i++) {
+	os << h[i] << "  " << h[i+1]-h[i]<< "  "<< oda[i] << "  "
+	   << ods[i] << "  "
+	   << real_n[i] << "  "
+	   << 4*std::numbers::pi*iops.alpha_terms(0)[i][0] << "  "
+	   << 4*std::numbers::pi/3*iops.alpha_terms(0)[i][1]
+	   << std::endl;
+      }
       return os;
     }  
   private:
     void update() {
       m_->set_direction({0,0});
       m_->set_position({0,0,boundaries_[0]});
-      for (size_t i=0; i < n_layers(); i++) {
+      for (size_t i=0; i < n_layers(); i++) {	
 	double h = layer_thickness(i);
 	double dh = average_scattering_height(boundaries_[i],boundaries_[i+1])
 	  -boundaries_[i];
@@ -101,7 +118,7 @@ namespace flick {
       pl_function sf(h,s);
       double h_avg = shf.integral()/sf.integral();
       if (std::isfinite(h_avg))
-	return h_avg;
+      	return h_avg;
       return h_low + (h_high-h_low)/2;
     }
     void set_alpha_beta(size_t i) {
@@ -113,7 +130,7 @@ namespace flick {
     }
     void set_optical_depth(size_t i) {
       oda_[i] = m_->absorption_optical_depth(layer_thickness(i));
-      ods_[i] = m_->scattering_optical_depth(layer_thickness(i));
+      ods_[i] = m_->scattering_optical_depth(layer_thickness(i));      
     }
     double layer_thickness(size_t i) const {
       return boundaries_.at(i+1)-boundaries_.at(i);

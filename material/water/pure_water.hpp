@@ -214,10 +214,10 @@ namespace water {
 	(path_+"/temperature_correction.txt"); 
       salinity_correction_ = read<pl_function>
 	(path_+"/salinity_correction.txt");
-      absorption_coefficient_.add_extrapolation_points(1);
-      segelstein_real_refractive_index_.add_extrapolation_points(1);
-      temperature_correction_.add_extrapolation_points(0);
-      salinity_correction_.add_extrapolation_points(0);
+      absorption_coefficient_.add_constant_extrapolation();
+      segelstein_real_refractive_index_.add_constant_extrapolation();
+      temperature_correction_.add_zero_extrapolation();
+      salinity_correction_.add_zero_extrapolation();
     }
     pure_water(double salinity_psu, double temperature, double volume_fraction = 1)
       : pure_water() {

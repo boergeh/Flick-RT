@@ -14,7 +14,7 @@ namespace material {
       }
     };
     atmosphere_ocean(const basic_configuration& c=atmosphere_ocean::configuration())
-      : mixture(angle_range(c.get<size_t>("n_angles")), height_grid(c)) {
+     : mixture(angle_range(c.get<size_t>("n_angles")), height_grid(c)) {
       auto_update_iops(false);
       add_material<ocean>(c);
       size_t n_oce = ocean::height_grid(c).size();

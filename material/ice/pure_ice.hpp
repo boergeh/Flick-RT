@@ -17,8 +17,8 @@ namespace material {
        (path_+"/absorption_coefficient.txt"); 
      real_refractive_index_ = read<pp_function>
        (path_+"/refractive_index.txt"); 
-     absorption_coefficient_.add_extrapolation_points(1);
-     real_refractive_index_.add_extrapolation_points(1);
+     absorption_coefficient_.add_constant_extrapolation();
+     real_refractive_index_.add_constant_extrapolation();
     }
     double absorption_coefficient() const {
       return absorption_coefficient_.value(wavelength());

@@ -88,8 +88,8 @@ namespace material {
 	size_t row = mueller_[n](i).row;
 	size_t col = mueller_[n](i).col;
 	stdvector x{heights_[n],heights_[n+1]};
-	stdvector y{mueller_[n].value(row,col,theta),
-	  mueller_[n+1].value(row,col,theta)};
+	stdvector y{mueller_[n].value(row,col,cos(theta)),
+	  mueller_[n+1].value(row,col,cos(theta))};
 	Function f{x,y};
 	m.add(row,col,f.value(z_profile<Function>::pose().position().z()));
       }
@@ -133,13 +133,13 @@ namespace material {
       stdvector zs = {heights_.begin()+n_low, heights_.begin()+n_high+1};
       Function a;
       Function s;
-      for (auto& z:zs) {
+      for (const auto& z:zs) {
 	material.set_position({0,0,z});
 	a.append({z,material.absorption_coefficient()});
 	s.append({z,material.scattering_coefficient()});
       }
-      a = add_extrapolation_points(a);
-      s = add_extrapolation_points(s);
+      a = a.zero_extrapolation();
+      s = s.zero_extrapolation();  
       material.set_position({0,0,heights_[n_low]});
       double dz = heights_[n_high] - heights_[n_low];
       a = scale_to_integral(a,material.absorption_optical_depth(dz));
@@ -180,11 +180,6 @@ namespace material {
 	mueller_[i].add(am, weight);
       }
     }
-    Function add_extrapolation_points(Function f) const {
-      double i0 = f.integral();
-      f.add_extrapolation_points(0,1e-5);
-      return scale_to_integral(f,i0);
-    }
     angular_mueller fill_angular_mueller(const base& material)
     // Can only do isotropic materials
     {
@@ -193,11 +188,11 @@ namespace material {
 	mueller m = material.mueller_matrix(unit_vector{angles_[i],0});
 	f.append({angles_[i],m.value(0,0)});
       }
-      angular_mueller am{tabulated_phase_function{f}};
-      for (size_t i=0; i<angles_.size(); ++i) {	
+      angular_mueller am{tabulated_phase_function{to_cos_x(f)}};
+      for (int i=angles_.size()-1; i>=0; i--) {	
 	mueller m = material.mueller_matrix(unit_vector{angles_[i],0});
 	for (size_t j=1; j<m.size(); ++j) {
-	  am.append(m(j).row,m(j).col,angles_[i],m.value(m(j).row,m(j).col));
+	  am.append(m(j).row, m(j).col, cos(angles_[i]), m.value(m(j).row,m(j).col));
 	}
       }
       return am;
