@@ -32,6 +32,9 @@ def rgb(spectrum):
 def table(file_name):
     return run("text "+file_name+" matrix")
 
+def read(file_name):
+    return run("text "+file_name+" xy 14")
+
 def include_given_values(lower_limit,upper_limit,n,v):
     v = [x for x in v if lower_limit < x < upper_limit]
     v = np.insert(v,0,lower_limit)

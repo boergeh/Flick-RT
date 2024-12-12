@@ -1,6 +1,7 @@
 """
-Flick solar radiation reference spectrum just above ocean surface in
-W/m2/nm.
+Generate Flick solar radiation reference spectrum just above ocean
+surface in W/m2/nm.
+
 """
 
 import numpy as np

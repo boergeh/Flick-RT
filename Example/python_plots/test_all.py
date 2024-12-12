@@ -3,6 +3,7 @@ import unittest
 class test_all_python_plots(unittest.TestCase):
     def test_run(self):
         try:
+            import cie_chromaticity
             import colorimitry
             import marine_iops
             import water_and_ice_absorption
