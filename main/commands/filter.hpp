@@ -56,14 +56,15 @@ namespace flick {
 	}
 	else if (a(2)=="curvature_sampled") {
 	  int n = std::stoi(a(3));
-	  pl_function pdf = absolute(derivative(derivative(f))).normalize();
-	  std::vector<double> fx = pdf.x();
-	  std::vector<double> fy = pdf.y();
-	  double delta_x = fx.back()-fx.front();
+	  pl_function fdd = absolute(derivative(derivative(f)));
+	  std::vector<double> fx = fdd.x();
+	  std::vector<double> fy = fdd.y();
 	  for (size_t i=0; i<fx.size(); i++) {
-	    fy[i] = 1-exp(-fy[i]*delta_x);
+	    double x = fx[i];
+	    fy[i] = fy[i]*pow(x,2)/pow(f.value(x),2);
+	    fy[i] = 1-exp(-0.001*fy[i]);
 	  }
-	  pdf = pl_function{fx,fy};
+	  pl_function pdf = pl_function{fx,fy};
 	  pdf.normalize();
 	  pl_function cdf = accumulate(pdf);
 	  pl_function g = remove_non_increasing_values(cdf);

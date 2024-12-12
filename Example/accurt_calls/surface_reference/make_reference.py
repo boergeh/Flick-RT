@@ -14,22 +14,22 @@ import flick
 path = os.environ['FLICK_PATH']+"/Example/accurt_calls/surface_reference"
 os.chdir(path)
 
-full_spectrum = True
-save_data = True
-overwrite_current_standard = True
+full_spectrum = False
+save_data = False
+overwrite_current_standard = False
 
 # When Sun-Earth distance is one astronomical unit
 time_point_1AU = 20240404000000
 
 # Wavelengths used to compute transmittance of atmosphere
 if full_spectrum:
-    wl_low = 280e-9
+    wl_low = 290e-9
     wl_high = 1040e-9
-    n_wls = 300
+    n_wls = 230
 else:
     wl_low = 400e-9
     wl_high = 700e-9
-    n_wls = 10
+    n_wls = 30
 
 # Spectral resolution
 wl_width = 10e-9

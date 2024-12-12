@@ -445,10 +445,14 @@ namespace flick {
   
   template<class I>
   function<piecewise_linear> derivative(const function<I>& f) {
-    const stdvec& x = f.x();
-    stdvec y(x.size());
-    for (size_t i=0; i < x.size(); ++i)
-      y[i] = f.derivative(x[i]);
+    const stdvec& x0 = f.x();
+    stdvec x(f.size()-1);
+    stdvec y(f.size()-1);
+    for (size_t i=0; i < x.size(); ++i) {
+      double mid_x = (x0[i]+x0[i+1])/2;
+      x[i] = mid_x;
+      y[i] = f.derivative(mid_x);
+    }
     return function<piecewise_linear>{x,y};
   }
   

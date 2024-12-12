@@ -246,6 +246,10 @@ namespace flick {
 	      auto n = sub_script_numbers(p.substr(28));
 	      value = m.absorption_optical_depth(n.at(0)); 
 	    }
+	    else if (p.substr(0,28)=="scattering_optical_thickness") {
+	      auto n = sub_script_numbers(p.substr(28));
+	      value = m.scattering_optical_depth(n.at(0)); 
+	    }
 	    else {
 	      error();
 	      break;

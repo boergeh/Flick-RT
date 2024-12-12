@@ -48,18 +48,33 @@ def include_given_values(lower_limit,upper_limit,n,v):
     return v
 
 def atmosphere_wavelengths(wl_low, wl_high, n_wls):
-    T = absorption_optical_thickness("flick_tmp/config",wl_low,wl_high,n_wls*10).atmosphere()
+    ot = atmosphere_optical_thickness("flick_tmp/config",wl_low,wl_high,n_wls*10).attenuation()
+    T = ot;
+    T[:,1]  = np.exp(-ot[:,1])
     return save_and_run('filter',T,'curvature_sampled '+str(n_wls))[:,0]
 
-class absorption_optical_thickness:
+
+class atmosphere_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):
         self._ao_config = ao_config
         self._wls = str(from_wl)+" "+str(to_wl)+" "+str(n_wls)
 
-    def atmosphere(self):
+    def absorption(self):
         command = "iop absorption_optical_thickness_120000 "+self._wls+ \
             " atmosphere_ocean "+self._ao_config+" 0"
         return run(command)
+    
+    def scattering(self):
+        command = "iop scattering_optical_thickness_120000 "+self._wls+ \
+            " atmosphere_ocean "+self._ao_config+" 0"
+        return run(command)
+    
+    def attenuation(self):
+        ota = self.absorption()
+        ots = self.scattering()
+        ot = ota + ots
+        ot[:,0] = ota[:,0]
+        return ot
     
         
 class marine_iops:
@@ -341,7 +356,7 @@ class basic_radiation:
      
     def smooth(self, spectrum, from_wl, to_wl, wl_width):
         np.savetxt(self._tmpdir+"/spectrum", spectrum)
-        n_points = round(5*(to_wl - from_wl)/wl_width)
+        n_points = round(7*(to_wl - from_wl)/wl_width)
         wl = np.linspace(from_wl, to_wl, n_points)
         spectrum = np.empty([len(wl),2])
         spectrum[:,0] = wl
