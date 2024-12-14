@@ -125,6 +125,10 @@ each CDOM spectra given in mcdom_names. */
 
 mcdom_scaling_factors = 0.8 
 
+/* Belaching factors */
+
+mp_bleaching_factors = 0 
+
 /* Space-separated list of dry mass concentrations [kg/m^3] of measured
 marine particles with inherent optical properties tabulated
 in separated ASCII files in the Flick directory

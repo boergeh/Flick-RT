@@ -202,9 +202,7 @@ namespace flick {
     std::vector<double> y = {exp(-3), exp(-2), exp(-1), exp(0), exp(1)};
     pe_function f{x,y};
     pl_function c = derivative(to_exponential(derivative(f))); 
-    std::cout << c;
     check_close(c.value(-2),exp(-2));
-    
     pl_function pdf = absolute(c).normalize();
     check_close(pdf.integral(),1);
     pl_function cdf = accumulate(pdf);

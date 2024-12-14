@@ -4,7 +4,7 @@
 
 all:	check-env build test
 
-with_python:	all with_python
+with_python:	all python
 
 build:
 	cd environment; make obj link
@@ -81,7 +81,7 @@ clean:
 	cd model; make clean
 	cd main; make clean
 	rm -f *~
-with_python:
+python:	
 	@echo ''
 	@echo 'Testing all python scripts. May take an hour ...'
 	cd Example/python_plots; python3 test_all.py

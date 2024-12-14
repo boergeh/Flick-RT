@@ -57,6 +57,12 @@ g/m^3 may be written as 10.0e-3 kg/m^3 for clarity)");
 	add<double>("mp_scattering_scaling_factors", 1, R"(Space-separated list of scaling factors [unitless] for manual scaling of the
 scattering coefficient marine particles, one scaling factor for each listed marine particles name.)");
 	
+	add<double>("mp_bleaching_factors", 0, R"(Space-separated list of factors [unitless] for degree of particle
+bleaching, one scaling factor for each listed marine particles name. 0
+gives full absorption and 1 gives absorption after adding a bleaching
+chemical. A factor larger than one will reduce the absorption beyond
+the bleached values.)");
+	
 	add<std::string>("mcdom_names", "HF22_D001", R"(Space-separated list of names of measured marine CDOM with absorption
 coefficients tabulated in separate ASCII files stored in the Flick
 directory material/marine_cdom/iop_tables)");
@@ -146,11 +152,13 @@ each CDOM spectra given in mcdom_names.)");
       std::vector<std::string> names = c_.get_vector<std::string>("mp_names");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
       std::vector<double> scattering_scaling_factors = c_.get_vector<double>("mp_scattering_scaling_factors");
+      std::vector<double> bleaching_factors = c_.get_vector<double>("mp_bleaching_factors");
       ensure(names.size() == concentrations.size() and names.size() ==
-	     scattering_scaling_factors.size(), "marine particles");
+	     scattering_scaling_factors.size() and names.size() ==
+	     bleaching_factors.size(), "marine particles");
       for (size_t i = 0; i<names.size(); i++) {
 	if (concentrations.at(i) > 0) {
-	  auto m = std::make_shared<marine_particles>(names.at(i), concentrations.at(i), scattering_scaling_factors.at(i));
+	  auto m = std::make_shared<marine_particles>(names.at(i), concentrations.at(i), scattering_scaling_factors.at(i), bleaching_factors.at(i));
 	  auto name = "marine_particles_"+names[i];
 	  add_profile(m,name);
 	}
