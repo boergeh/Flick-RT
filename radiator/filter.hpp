@@ -227,7 +227,10 @@ namespace flick {
     xyz[0] = transmit(s, filter::xyz_bar<0>()).integral(wl1,wl2);
     xyz[1] = transmit(s, filter::xyz_bar<1>()).integral(wl1,wl2);
     xyz[2] = transmit(s, filter::xyz_bar<2>()).integral(wl1,wl2);
-    double sum = std::reduce(xyz.begin(), xyz.end()); 
+    double sum = 0;
+    for (int i = 0; i < xyz.size(); i++)
+      sum += xyz[i];
+    //double sum = std::reduce(xyz.begin(), xyz.end()); 
     for (int i = 0; i < xyz.size(); i++) {
       xyz[i] = xyz[i]/sum;
     }
