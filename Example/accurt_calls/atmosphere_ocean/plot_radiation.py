@@ -38,7 +38,7 @@ ax[0].set_ylim([0.5,200])
 def PAR(E):
     x = np.linspace(400,700,300)
     y = np.interp(x, E[:,0], E[:,1])
-    return np.trapz(y,x)
+    return np.trapezoid(y,x)
     
 if show_computed_data:
     Ec = flick.table('output/'+station+"_computed_irradiance_W_per_m2_nm.txt")
