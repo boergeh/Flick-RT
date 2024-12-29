@@ -153,9 +153,6 @@ each CDOM spectra given in mcdom_names.)");
       std::vector<double> concentrations = c_.get_vector<double>("mp_concentrations");
       std::vector<double> scattering_scaling_factors = c_.get_vector<double>("mp_scattering_scaling_factors");
       std::vector<double> bleaching_factors = c_.get_vector<double>("mp_bleaching_factors");
-      //ensure(names.size() == concentrations.size() and names.size() ==
-      //     scattering_scaling_factors.size() and names.size() ==
-      //     bleaching_factors.size(), "marine particles");
       for (size_t i = 0; i < names.size(); i++) {
 	if (concentrations.at(i) > 0) {
 	  auto m = std::make_shared<marine_particles>(names.at(i),
@@ -173,7 +170,7 @@ each CDOM spectra given in mcdom_names.)");
       ensure(names.size()==scaling_factors.size(), "marine cdom");
       for (size_t i = 0; i<names.size(); i++) {
 	if (scaling_factors.at(i) > 0) {
-	  auto m = std::make_shared<marine_cdom>(names.at(i), scaling_factors.at(i));
+	  auto m = std::make_shared<marine_cdom>(names[i], at_or_last(scaling_factors,i));
 	  auto name = "marine_cdom_"+names[i];
 	  add_profile(m,name);
 	}
@@ -181,7 +178,7 @@ each CDOM spectra given in mcdom_names.)");
     }
   private:
     template<class T>
-    double at_or_last(const std::vector<T>& v, size_t i) {
+    T at_or_last(const std::vector<T>& v, size_t i) {
       if (i > v.size()-1)
 	return v.back();
       return v[i];

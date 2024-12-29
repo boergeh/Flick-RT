@@ -17,6 +17,7 @@ namespace flick {
     void locate_parameter(std::istream &is, const std::string& name) {
       std::string current_name, equal_sign;
       bool found = false;
+      bool has_searched_from_top_ = false;
       while (not found) {
 	skip_description(is);
 	is >> current_name;
@@ -25,11 +26,15 @@ namespace flick {
 	}
 	is >> equal_sign;
 	if (is.eof() or current_name.empty()) {
-	  std::cerr << "Configuration parameter '"+ name +"' not found. Using a default which could be added to the configuration file:\n\n";
-	  std::cerr <<"\n"<<std::endl;
-	  found = true;
 	  is.clear();
 	  is.seekg(0);
+	  if (has_searched_from_top_) {
+	    std::cerr << "Configuration parameter '"+ name +"' not found. Using a default which could be added to the configuration file:\n\n";
+	    std::cerr <<"\n"<<std::endl;
+	    found = true;
+	  } else {
+	    has_searched_from_top_ = true;
+	  }
 	}
       }      
     }

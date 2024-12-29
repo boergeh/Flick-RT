@@ -59,4 +59,17 @@ very long description text.)");
     check_close(c.get_vector<double>("list_2").at(1),8);
     check(c.get_vector<std::string>("list_s").at(1)=="hij");
   } end_test_case()
+  
+  begin_test_case(configuration_test_C) {
+    // Check handeling of unordered parameters
+    basic_configuration c;
+    c.add<double>("a",1);
+    c.add<double>("b",2);
+    c.add<double>("c",3);
+    std::stringstream ss("/* text 1 */ \nc = 3\n/* text 2 */\nb = 2\n/* text 3 */\na = 1\n");
+    ss >> c;
+    check_close(c.get<double>("a"),1);
+    check_close(c.get<double>("b"),2);
+    check_close(c.get<double>("c"),3);
+  } end_test_case()
 }
