@@ -11,7 +11,7 @@ namespace flick {
     c.set<std::string>("mp_names",{"SD16_VF17","SD16_VF18"});
     c.set<double>("mp_concentrations",{1e-3,1e-3});
     c.set<double>("mp_scattering_scaling_factors",{1,1});
-    c.set<double>("mp_bleaching_factors",{0,0});
+    c.set<double>("mp_bleaching_factors",{0});
     oce = ocean{c};
     check(oce.material_ids().size()==n1+2);
   } end_test_case()

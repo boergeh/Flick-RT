@@ -27,7 +27,5 @@ namespace flick {
     bleaching = 1e14;
     material::marine_particles mp_bleached2(material_name,massc,scat_scale,bleaching);
     check_small(mp_bleached2.absorption_coefficient());
-
-   
   } end_test_case()
 }
