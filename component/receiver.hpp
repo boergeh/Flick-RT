@@ -43,7 +43,7 @@ namespace flick {
       double L = sum /solid_angle;
       return L;
     }
-    double mean_traveling_length() {
+    double mean_traveling_length() const {
       double l = 0;
       for(size_t i=0; i<rps_.size(); ++i)
 	l += rps_[i].traveling_length();

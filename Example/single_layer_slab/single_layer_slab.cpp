@@ -15,6 +15,8 @@ int main() {
   
   std::cout << "slab heimispherical reflectance: "
 	    << slab.hemispherical_reflectance() << std::endl;
+  std::cout << "mean photon traveling length:    "
+	    << slab.reflection_receiver().mean_traveling_length() << " m" << std::endl;
 
   return 0;
 }

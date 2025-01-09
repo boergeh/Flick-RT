@@ -134,7 +134,7 @@ namespace flick {
     // Represent phase function as Henyey-Greenstein plus a residual for
     // more accurate interpolation and integration.
     {
-      double g = 0.9;
+      double const g = 0.9;
       henyey_greenstein hg(g);
       pl_function residual;
       for (size_t i=0; i<p_.size();i++)
@@ -153,7 +153,8 @@ namespace flick {
   };
    
   class angular_mueller
-  // Keeps Mueller matrix values at discrete angles 
+  // Keeps Mueller matrix values at discrete angles.
+  // Elements are kept as values divided by phase function
   {
     tabulated_phase_function p_;
     struct element {
@@ -167,9 +168,6 @@ namespace flick {
     angular_mueller() = default;
     angular_mueller(const tabulated_phase_function& p)
       : p_{p} {
-      //pe_function p2 = to_acos_x(pe_function{p.x(),p.y()});
-      //std::cout << p2;
-      // add(0,0,pl_function{p2.x(),p2.y()});
       add(0,0,pl_function{p.x(),p.y()});
     }
     angular_mueller& append(size_t row, size_t col,
@@ -297,7 +295,6 @@ namespace flick {
       for (size_t i=0; i<x.size(); ++i) {
 	y[i] = (1-w)*p1.value(x[i]) + w*p2.value(x[i]);
       }      
-      //p_ = tabulated_phase_function(to_cos_x(pe_function{x,y}));
       p_ = tabulated_phase_function(pe_function{x,y});
     }
     pl_function normalize(const pl_function& f) {

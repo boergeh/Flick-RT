@@ -109,10 +109,6 @@ namespace material {
     }
   private:
     tabulated_phase_function tabulate() {
-      //size_t n_points = n_integration_points_;
-      //std::vector<double> theta = range(0,pi,n_points+1).linspace();
-      //theta.erase(theta.begin());
-      //std::vector<double> p(theta.size());
       std::vector<double> angles = hg_importance_sampling(0.7, n_integration_points_+1);
       angles.erase(angles.begin());
       std::vector<double> p(angles.size());

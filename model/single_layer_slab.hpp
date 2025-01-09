@@ -81,6 +81,12 @@ namespace model {
       }
       return d.mean();
     }
+    const receiver& reflection_receiver() const {
+      return *reflected_;
+    }
+    const receiver& transmission_receiver() const {
+      return *transmitted_;
+    }
   private:
     double relative_skin_depth() {
       return geometry_.small_step()/h_()*2;

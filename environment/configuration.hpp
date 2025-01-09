@@ -29,8 +29,8 @@ namespace flick {
 	  is.clear();
 	  is.seekg(0);
 	  if (has_searched_from_top_) {
-	    std::cerr << "Configuration parameter '"+ name +"' not found. Using a default which could be added to the configuration file:\n\n";
-	    std::cerr <<"\n"<<std::endl;
+	    std::cerr << "Configuration parameter '"+ name +
+	      "' not found, using default." << std::endl;
 	    found = true;
 	  } else {
 	    has_searched_from_top_ = true;

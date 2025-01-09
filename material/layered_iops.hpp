@@ -73,10 +73,10 @@ namespace flick {
       os << "column 1: Layer bottom height" << "\n";
       os << "column 2: Layer geometrical thickness" << "\n";
       os << "column 3: Absorption optical thickness" << "\n";
-      os << "column 4: Unscaled scattering optical thickness" << "\n";
+      os << "column 4: Scattering optical thickness without delta-fit" << "\n";
       os << "column 5: Real refractive index" << "\n";
-      os << "column 6: Scattering delta-fit scaling factor" << "\n";
-      os << "column 7: Asymmetry factor" << "\n";
+      os << "column 6: Delta-fit scattering scaling factor" << "\n";
+      os << "column 7: Asymmetry factor with delta-fit scaling" << "\n";
       for (size_t i = 0; i<oda.size(); i++) {
 	os << h[i] << "  " << h[i+1]-h[i]<< "  "<< oda[i] << "  "
 	   << ods[i] << "  "

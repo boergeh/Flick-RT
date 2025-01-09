@@ -85,6 +85,9 @@ the radiative transfer calculations, which could be 'atmosphere' or
 water surface, which could be 'true' or 'false'. Note that it should
 be set to 'true' when calculating remote sensing reflectance)");
 	
+	/*add<std::string>("return_iops_override","false", R"('true' will cause layered IOPs to be returned instead of radiation
+values.)");
+	*/
 	add<double>("detector_height", 120e3, R"(Detector height relative to sea level [m], where a positive value
 gives height in atmosphere and a negative value gives depth in the
 ocean)");
@@ -154,7 +157,8 @@ reflection and '1' gives loamy sand reflection)");
     stdvector wavelengths_;
     const size_t precision_ = 12;
     const double dh_ = 1e-4;
-    
+    std::shared_ptr<layered_iops> layered_upper_slab_;
+    std::shared_ptr<layered_iops> layered_lower_slab_;
   public:
     accurt(const basic_configuration& c, std::shared_ptr<material::base> material)
       : c_{c}, material_{material} {
@@ -213,6 +217,11 @@ reflection and '1' gives loamy sand reflection)");
     bool detector_orientation_override() {
       return (c_.get_vector<double>("detector_orientation_override").at(0) > 1e-5);
     }
+    /*
+    bool return_iops_override() {
+      return (c_.get<std::string>("return_iops_override") == "true");
+    }
+    */
     void print_radiance_distribution(const std::vector<std::vector<std::vector<double>>>& r) {
       for (size_t i=0; i<r.size(); ++i) {
 	for (size_t j=0; j<r[i].size(); ++j) {
@@ -249,6 +258,16 @@ reflection and '1' gives loamy sand reflection)");
       }    
       return L;
     }
+    void print_iops() {
+      make_material_files();
+      std::cout << "Layered IOPs\n";
+      std::cout << "------------\n";
+      std::cout << "Lower slab";
+      std::cout << *layered_lower_slab_;
+      std::cout << "Upper slab"; 
+      std::cout << *layered_upper_slab_;
+    }
+
   private:
     void set_vertical_radiance() {
       c_.set<std::string>("save_radiance","true");
@@ -280,18 +299,18 @@ reflection and '1' gives loamy sand reflection)");
     void make_material_files() {        
       size_t n_terms = c_.get<size_t>("stream_upper_slab_size");
       stdvector b = depths_to_boundaries(c_.get_vector<double>("layer_depths_upper_slab"));
-      auto layered_upper_slab = std::make_shared<layered_iops>(material_,b,
+      layered_upper_slab_ = std::make_shared<layered_iops>(material_,b,
 							       n_terms);
-      write(accurt_user_specified(layered_upper_slab, wavelengths_),
+      write(accurt_user_specified(layered_upper_slab_, wavelengths_),
        	    "./"+tmpdir_+"/accurtMaterials/user_specified_upper_slab",
 	    precision_);
 
       b = 0 - c_.get_vector<double>("layer_depths_lower_slab");
       std::reverse(b.begin(),b.end());
       b.push_back(0);
-      auto layered_lower_slab = std::make_shared<layered_iops>(material_,b,
+      layered_lower_slab_ = std::make_shared<layered_iops>(material_,b,
 							       n_terms);
-      write(accurt_user_specified(layered_lower_slab, wavelengths_),
+      write(accurt_user_specified(layered_lower_slab_, wavelengths_),
       	    "./"+tmpdir_+"/accurtMaterials/user_specified_lower_slab",
 	    precision_);
     }

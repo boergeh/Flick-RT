@@ -271,6 +271,6 @@ namespace flick {
     double a = -100;
     double b = -99.9;
     pe_function f{{x1, x2},{y1,y2}};
-    check_close(f.integral(a,b),(f.value(a)+f.value(b))/2*(b-a));   
-  } end_test_case()
+    check_close(f.integral(a,b),(f.value(a)+f.value(b))/2*(b-a));
+  } end_test_case()  
 }
