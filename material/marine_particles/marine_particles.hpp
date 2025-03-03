@@ -52,7 +52,8 @@ namespace material {
       if (use_slope) {
 	double wl = wavelength()*to_nm_;
 	double wl0 = 515;
-	return b_star_.value(wl0)*pow(wl/wl0,-1)*mass_concentration_*to_g_; 
+	double slope = -2.0;
+	return b_star_.value(wl0)*pow(wl/wl0,slope)*mass_concentration_*to_g_; 
       }
       return b_star_.value(wavelength()*to_nm_) * mass_concentration_*to_g_; 
     }

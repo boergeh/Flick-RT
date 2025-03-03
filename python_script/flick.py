@@ -10,6 +10,7 @@ import numpy as np
 import subprocess
 import os
 import scipy.special
+import numpy.polynomial.polynomial as poly
 
 def run(arguments):
     flick_output = _run_os("flick "+arguments)
@@ -56,6 +57,40 @@ def atmosphere_wavelengths(wl_low, wl_high, n_wls):
     T[:,1]  = np.exp(-ot[:,1])
     return save_and_run('filter',T,'curvature_sampled '+str(n_wls))[:,0]
 
+class noise_reduction:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.x_fit_low = 0
+
+    def set_x_fit_low(self, x):
+        self.x_fit_low = x
+
+    def log_linear_tail(self, x_tail_low, transition_width_factor=0.05):
+        xs, ys = self._keep_elements(self.x, self.y, self.x < x_tail_low)
+        xs, ys = self._keep_elements(xs, ys, xs > self.x_fit_low)
+        xs, ys = self._keep_elements(xs, ys, ys > 0)
+        y_fit = self._log_linear_fit(self.x, xs, ys)
+        ym = self._merge_curves(y_fit, x_tail_low, transition_width_factor)
+        return ym
+    
+    def _keep_elements(self, x, y, idx):
+        return x[idx], y[idx]
+    
+    def _log_linear_fit(self, x_new, x, y):
+        coefs = poly.polyfit(np.log(x), np.log(y), 1)
+        return np.exp(poly.polyval(np.log(x_new), coefs))
+    
+    def _merge_curves(self, y_fit, x_tail_low, transition_width_factor):
+        y_new = []
+        for i in range(len(self.x)):
+            range_ratio = (self.x[i]-x_tail_low)/(self.x[-1]-self.x[0])
+            weight = (1+np.tanh(1/transition_width_factor*range_ratio))/2
+            y_merged = (1-weight)*self.y[i] +  weight*y_fit[i]
+            if np.isnan(y_merged):
+                y_merged = y_fit[i]
+            y_new.append(y_merged)
+        return np.array(y_new)
 
 class atmosphere_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):
@@ -83,6 +118,7 @@ class atmosphere_optical_thickness:
 class marine_iops:
     def __init__(self, name, spm, from_wl, to_wl, n_wls):
         self._b_scaling = 1
+        self._bleaching_factor = 0;
         self._salinity = 30
         self._temperature = 290
         self._name = name
@@ -106,6 +142,9 @@ class marine_iops:
     
     def set_b_scaling_factor(self,f):
         self._b_scaling = f
+        
+    def set_bleaching_factor(self,f):
+        self._bleaching_factor = f
 
     def set_salinity(self, s):
         self._salinity = s
@@ -180,12 +219,12 @@ class marine_iops:
         
     def _expansion_command(self):
         return " 515e-9 515e-9 1 marine_particles "+str(self._name)+" "+ \
-            str(self._spm)+" "+str(self._b_scaling)
+            str(self._spm)+" "+str(self._b_scaling)+" "+str(self._bleaching_factor)
      
     def _coefficient(self,length_type, material):
         command = ""
         if material=="marine_particles":
-            command = self._name +" "+str(self._spm)+" "+str(self._b_scaling)
+            command = self._name +" "+str(self._spm)+" "+str(self._b_scaling)+" "+str(self._bleaching_factor)
         elif material=="marine_cdom":
             command = self._name +" 1"
         elif material=="pure_water":
@@ -208,6 +247,7 @@ class ocean_meta:
         self.spm = m[7,1]*1e-3
         self.chl = m[8,1]*1e-6
         self.poc = m[9,1]*1e-3
+        self.secchi = m[10,1]
 
     def to_string(self):
         s = (
@@ -308,12 +348,14 @@ class basic_radiation:
         sec = "0"
         if len(s) > 13:
             sec = s[12:14]
+        print(s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12])
         return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec     
 
     def toa_zenith_irradiance(self, time_point_utc):
         distance_au = run("sun_position distance "+ \
                           self._to_spaced_string(time_point_utc))
         r = run("radiator toa_solar")
+        print('distance factor: '+str((1/distance_au)**2))
         r[:,1] = r[:,1] * (1/distance_au)**2
         return r
 
@@ -321,6 +363,7 @@ class basic_radiation:
         command = "sun_position zenith_angle "+ \
         self._to_spaced_string(time_point_utc)+" "+ \
         str(latitude)+" "+str(longitude)
+        print(str(latitude) + " " + str(longitude))
         a = run(command)
         return a
 
@@ -345,6 +388,7 @@ class basic_radiation:
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
         L_r = self._interpolate(L_r, wl)
+        print('angle: '+str(a)+' degree')
         s = L_r[:,1] * F_0[:,1] * np.cos(a*np.pi/180);
         points = np.vstack((wl,s)).T
         return self.smooth(points, wl_grid[0], wl_grid[-1], wl_width)

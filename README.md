@@ -1,7 +1,7 @@
 
 Flick is a general radiative transfer modeling framework  
 
-Clone from GitLab with:  
+Clone from GitHub with:  
  git clone https://github.com/uiboptics/flick.git  
 
 For macOS and Linux:
