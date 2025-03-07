@@ -51,7 +51,7 @@ test:
 	@cd material/ice; make test
 	@cd material/marine_cdom; make test
 	@cd material/marine_particles; make test
-ifdef FLICK_PATH
+ifdef ACCURT_PATH
 	@cd accurt_api; make test
 endif
 	@cd coating; make test
