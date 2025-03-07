@@ -247,7 +247,8 @@ class ocean_meta:
         self.spm = m[7,1]*1e-3
         self.chl = m[8,1]*1e-6
         self.poc = m[9,1]*1e-3
-        self.secchi = m[10,1]
+        if m.shape[0] > 10:
+            self.secchi = m[10,1]
 
     def to_string(self):
         s = (
@@ -348,14 +349,12 @@ class basic_radiation:
         sec = "0"
         if len(s) > 13:
             sec = s[12:14]
-        print(s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12])
         return s[0:4]+" "+s[4:6]+" "+s[6:8]+" "+s[8:10]+" "+s[10:12]+" "+sec     
 
     def toa_zenith_irradiance(self, time_point_utc):
         distance_au = run("sun_position distance "+ \
                           self._to_spaced_string(time_point_utc))
         r = run("radiator toa_solar")
-        print('distance factor: '+str((1/distance_au)**2))
         r[:,1] = r[:,1] * (1/distance_au)**2
         return r
 
@@ -363,7 +362,6 @@ class basic_radiation:
         command = "sun_position zenith_angle "+ \
         self._to_spaced_string(time_point_utc)+" "+ \
         str(latitude)+" "+str(longitude)
-        print(str(latitude) + " " + str(longitude))
         a = run(command)
         return a
 
@@ -388,7 +386,6 @@ class basic_radiation:
         F_0 = self.toa_zenith_irradiance(time_point_utc);
         wl = F_0[:,0];
         L_r = self._interpolate(L_r, wl)
-        print('angle: '+str(a)+' degree')
         s = L_r[:,1] * F_0[:,1] * np.cos(a*np.pi/180);
         points = np.vstack((wl,s)).T
         return self.smooth(points, wl_grid[0], wl_grid[-1], wl_width)

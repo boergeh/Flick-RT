@@ -248,8 +248,8 @@ namespace flick {
     double max = *std::max_element(rgb.begin(), rgb.end());
     double gamma = 1/2.2;
     for (int i = 0; i < 3; i++) {
-      rgb[i] = rgb[i]/max;
-      rgb[i] = pow(rgb[i],gamma);
+      rgb[i] /= max;
+      rgb[i] = pow(std::clamp<double>(rgb[i], 0, 1),gamma);
     }
     return rgb;
   }

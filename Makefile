@@ -25,12 +25,13 @@ build:
 	cd material/water; make obj link	
 	cd material/ice; make obj link	
 	cd material/marine_cdom; make obj link	
-	cd material/marine_particles; make obj link	
+	cd material/marine_particles; make obj link
 	cd accurt_api; make obj link
 	cd transporter; make obj link
 	cd radiator; make obj link
 	cd model; make obj link
 	cd main; make obj link
+
 test:
 	@cd environment; make test
 	@cd astronomy; make test
@@ -50,7 +51,9 @@ test:
 	@cd material/ice; make test
 	@cd material/marine_cdom; make test
 	@cd material/marine_particles; make test
+ifdef FLICK_PATH
 	@cd accurt_api; make test
+endif
 	@cd coating; make test
 	@cd transporter; make test
 	@cd model; make test
