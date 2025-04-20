@@ -23,12 +23,28 @@ namespace material {
       : mass_concentration_{mass_concentration},
 	bleaching_factor_{bleaching_factor} {
       std::string p = "/material/marine_particles/iop_tables";
+      //pe_flist pf = read<pe_flist>("ECOSENS_HF22_D1_pf.txt", p);
       pe_flist pf = read<pe_flist>(name+"_pf.txt", p);
       p_ = pf(percentile_50th);
       pl_flist ab = read<pl_flist>(name+"_ap_bp.txt", p);
       a_star_total_ = ab(0);
       a_star_bleached_ = ab(1);
       b_star_ = ab(2);
+
+      // large slope /////////////////////////
+      /*
+      std::vector<double> x = b_star_.x();
+      std::vector<double> y(x.size());
+      double x0 = 515;
+      for (size_t i=0; i<x.size(); i++) {
+	y[i] = b_star_.value(x0)*pow(x0/x[i],0);
+      }
+      
+      b_star_ = pl_function(x,y);
+      b_star_.scale_y(1.0);
+      */
+      //a_star_total_.scale_y(0.7);////////////////////////////
+      
       b_star_.scale_y(scattering_scaling_factor);
       p_.add_constant_extrapolation();
       a_star_total_.add_constant_extrapolation();

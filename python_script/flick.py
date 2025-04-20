@@ -508,6 +508,12 @@ class remote_sensing_reflectance(relative_radiation):
         self.set_n_angles(16**1.6)
 
         
+class toa_reflectance(relative_radiation):
+    def __init__(self):
+        self._generate_config("toa_reflectance")
+        self.set_n_angles(16**1.6)
+
+        
 class surface_irradiance(absolute_radiation):
     def __init__(self):
         self._generate_config("boa_transmittance")

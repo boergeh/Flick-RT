@@ -6,6 +6,7 @@ class test_all(unittest.TestCase):
             import compute_radiation
             import plot_radiation
             import plot_radiation_ratio
+            import plot_toa_reflectance
         except Exception as e:
             self.fail(f"Flick exception: {e}")
 

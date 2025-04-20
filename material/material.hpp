@@ -5,6 +5,7 @@
 #include "../numeric/pose.hpp"
 #include "../numeric/range.hpp"
 #include "../polarization/rayleigh_mueller.hpp"
+#include "../polarization/mueller.hpp"
 #include <complex>
 #include <algorithm>
 
@@ -109,7 +110,8 @@ namespace material {
     }
   private:
     tabulated_phase_function tabulate() {
-      std::vector<double> angles = hg_importance_sampling(0.7, n_integration_points_+1);
+      double g = 0.7;
+      std::vector<double> angles = hg_importance_sampling(g, n_integration_points_+1);
       angles.erase(angles.begin());
       std::vector<double> p(angles.size());
       for (size_t i = 0; i<p.size(); i++) {
