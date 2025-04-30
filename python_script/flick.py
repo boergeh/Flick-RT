@@ -51,11 +51,12 @@ def include_given_values(lower_limit,upper_limit,n,v):
         i += 2
     return v
 
-def atmosphere_wavelengths(wl_low, wl_high, n_wls):
-    ot = atmosphere_optical_thickness("flick_tmp/config",wl_low,wl_high,n_wls*10).attenuation()
+def atmosphere_wavelengths(ao_config_file_name, wl_low, wl_high, n_wls):
+    ot = atmosphere_optical_thickness(ao_config_file_name,wl_low,wl_high,n_wls*10).attenuation()
     T = ot;
     T[:,1]  = np.exp(-ot[:,1])
     return save_and_run('filter',T,'curvature_sampled '+str(n_wls))[:,0]
+
 
 class noise_reduction:
     def __init__(self, x, y):
@@ -92,6 +93,7 @@ class noise_reduction:
             y_new.append(y_merged)
         return np.array(y_new)
 
+    
 class atmosphere_optical_thickness:
     def __init__(self, ao_config, from_wl, to_wl, n_wls):
         self._ao_config = ao_config
@@ -321,15 +323,19 @@ def to_streams(n_angles):
         n_streams += 1
     return str(n_streams).rstrip('0').rstrip('.');
 
+
 class basic_radiation:
     _tmpdir = "flick_tmp"
     _config_name = _tmpdir+"/config"
     _use_sentinel3_srf = False
     _override_sun_zenith_angle = np.nan
         
-    def _generate_config(self, config_type):
+    def _generate_config(self, config_type, tmpdir):
+        self._tmpdir = tmpdir
+        self._config_name = tmpdir+"/config"
         _run_os("mkdir -p "+self._tmpdir)
         run("accurt -g "+config_type+" "+self._config_name)
+        self.set("flick_tmp_directory_name",tmpdir)
             
     def set(self, config_parameter, value):
         config(self._config_name, config_parameter, value)
@@ -399,6 +405,8 @@ class basic_radiation:
          return new_points
      
     def smooth(self, spectrum, from_wl, to_wl, wl_width):
+        if self._use_sentinel3_srf == True:
+            wl_width = 0.5
         np.savetxt(self._tmpdir+"/spectrum", spectrum)
         n_points = round(7*(to_wl - from_wl)/wl_width)
         wl = np.linspace(from_wl, to_wl, n_points)
@@ -419,8 +427,8 @@ class basic_radiation:
 
 
 class radiance_distribution(basic_radiation):
-    def __init__(self, n_polar, n_azimuth):
-        self._generate_config("toa_reflectance")
+    def __init__(self, n_polar, n_azimuth, tmpdir="flick_tmp"):
+        self._generate_config("toa_reflectance", tmpdir)
         self.n_polar = n_polar
         self.n_azimuth = n_azimuth
         self.set("detector_radiance_distribution_override",
@@ -460,7 +468,7 @@ class absolute_radiation(basic_radiation):
 
     
 class radiance(absolute_radiation):
-    def __init__(self, polar_viewing_angle, azimuth_viewing_angle):
+    def __init__(self, polar_viewing_angle, azimuth_viewing_angle,tmpdir="flick_tmp"):
         self._generate_config("toa_reflectance")
         self.set_n_angles(16**1.6)
         self.set("detector_orientation_override",[polar_viewing_angle,
@@ -471,9 +479,10 @@ class radiance(absolute_radiation):
         spectrum[:,1] = spectrum[:,1]*1e-6
         return spectrum
 
+    
 class plane_irradiance(absolute_radiation):
-    def __init__(self):
-        self._generate_config("ocean_radiance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("ocean_radiance", tmpdir)
         self.set("detector_type","plane_irradiance")
         self.set("detector_orientation","up")
         self.set_n_angles(16**1.6)
@@ -489,8 +498,8 @@ class toa_radiance(radiance):
 
 
 class ocean_nadir_radiance(radiance):
-    def __init__(self):
-        self._generate_config("ocean_radiance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("ocean_radiance", tmpdir)
 
         
 class ocean_downward_plane_irradiance(plane_irradiance):
@@ -498,25 +507,25 @@ class ocean_downward_plane_irradiance(plane_irradiance):
 
 
 class ocean_upward_plane_irradiance(plane_irradiance):
-    def __init__(self):
+    def __init__(self,tmpdir="flick_tmp"):
         self.set("detector_orientation","down")
 
         
 class remote_sensing_reflectance(relative_radiation):
-    def __init__(self):
-        self._generate_config("rs_reflectance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("rs_reflectance", tmpdir)
         self.set_n_angles(16**1.6)
 
         
 class toa_reflectance(relative_radiation):
-    def __init__(self):
-        self._generate_config("toa_reflectance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("toa_reflectance", tmpdir)
         self.set_n_angles(16**1.6)
 
         
 class surface_irradiance(absolute_radiation):
-    def __init__(self):
-        self._generate_config("boa_transmittance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("boa_transmittance", tmpdir)
         self.set_n_angles(8**1.6)
 
     def to_W_per_m2_nm(self,spectrum):
@@ -526,8 +535,8 @@ class surface_irradiance(absolute_radiation):
 
     
 class snow_transmittance(relative_radiation):
-    def __init__(self):
-        self._generate_config("toa_reflectance")
+    def __init__(self,tmpdir="flick_tmp"):
+        self._generate_config("toa_reflectance", tmpdir)
         self.set("detector_height",0)
         self.set("detector_orientation","up")
         self.set("reference_detector_height", 1.01)

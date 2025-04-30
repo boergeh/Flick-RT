@@ -85,9 +85,6 @@ the radiative transfer calculations, which could be 'atmosphere' or
 water surface, which could be 'true' or 'false'. Note that it should
 be set to 'true' when calculating remote sensing reflectance)");
 	
-	/*add<std::string>("return_iops_override","false", R"('true' will cause layered IOPs to be returned instead of radiation
-values.)");
-	*/
 	add<double>("detector_height", 120e3, R"(Detector height relative to sea level [m], where a positive value
 gives height in atmosphere and a negative value gives depth in the
 ocean)");
@@ -137,6 +134,9 @@ beam.)");
 reflection and '1' gives loamy sand reflection)");
 		    
 	add<size_t>("stream_upper_slab_size", 34, R"(Number of streams used when solving the radiative transfer equation)");
+
+	add<std::string>("flick_tmp_directory_name","flick_tmp", R"(Name of directory where the Flick and AccuRT configuration files, as well as the AccuRT material and output sub-directories will be stored.)");
+	
       }
       size_t to_streams(size_t n_angles) {
 	size_t n_streams = pow(n_angles,1/1.6); 
@@ -148,7 +148,7 @@ reflection and '1' gives loamy sand reflection)");
   private:
     basic_configuration c_;
     std::shared_ptr<material::base> material_;
-    const std::string tmpdir_= "flick_tmp";
+    const std::string tmpdir_ = c_.get<std::string>("flick_tmp_directory_name"); 
     const std::string output_ = "./"+tmpdir_+"/accurtOutput";
     size_t n_detector_;
     size_t n_reference_;
@@ -217,11 +217,6 @@ reflection and '1' gives loamy sand reflection)");
     bool detector_orientation_override() {
       return (c_.get_vector<double>("detector_orientation_override").at(0) > 1e-5);
     }
-    /*
-    bool return_iops_override() {
-      return (c_.get<std::string>("return_iops_override") == "true");
-    }
-    */
     void print_radiance_distribution(const std::vector<std::vector<std::vector<double>>>& r) {
       for (size_t i=0; i<r.size(); ++i) {
 	for (size_t j=0; j<r[i].size(); ++j) {

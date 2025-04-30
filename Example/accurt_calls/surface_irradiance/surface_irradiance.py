@@ -17,7 +17,7 @@ latitude = "59.878675"
 longitude = "5.655558"
 wl_grid = np.linspace(280e-9,950e-9,30);
 wl_width = 10e-9
-f = flick.surface_irradiance()
+f = flick.surface_irradiance("flick_tmp2")
 
 f.set_n_angles(50)
 f.set("aerosol_od", 0)
