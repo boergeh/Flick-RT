@@ -405,8 +405,6 @@ class basic_radiation:
          return new_points
      
     def smooth(self, spectrum, from_wl, to_wl, wl_width):
-        if self._use_sentinel3_srf == True:
-            wl_width = 0.5
         np.savetxt(self._tmpdir+"/spectrum", spectrum)
         n_points = round(7*(to_wl - from_wl)/wl_width)
         wl = np.linspace(from_wl, to_wl, n_points)
@@ -468,8 +466,8 @@ class absolute_radiation(basic_radiation):
 
     
 class radiance(absolute_radiation):
-    def __init__(self, polar_viewing_angle, azimuth_viewing_angle,tmpdir="flick_tmp"):
-        self._generate_config("toa_reflectance")
+    def __init__(self, polar_viewing_angle, azimuth_viewing_angle, tmpdir="flick_tmp"):
+        self._generate_config("toa_reflectance", tmpdir)
         self.set_n_angles(16**1.6)
         self.set("detector_orientation_override",[polar_viewing_angle,
                                                   azimuth_viewing_angle])
